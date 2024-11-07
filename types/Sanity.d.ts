@@ -21,6 +21,31 @@ declare global {
       blocks?: Block[];
     };
 
+    type Post = SanityDocument<{
+      readonly _type: "post";
+      title?: string;
+      slug: { current: string };
+      excerpt?: string;
+      author?: Author;
+      categories?: Category[];
+      body: any;
+      image?: Image;
+      meta_title: string;
+      meta_description: string;
+      ogImage?: Image;
+      noindex: boolean;
+    }>;
+
+    type Author = SanityDocument<{
+      name: string;
+      slug: { current: string };
+      image?: Image;
+    }>;
+
+    type Category = SanityDocument<{
+      title: string;
+    }>;
+
     type Image = SanityImageObject &
       Partial<{
         alt: string;

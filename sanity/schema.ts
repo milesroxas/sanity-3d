@@ -1,8 +1,12 @@
 import { type SchemaTypeDefinition } from "sanity";
 // documents
 import page from "./schemas/documents/page";
+import author from "./schemas/documents/author";
+import category from "./schemas/documents/category";
+import post from "./schemas/documents/post";
 
 // Schema UI objects
+import blockContent from "./schemas/blocks/shared/block-content";
 import link from "./schemas/blocks/shared/link";
 import { layoutVariant } from "./schemas/blocks/shared/layout-variants";
 import { colorVariant } from "./schemas/blocks/shared/color-variant";
@@ -15,7 +19,11 @@ export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
     // documents
     page,
+    author,
+    category,
+    post,
     // blocks
+    blockContent,
     link,
     colorVariant,
     buttonVariant,

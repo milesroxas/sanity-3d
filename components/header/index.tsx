@@ -11,6 +11,11 @@ const navItems = [
     target: false,
   },
   {
+    label: "Blog",
+    href: "/blog",
+    target: false,
+  },
+  {
     label: "About",
     href: "#",
     target: false,
