@@ -3,13 +3,11 @@ import Breadcrumbs from "@/components/ui/breadcrumbs";
 import PostHero from "@/components/ui/post/hero";
 import { BreadcrumbLink } from "@/types";
 import PortableTextRenderer from "@/components/portable-text-renderer";
-import { urlFor } from "@/sanity/lib/image";
 import {
   fetchSanityPostBySlug,
   fetchSanityPostsStaticParams,
 } from "../actions";
-
-const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === "production";
+import { generatePageMetadata } from "@/lib/metadata";
 
 export const dynamic = "force-static";
 
@@ -23,28 +21,7 @@ export async function generateMetadata(props: {
     notFound();
   }
 
-  return {
-    title: post.meta_title || post.title,
-    description: post.meta_description,
-    openGraph: {
-      images: [
-        {
-          url: post?.ogImage
-            ? urlFor(post?.ogImage).auto("format").fit("max").quality(100).url()
-            : `${process.env.NEXT_PUBLIC_SITE_URL}/images/og-image.jpg`,
-          width: post?.ogImage?.asset?.metadata?.dimensions?.width || 1200,
-          height: post?.ogImage?.asset?.metadata?.dimensions?.height || 630,
-        },
-      ],
-      locale: "en_US",
-      type: "website",
-    },
-    robots: !isProduction
-      ? "noindex, nofollow"
-      : post?.noindex
-        ? "noindex"
-        : "index, follow",
-  };
+  return generatePageMetadata({ page: post, slug: `/blog/${params.slug}` });
 }
 
 export async function generateStaticParams() {

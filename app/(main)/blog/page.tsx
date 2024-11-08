@@ -4,9 +4,7 @@ import Link from "next/link";
 import Card from "@/components/ui/card";
 import { fetchSanityPosts } from "./actions";
 import { fetchSanityPageBySlug } from "../actions";
-import { urlFor } from "@/sanity/lib/image";
-
-const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === "production";
+import { generatePageMetadata } from "@/lib/metadata";
 
 export const dynamic = "force-static";
 
@@ -18,31 +16,7 @@ export async function generateMetadata() {
       "Missing 'post' document with slug 'blog' in Sanity Studio"
     );
 
-  return {
-    title: page?.meta_title || page?.title,
-    description: page?.meta_description,
-    openGraph: {
-      images: [
-        {
-          url: page?.ogImage
-            ? urlFor(page?.ogImage).auto("format").fit("max").quality(100).url()
-            : `${process.env.NEXT_PUBLIC_SITE_URL}/images/og-image.jpg`,
-          width: page?.ogImage?.asset?.metadata?.dimensions?.width || 1200,
-          height: page?.ogImage?.asset?.metadata?.dimensions?.height || 630,
-        },
-      ],
-      locale: "en_US",
-      type: "website",
-    },
-    robots: !isProduction
-      ? "noindex, nofollow"
-      : page?.noindex
-        ? "noindex"
-        : "index, follow",
-    alternates: {
-      canonical: "/blog",
-    },
-  };
+  return generatePageMetadata({ page, slug: "blog" });
 }
 
 export default async function BlogPage() {
