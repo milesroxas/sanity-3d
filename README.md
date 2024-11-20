@@ -25,23 +25,33 @@ mv example.env.local .env.local
 
 3. Create and copy token from the `API` section with Viewer permissions in your Sanity project settings.
 
-4. You can create a demo page with the following command (`development` is the dataset name, make sure you created the `development` dataset in your Sanity project):
-
-```bash
-npx sanity dataset import demo.tag.gz development
-```
-
-5. Install the dependencies and start the development server:
+4. Install the dependencies:
 
 ```bash
 pnpm install
-pnpm dev
 ```
 
 or with `npm`:
 
 ```bash
 npm install
+```
+
+5. You can create a demo page with the following command (`development` is the dataset name, make sure you created the `development` dataset in your Sanity project):
+
+```bash
+npx sanity dataset import demo.tag.gz development
+```
+
+6. Start the development server:
+
+```bash
+pnpm dev
+```
+
+or with `npm`:
+
+```bash
 npm run dev
 ```
 
