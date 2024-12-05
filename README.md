@@ -31,12 +31,6 @@ mv example.env.local .env.local
 pnpm install
 ```
 
-or with `npm`:
-
-```bash
-npm install
-```
-
 5. You can create a demo page with the following command (`development` is the dataset name, make sure you created the `development` dataset in your Sanity project):
 
 ```bash
@@ -47,12 +41,6 @@ npx sanity dataset import demo.tag.gz development
 
 ```bash
 pnpm dev
-```
-
-or with `npm`:
-
-```bash
-npm run dev
 ```
 
 6. Open the browser and go to `http://localhost:3000` to see the demo page.
