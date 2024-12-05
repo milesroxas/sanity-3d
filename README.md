@@ -13,7 +13,7 @@ Add `http://localhost:3000` to the `CORS Origins` in your Sanity project setting
 1. Clone the repository:
 
 ```bash
-git clone git@github.com:sergeycode/next-js-sanity-starter.git
+git clone git@github.com:serge-0v/next-js-sanity-starter.git
 ```
 
 2. Rename the `example.env.local` file to `.env.local` and add your `Sanity project ID` to `NEXT_PUBLIC_SANITY_PROJECT_ID` and `development` dataset to `NEXT_PUBLIC_SANITY_DATASET` to the file.
