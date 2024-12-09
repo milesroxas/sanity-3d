@@ -1,5 +1,6 @@
 import {
   defineLocations,
+  defineDocuments,
   PresentationPluginOptions,
 } from "sanity/presentation";
 
@@ -22,4 +23,18 @@ export const resolve: PresentationPluginOptions["resolve"] = {
       }),
     }),
   },
+  mainDocuments: defineDocuments([
+    {
+      route: "/",
+      filter: `_type == 'page' && slug.current == 'index'`,
+    },
+    {
+      route: "/:slug",
+      filter: `_type == 'page' && slug.current == $slug`,
+    },
+    {
+      route: "/blog/:slug",
+      filter: `_type == 'post' && slug.current == $slug`,
+    },
+  ]),
 };
