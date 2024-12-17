@@ -5,16 +5,12 @@ import Card from "@/components/ui/card";
 import { fetchSanityPosts } from "./actions";
 import { fetchSanityPageBySlug } from "../actions";
 import { generatePageMetadata } from "@/lib/metadata";
+import MissingSanityPage from "@/components/ui/missing-sanity-page";
 
 export const dynamic = "force-static";
 
 export async function generateMetadata() {
   const page = await fetchSanityPageBySlug({ slug: "blog" });
-
-  if (!page)
-    throw new Error(
-      "Missing 'post' document with slug 'blog' in Sanity Studio"
-    );
 
   return generatePageMetadata({ page, slug: "blog" });
 }
@@ -23,10 +19,9 @@ export default async function BlogPage() {
   const page = await fetchSanityPageBySlug({ slug: "blog" });
   const posts = await fetchSanityPosts();
 
-  if (!page)
-    throw new Error(
-      "Missing 'post' document with slug 'blog' in Sanity Studio"
-    );
+  if (!page) {
+    return MissingSanityPage({ document: "page", slug: "blog" });
+  }
 
   return (
     <>
