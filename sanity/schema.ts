@@ -12,7 +12,7 @@ import { layoutVariant } from "./schemas/blocks/shared/layout-variants";
 import { colorVariant } from "./schemas/blocks/shared/color-variant";
 import { buttonVariant } from "./schemas/blocks/shared/button-variant";
 import sectionPadding from "./schemas/blocks/shared/section-padding";
-import heroWithImage from "./schemas/blocks/hero/hero-with-image";
+import hero1 from "./schemas/blocks/hero/hero-1";
 import sectionHeader from "./schemas/blocks/section-header";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
@@ -29,7 +29,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     buttonVariant,
     sectionPadding,
     layoutVariant,
-    heroWithImage,
+    hero1,
     sectionHeader,
   ],
 };

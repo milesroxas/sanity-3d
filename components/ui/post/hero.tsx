@@ -29,6 +29,7 @@ export default function PostHero({
             blurDataURL={image.asset?.metadata?.lqip || undefined}
             width={image.asset?.metadata?.dimensions?.width || 1200}
             height={image?.asset?.metadata?.dimensions?.height || 630}
+            quality={100}
           />
         </div>
       )}

@@ -1,8 +1,8 @@
-import HeroWithImage from "@/components/ui/hero/hero-with-image";
+import Hero1 from "@/components/ui/hero/hero-1";
 import SectionHeader from "@/components/ui/section-header";
 
 const componentMap: { [key: string]: React.ComponentType<any> } = {
-  "hero-with-image": HeroWithImage,
+  "hero-1": Hero1,
   "section-header": SectionHeader,
 };
 

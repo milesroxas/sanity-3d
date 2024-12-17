@@ -38,7 +38,7 @@ export default defineType({
       name: "blocks",
       type: "array",
       group: "content",
-      of: [{ type: "hero-with-image" }, { type: "section-header" }],
+      of: [{ type: "hero-1" }, { type: "section-header" }],
     }),
     defineField({
       name: "meta_title",
