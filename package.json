@@ -1,6 +1,6 @@
 {
-  "name": "schema-ui-next-js-starter",
-  "version": "1.0.0",
+  "name": "schema-ui-next-js-sanity-starter",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
