@@ -38,7 +38,7 @@ pnpm install
 5. You can create a demo page with the following command (`development` is the dataset name, make sure you created the `development` dataset in your Sanity project):
 
 ```bash
-npx sanity dataset import demo.tag.gz development
+pnpx sanity dataset import demo.tag.gz development
 ```
 
 6. Start the development server:
@@ -56,8 +56,8 @@ pnpm dev
 9. If you created `developemnt` dataset, you can export it to the `production` dataset with the following command:
 
 ```bash
-npx sanity dataset export development development.tag.gz
-npx sanity dataset import development.tag.gz production
+pnpx sanity dataset export development development.tag.gz
+pnpx sanity dataset import development.tag.gz production
 ```
 
 10. Deploy your website to Vercel by creating a new project and adding your `NEXT_PUBLIC_SANITY_PROJECT_ID` and `NEXT_PUBLIC_SANITY_DATASET` dataset to the environment variables.
