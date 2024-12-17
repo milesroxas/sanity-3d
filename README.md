@@ -2,6 +2,10 @@
 
 A Next.js starter template with `Next.js 15`, `Tailwind CSS`, `shadcn/ui`, and `Sanity CMS` with `Live Editing`.
 
+[Docs](https://schemaui.com/docs) | [Components](https://schemaui.com/components) | [Demo](https://schemaui-starter.vercel.app/)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fserge-0v%2Fnext-js-sanity-starter&env=NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_SANITY_API_VERSION,NEXT_PUBLIC_SANITY_PROJECT_ID,NEXT_PUBLIC_SANITY_DATASET,SANITY_API_READ_TOKEN&demo-title=Next.js%20Sanity%20Starter&demo-description=Next.js%20Sanity%20Starter%20by%20Schema%20UI&demo-url=https%3A%2F%2Fschemaui-starter.vercel.app)
+
 This starter is a part of [Schema UI](https://schemaui.com) project, which is a collection of components for building websites with Sanity CMS.
 
 You can clone the repository and start building your website with the components.
