@@ -18,8 +18,7 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"],
-      "react": ["./node_modules/@types/react"]
+      "@/*": ["./*"]
     },
     "target": "ES2017"
   },
