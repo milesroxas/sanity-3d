@@ -57,11 +57,18 @@ pnpm dev
 
 All environment variables:
 
-`NEXT_PUBLIC_SITE_URL` - your website url
-`NEXT_PUBLIC_SITE_ENV` - development or production. Used for metadata. For example, if you deploy and want to have staging website on subdomain `dev.yourwebsite.com` and don't want search engines to index it, you can set this variable to `development`.
-`NEXT_PUBLIC_SANITY_API_VERSION` - your Sanity API version. You don't have to use specific dates, any past or present date is valid, and today's date will always give you the latest version - no need to check release history. For example: `YYYY-MM-DD`.
-`NEXT_PUBLIC_SANITY_PROJECT_ID` - your Sanity project ID
-`NEXT_PUBLIC_SANITY_DATASET` - your Sanity dataset name. For example, `production`.
-`SANITY_API_READ_TOKEN` - your Sanity read token for Next.js to fetch data.
-`RESEND_API_KEY` - your RESEND api key for the newsletter form
-`RESEND_AUDIENCE_ID` - your RESEND audience id for the newsletter form to store contacts
+- `NEXT_PUBLIC_SITE_URL` - your website url. For example, `https://yourwebsite.com` without trailing slash.
+
+- `NEXT_PUBLIC_SITE_ENV` - development or production. Used for metadata. For example, if you deploy and want to have staging website on subdomain `dev.yourwebsite.com` and don't want search engines to index it, you can set this variable to `development`.
+
+- `NEXT_PUBLIC_SANITY_API_VERSION` - your Sanity API version. You don't have to use specific dates, any past or present date is valid, and today's date will always give you the latest version - no need to check release history. For example: `YYYY-MM-DD`.
+
+- `NEXT_PUBLIC_SANITY_PROJECT_ID` - your Sanity project ID. For example, `abc12345`.
+
+- `NEXT_PUBLIC_SANITY_DATASET` - your Sanity dataset name. For example, `production`.
+
+- `SANITY_API_READ_TOKEN` - your Sanity read token for Next.js to fetch data.
+
+- `RESEND_API_KEY` - your RESEND api key for the newsletter form.
+
+- `RESEND_AUDIENCE_ID` - your RESEND audience id for the newsletter form to store contacts.
