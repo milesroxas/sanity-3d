@@ -17,12 +17,7 @@ const navItems = [
   },
   {
     label: "About",
-    href: "#",
-    target: false,
-  },
-  {
-    label: "Contact",
-    href: "#",
+    href: "/about",
     target: false,
   },
 ];

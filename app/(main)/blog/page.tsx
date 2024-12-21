@@ -1,7 +1,7 @@
 import Blocks from "@/components/blocks";
 import SectionContainer from "@/components/ui/section-container";
 import Link from "next/link";
-import Card from "@/components/ui/card";
+import PostCard from "@/components/ui/post-card";
 import { fetchSanityPosts } from "./actions";
 import { fetchSanityPageBySlug } from "../actions";
 import { generatePageMetadata } from "@/lib/metadata";
@@ -42,7 +42,7 @@ export default async function BlogPage() {
                 className="flex w-full rounded-3xl ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 href={`/blog/${post.slug.current}`}
               >
-                <Card
+                <PostCard
                   title={post.title}
                   excerpt={post.excerpt}
                   image={post.image}

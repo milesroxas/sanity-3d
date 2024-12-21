@@ -20,10 +20,6 @@ export default defineType({
       description: "Select a background color variant",
     }),
     defineField({
-      name: "layoutVariant",
-      type: "layout-variant",
-    }),
-    defineField({
       name: "sectionWidth",
       type: "string",
       title: "Section Width",
@@ -32,7 +28,6 @@ export default defineType({
         layout: "radio",
       },
       initialValue: "default",
-      hidden: ({ parent }) => parent?.layoutVariant !== "stacked",
     }),
     defineField({
       name: "stackAlign",
@@ -43,7 +38,6 @@ export default defineType({
         layout: "radio",
       },
       initialValue: "left",
-      hidden: ({ parent }) => parent?.layoutVariant !== "stacked",
     }),
     defineField({
       name: "tagLine",
@@ -56,11 +50,6 @@ export default defineType({
     defineField({
       name: "description",
       type: "text",
-    }),
-    defineField({
-      name: "link",
-      type: "link",
-      hidden: ({ parent }) => parent?.layoutVariant !== "stacked-with-button",
     }),
   ],
   preview: {
