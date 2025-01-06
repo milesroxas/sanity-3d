@@ -40,11 +40,11 @@ Add `http://localhost:3000` to the `CORS Origins` in your Sanity project setting
 git clone git@github.com:serge-0v/next-js-sanity-starter.git
 ```
 
-2. Rename the `example.env.local` file to `.env.local` and add your `Sanity project ID` to `NEXT_PUBLIC_SANITY_PROJECT_ID` and `development` dataset to `NEXT_PUBLIC_SANITY_DATASET` to the file.
+2. Rename the `.env.local.example` file to `.env.local` and add your `Sanity project ID` to `NEXT_PUBLIC_SANITY_PROJECT_ID` and `development` dataset to `NEXT_PUBLIC_SANITY_DATASET` to the file.
 
 ```bash
 cd next-js-sanity-starter
-mv example.env.local .env.local
+mv .env.local.example .env.local
 ```
 
 3. Create and copy token from the `API` section with Viewer permissions in your Sanity project settings.
