@@ -6,7 +6,27 @@ A Next.js starter template with `Next.js 15`, `Tailwind CSS`, `shadcn/ui`, and `
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fserge-0v%2Fnext-js-sanity-starter&env=NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_SITE_ENV,NEXT_PUBLIC_SANITY_API_VERSION,NEXT_PUBLIC_SANITY_PROJECT_ID,NEXT_PUBLIC_SANITY_DATASET,SANITY_API_READ_TOKEN,RESEND_API_KEY,RESEND_AUDIENCE_ID&demo-title=Next.js%20Sanity%20Starter&demo-description=Next.js%20Sanity%20Starter%20by%20Schema%20UI&demo-url=https%3A%2F%2Fschemaui-starter.vercel.app)
 
-This starter is a part of [Schema UI](https://schemaui.com) project, which is a collection of components for building websites with Sanity CMS.
+This starter is a part of [Schema UI](https://schemaui.com) project, which is a collection of components for building websites with Sanity CMS and Next.js.
+
+Setup locally with Sanity CLI:
+
+1. Install the Sanity CLI:
+
+```bash
+pnpm install -g @sanity/cli
+```
+
+2. Create a new Sanity project with the template:
+
+```bash
+pnpm create sanity@latest --template https://github.com/serge-0v/next-js-sanity-starter
+```
+
+Command above will create a new Sanity project, add API Read Token, CORS origin http://localhost:3000, write all the environment variables (except RESEND_API_KEY and RESEND_AUDIENCE_ID) and clone the repository and install dependencies locally.
+
+Proceed to the [After Installation](#after-installation) section.
+
+Setup manually:
 
 You can clone the repository and start building your website with the components.
 
@@ -35,25 +55,27 @@ mv example.env.local .env.local
 pnpm install
 ```
 
-5. You can create a demo page with the following command (`produciton` is the default dataset name from Sanity):
+## After Installation
+
+1. You can create a demo page with the following command (`produciton` is the default dataset name from Sanity):
 
 ```bash
 pnpx sanity dataset import demo.tag.gz produciton
 ```
 
-6. Start the development server:
+2. Start the development server:
 
 ```bash
 pnpm dev
 ```
 
-6. Open the browser and go to `http://localhost:3000` to see the demo page.
+3. Open the browser and go to `http://localhost:3000` to see the demo page.
 
-7. Your Sanity admin is available at `http://localhost:3000/studio`.
+4. Your Sanity admin is available at `http://localhost:3000/studio`.
 
-8. Once you're ready to deploy your website, make sure you add live url to the `CORS Origins` in your Sanity project settings.
+5. Once you're ready to deploy your website, make sure you add live url to the `CORS Origins` in your Sanity project settings.
 
-9. Deploy your website to Vercel by creating a new project and adding your `NEXT_PUBLIC_SANITY_PROJECT_ID` and `NEXT_PUBLIC_SANITY_DATASET` dataset to the environment variables.
+6. Deploy your website to Vercel by creating a new project and adding your `NEXT_PUBLIC_SANITY_PROJECT_ID` and `NEXT_PUBLIC_SANITY_DATASET` dataset to the environment variables.
 
 All environment variables:
 
