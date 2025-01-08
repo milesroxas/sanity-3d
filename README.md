@@ -82,10 +82,12 @@ Add your production URL to the CORS Origins in your Sanity project settings to a
 
 Deploy your website to Vercel:
 
-1. Create a new Vercel project
-2. Connect your repository
-3. Copy the environment variables from the `.env.local` file and paste them to your Vercel project settings. Vercel supports pasting all variables at once.
-4. Deploy
+1. Create a new repository on [GitHub](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github).
+2. Push your code to GitHub
+3. Create a [new Vercel project](https://vercel.com/new)
+4. Connect your GitHub repository and import the project
+5. Copy the environment variables from the `.env.local` file and paste them to your Vercel project settings. Vercel supports pasting all variables at once.
+6. Deploy
 
 ### Inviting collaborators
 
