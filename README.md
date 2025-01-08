@@ -95,7 +95,16 @@ Now that you've deployed your Next.js application and Sanity Studio, you can opt
 
 They will be able to access the deployed Studio, where you can collaborate together on creating content.
 
-### Environment variables
+### Configuring Resend (optional)
+
+To use the newsletter form, you need to configure Resend.
+
+1. Create a new [Resend account](https://resend.com/signup)
+2. Create a new [API key](https://resend.com/api-keys)
+3. Copy the [audience](https://resend.com/audiences) id
+4. Set the API key and audience ID in the Vercel project settings or in the `.env.local` file
+
+#### Environment variables
 
 All environment variables and their descriptions:
 
