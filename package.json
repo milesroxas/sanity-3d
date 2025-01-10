@@ -1,6 +1,6 @@
 {
   "name": "schema-ui-next-js-sanity-starter",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
+    "@next/third-parties": "^15.1.4",
     "@portabletext/react": "^3.2.0",
     "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-avatar": "^1.1.2",
@@ -22,6 +23,7 @@
     "@sanity/image-url": "^1.1.0",
     "@sanity/orderable-document-list": "^1.2.2",
     "@sanity/preview-url-secret": "^2.1.0",
+    "@sanity/ui": "^2.11.1",
     "@sanity/vision": "^3.69.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -34,6 +36,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-hook-form": "^7.54.2",
+    "react-player": "^2.16.0",
     "resend": "^4.0.1",
     "sanity": "^3.69.0",
     "sonner": "^1.7.1",

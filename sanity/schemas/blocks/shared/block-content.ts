@@ -1,4 +1,6 @@
 import { defineType, defineArrayMember } from "sanity";
+import { VideoIcon } from "@radix-ui/react-icons";
+import { YouTubePreview } from "@/sanity/schemas/previews/youtube-preview";
 
 export default defineType({
   title: "Block Content",
@@ -56,6 +58,28 @@ export default defineType({
           title: "Alternative Text",
         },
       ],
+    }),
+    defineArrayMember({
+      name: "youtube",
+      title: "YouTube Video",
+      type: "object",
+      icon: VideoIcon,
+      fields: [
+        {
+          name: "videoId",
+          title: "Video ID",
+          type: "string",
+          description: "YouTube Video ID",
+        },
+      ],
+      preview: {
+        select: {
+          title: "videoId",
+        },
+      },
+      components: {
+        preview: YouTubePreview,
+      },
     }),
   ],
 });

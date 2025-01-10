@@ -1,6 +1,7 @@
 import { PortableText, PortableTextProps } from "@portabletext/react";
 import Image from "next/image";
 import Link from "next/link";
+import { YouTubeEmbed } from "@next/third-parties/google";
 
 const portableTextComponents: PortableTextProps["components"] = {
   types: {
@@ -22,6 +23,16 @@ const portableTextComponents: PortableTextProps["components"] = {
           }}
           quality={100}
         />
+      );
+    },
+    youtube: ({ value }) => {
+      const { videoId } = value;
+      return (
+        <div className="max-w-3xl w-full mx-auto">
+          <div className="aspect-video">
+            <YouTubeEmbed videoid={videoId} params="rel=0" />
+          </div>
+        </div>
       );
     },
   },
