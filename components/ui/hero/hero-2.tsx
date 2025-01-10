@@ -47,7 +47,7 @@ export default function Hero2({
               opacity: 1,
             }
           }
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.4, ease: [0.21, 0.45, 0.27, 0.9] }}
           className="leading-[0] font-sans"
         >
           <span className="text-base font-semibold">{tagLine}</span>
@@ -62,8 +62,12 @@ export default function Hero2({
               opacity: 1,
             }
           }
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="mt-6 font-bold leading-[1.1] text-4xl md:text-5xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b from-gray-500 to-gray-300 dark:from-gray-300 dark:to-gray-500"
+          transition={{
+            delay: 0.1,
+            duration: 0.4,
+            ease: [0.21, 0.45, 0.27, 0.9],
+          }}
+          className="mt-6 font-bold leading-[1.1] text-4xl md:text-5xl lg:text-6xl"
         >
           {title}
         </motion.h2>
@@ -77,7 +81,11 @@ export default function Hero2({
               opacity: 1,
             }
           }
-          transition={{ delay: 0.4, duration: 0.6 }}
+          transition={{
+            delay: 0.2,
+            duration: 0.4,
+            ease: [0.21, 0.45, 0.27, 0.9],
+          }}
           className="text-lg mt-6 max-w-2xl mx-auto"
         >
           <PortableTextRenderer value={body} />
@@ -92,7 +100,7 @@ export default function Hero2({
               opacity: 1,
             }
           }
-          transition={{ delay: 0.6, duration: 0.6 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
           className="mt-10 flex flex-wrap gap-4 justify-center"
         >
           {links.map((link) => (
