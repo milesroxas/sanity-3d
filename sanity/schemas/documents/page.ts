@@ -40,6 +40,7 @@ export default defineType({
       group: "content",
       of: [
         { type: "hero-1" },
+        { type: "hero-2" },
         { type: "section-header" },
         { type: "split-row" },
         { type: "grid-row" },
