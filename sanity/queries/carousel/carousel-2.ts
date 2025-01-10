@@ -24,7 +24,24 @@ export const carousel2Query = groq`
         },
         alt
       },
-      body,
+      body[]{
+        ...,
+        _type == "image" => {
+          ...,
+          asset->{
+            _id,
+            url,
+            mimeType,
+            metadata {
+              lqip,
+              dimensions {
+                width,
+                height
+              }
+            }
+          }
+        }
+      },
       rating,
     },
   },

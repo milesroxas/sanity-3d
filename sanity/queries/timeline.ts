@@ -8,7 +8,24 @@ export const timelineQuery = groq`
     timelines[]{
       title,
       tagLine,
-      body,
+      body[]{
+        ...,
+        _type == "image" => {
+          ...,
+          asset->{
+            _id,
+            url,
+            mimeType,
+            metadata {
+              lqip,
+              dimensions {
+                width,
+                height
+              }
+            }
+          }
+        }
+      },
     },
   },
 `;

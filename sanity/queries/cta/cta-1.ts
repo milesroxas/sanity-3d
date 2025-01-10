@@ -9,7 +9,24 @@ export const cta1Query = groq`
     stackAlign,
     tagLine,
     title,
-    body,
+    body[]{
+      ...,
+      _type == "image" => {
+        ...,
+        asset->{
+          _id,
+          url,
+          mimeType,
+          metadata {
+            lqip,
+            dimensions {
+              width,
+              height
+            }
+          }
+        }
+      }
+    },
     links,
   },
 `;
