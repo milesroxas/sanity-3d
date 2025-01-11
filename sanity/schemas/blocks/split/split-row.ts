@@ -2,7 +2,7 @@ import { defineType, defineField } from "sanity";
 import { SquareSplitHorizontal } from "lucide-react";
 
 export default defineType({
-  name: "split",
+  name: "split-row",
   type: "object",
   title: "Split Row",
   description:

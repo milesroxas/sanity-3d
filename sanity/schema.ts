@@ -17,7 +17,7 @@ import sectionPadding from "./schemas/blocks/shared/section-padding";
 import hero1 from "./schemas/blocks/hero/hero-1";
 import hero2 from "./schemas/blocks/hero/hero-2";
 import sectionHeader from "./schemas/blocks/section-header";
-import split from "./schemas/blocks/split/split";
+import splitRow from "./schemas/blocks/split/split-row";
 import splitContent from "./schemas/blocks/split/split-content";
 import splitCardsList from "./schemas/blocks/split/split-cards-list";
 import splitCard from "./schemas/blocks/split/split-card";
@@ -56,7 +56,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     hero1,
     hero2,
     sectionHeader,
-    split,
+    splitRow,
     splitContent,
     splitCardsList,
     splitCard,

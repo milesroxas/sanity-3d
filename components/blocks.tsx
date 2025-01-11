@@ -15,7 +15,7 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   "hero-1": Hero1,
   "hero-2": Hero2,
   "section-header": SectionHeader,
-  split: SplitRow,
+  "split-row": SplitRow,
   "grid-row": GridRow,
   "carousel-1": Carousel1,
   "carousel-2": Carousel2,

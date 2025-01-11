@@ -42,7 +42,7 @@ export default defineType({
         { type: "hero-1" },
         { type: "hero-2" },
         { type: "section-header" },
-        { type: "split" },
+        { type: "split-row" },
         { type: "grid-row" },
         { type: "carousel-1" },
         { type: "carousel-2" },

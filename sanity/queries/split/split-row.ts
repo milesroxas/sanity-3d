@@ -4,8 +4,8 @@ import { splitCardsListQuery } from "./split-cards-list";
 import { splitImageQuery } from "./split-image";
 import { splitInfoListQuery } from "./split-info-list";
 
-export const splitQuery = groq`
-  _type == "split" => {
+export const splitRowQuery = groq`
+  _type == "split-row" => {
     _type,
     padding,
     colorVariant,
