@@ -62,11 +62,7 @@ export default function SplitCardsItem({
             <div className="text-xl font-semibold leading-[1.1]">{title}</div>
           )}
         </div>
-        {body && (
-          <div className="text-sm">
-            <PortableTextRenderer value={body} />
-          </div>
-        )}
+        {body && <PortableTextRenderer value={body} />}
       </div>
       {tags && (
         <div
