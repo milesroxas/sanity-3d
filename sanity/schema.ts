@@ -17,8 +17,13 @@ import sectionPadding from "./schemas/blocks/shared/section-padding";
 import hero1 from "./schemas/blocks/hero/hero-1";
 import hero2 from "./schemas/blocks/hero/hero-2";
 import sectionHeader from "./schemas/blocks/section-header";
-import splitColumn from "./schemas/blocks/split/split-column";
-import splitRow from "./schemas/blocks/split/split-row";
+import split from "./schemas/blocks/split/split";
+import splitContent from "./schemas/blocks/split/split-content";
+import splitCardsList from "./schemas/blocks/split/split-cards-list";
+import splitCard from "./schemas/blocks/split/split-card";
+import splitImage from "./schemas/blocks/split/split-image";
+import splitInfoList from "./schemas/blocks/split/split-info-list";
+import splitInfo from "./schemas/blocks/split/split-info";
 import gridCard from "./schemas/blocks/grid/grid-card";
 import pricingCard from "./schemas/blocks/grid/pricing-card";
 import gridPost from "./schemas/blocks/grid/grid-post";
@@ -51,8 +56,13 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     hero1,
     hero2,
     sectionHeader,
-    splitColumn,
-    splitRow,
+    split,
+    splitContent,
+    splitCardsList,
+    splitCard,
+    splitImage,
+    splitInfoList,
+    splitInfo,
     gridCard,
     pricingCard,
     gridPost,
