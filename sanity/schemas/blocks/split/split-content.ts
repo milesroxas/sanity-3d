@@ -1,20 +1,30 @@
 import { defineField, defineType } from "sanity";
+import { TextQuote } from "lucide-react";
 
 export default defineType({
-  name: "split-column",
+  name: "split-content",
   type: "object",
-  title: "Split Column",
+  icon: TextQuote,
+  title: "Split Content",
+  description: "Column with tag line, title and content body.",
   fields: [
     defineField({
-      name: "position",
-      title: "Position",
+      name: "sticky",
       type: "boolean",
-      description: "Check this box if text content should be on the left side.",
+      description: "Sticky column on desktop",
       initialValue: false,
     }),
     defineField({
+      name: "padding",
+      type: "section-padding",
+    }),
+    defineField({
+      name: "colorVariant",
+      type: "color-variant",
+      description: "Select a background color variant",
+    }),
+    defineField({
       name: "tagLine",
-      title: "Tag Line",
       type: "string",
     }),
     defineField({
@@ -23,20 +33,7 @@ export default defineType({
     }),
     defineField({
       name: "body",
-      title: "Body",
       type: "block-content",
-    }),
-    defineField({
-      name: "image",
-      type: "image",
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: "alt",
-          type: "string",
-          title: "Alternative text",
-        }),
-      ],
     }),
     defineField({
       name: "link",
@@ -48,7 +45,11 @@ export default defineType({
   preview: {
     select: {
       title: "title",
-      media: "image",
+    },
+    prepare({ title }) {
+      return {
+        title: title || "No Title",
+      };
     },
   },
 });

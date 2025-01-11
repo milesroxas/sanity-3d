@@ -46,6 +46,7 @@ declare global {
         alt: string;
         asset: {
           _id: string;
+          mimeType?: string;
           metadata: {
             dimensions: SanityImageDimensions;
             lqip: string;

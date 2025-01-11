@@ -1,12 +1,9 @@
 import { groq } from "next-sanity";
 
-export const splitRowQuery = groq`
-  _type == "split-row" => {
+export const splitCardsListQuery = groq`
+  _type == "split-cards-list" => {
     _type,
-    padding,
-    colorVariant,
-    splitColumns[]{
-      position,
+    list[]{
       tagLine,
       title,
       body[]{
@@ -27,22 +24,6 @@ export const splitRowQuery = groq`
           }
         }
       },
-      image{
-        asset->{
-          _id,
-          url,
-          mimeType,
-          metadata {
-            lqip,
-            dimensions {
-              width,
-              height
-            }
-          }
-        },
-        alt
-      },
-      link,
     },
   },
 `;

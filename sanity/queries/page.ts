@@ -2,7 +2,7 @@ import { groq } from "next-sanity";
 import { hero1Query } from "./hero/hero-1";
 import { hero2Query } from "./hero/hero-2";
 import { sectionHeaderQuery } from "./section-header";
-import { splitRowQuery } from "./split-row";
+import { splitRowQuery } from "./split/split-row";
 import { gridRowQuery } from "./grid/grid-row";
 import { carousel1Query } from "./carousel/carousel-1";
 import { carousel2Query } from "./carousel/carousel-2";
