@@ -12,13 +12,13 @@ const config = {
   ],
   // dynamic safelist for grid-cols and colors
   safelist: [
-    "bg-background",
-    "bg-primary",
-    "bg-secondary",
-    "bg-card",
-    "bg-accent",
-    "bg-descturctive",
-    "bg-muted",
+    // "bg-background",
+    // "bg-primary",
+    // "bg-secondary",
+    // "bg-card",
+    // "bg-accent",
+    // "bg-descturctive",
+    // "bg-muted",
     "lg:grid-cols-2",
     "lg:grid-cols-3",
     "lg:grid-cols-4",
@@ -39,13 +39,18 @@ const config = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        onBrand: "hsl(var(--on-brand))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "hsl(var(--brand-secondary))",
+          foreground: "hsl(var(--brand-secondary-foreground))",
+        },
+        active: {
+          DEFAULT: "hsl(var(--active))",
+          secondary: "hsl(var(--active-secondary))",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",

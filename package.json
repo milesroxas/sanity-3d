@@ -1,5 +1,5 @@
 {
-  "name": "schema-ui-next-js-sanity-starter",
+  "name": "sanitycms",
   "version": "0.7.0",
   "private": true,
   "scripts": {
@@ -25,12 +25,20 @@
     "@sanity/preview-url-secret": "^2.1.0",
     "@sanity/ui": "^2.11.1",
     "@sanity/vision": "^3.69.0",
+    "@react-three/drei": "^9.120.5",
+    "@react-three/fiber": "9.0.0-rc.1",
+    "@types/three": "^0.170.0",
+    "framer-motion": "^11.15.0",
+    "framer-motion-3d": "^11.15.0",
     "class-variance-authority": "^0.7.1",
+    "leva": "^0.9.35",
     "clsx": "^2.1.1",
     "embla-carousel-react": "^8.5.2",
     "lucide-react": "^0.471.0",
     "motion": "^11.17.0",
     "next": "15.1.4",
+    "three": "^0.169.0",
+    "zustand": "^5.0.2",
     "next-sanity": "^9.8.35",
     "next-themes": "^0.4.4",
     "react": "19.0.0",
@@ -54,5 +62,6 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3"
-  }
+  },
+  "packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1"
 }
