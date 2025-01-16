@@ -1,5 +1,13 @@
 import { orderableDocumentListDeskItem } from "@sanity/orderable-document-list";
-import { Files, BookA, User, ListCollapse, Quote } from "lucide-react";
+import {
+  Files,
+  BookA,
+  User,
+  ListCollapse,
+  Quote,
+  Settings,
+  Image,
+} from "lucide-react";
 
 export const structure = (S: any, context: any) =>
   S.list()
@@ -20,6 +28,13 @@ export const structure = (S: any, context: any) =>
             .title("Post")
             .defaultOrdering([{ field: "_createdAt", direction: "desc" }]) // Default ordering
         ),
+      orderableDocumentListDeskItem({
+        type: "media",
+        title: "Media",
+        icon: Image,
+        S,
+        context,
+      }),
       orderableDocumentListDeskItem({
         type: "category",
         title: "Categories",
@@ -48,4 +63,19 @@ export const structure = (S: any, context: any) =>
         S,
         context,
       }),
+      S.divider(),
+      S.listItem()
+        .id("settings")
+        .title("Site Settings")
+        .icon(Settings)
+        .child(
+          S.editor()
+            .id("settings")
+            .schemaType("settings")
+            .documentId("settings")
+            .views([
+              S.view.form().title("Content").id("content"),
+              S.view.form().title("SEO").id("seo"),
+            ])
+        ),
     ]);

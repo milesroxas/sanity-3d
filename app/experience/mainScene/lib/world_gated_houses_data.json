@@ -1,0 +1,108 @@
+{
+  "medium_houses": [
+    {
+      "name": "BLDG_House_Medium_01",
+      "position": [111.403, 2.678, 67.843],
+      "rotation": null
+    },
+    {
+      "name": "BLDG_House_Medium_01001",
+      "position": [140.382, 2.678, 82.272],
+      "rotation": [3.141592653589793, 0, 3.141592653589793]
+    }
+  ],
+  "small_houses_1": [
+    {
+      "name": "BLDG_House_Small_01",
+      "position": [67.726, 2.678, 82.234],
+      "rotation": [3.141592653589793, 0, 3.141592653589793]
+    },
+    {
+      "name": "BLDG_House_Small_01001",
+      "position": [95.133, 2.678, 67.776],
+      "rotation": null
+    },
+    {
+      "name": "BLDG_House_Small_01002",
+      "position": [81.485, 2.678, 82.259],
+      "rotation": [3.141592653589793, 0, 3.141592653589793]
+    },
+    {
+      "name": "BLDG_House_Small_01003",
+      "position": [108.892, 2.678, 67.776],
+      "rotation": null
+    },
+    {
+      "name": "BLDG_House_Small_01004",
+      "position": [95.165, 2.678, 82.247],
+      "rotation": [3.141592653589793, 0, 3.141592653589793]
+    },
+    {
+      "name": "BLDG_House_Small_01005",
+      "position": [122.572, 2.678, 67.776],
+      "rotation": null
+    }
+  ],
+  "small_houses_2": [
+    {
+      "name": "BLDG_House_Small_02",
+      "position": [81.04, 2.678, 90.862],
+      "rotation": null
+    },
+    {
+      "name": "BLDG_House_Small_02001",
+      "position": [81.6, 2.678, 95.95],
+      "rotation": [3.141592653589793, 0, 3.141592653589793]
+    },
+    {
+      "name": "BLDG_House_Small_02004",
+      "position": [123.14, 2.678, 58.789],
+      "rotation": [3.141592653589793, 0, 3.141592653589793]
+    },
+    {
+      "name": "BLDG_House_Small_02005",
+      "position": [109.373, 2.678, 58.789],
+      "rotation": [3.141592653589793, 0, 3.141592653589793]
+    },
+    {
+      "name": "BLDG_House_Small_02006",
+      "position": [95.541, 2.678, 58.789],
+      "rotation": [3.141592653589793, 0, 3.141592653589793]
+    },
+    {
+      "name": "BLDG_House_Small_02007",
+      "position": [81.652, 2.678, 58.789],
+      "rotation": [3.141592653589793, 0, 3.141592653589793]
+    },
+    {
+      "name": "BLDG_House_Small_02002",
+      "position": [94.949, 2.678, 90.862],
+      "rotation": null
+    },
+    {
+      "name": "BLDG_House_Small_02003",
+      "position": [95.509, 2.678, 95.95],
+      "rotation": [3.141592653589793, 0, 3.141592653589793]
+    },
+    {
+      "name": "BLDG_House_Small_02008",
+      "position": [108.592, 2.678, 90.862],
+      "rotation": null
+    },
+    {
+      "name": "BLDG_House_Small_02009",
+      "position": [109.152, 2.678, 95.95],
+      "rotation": [3.141592653589793, 0, 3.141592653589793]
+    },
+    {
+      "name": "BLDG_House_Small_02010",
+      "position": [122.663, 2.678, 90.862],
+      "rotation": null
+    },
+    {
+      "name": "BLDG_House_Small_02011",
+      "position": [123.223, 2.678, 95.95],
+      "rotation": [3.141592653589793, 0, 3.141592653589793]
+    }
+  ]
+}

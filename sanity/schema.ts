@@ -13,6 +13,7 @@ import link from "./schemas/blocks/shared/link";
 import { colorVariant } from "./schemas/blocks/shared/color-variant";
 import { buttonVariant } from "./schemas/blocks/shared/button-variant";
 import sectionPadding from "./schemas/blocks/shared/section-padding";
+import { media } from "./schemas/blocks/shared/media";
 // Schema UI objects
 import hero1 from "./schemas/blocks/hero/hero-1";
 import hero2 from "./schemas/blocks/hero/hero-2";
@@ -37,6 +38,9 @@ import logoCloud1 from "./schemas/blocks/logo-cloud/logo-cloud-1";
 import faqs from "./schemas/blocks/faqs";
 import newsletter from "./schemas/blocks/forms/newsletter";
 
+// singleton
+import settings from "./schemas/singleton/settings";
+
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
     // documents
@@ -52,6 +56,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     colorVariant,
     buttonVariant,
     sectionPadding,
+    media,
     // blocks
     hero1,
     hero2,
@@ -75,5 +80,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     logoCloud1,
     faqs,
     newsletter,
+    // singleton
+    settings,
   ],
 };

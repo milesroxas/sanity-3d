@@ -31,6 +31,15 @@ declare global {
         image?: Image;
       }>;
 
+    type Media = SanityDocument<{
+      title: string;
+      file: File;
+    }>;
+    type Settings = SanityDocument<{
+      logo: Image;
+      largeLogo: Image;
+    }>;
+
     type Author = SanityDocument<{
       name: string;
       slug: { current: string };
@@ -39,6 +48,11 @@ declare global {
 
     type Category = SanityDocument<{
       title: string;
+    }>;
+
+    type Settings = SanityDocument<{
+      logo: Image;
+      largeLogo: Image;
     }>;
 
     type Image = SanityImageObject &
