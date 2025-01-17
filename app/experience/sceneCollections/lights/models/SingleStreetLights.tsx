@@ -7,6 +7,7 @@ import type { Mesh, MeshPhysicalMaterial, MeshStandardMaterial } from "three";
 import React, { useMemo, useContext, createContext } from "react";
 import { useGLTF, Merged } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
+import { ThreeElements } from "@react-three/fiber";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -22,9 +23,9 @@ type GLTFResult = GLTF & {
 };
 
 interface SingleStreetLightsInstances {
-  Lamproad: (props?: JSX.IntrinsicElements["mesh"]) => JSX.Element;
-  Lamproad1: (props?: JSX.IntrinsicElements["mesh"]) => JSX.Element;
-  Lamproad2: (props?: JSX.IntrinsicElements["mesh"]) => JSX.Element;
+  Lamproad: React.ComponentType<ThreeElements["mesh"]>;
+  Lamproad1: React.ComponentType<ThreeElements["mesh"]>;
+  Lamproad2: React.ComponentType<ThreeElements["mesh"]>;
 }
 
 const context = createContext<SingleStreetLightsInstances | null>(null);
@@ -141,7 +142,7 @@ function StreetLight({
   );
 }
 
-export function SingleStreetLights(props: JSX.IntrinsicElements["group"]) {
+export function SingleStreetLights(props: ThreeElements["group"]) {
   return (
     <Instances>
       <SingleStreetLightsContent {...props} />
@@ -149,7 +150,7 @@ export function SingleStreetLights(props: JSX.IntrinsicElements["group"]) {
   );
 }
 
-function SingleStreetLightsContent(props: JSX.IntrinsicElements["group"]) {
+function SingleStreetLightsContent(props: ThreeElements["group"]) {
   const lightPositions = useMemo(() => {
     return LIGHT_POSITIONS.map(({ position: [x, z], rotation }) => ({
       position: [x, 2.667, z] as [number, number, number],

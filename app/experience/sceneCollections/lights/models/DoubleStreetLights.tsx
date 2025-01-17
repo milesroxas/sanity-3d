@@ -6,6 +6,7 @@ import type * as THREE from "three";
 import React, { useMemo, useContext, createContext } from "react";
 import { useGLTF, Merged } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
+import { ThreeElements } from "@react-three/fiber";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -21,9 +22,9 @@ type GLTFResult = GLTF & {
 };
 
 interface DoubleStreetLightsInstances {
-  Lamproaddouble: (props?: JSX.IntrinsicElements["mesh"]) => JSX.Element;
-  Lamproaddouble1: (props?: JSX.IntrinsicElements["mesh"]) => JSX.Element;
-  Lamproaddouble2: (props?: JSX.IntrinsicElements["mesh"]) => JSX.Element;
+  Lamproaddouble: React.ComponentType<ThreeElements["mesh"]>;
+  Lamproaddouble1: React.ComponentType<ThreeElements["mesh"]>;
+  Lamproaddouble2: React.ComponentType<ThreeElements["mesh"]>;
 }
 
 const context = createContext<DoubleStreetLightsInstances | null>(null);
@@ -52,7 +53,7 @@ export function Instances({
       Lamproaddouble1: nodes["lamp-road-double_1"],
       Lamproaddouble2: nodes["lamp-road-double_2"],
     }),
-    [nodes],
+    [nodes]
   );
   return (
     <Merged meshes={instances} {...props}>
@@ -86,7 +87,7 @@ function StreetLight({
   );
 }
 
-export function DoubleStreetLights(props: JSX.IntrinsicElements["group"]) {
+export function DoubleStreetLights(props: ThreeElements["group"]) {
   return (
     <Instances>
       <DoubleStreetLightsContent {...props} />
@@ -94,7 +95,7 @@ export function DoubleStreetLights(props: JSX.IntrinsicElements["group"]) {
   );
 }
 
-function DoubleStreetLightsContent(props: JSX.IntrinsicElements["group"]) {
+function DoubleStreetLightsContent(props: ThreeElements["group"]) {
   const lightPositions = useMemo(() => {
     return LIGHT_POSITIONS.map(([x, z]) => ({
       position: [x, 2.667, z] as [number, number, number],
