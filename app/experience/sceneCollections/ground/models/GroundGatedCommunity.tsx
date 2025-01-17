@@ -242,4 +242,4 @@ export function GroundGatedCommunity(props: ThreeElements["group"]) {
   );
 }
 
-useGLTF.preload("/models/road_zone_gated_community.glb");
+useGLTF.preload("/models/road-zone-gated-community.glb");

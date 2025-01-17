@@ -7,6 +7,7 @@ import React, { useMemo, useContext, createContext } from "react";
 import type { ReactNode } from "react";
 import { useGLTF, Merged } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
+import { ThreeElements } from "@react-three/fiber";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -26,8 +27,8 @@ type PalmPosition = {
 };
 
 interface PalmInstances {
-  Palmhigh: (props?: JSX.IntrinsicElements["mesh"]) => JSX.Element;
-  Palmhigh1: (props?: JSX.IntrinsicElements["mesh"]) => JSX.Element;
+  Palmhigh: React.ComponentType<ThreeElements["mesh"]>;
+  Palmhigh1: React.ComponentType<ThreeElements["mesh"]>;
 }
 
 const PalmInstancesContext = createContext<PalmInstances | null>(null);
@@ -186,7 +187,7 @@ function Palm({ position, rotation = [0, 0, 0], scale = 1 }: PalmProps) {
   );
 }
 
-function PalmLargeContent(props: JSX.IntrinsicElements["group"]) {
+function PalmLargeContent(props: ThreeElements["group"]) {
   // Flatten all palm positions into a single array
   const palmPositions = useMemo(() => {
     const results: PalmPosition[] = [];
@@ -207,7 +208,7 @@ function PalmLargeContent(props: JSX.IntrinsicElements["group"]) {
   );
 }
 
-export function PalmLarge(props: JSX.IntrinsicElements["group"]) {
+export function PalmLarge(props: ThreeElements["group"]) {
   return (
     <Instances>
       <PalmLargeContent {...props} />
