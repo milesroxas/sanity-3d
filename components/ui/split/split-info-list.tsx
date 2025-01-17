@@ -1,10 +1,11 @@
 import SplitInfoItem from "@/components/ui/split/split-info-item";
+import { PortableTextBlock } from "next-sanity";
 
-interface SplitInfoListProps {
+export interface SplitInfoListProps {
   list: {
     image: Sanity.Image;
-    title: any;
-    body: any;
+    title: string;
+    body: PortableTextBlock[];
     tags: string[];
   }[];
 }

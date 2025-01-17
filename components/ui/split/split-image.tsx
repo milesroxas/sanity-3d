@@ -1,11 +1,11 @@
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 
-export default function SplitImage({
-  image,
-}: Partial<{
+export interface SplitImageProps {
   image: Sanity.Image;
-}>) {
+}
+
+export default function SplitImage({ image }: Partial<SplitImageProps>) {
   return image && image.asset?._id ? (
     <div className="relative h-[25rem] sm:h-[30rem] md:h-[25rem] lg:h-full rounded-lg overflow-hidden">
       <Image

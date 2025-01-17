@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
-import { stegaClean } from "next-sanity";
+import { PortableTextBlock, stegaClean } from "next-sanity";
 import PortableTextRenderer from "@/components/portable-text-renderer";
 
 export default function Hero1({
@@ -14,7 +14,7 @@ export default function Hero1({
 }: Partial<{
   tagLine: string;
   title: string;
-  body: any;
+  body: PortableTextBlock[];
   image: Sanity.Image;
   links: {
     title: string;

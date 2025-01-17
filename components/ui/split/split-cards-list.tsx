@@ -1,13 +1,13 @@
 import { ISectionContainer } from "@/components/ui/section-container";
-import { stegaClean } from "next-sanity";
+import { PortableTextBlock, stegaClean } from "next-sanity";
 import SplitCardsItem from "@/components/ui/split/split-cards-item";
 
-interface SplitCardsListProps {
+export interface SplitCardsListProps {
   color: ISectionContainer["color"];
   list: {
     tagLine: string;
-    title: any;
-    body: any;
+    title: string;
+    body: PortableTextBlock[];
   }[];
 }
 

@@ -5,9 +5,9 @@ import Link from "next/link";
 import TagLine from "@/components/ui/tag-line";
 import { ISectionContainer } from "@/components/ui/section-container";
 import { createElement } from "react";
-import { stegaClean } from "next-sanity";
+import { PortableTextBlock, stegaClean } from "next-sanity";
 
-interface SplitContentPros {
+export interface SplitContentProps {
   sticky: boolean;
   color: ISectionContainer["color"];
   colorVariant: ISectionContainer["color"];
@@ -15,7 +15,7 @@ interface SplitContentPros {
   noGap: boolean;
   tagLine: string;
   title: string;
-  body: any;
+  body: PortableTextBlock[];
   link: {
     title: string;
     href: string;
@@ -40,7 +40,7 @@ export default function SplitContent({
   title,
   body,
   link,
-}: Partial<SplitContentPros>) {
+}: Partial<SplitContentProps>) {
   return (
     <div
       className={cn(

@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils";
+import type { PortableTextBlock } from "@portabletext/react";
+
 import { Button } from "@/components/ui/button";
 import SectionContainer, {
   ISectionContainer,
@@ -24,7 +26,7 @@ export default function Cta1({
   sectionWidth: "default" | "narrow";
   tagLine: string;
   title: string;
-  body: any;
+  body: PortableTextBlock[];
   links: {
     title: string;
     href: string;

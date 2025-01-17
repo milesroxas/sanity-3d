@@ -6,11 +6,12 @@ import { urlFor } from "@/sanity/lib/image";
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
+import { PortableTextBlock } from "next-sanity";
 
-interface SplitInfoItemProps {
+export interface SplitInfoItemProps {
   image: Sanity.Image;
   title: string;
-  body: any;
+  body: PortableTextBlock[];
   tags: string[];
 }
 

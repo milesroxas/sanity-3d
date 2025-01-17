@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import PortableTextRenderer from "@/components/portable-text-renderer";
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
+import { PortableTextBlock } from "@portabletext/react";
 
 export interface Timeline1Props {
   color:
@@ -15,7 +16,7 @@ export interface Timeline1Props {
     | "transparent";
   title: string;
   tagLine: string | null;
-  body: any;
+  body: PortableTextBlock[];
   image: Sanity.Image;
 }
 

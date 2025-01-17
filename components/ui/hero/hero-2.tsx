@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { stegaClean } from "next-sanity";
+import { PortableTextBlock, stegaClean } from "next-sanity";
 import PortableTextRenderer from "@/components/portable-text-renderer";
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
@@ -14,7 +14,7 @@ export default function Hero2({
 }: Partial<{
   tagLine: string;
   title: string;
-  body: any;
+  body: PortableTextBlock[];
   links: {
     title: string;
     href: string;

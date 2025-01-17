@@ -13,6 +13,7 @@ export function DisableDraftMode() {
 
   return (
     <Button asChild>
+      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a href="/api/draft-mode/disable" className="fixed bottom-4 right-4">
         Disable Draft Mode
       </a>

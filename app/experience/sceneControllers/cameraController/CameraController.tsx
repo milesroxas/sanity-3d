@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import { Vector3 } from "three";
+
 import type { PerspectiveCamera as ThreePerspectiveCamera } from "three";
 import { useControlsStore } from "../store/controlsStore";
 import { PerspectiveCamera } from "@react-three/drei";
 
 function CameraController() {
   const cameraRef = useRef<ThreePerspectiveCamera | null>(null);
-  const { cameraConfig, setCameraConfig } = useControlsStore();
+  const { cameraConfig } = useControlsStore();
 
   // Update camera position and target when cameraConfig changes
   useEffect(() => {

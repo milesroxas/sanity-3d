@@ -9,12 +9,12 @@ import SplitCardsList from "./split-cards-list";
 import SplitImage from "./split-image";
 import SplitInfoList from "./split-info-list";
 
-const componentMap: { [key: string]: React.ComponentType<any> } = {
+const componentMap = {
   "split-content": SplitContent,
   "split-cards-list": SplitCardsList,
   "split-image": SplitImage,
   "split-info-list": SplitInfoList,
-};
+} as const;
 
 export default function SplitRow({
   padding,
@@ -25,7 +25,14 @@ export default function SplitRow({
   padding: ISectionPadding;
   colorVariant: ISectionContainer["color"];
   noGap: boolean;
-  splitColumns: Sanity.Block[];
+  splitColumns: Array<{
+    _type:
+      | "split-content"
+      | "split-cards-list"
+      | "split-image"
+      | "split-info-list";
+    _key: string;
+  }>;
 }>) {
   const color = stegaClean(colorVariant);
 
@@ -38,10 +45,10 @@ export default function SplitRow({
             noGap ? "gap-0" : "gap-12 lg:gap-20"
           )}
         >
-          {splitColumns?.map((block: Sanity.Block) => {
-            const Component = componentMap[block._type];
+          {splitColumns?.map((block) => {
+            const Component =
+              componentMap[block._type as keyof typeof componentMap];
             if (!Component) {
-              // Fallback for unknown block types to debug
               return <div data-type={block._type} key={block._key} />;
             }
             return (

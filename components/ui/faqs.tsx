@@ -1,5 +1,5 @@
 import SectionContainer from "@/components/ui/section-container";
-import { stegaClean } from "next-sanity";
+import { PortableTextBlock, stegaClean } from "next-sanity";
 import {
   Accordion,
   AccordionContent,
@@ -25,7 +25,7 @@ interface FAQProps {
   faqs: {
     _id: string;
     title: string;
-    body: any;
+    body: PortableTextBlock[];
   }[];
 }
 
