@@ -21,4 +21,6 @@ export const POSTS_QUERY = groq`*[_type == "post" && defined(slug)] | order(_cre
     },
 }`;
 
-export const POSTS_SLUGS_QUERY = groq`*[_type == "post" && defined(slug)]{slug}`;
+export const POSTS_SLUGS_QUERY = groq`*[_type == "post" && defined(slug)]{
+  "slug": slug.current
+}`;
