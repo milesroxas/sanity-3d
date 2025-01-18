@@ -9,8 +9,6 @@ import {
 } from "../actions";
 import { generatePageMetadata } from "@/lib/metadata";
 
-export const dynamic = "force-static";
-
 export async function generateMetadata(props: {
   params: Promise<{ slug: string }>;
 }) {
