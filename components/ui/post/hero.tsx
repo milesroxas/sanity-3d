@@ -36,7 +36,7 @@ export default function PostHero({
       <div className="flex items-center justify-between gap-2 text-sm md:text-base">
         <div className="flex flex-col md:flex-row md:items-center gap-2">
           <div className="flex items-center gap-2">
-            {author?.image && (
+            {author?.image && author.image.asset?._id && (
               <div className="relative w-6 h-6 md:w-10 md:h-10">
                 <Image
                   src={urlFor(author.image).url()}
