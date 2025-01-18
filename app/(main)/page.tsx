@@ -3,8 +3,6 @@ import { fetchSanityPageBySlug } from "./actions";
 import { generatePageMetadata } from "@/lib/metadata";
 import MissingSanityPage from "@/components/ui/missing-sanity-page";
 
-export const dynamic = "force-static";
-
 export async function generateMetadata() {
   const page = await fetchSanityPageBySlug({ slug: "index" });
 
