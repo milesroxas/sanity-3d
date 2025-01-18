@@ -75,11 +75,7 @@ export default function Carousel1({
                   >
                     <Image
                       className="object-cover"
-                      src={
-                        image.asset?._id === "static"
-                          ? "/images/placeholder.svg"
-                          : urlFor(image.asset).url()
-                      }
+                      src={urlFor(image.asset).url()}
                       alt={image.alt || ""}
                       fill
                       placeholder={
