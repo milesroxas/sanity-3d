@@ -9,6 +9,11 @@ import {
 } from "../actions";
 import { generatePageMetadata } from "@/lib/metadata";
 
+export async function generateStaticParams() {
+  const slugs = await fetchSanityPostsStaticParams();
+  return slugs.map((slug) => ({ slug }));
+}
+
 export async function generateMetadata(props: {
   params: Promise<{ slug: string }>;
 }) {
@@ -20,14 +25,6 @@ export async function generateMetadata(props: {
   }
 
   return generatePageMetadata({ page: post, slug: `/blog/${params.slug}` });
-}
-
-export async function generateStaticParams() {
-  const posts = await fetchSanityPostsStaticParams();
-
-  return posts.map((post) => ({
-    slug: post.slug.current,
-  }));
 }
 
 export default async function PostPage(props: {

@@ -7,8 +7,8 @@ import { notFound } from "next/navigation";
 import { generatePageMetadata } from "@/lib/metadata";
 
 export const generateStaticParams = async () => {
-  const pages = await fetchSanityPagesStaticParams();
-  return pages.map((page) => ({ slug: page.slug }));
+  const slugs = await fetchSanityPagesStaticParams();
+  return slugs.map((slug) => ({ slug }));
 };
 
 export async function generateMetadata(props: {

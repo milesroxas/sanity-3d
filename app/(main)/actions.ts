@@ -15,9 +15,7 @@ export const fetchSanityPageBySlug = async ({
   return data;
 };
 
-export const fetchSanityPagesStaticParams = async (): Promise<
-  Sanity.Page[]
-> => {
+export const fetchSanityPagesStaticParams = async (): Promise<string[]> => {
   const { data } = await sanityFetch({
     query: PAGES_SLUGS_QUERY,
     perspective: "published",
