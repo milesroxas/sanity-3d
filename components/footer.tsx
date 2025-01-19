@@ -26,7 +26,7 @@ export default function Footer() {
 
   return (
     <footer>
-      <div className="conrtainer dark:bg-background pb-5 xl:pb-5 dark:text-gray-300">
+      <div className="dark:bg-background pb-5 xl:pb-5 dark:text-gray-300">
         <Link
           className="block w-[6.25rem] mx-auto"
           href="/"
