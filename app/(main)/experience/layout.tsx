@@ -1,5 +1,6 @@
 import { Suspense } from "react";
-import Experience from "@/app/experience/Experience";
+import Canvas from "@/app/experience/Canvas";
+import { SanityLive } from "@/sanity/lib/live";
 
 export default async function ExperienceLayout({
   children,
@@ -9,9 +10,9 @@ export default async function ExperienceLayout({
   return (
     <main className="relative h-screen w-screen">
       <Suspense fallback={<div>Loading...</div>}>
-        <Experience />
+        <Canvas>{children}</Canvas>
       </Suspense>
-      {children}
+      <SanityLive />
     </main>
   );
 }

@@ -7,6 +7,8 @@ import {
   Quote,
   Settings,
   Image,
+  MapPin,
+  Hammer,
 } from "lucide-react";
 
 export const structure = (S: any, context: any) =>
@@ -28,6 +30,24 @@ export const structure = (S: any, context: any) =>
             .title("Post")
             .defaultOrdering([{ field: "_createdAt", direction: "desc" }]) // Default ordering
         ),
+      orderableDocumentListDeskItem({
+        type: "services",
+        title: "Services",
+        icon: Hammer,
+        S,
+        context,
+      }),
+      S.divider(),
+      S.listItem()
+        .title("Scenes")
+        .icon(MapPin)
+        .child(
+          S.documentTypeList("scenes")
+            .title("Scenes")
+            .defaultOrdering([{ field: "_createdAt", direction: "desc" }]) // Default ordering
+        ),
+
+      S.divider(),
       orderableDocumentListDeskItem({
         type: "media",
         title: "Media",

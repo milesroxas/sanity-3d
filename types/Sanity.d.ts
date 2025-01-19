@@ -21,6 +21,68 @@ declare global {
       blocks?: Block[];
     };
 
+    type Services = PageBase & {
+      readonly _type: "services";
+      blocks?: Block[];
+    };
+
+    type Scene = PageBase & {
+      readonly _type: "scenes";
+      body?: any[];
+      mainSceneMarkerPosition?: {
+        x: number;
+        y: number;
+        z: number;
+      };
+      mainSceneCameraPosition?: {
+        x: number;
+        y: number;
+        z: number;
+      };
+      mainSceneCameraTarget?: {
+        x: number;
+        y: number;
+        z: number;
+      };
+      pointsOfInterest?: Array<
+        | {
+            _key: string;
+            _type: "scenes";
+            _id: string;
+            title: string;
+            slug: { current: string };
+            mainSceneMarkerPosition?: {
+              x: number;
+              y: number;
+              z: number;
+            };
+            body?: any[];
+          }
+        | {
+            _key: string;
+            _type: "pointOfInterest";
+            title: string;
+            body?: any[];
+            markerPosition?: {
+              x: number;
+              y: number;
+              z: number;
+            };
+            cameraPosition?: {
+              x: number;
+              y: number;
+              z: number;
+            };
+            cameraTarget?: {
+              x: number;
+              y: number;
+              z: number;
+            };
+          }
+      >;
+      blocks?: Block[];
+    };
+
     type Post = PageBase &
       SanityDocument<{
         readonly _type: "post";

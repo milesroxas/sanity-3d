@@ -6,7 +6,7 @@ import React, { useMemo, useContext, createContext } from "react";
 import { useGLTF, Merged } from "@react-three/drei";
 import type * as THREE from "three";
 import type { GLTF } from "three-stdlib";
-
+import { ThreeElements } from "@react-three/fiber";
 type GLTFResult = GLTF & {
   nodes: {
     ["terrain-mountains"]: THREE.Mesh;
@@ -21,7 +21,11 @@ type GLTFResult = GLTF & {
 };
 
 interface MountainInstances {
-  Terrainmountains: THREE.InstancedMesh;
+  Terrainmountains: React.ComponentType<ThreeElements["mesh"]>;
+  Terrainmountains001: React.ComponentType<ThreeElements["mesh"]>;
+  Terrainmountains002: React.ComponentType<ThreeElements["mesh"]>;
+  Terrainmountains004: React.ComponentType<ThreeElements["mesh"]>;
+  Terrainmountains005: React.ComponentType<ThreeElements["mesh"]>;
 }
 
 type MountainPosition = {
@@ -86,12 +90,12 @@ function Mountain({ position, rotation = [0, 0, 0], scale }: MountainPosition) {
 
   return (
     <group position={position} rotation={rotation} scale={scale}>
-      <instances.Terrainmountains />
+      <instances.Terrainmountains name="terrain-mountains" />
     </group>
   );
 }
 
-function MountainsContent(props: JSX.IntrinsicElements["group"]) {
+function MountainsContent(props: ThreeElements["group"]) {
   const { nodes, materials } = useGLTF("/models/mountains.glb") as GLTFResult;
   const mountainPositions = useMemo(() => {
     const positions: MountainPosition[] = [];
@@ -128,7 +132,7 @@ function MountainsContent(props: JSX.IntrinsicElements["group"]) {
   );
 }
 
-export function Mountains(props: JSX.IntrinsicElements["group"]) {
+export function Mountains(props: ThreeElements["group"]) {
   return (
     <Instances>
       <MountainsContent {...props} />

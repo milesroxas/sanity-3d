@@ -1,3 +1,4 @@
+"use client";
 // import { useRouter } from "next/navigation";
 import WorldFloor from "../sceneCollections/WorldFloor";
 import { Environment } from "@react-three/drei";
@@ -13,13 +14,14 @@ import { HomesRightBuildings } from "../sceneCollections/homesRight/models/Homes
 import { EventsBuildings } from "../sceneCollections/events/models/EventsBuildings";
 import { FarmBuildings } from "../sceneCollections/farm/models/FarmBuildings";
 import { ExperienceController } from "../sceneControllers/experienceController/ExperienceController";
+import MainSceneMarkers from "../sceneControllers/poiMarkers/MainSceneMarkers";
 
-export default function Scene() {
-  // const router = useRouter();
-
+export default function MainScene({ scene }: { scene: Sanity.Scene }) {
+  console.log("main scene", scene);
   return (
     <>
       <Environment preset="sunset" />
+      <MainSceneMarkers scene={scene} />
       <ExperienceController type="Map" enabled={true} />
       <group position={[0, -0.2, 0]}>
         <WorldFloor />

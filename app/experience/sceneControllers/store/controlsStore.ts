@@ -17,6 +17,8 @@ interface ControlsStore {
     type: "Map" | "Orbit";
   };
 
+  isAnimating: boolean;
+
   /*
   Actions
   */
@@ -32,6 +34,8 @@ interface ControlsStore {
     enabled: boolean;
     type: "Map" | "Orbit";
   }) => void;
+
+  setIsAnimating: (isAnimating: boolean) => void;
 }
 
 export const useControlsStore = create<ControlsStore>((set) => ({
@@ -45,6 +49,7 @@ export const useControlsStore = create<ControlsStore>((set) => ({
     enabled: true,
     type: "Map",
   },
+  isAnimating: false,
 
   //Actions
   setCameraConfig: (config) => {
@@ -58,4 +63,5 @@ export const useControlsStore = create<ControlsStore>((set) => ({
   },
   setCameraPrevious: (config) => set({ cameraPrevious: config }),
   setControlsConfig: (config) => set({ controlsConfig: config }),
+  setIsAnimating: (isAnimating) => set({ isAnimating }),
 }));

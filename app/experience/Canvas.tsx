@@ -1,11 +1,14 @@
 "use client";
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
-import Scene from "./mainScene/Scene";
 import { Html } from "@react-three/drei";
 import CameraController from "./sceneControllers/cameraController/CameraController";
 
-export default function Experience() {
+export default function Experience({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <Canvas>
       <ambientLight intensity={0.5} />
@@ -18,7 +21,7 @@ export default function Experience() {
           </Html>
         }
       >
-        <Scene />
+        {children}
       </Suspense>
     </Canvas>
   );

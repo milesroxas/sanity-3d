@@ -6,7 +6,7 @@ export function generatePageMetadata({
   page,
   slug,
 }: {
-  page: Sanity.Page | Sanity.Post;
+  page: Sanity.Page | Sanity.Post | Sanity.Scene | Sanity.Services;
   slug: string;
 }) {
   return {
