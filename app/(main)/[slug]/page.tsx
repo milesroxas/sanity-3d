@@ -6,10 +6,13 @@ import {
 import { notFound } from "next/navigation";
 import { generatePageMetadata } from "@/lib/metadata";
 
-export const generateStaticParams = async () => {
-  const slugs = await fetchSanityPagesStaticParams();
-  return slugs.map((slug) => ({ slug }));
-};
+export async function generateStaticParams() {
+  const pages = await fetchSanityPagesStaticParams();
+
+  return pages.map((page) => ({
+    slug: page.slug.current,
+  }));
+}
 
 export async function generateMetadata(props: {
   params: Promise<{ slug: string }>;

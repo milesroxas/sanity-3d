@@ -11,6 +11,7 @@ import { cta1Query } from "./cta/cta-1";
 import { logoCloud1Query } from "./logo-cloud/logo-cloud-1";
 import { faqsQuery } from "./faqs";
 import { formNewsletterQuery } from "./forms/newsletter";
+import { allPostsQuery } from "./all-posts";
 
 export const PAGE_QUERY = groq`
   *[_type == "page" && slug.current == $slug][0]{
@@ -27,6 +28,7 @@ export const PAGE_QUERY = groq`
       ${logoCloud1Query}
       ${faqsQuery}
       ${formNewsletterQuery}
+      ${allPostsQuery}
     },
     meta_title,
     meta_description,
@@ -46,6 +48,4 @@ export const PAGE_QUERY = groq`
   }
 `;
 
-export const PAGES_SLUGS_QUERY = groq`
-  *[_type == "page" && defined(slug.current)][].slug.current
-`;
+export const PAGES_SLUGS_QUERY = groq`*[_type == "page" && defined(slug)]{slug}`;

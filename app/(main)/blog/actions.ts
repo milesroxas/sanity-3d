@@ -11,7 +11,9 @@ export const fetchSanityPosts = async (): Promise<Sanity.Post[]> => {
   return data;
 };
 
-export const fetchSanityPostsStaticParams = async (): Promise<string[]> => {
+export const fetchSanityPostsStaticParams = async (): Promise<
+  Sanity.Post[]
+> => {
   const { data } = await sanityFetch({
     query: POSTS_SLUGS_QUERY,
     perspective: "published",
