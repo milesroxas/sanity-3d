@@ -9,6 +9,7 @@ import {
   Image,
   MapPin,
   Hammer,
+  Box,
 } from "lucide-react";
 
 export const structure = (S: any, context: any) =>
@@ -38,6 +39,7 @@ export const structure = (S: any, context: any) =>
         context,
       }),
       S.divider(),
+
       S.listItem()
         .title("Scenes")
         .icon(MapPin)
@@ -46,7 +48,6 @@ export const structure = (S: any, context: any) =>
             .title("Scenes")
             .defaultOrdering([{ field: "_createdAt", direction: "desc" }]) // Default ordering
         ),
-
       S.divider(),
       orderableDocumentListDeskItem({
         type: "media",

@@ -21,6 +21,7 @@ export default defineConfig({
   dataset,
   // Add and edit the content schema in the './sanity/schema' folder
   schema,
+
   plugins: [
     structureTool({ structure }),
     presentationTool({

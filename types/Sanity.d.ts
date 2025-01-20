@@ -26,6 +26,7 @@ declare global {
       blocks?: Block[];
     };
 
+    // Scene document
     type Scene = PageBase & {
       readonly _type: "scenes";
       body?: any[];
@@ -57,12 +58,14 @@ declare global {
               z: number;
             };
             body?: any[];
+            modelFile?: ModelFile; // Add modelFile to scenes in pointsOfInterest
           }
         | {
             _key: string;
             _type: "pointOfInterest";
             title: string;
             body?: any[];
+            modelFile?: ModelFile; // Add modelFile to pointsOfInterest
             markerPosition?: {
               x: number;
               y: number;
@@ -80,6 +83,7 @@ declare global {
             };
           }
       >;
+      modelFile?: ModelFile; // Add modelFile to the Scene document itself
       blocks?: Block[];
     };
 
@@ -97,6 +101,7 @@ declare global {
       title: string;
       file: File;
     }>;
+
     type Settings = SanityDocument<{
       logo: Image;
       largeLogo: Image;

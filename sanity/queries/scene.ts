@@ -4,6 +4,8 @@ export const SCENE_QUERY = groq`
   *[_type == "scenes" && slug.current == $slug][0]{
     _id,
     _type,
+    _createdAt,
+    _updatedAt,
     title,
     slug,
     body[]{
@@ -45,27 +47,9 @@ export const SCENE_QUERY = groq`
           x,
           y,
           z
-        },
-        body[]{
-          ...,
-          _type == "image" => {
-            ...,
-            asset->{
-              _id,
-              url,
-              mimeType,
-              metadata {
-                lqip,
-                dimensions {
-                  width,
-                  height
-                }
-              }
-            }
-          }
         }
       },
-      _type != "reference" => {
+      _type == "pointOfInterest" => {
         title,
         body[]{
           ...,
@@ -117,24 +101,6 @@ export const SCENE_QUERY = groq`
       y,
       z
     },
-    blocks[]{
-      ...,
-      _type == "image" => {
-        ...,
-        asset->{
-          _id,
-          url,
-          mimeType,
-          metadata {
-            lqip,
-            dimensions {
-              width,
-              height
-            }
-          }
-        }
-      }
-    },
     meta_title,
     meta_description,
     noindex,
@@ -152,49 +118,3 @@ export const SCENE_QUERY = groq`
     }
   }
 `;
-
-export const SCENES_QUERY = groq`*[_type == "scenes" && defined(slug.current)] {
-  _id,
-  _type,
-  title,
-  slug,
-  mainSceneMarkerPosition {
-    x,
-    y,
-    z
-  },
-  mainSceneCameraPosition {
-    x,
-    y,
-    z
-  },
-  mainSceneCameraTarget {
-    x,
-    y,
-    z
-  },
-  pointsOfInterest[]{
-    _key,
-    _type == "reference" => @->{
-      _id,
-      _type,
-      title,
-      slug,
-      mainSceneMarkerPosition {
-        x,
-        y,
-        z
-      },
-      mainSceneCameraPosition {
-        x,
-        y,
-        z
-      },
-      mainSceneCameraTarget {
-        x,
-        y,
-        z
-      }
-    }
-  }
-}`;

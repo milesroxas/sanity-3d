@@ -5,7 +5,7 @@ import SubSceneMarkers from "../sceneControllers/poiMarkers/SubSceneMarkers";
 export default function SubScene({ scene }: { scene: Sanity.Scene }) {
   return (
     <>
-      <ShopsBuildings />
+      <ShopsBuildings modelFile={scene.modelFile} />
       <SubSceneMarkers scene={scene} />
     </>
   );
