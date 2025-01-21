@@ -42,6 +42,7 @@ import newsletter from "./schemas/blocks/forms/newsletter";
 
 // singleton
 import settings from "./schemas/singleton/settings";
+import modelFiles from "./schemas/objects/modelFiles";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
@@ -86,5 +87,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     newsletter,
     // singleton
     settings,
+    // objects
+    modelFiles,
   ],
 };

@@ -8,6 +8,7 @@ export const SCENE_QUERY = groq`
     _updatedAt,
     title,
     slug,
+    sceneType,
     body[]{
       ...,
       _type == "image" => {
@@ -100,6 +101,12 @@ export const SCENE_QUERY = groq`
       x,
       y,
       z
+    },
+    modelFiles[]{
+      _key,
+      _type,
+      modelName,
+      "fileUrl": sceneModelFile
     },
     meta_title,
     meta_description,

@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import rawInstanceData from "@/app/experience/mainScene/lib/world_gated_houses_data.json";
+import rawInstanceData from "@/app/experience/scenes/mainScene/lib/world_gated_houses_data.json";
 
 import {
   useHouseGLTF,

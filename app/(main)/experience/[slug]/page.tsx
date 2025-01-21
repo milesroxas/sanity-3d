@@ -6,7 +6,8 @@ import {
 } from "../../actions";
 import { generatePageMetadata } from "@/lib/metadata";
 
-import SubScene from "@/app/experience/subScene/SubScene";
+import SubScene from "@/app/experience/scenes/subScene/SubScene";
+
 export const dynamic = "force-static";
 
 export async function generateMetadata(props: {
@@ -42,6 +43,7 @@ export default async function ExperienceSubPage(props: {
   }
 
   const scene = await fetchSanitySceneBySlug({ slug: params.slug });
+  console.log("Scene data:", scene);
 
   return <SubScene scene={scene} />;
 }

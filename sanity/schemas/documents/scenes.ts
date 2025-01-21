@@ -174,6 +174,12 @@ export default defineType({
       ],
     }),
     defineField({
+      name: "modelFiles",
+      title: "Model Files",
+      type: "array",
+      of: [{ type: "modelFiles" }],
+    }),
+    defineField({
       name: "mainSceneMarkerPosition",
       title: "Main Scene Marker Position",
       description:
@@ -276,6 +282,25 @@ export default defineType({
       title: "Open Graph Image - [1200x630]",
       type: "image",
       group: "seo",
+    }),
+    defineField({
+      name: "sceneType",
+      title: "Scene Type",
+      description: "Select the type of scene this represents",
+      type: "string",
+      options: {
+        list: [
+          { title: "Main Scene", value: "main" },
+          { title: "Shops", value: "shops" },
+          { title: "Company", value: "company" },
+          { title: "Resort", value: "resort" },
+          { title: "Events", value: "events" },
+          { title: "Farm", value: "farm" },
+          { title: "Construction", value: "construction" },
+          { title: "Gated Community", value: "gatedCommunity" },
+          { title: "Homes", value: "homes" },
+        ],
+      },
     }),
     orderRankField({ type: "scenes" }),
   ],

@@ -1,6 +1,6 @@
 import { generatePageMetadata } from "@/lib/metadata";
 import { fetchSanitySceneBySlug } from "../actions";
-import MainScene from "@/app/experience/mainScene/MainScene";
+import MainScene from "@/app/experience/scenes/mainScene/MainScene";
 
 export const dynamic = "force-static";
 

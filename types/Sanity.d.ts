@@ -30,6 +30,15 @@ declare global {
     type Scene = PageBase & {
       readonly _type: "scenes";
       body?: any[];
+      sceneType:
+        | "shops"
+        | "company"
+        | "resort"
+        | "events"
+        | "farm"
+        | "construction"
+        | "gatedCommunity"
+        | "homes";
       mainSceneMarkerPosition?: {
         x: number;
         y: number;
@@ -57,15 +66,39 @@ declare global {
               y: number;
               z: number;
             };
+            mainSceneCameraPosition?: {
+              x: number;
+              y: number;
+              z: number;
+            };
+            mainSceneCameraTarget?: {
+              x: number;
+              y: number;
+              z: number;
+            };
             body?: any[];
-            modelFile?: ModelFile; // Add modelFile to scenes in pointsOfInterest
+            sceneType?:
+              | "main"
+              | "shops"
+              | "company"
+              | "resort"
+              | "events"
+              | "farm"
+              | "construction"
+              | "gatedCommunity"
+              | "homes";
+            modelFiles?: Array<{
+              _key: string;
+              _type: "modelFiles";
+              modelName: string;
+              sceneModelFile: string;
+            }>;
           }
         | {
             _key: string;
             _type: "pointOfInterest";
             title: string;
             body?: any[];
-            modelFile?: ModelFile; // Add modelFile to pointsOfInterest
             markerPosition?: {
               x: number;
               y: number;
@@ -83,7 +116,12 @@ declare global {
             };
           }
       >;
-      modelFile?: ModelFile; // Add modelFile to the Scene document itself
+      modelFiles?: Array<{
+        _key: string;
+        _type: "modelFiles";
+        modelName: string;
+        sceneModelFile: string;
+      }>;
       blocks?: Block[];
     };
 
