@@ -125,7 +125,7 @@ export function ShopsBuildings({
 
   const model = useGLTF(modelPath);
 
-  if (!model?.nodes ?? !model?.materials) {
+  if (!model?.nodes || !model?.materials) {
     console.warn("Model not loaded:", { modelPath, model });
     return null;
   }
