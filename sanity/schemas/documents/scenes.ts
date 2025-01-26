@@ -20,6 +20,14 @@ export default defineType({
       name: "settings",
       title: "Settings",
     },
+    {
+      name: "marker",
+      title: "Marker",
+    },
+    {
+      name: "camera",
+      title: "Camera",
+    },
   ],
   fields: [
     defineField({ name: "title", type: "string", group: "content" }),
@@ -182,6 +190,7 @@ export default defineType({
     defineField({
       name: "mainSceneMarkerPosition",
       title: "Main Scene Marker Position",
+      group: "marker",
       description:
         "The 3D position [x, y, z] where this point of interest should appear in the main scene",
       type: "object",
@@ -195,6 +204,7 @@ export default defineType({
           name: "y",
           title: "Y Position",
           type: "number",
+          description: "Default: 40",
         },
         {
           name: "z",
@@ -206,6 +216,7 @@ export default defineType({
     defineField({
       name: "mainSceneCameraPosition",
       title: "Main Scene Camera Position",
+      group: "camera",
       description:
         "The 3D position [x, y, z] where the camera should be when this point of interest is selected",
       type: "object",
@@ -233,6 +244,7 @@ export default defineType({
     defineField({
       name: "mainSceneCameraTarget",
       title: "Main Scene Camera Target",
+      group: "camera",
       description:
         "The 3D position [x, y, z] where the camera should look at when this point of interest is selected",
       type: "object",

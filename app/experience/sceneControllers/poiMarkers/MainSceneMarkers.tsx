@@ -1,9 +1,11 @@
 "use client";
-import { Html } from "@react-three/drei";
+import { Float, Html } from "@react-three/drei";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useControlsStore } from "../store/controlsStore";
 import { Vector3 } from "three";
+import { Marker } from "./model/Marker";
+import { useControls } from "leva";
 
 type MarkerPosition = {
   x: number;
@@ -23,19 +25,17 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
     useControlsStore();
   const router = useRouter();
 
-  console.log("Scene POIs:", scene.pointsOfInterest);
-  console.log("Referenced Scene:", scene.pointsOfInterest?.[0]);
+  // Add Leva controls for marker position
+  const { x, y, z } = useControls("Main Scene Marker Position", {
+    x: { value: 0, min: -200, max: 200, step: 1 },
+    y: { value: 40, min: -200, max: 200, step: 1 },
+    z: { value: 50, min: -200, max: 200, step: 1 },
+  });
 
   const handleMarkerClick = (poi: any) => {
     if (poi.mainSceneCameraPosition && poi.mainSceneCameraTarget) {
       console.log("Setting camera config and starting animation");
-      // Disable controls during animation
-      setControlsConfig({
-        enabled: false,
-        type: "Map",
-      });
-
-      // Set new camera configuration
+      // Set new camera configuration with subscene state
       setCameraConfig({
         position: new Vector3(
           poi.mainSceneCameraPosition.x,
@@ -47,7 +47,12 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
           poi.mainSceneCameraTarget.y,
           poi.mainSceneCameraTarget.z
         ),
-        state: "current",
+        state: "subscene",
+      });
+
+      setControlsConfig({
+        enabled: false,
+        type: "Orbit",
       });
 
       // Start animation
@@ -62,49 +67,69 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
     }
   };
 
+  // Debug marker with Leva controls
+  const debugMarker = (
+    <group position={[x, y, z]}>
+      <Html center transform>
+        <div className="bg-primary backdrop-blur-sm px-4 py-2 rounded-lg">
+          <h3 className="text-6xl font-bold">Debug Marker</h3>
+        </div>
+      </Html>
+      <group position={[0, -3, 0]}>
+        <Marker />
+      </group>
+    </group>
+  );
+
   return (
     <group>
-      {scene.pointsOfInterest?.map((poi) => {
-        console.log("Processing POI:", poi);
-
-        if (
-          "_type" in poi &&
-          poi._type === "scenes" &&
-          "mainSceneMarkerPosition" in poi &&
-          poi.mainSceneMarkerPosition &&
-          "slug" in poi
-        ) {
-          console.log(
-            "Found valid POI with position:",
-            poi.mainSceneMarkerPosition
-          );
+      {debugMarker}
+      {scene.pointsOfInterest
+        ?.filter(
+          (
+            poi
+          ): poi is {
+            _key: string;
+            _type: "scenes";
+            _id: string;
+            title: string;
+            slug: { current: string };
+            mainSceneMarkerPosition: { x: number; y: number; z: number };
+          } =>
+            "_type" in poi &&
+            poi._type === "scenes" &&
+            "mainSceneMarkerPosition" in poi &&
+            poi.mainSceneMarkerPosition !== undefined &&
+            "slug" in poi
+        )
+        .map((poi) => {
           const isHovered = hoveredMarkerId === poi._id;
           return (
             <group
-              key={poi._id}
+              key={poi._key ?? poi._id}
               position={toPosition(poi.mainSceneMarkerPosition)}
-              onClick={() => handleMarkerClick(poi)}
-              onPointerEnter={() => setHoveredMarkerId(poi._id)}
-              onPointerLeave={() => setHoveredMarkerId(null)}
             >
-              <Html>
-                <div className="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg">
-                  <h3 className="text-lg font-bold">{poi.title}</h3>
+              <Html center transform>
+                <div
+                  className="bg-primary backdrop-blur-sm px-4 py-2 rounded-lg cursor-pointer"
+                  onClick={() => handleMarkerClick(poi)}
+                  onMouseEnter={() => setHoveredMarkerId(poi._id)}
+                  onMouseLeave={() => setHoveredMarkerId(null)}
+                >
+                  <h3 className="text-6xl font-bold">{poi.title}</h3>
                 </div>
               </Html>
-              <mesh>
-                <sphereGeometry args={[1, 52, 52]} />
-                <meshStandardMaterial
-                  color={isHovered ? "hotpink" : "pink"}
-                  transparent
-                  opacity={0.8}
-                />
-              </mesh>
+              <group
+                position={[0, -3, 0]}
+                onClick={() => handleMarkerClick(poi)}
+                onPointerEnter={() => setHoveredMarkerId(poi._id)}
+                onPointerLeave={() => setHoveredMarkerId(null)}
+              >
+                <Marker />
+              </group>
             </group>
           );
-        }
-        return null;
-      })}
+        })}
     </group>
   );
 }

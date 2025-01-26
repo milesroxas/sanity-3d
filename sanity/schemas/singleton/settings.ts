@@ -34,4 +34,12 @@ export default defineType({
       ],
     }),
   ],
+  preview: {
+    select: {
+      title: "Settings",
+    },
+    prepare: ({ title }) => ({
+      title: title || "Settings",
+    }),
+  },
 });

@@ -18,9 +18,9 @@ const sceneComponents = {
   //     () =>
   //       import("./construction/models/ConstructionBuildings")
   //   ),
-  //   gatedCommunity: lazy(
-  //     () => import("./gatedCommunity/GatedCommunity")
-  //   ),
+  gatedCommunity: lazy(
+    () => import("@/app/experience/sceneCollections/gatedCommunity/Residential")
+  ),
   //   homes: lazy(
   //     () => import("./homesRight/models/HomesRightBuildings")
   //   ),

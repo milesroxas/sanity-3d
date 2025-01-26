@@ -2,7 +2,9 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
 import { Html } from "@react-three/drei";
-import CameraController from "./sceneControllers/cameraController/CameraController";
+import CameraController from "./sceneControllers/CameraController";
+import { Leva } from "leva";
+import { ExperienceController } from "./sceneControllers/ExperienceController";
 
 export default function Experience({
   children,
@@ -10,19 +12,23 @@ export default function Experience({
   children: React.ReactNode;
 }) {
   return (
-    <Canvas>
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1} />
-      <CameraController />
-      <Suspense
-        fallback={
-          <Html>
-            <div>Loading...</div>
-          </Html>
-        }
-      >
-        {children}
-      </Suspense>
-    </Canvas>
+    <>
+      <Leva hidden={process.env.NODE_ENV === "production"} />
+      <Canvas>
+        <ambientLight intensity={0.5} />
+        <pointLight position={[10, 10, 10]} intensity={1} />
+        {/* <CameraController /> */}
+
+        <Suspense
+          fallback={
+            <Html>
+              <div>Loading...</div>
+            </Html>
+          }
+        >
+          {children}
+        </Suspense>
+      </Canvas>
+    </>
   );
 }

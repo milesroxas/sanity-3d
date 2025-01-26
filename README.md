@@ -38,7 +38,9 @@ This is a test project to implement a 3D headless CMS experience using React Thr
   - [ ] Subscene navigation refinement
 - [ ] Review upstream updates from Schema UI
 - [ ] Clean up queries and types
+- [ ] Change /studio to /admin
 - [ ] Add testing
+- [ ] Separate Experience from Scenes as a singleton
 
 ## TODO: Brand
 

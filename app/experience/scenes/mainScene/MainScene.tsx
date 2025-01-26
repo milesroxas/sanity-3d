@@ -13,7 +13,7 @@ import { ResortBuildings } from "../../sceneCollections/resort/models/ResortBuil
 import { HomesRightBuildings } from "../../sceneCollections/homesRight/models/HomesRightBuildings";
 import { EventsBuildings } from "../../sceneCollections/events/models/EventsBuildings";
 import { FarmBuildings } from "../../sceneCollections/farm/models/FarmBuildings";
-import { ExperienceController } from "../../sceneControllers/experienceController/ExperienceController";
+import { ExperienceController } from "../../sceneControllers/ExperienceController";
 import MainSceneMarkers from "../../sceneControllers/poiMarkers/MainSceneMarkers";
 
 export default function MainScene({ scene }: { scene: Sanity.Scene }) {
