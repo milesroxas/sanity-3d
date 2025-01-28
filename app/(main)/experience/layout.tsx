@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import Canvas from "@/app/experience/Canvas";
+import Canvas from "@/experience/Canvas";
 import { SanityLive } from "@/sanity/lib/live";
 
 export default async function ExperienceLayout({

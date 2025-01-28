@@ -1,12 +1,12 @@
 import * as THREE from "three";
-import rawInstanceData from "@/app/experience/scenes/mainScene/lib/world_gated_houses_data.json";
+import rawInstanceData from "@/experience/scenes/mainScene/lib/world_gated_houses_data.json";
 
 import {
   useHouseGLTF,
   HouseMedium1,
   HouseSmall1,
   HouseSmall2,
-} from "@/app/experience/baseModels/buildings/HouseBase";
+} from "@/experience/baseModels/buildings/HouseBase";
 
 // Define TypeScript interfaces for the JSON data
 interface HouseInstance {

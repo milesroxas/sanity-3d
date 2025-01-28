@@ -6,7 +6,7 @@ import {
 } from "../../actions";
 import { generatePageMetadata } from "@/lib/metadata";
 
-import SubScene from "@/app/experience/scenes/subScene/SubScene";
+import SubScene from "@/experience/scenes/subScene/SubScene";
 
 export const dynamic = "force-static";
 

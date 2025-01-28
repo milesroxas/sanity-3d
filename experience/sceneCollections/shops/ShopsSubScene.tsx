@@ -7,7 +7,7 @@ import { useGLTF } from "@react-three/drei";
 import type * as THREE from "three";
 import type { GLTF } from "three-stdlib";
 import type { ThreeElements } from "@react-three/fiber";
-import { useModelDebug } from "@/app/experience/hooks/useModelDebug";
+import { useModelDebug } from "@/experience/hooks/useModelDebug";
 
 type GLTFResult = GLTF & {
   nodes: {

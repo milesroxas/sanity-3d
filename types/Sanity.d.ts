@@ -26,19 +26,9 @@ declare global {
       blocks?: Block[];
     };
 
-    // Scene document
     type Scene = PageBase & {
       readonly _type: "scenes";
       body?: any[];
-      sceneType:
-        | "shops"
-        | "company"
-        | "resort"
-        | "events"
-        | "farm"
-        | "construction"
-        | "gatedCommunity"
-        | "homes";
       mainSceneMarkerPosition?: {
         x: number;
         y: number;
@@ -66,33 +56,7 @@ declare global {
               y: number;
               z: number;
             };
-            mainSceneCameraPosition?: {
-              x: number;
-              y: number;
-              z: number;
-            };
-            mainSceneCameraTarget?: {
-              x: number;
-              y: number;
-              z: number;
-            };
             body?: any[];
-            sceneType?:
-              | "main"
-              | "shops"
-              | "company"
-              | "resort"
-              | "events"
-              | "farm"
-              | "construction"
-              | "gatedCommunity"
-              | "homes";
-            modelFiles?: Array<{
-              _key: string;
-              _type: "modelFiles";
-              modelName: string;
-              sceneModelFile: string;
-            }>;
           }
         | {
             _key: string;
@@ -116,13 +80,23 @@ declare global {
             };
           }
       >;
+      blocks?: Block[];
+      sceneType?:
+        | "main"
+        | "shops"
+        | "company"
+        | "resort"
+        | "events"
+        | "farm"
+        | "construction"
+        | "gatedCommunity"
+        | "homes";
       modelFiles?: Array<{
         _key: string;
         _type: "modelFiles";
-        modelName: string;
-        sceneModelFile: string;
+        modelName?: string;
+        fileUrl?: string;
       }>;
-      blocks?: Block[];
     };
 
     type Post = PageBase &
@@ -139,7 +113,6 @@ declare global {
       title: string;
       file: File;
     }>;
-
     type Settings = SanityDocument<{
       logo: Image;
       largeLogo: Image;

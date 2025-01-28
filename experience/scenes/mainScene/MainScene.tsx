@@ -1,0 +1,42 @@
+"use client";
+
+import { Environment } from "@react-three/drei";
+
+import WorldFloor from "@/experience/sceneCollections/WorldFloor";
+import GatedCommunity from "@/experience/sceneCollections/gatedCommunity/GatedCommunity";
+import { Mountains } from "@/experience/sceneCollections/mountains/Mountains";
+import Lights from "@/experience/sceneCollections/lights/Lights";
+import Trees from "@/experience/sceneCollections/trees/Trees";
+import { ConstructionBuildings } from "@/experience/sceneCollections/construction/models/ConstructionBuildings";
+import { CompanyBuildings } from "@/experience/sceneCollections/company/models/CompanyBuildings";
+import { ShopsBuildings } from "@/experience/sceneCollections/shops/ShopsMainScene";
+import { ResortBuildings } from "@/experience/sceneCollections/resort/models/ResortBuildings";
+import { HomesRightBuildings } from "@/experience/sceneCollections/homesRight/models/HomesRightBuildings";
+import { EventsBuildings } from "@/experience/sceneCollections/events/models/EventsBuildings";
+import { FarmBuildings } from "@/experience/sceneCollections/farm/models/FarmBuildings";
+import MainSceneMarkers from "@/experience/sceneControllers/poiMarkers/MainSceneMarkers";
+import { CameraSystem } from "@/experience/sceneControllers/CameraSystem";
+
+export default function MainScene({ scene }: { scene: Sanity.Scene }) {
+  return (
+    <>
+      <CameraSystem scene={scene} />
+      <MainSceneMarkers scene={scene} />
+      <Environment preset="sunset" />
+      <group position={[0, -0.2, 0]}>
+        <WorldFloor />
+      </group>
+      <Trees />
+      <GatedCommunity />
+      <HomesRightBuildings />
+      <ConstructionBuildings />
+      <CompanyBuildings />
+      <ShopsBuildings />
+      <ResortBuildings />
+      <EventsBuildings />
+      <FarmBuildings />
+      <Mountains />
+      <Lights />
+    </>
+  );
+}
