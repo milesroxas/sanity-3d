@@ -15,8 +15,9 @@ export default function SubScene({ scene }: { scene: Sanity.Scene }) {
 
   return (
     <>
+      <CameraSystem scene={scene} />
       <Environment preset="sunset" />
-      <Suspense fallback={null}>
+      <Suspense fallback={<>Loading...</>}>
         <SceneComponent modelFiles={scene.modelFiles} modelIndex={0} />
       </Suspense>
     </>

@@ -21,6 +21,7 @@ export default function MainScene({ scene }: { scene: Sanity.Scene }) {
   return (
     <>
       <CameraSystem scene={scene} />
+
       <MainSceneMarkers scene={scene} />
       <Environment preset="sunset" />
       <group position={[0, -0.2, 0]}>

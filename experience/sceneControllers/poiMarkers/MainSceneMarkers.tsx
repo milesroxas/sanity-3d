@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Vector3 } from "three";
 import { useCameraStore } from "../store/cameraStore";
-import { Marker } from "@/app/experience/sceneControllers/poiMarkers/model/Marker";
+import { Marker } from "@/experience/sceneControllers/poiMarkers/model/Marker";
 type MarkerPosition = {
   x: number;
   y: number;
@@ -19,12 +19,11 @@ const toPosition = (marker: MarkerPosition): Position => {
 
 export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
   const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null);
-  const { setCamera, setControlType } = useCameraStore();
+  const { setCamera, setIsAnimating } = useCameraStore();
   const router = useRouter();
 
   const handleMarkerClick = (poi: any) => {
     if (poi.mainSceneCameraPosition && poi.mainSceneCameraTarget) {
-      setControlType("Map");
       setCamera(
         new Vector3(
           poi.mainSceneCameraPosition.x,
@@ -36,8 +35,10 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
           poi.mainSceneCameraTarget.y,
           poi.mainSceneCameraTarget.z
         ),
-        "current"
+        "subscene"
       );
+
+      setIsAnimating(true);
 
       setTimeout(() => {
         router.push(`/experience/${poi.slug.current}`);

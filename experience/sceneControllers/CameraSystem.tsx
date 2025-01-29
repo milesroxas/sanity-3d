@@ -1,10 +1,37 @@
-import { MapControls, PerspectiveCamera } from "@react-three/drei";
+import {
+  CameraControls,
+  Environment,
+  MapControls,
+  PerspectiveCamera,
+} from "@react-three/drei";
 import { useControls } from "leva";
 import { useRef, useEffect } from "react";
 import { PerspectiveCamera as ThreePerspectiveCamera, Vector3 } from "three";
 
+import { useCameraStore } from "./store/cameraStore";
+
 export function CameraSystem({ scene }: { scene: Sanity.Scene }) {
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
+  const controlsRef = useRef<CameraControls>(null);
+
+  console.log(
+    scene.pointsOfInterest,
+    scene.mainSceneCameraPosition,
+    scene.mainSceneCameraTarget
+  );
+
+  if (!scene.mainSceneCameraPosition || !scene.mainSceneCameraTarget)
+    return null;
+
+  const { controlType, setControlType } = useCameraStore();
+  useEffect(() => {
+    // Set control type based on scene type
+    const isMainScene = !scene.sceneType || scene.sceneType === "main";
+    setControlType(isMainScene ? "Map" : "CameraControls");
+
+    // Cleanup function to reset control type when leaving
+    return () => setControlType("Map");
+  }, [setControlType, scene.sceneType]);
 
   const { positionX, positionY, positionZ, targetX, targetY, targetZ } =
     useControls({
@@ -47,19 +74,22 @@ export function CameraSystem({ scene }: { scene: Sanity.Scene }) {
     });
 
   useEffect(() => {
-    if (cameraRef.current) {
-      const cam = cameraRef.current;
-      const lookAtTarget = new Vector3(targetX, targetY, targetZ);
-      cam.lookAt(lookAtTarget);
-    }
-  }, [targetX, targetY, targetZ]);
+    if (!cameraRef.current || !controlsRef.current) return;
 
-  if (!scene.mainSceneCameraPosition || !scene.mainSceneCameraTarget)
-    return null;
+    const position = new Vector3(positionX, positionY, positionZ);
+    const target = new Vector3(targetX, targetY, targetZ);
+
+    // Update camera and controls
+    cameraRef.current.position.copy(position);
+    controlsRef.current.setLookAt(
+      ...position.toArray(),
+      ...target.toArray(),
+      true
+    );
+  }, [positionX, positionY, positionZ, targetX, targetY, targetZ]);
 
   return (
     <>
-      <MapControls target={new Vector3(targetX, targetY, targetZ)} />
       <PerspectiveCamera
         ref={cameraRef}
         makeDefault
@@ -69,6 +99,13 @@ export function CameraSystem({ scene }: { scene: Sanity.Scene }) {
         <sphereGeometry args={[0.5, 16, 16]} />
         <meshBasicMaterial color="red" wireframe />
       </mesh>
+
+      {controlType === "Map" && (
+        <MapControls target={[targetX, targetY, targetZ]} />
+      )}
+      {controlType === "CameraControls" && (
+        <CameraControls ref={controlsRef} makeDefault />
+      )}
     </>
   );
 }
