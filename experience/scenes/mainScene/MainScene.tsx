@@ -1,6 +1,7 @@
 "use client";
 
 import { Environment } from "@react-three/drei";
+import { useEffect } from "react";
 
 import WorldFloor from "@/experience/sceneCollections/WorldFloor";
 import GatedCommunity from "@/experience/sceneCollections/gatedCommunity/GatedCommunity";
@@ -16,8 +17,15 @@ import { EventsBuildings } from "@/experience/sceneCollections/events/models/Eve
 import { FarmBuildings } from "@/experience/sceneCollections/farm/models/FarmBuildings";
 import MainSceneMarkers from "@/experience/sceneControllers/poiMarkers/MainSceneMarkers";
 import { CameraSystem } from "@/experience/sceneControllers/CameraSystem";
+import { useCameraStore } from "@/experience/sceneControllers/store/cameraStore";
 
 export default function MainScene({ scene }: { scene: Sanity.Scene }) {
+  const { resetToInitial } = useCameraStore();
+
+  useEffect(() => {
+    resetToInitial();
+  }, []);
+
   return (
     <>
       <CameraSystem scene={scene} />

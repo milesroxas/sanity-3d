@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCameraStore } from "../store/cameraStore";
 import { Vector3 } from "three";
+import { INITIAL_POSITIONS } from "../store/cameraStore";
 
 type MarkerPosition = {
   x: number;
@@ -23,7 +24,7 @@ export default function SubSceneMarkers({ scene }: { scene: Sanity.Scene }) {
 
   const handleMarkerClick = (poi: any) => {
     if (poi.cameraPosition && poi.cameraTarget) {
-      setControlType("Orbit");
+      setControlType("CameraControls");
       setCamera(
         new Vector3(
           poi.cameraPosition.x,

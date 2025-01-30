@@ -1,5 +1,6 @@
 "use client";
 import { Float, Html } from "@react-three/drei";
+import { useThree } from "@react-three/fiber";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Vector3 } from "three";
@@ -19,33 +20,54 @@ const toPosition = (marker: MarkerPosition): Position => {
 
 export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
   const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null);
-  const { setCamera, setIsAnimating } = useCameraStore();
+
   const router = useRouter();
+  const { camera } = useThree();
+
+  const { setCamera } = useCameraStore();
 
   const handleMarkerClick = (poi: any) => {
-    if (poi.mainSceneCameraPosition && poi.mainSceneCameraTarget) {
-      setCamera(
+    if (!poi.mainSceneCameraPosition || !poi.mainSceneCameraTarget) {
+      console.warn("Missing camera position or target:", poi);
+      return;
+    }
+
+    // Store current camera position before transitioning
+    useCameraStore
+      .getState()
+      .setPreviousCamera(
+        camera.position.clone(),
+        camera
+          .getWorldDirection(new Vector3())
+          .multiplyScalar(100)
+          .add(camera.position)
+      );
+
+    // Start the camera transition
+    useCameraStore
+      .getState()
+      .startCameraTransition(
+        camera.position.clone(),
         new Vector3(
           poi.mainSceneCameraPosition.x,
           poi.mainSceneCameraPosition.y,
           poi.mainSceneCameraPosition.z
         ),
+        camera
+          .getWorldDirection(new Vector3())
+          .multiplyScalar(100)
+          .add(camera.position),
         new Vector3(
           poi.mainSceneCameraTarget.x,
           poi.mainSceneCameraTarget.y,
           poi.mainSceneCameraTarget.z
-        ),
-        "subscene"
+        )
       );
 
-      setIsAnimating(true);
-
-      setTimeout(() => {
-        router.push(`/experience/${poi.slug.current}`);
-      }, 1500);
-    } else {
-      console.warn("Missing camera position or target:", poi);
-    }
+    // Navigate after animation completes
+    setTimeout(() => {
+      router.push(`/experience/${poi.slug.current}`);
+    }, 1800);
   };
 
   return (
