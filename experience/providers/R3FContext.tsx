@@ -23,7 +23,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
       {children}
 
       {/* Single Canvas instance */}
-      <div className="relative left-0 top-0 w-full h-screen">
+      <div className="fixed inset-0 w-full h-full">
         <Canvas>
           <ambientLight intensity={0.5} />
           <pointLight position={[10, 10, 10]} intensity={1} />
