@@ -5,8 +5,7 @@ import {
   fetchSanitySceneBySlug,
 } from "../../actions";
 import { generatePageMetadata } from "@/lib/metadata";
-
-import SubScene from "@/experience/scenes/subScene/SubScene";
+import SubSceneClient from "@/experience/scenes/subScene/SubSceneClient";
 
 export const dynamic = "force-static";
 
@@ -25,6 +24,7 @@ export async function generateMetadata(props: {
     slug: `/experience/${params.slug}`,
   });
 }
+
 export async function generateStaticParams() {
   const scenes = await fetchSanityScenesStaticParams();
 
@@ -33,17 +33,15 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function ExperienceSubPage(props: {
+export default async function Page(props: {
   params: Promise<{ slug: string }>;
 }) {
   const params = await props.params;
+  const scene = await fetchSanitySceneBySlug({ slug: params.slug });
 
-  if (!params) {
+  if (!scene) {
     notFound();
   }
 
-  const scene = await fetchSanitySceneBySlug({ slug: params.slug });
-  console.log("Scene data:", scene);
-
-  return <SubScene scene={scene} />;
+  return <SubSceneClient scene={scene} />;
 }

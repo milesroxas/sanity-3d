@@ -1,5 +1,11 @@
-// contexts/R3FContext.tsx
-import { createContext, useContext, useState, ReactNode } from "react";
+"use client";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  Suspense,
+} from "react";
 import { Canvas } from "@react-three/fiber";
 
 type R3FContextType = {
@@ -13,8 +19,17 @@ export function R3FProvider({ children }: { children: ReactNode }) {
 
   return (
     <R3FContext.Provider value={{ setR3FContent }}>
-      <Canvas>{r3fContent}</Canvas>
+      {/* Regular React components here */}
       {children}
+
+      {/* Single Canvas instance */}
+      <div className="relative left-0 top-0 w-full h-screen">
+        <Canvas>
+          <ambientLight intensity={0.5} />
+          <pointLight position={[10, 10, 10]} intensity={1} />
+          <Suspense fallback={null}>{r3fContent}</Suspense>
+        </Canvas>
+      </div>
     </R3FContext.Provider>
   );
 }

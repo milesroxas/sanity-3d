@@ -1,18 +1,19 @@
-import { Suspense } from "react";
-import Canvas from "@/experience/Canvas";
-import { SanityLive } from "@/sanity/lib/live";
+// app/experience/layout.tsx
+"use client";
+import { R3FProvider } from "@/experience/providers/R3FContext";
+import { ReactNode } from "react";
+import { Leva } from "leva";
 
 export default function ExperienceLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
-    <main className="relative h-screen w-screen">
-      <Suspense fallback={<div>Loading...</div>}>
-        <Canvas>{children}</Canvas>
-      </Suspense>
-      <SanityLive />
-    </main>
+    <R3FProvider>
+      {/* Non-R3F components render here */}
+      {children}
+      <Leva hidden={process.env.NODE_ENV === "production"} />
+    </R3FProvider>
   );
 }

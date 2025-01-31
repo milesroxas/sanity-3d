@@ -34,15 +34,15 @@ export function Carousel3({ pointsOfInterest }: Carousel3Props) {
   if (!pointsOfInterest?.length) return null;
 
   return (
-    <Carousel className="">
-      <CarouselContent>
+    <Carousel className="w-full">
+      <CarouselContent className="-ml-0">
         {pointsOfInterest.map((poi) => (
-          <CarouselItem key={poi._key}>
-            <div className="p-1">
-              <Card>
-                <CardContent className="flex flex-col gap-4 p-6">
-                  <div className="text-center">
-                    <h3 className="text-xl font-semibold mb-2">{poi.title}</h3>
+          <CarouselItem key={poi._key} className="pl-0">
+            <div className="p-0">
+              <Card className="overflow-hidden">
+                <CardContent className="flex flex-col gap-4 p-4">
+                  <div className="text-left">
+                    <h3 className="text-lg font-semibold">{poi.title}</h3>
                     {poi.body && <PortableTextRenderer value={poi.body} />}
                   </div>
                 </CardContent>
@@ -51,8 +51,8 @@ export function Carousel3({ pointsOfInterest }: Carousel3Props) {
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
+      <CarouselPrevious className="-left-4 top-1/2" />
+      <CarouselNext className="-right-4 top-1/2" />
     </Carousel>
   );
 }

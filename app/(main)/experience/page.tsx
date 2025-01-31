@@ -1,6 +1,6 @@
 import { generatePageMetadata } from "@/lib/metadata";
 import { fetchSanitySceneBySlug } from "../actions";
-import MainScene from "@/experience/scenes/mainScene/MainScene";
+import MainSceneClient from "@/experience/scenes/mainScene/MainSceneClient";
 
 export const dynamic = "force-static";
 
@@ -11,5 +11,5 @@ export async function generateMetadata() {
 
 export default async function ExperiencePage() {
   const scene = await fetchSanitySceneBySlug({ slug: "experience" });
-  return <MainScene scene={scene} />;
+  return <MainSceneClient scene={scene} />;
 }
