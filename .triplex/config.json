@@ -1,0 +1,5 @@
+{
+  "files": ["../src/experience/**/*.tsx"],
+  "publicDir": ["../public"],
+  "modelsDir": "../public/models"
+}

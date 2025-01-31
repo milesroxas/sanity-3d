@@ -12,6 +12,7 @@ interface CameraStore {
   isAnimating: boolean;
   state: CameraState;
   isSubscene: boolean;
+  isLoading: boolean;
 
   // Actions
   setCamera: (position: Vector3, target: Vector3, state?: CameraState) => void;
@@ -27,6 +28,7 @@ interface CameraStore {
     startTarget: Vector3,
     endTarget: Vector3
   ) => void;
+  setIsLoading: (state: boolean) => void;
 }
 
 export const INITIAL_POSITIONS = {
@@ -35,7 +37,7 @@ export const INITIAL_POSITIONS = {
     target: new Vector3(-10, 10, 50),
   },
   subscene: {
-    position: new Vector3(0, 5, 10),
+    position: new Vector3(-20, 10, 20),
     target: new Vector3(0, 0, 0),
   },
 } as const;
@@ -49,8 +51,11 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   isAnimating: false,
   state: "main",
   isSubscene: false,
+  isLoading: false,
 
   resetToInitial: () => {
+    if (get().isLoading) return;
+
     const initial = INITIAL_POSITIONS[get().isSubscene ? "subscene" : "main"];
     set({
       position: initial.position.clone(),
@@ -91,6 +96,8 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
 
   setCamera: (position, target, state = "current") =>
     set((prev) => {
+      if (get().isLoading) return prev;
+
       // If state is "subscene", use subscene initial positions
       if (state === "subscene") {
         return {
@@ -114,6 +121,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   setIsSubscene: (isSubscene) => set({ isSubscene }),
   setControlType: (controlType) => set({ controlType }),
   setIsAnimating: (isAnimating) => set({ isAnimating }),
+  setIsLoading: (isLoading) => set({ isLoading }),
   startCameraTransition: (startPos, endPos, startTarget, endTarget) => {
     set({
       controlType: "Disabled",
@@ -121,7 +129,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
     });
 
     const startTime = Date.now();
-    const duration = 1500;
+    const duration = 2000;
 
     const animate = () => {
       const now = Date.now();

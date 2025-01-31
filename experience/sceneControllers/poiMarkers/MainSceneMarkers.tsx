@@ -24,13 +24,14 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
   const router = useRouter();
   const { camera } = useThree();
 
-  const { setCamera } = useCameraStore();
-
   const handleMarkerClick = (poi: any) => {
     if (!poi.mainSceneCameraPosition || !poi.mainSceneCameraTarget) {
       console.warn("Missing camera position or target:", poi);
       return;
     }
+
+    // Set loading state immediately
+    useCameraStore.getState().setIsLoading(true);
 
     // Store current camera position before transitioning
     useCameraStore
@@ -67,7 +68,7 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
     // Navigate after animation completes
     setTimeout(() => {
       router.push(`/experience/${poi.slug.current}`);
-    }, 1800);
+    }, 1800); // Slightly shorter than animation duration
   };
 
   return (

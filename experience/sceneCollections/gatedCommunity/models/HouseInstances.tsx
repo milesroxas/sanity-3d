@@ -1,6 +1,4 @@
 import * as THREE from "three";
-import rawInstanceData from "@/experience/scenes/mainScene/lib/world_gated_houses_data.json";
-
 import {
   useHouseGLTF,
   HouseMedium1,
@@ -15,7 +13,7 @@ interface HouseInstance {
   rotation: [number, number, number] | null;
 }
 
-interface RawInstanceData {
+export interface RawInstanceData {
   medium_houses: HouseInstance[];
   small_houses_1: HouseInstance[];
   small_houses_2: HouseInstance[];
@@ -27,10 +25,11 @@ interface RawHouseData {
   rotation: unknown;
 }
 
-// Type assertion for raw JSON data
-const rawInstanceDataTyped = rawInstanceData as RawInstanceData;
+interface HouseInstancesProps {
+  instanceData: RawInstanceData;
+}
 
-// Map and validate instance data
+// Validation function remains the same
 const validateHouseInstance = (house: RawHouseData): HouseInstance => {
   if (
     !house.name ||
@@ -49,18 +48,17 @@ const validateHouseInstance = (house: RawHouseData): HouseInstance => {
   };
 };
 
-const instanceData = {
-  medium_houses: rawInstanceDataTyped.medium_houses.map(validateHouseInstance),
-  small_houses_1: rawInstanceDataTyped.small_houses_1.map(
-    validateHouseInstance
-  ),
-  small_houses_2: rawInstanceDataTyped.small_houses_2.map(
-    validateHouseInstance
-  ),
-};
-
-function HouseInstances() {
+function HouseInstances({
+  instanceData: rawInstanceData,
+}: HouseInstancesProps) {
   const { nodes, materials } = useHouseGLTF();
+
+  // Process the instance data
+  const processedInstanceData = {
+    medium_houses: rawInstanceData.medium_houses.map(validateHouseInstance),
+    small_houses_1: rawInstanceData.small_houses_1.map(validateHouseInstance),
+    small_houses_2: rawInstanceData.small_houses_2.map(validateHouseInstance),
+  };
 
   const renderHouseGroup = (
     houseData: HouseInstance[],
@@ -86,9 +84,9 @@ function HouseInstances() {
 
   return (
     <group>
-      {renderHouseGroup(instanceData.medium_houses, HouseMedium1)}
-      {renderHouseGroup(instanceData.small_houses_1, HouseSmall1)}
-      {renderHouseGroup(instanceData.small_houses_2, HouseSmall2)}
+      {renderHouseGroup(processedInstanceData.medium_houses, HouseMedium1)}
+      {renderHouseGroup(processedInstanceData.small_houses_1, HouseSmall1)}
+      {renderHouseGroup(processedInstanceData.small_houses_2, HouseSmall2)}
     </group>
   );
 }

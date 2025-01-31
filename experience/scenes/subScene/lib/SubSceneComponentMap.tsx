@@ -1,7 +1,14 @@
 import { lazy } from "react";
 
+const withLoading = (importFn: () => Promise<any>) =>
+  lazy(async () => {
+    const component = await importFn();
+    // Remove artificial delay since we're handling timing in the component
+    return component;
+  });
+
 const sceneComponents = {
-  shops: lazy(
+  shops: withLoading(
     () => import("@/experience/sceneCollections/shops/ShopsSubScene")
   ),
   //   company: lazy(
@@ -18,8 +25,9 @@ const sceneComponents = {
   //     () =>
   //       import("./construction/models/ConstructionBuildings")
   //   ),
-  gatedCommunity: lazy(
-    () => import("@/experience/sceneCollections/gatedCommunity/Residential")
+  gatedCommunity: withLoading(
+    () =>
+      import("@/experience/sceneCollections/gatedCommunity/ResidentialSubScene")
   ),
   //   homes: lazy(
   //     () => import("./homesRight/models/HomesRightBuildings")

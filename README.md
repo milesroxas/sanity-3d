@@ -23,7 +23,7 @@ This is a test project to implement a 3D headless CMS experience using React Thr
 - [ ] Subscene navigation
 - [ ] Subscene blocks from Schema UI
 - [ ] Sanity CMS navigation settings
-- [ ] Create a camera animation system
+- [x] Create a camera animation system
 - [ ] Implement 3D animations
 - [ ] Implement baked textures
 - [ ] Dynamic scene environment and lighting

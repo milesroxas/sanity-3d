@@ -1,5 +1,5 @@
 "use client";
-
+import React from "react";
 import { Environment } from "@react-three/drei";
 import { useEffect } from "react";
 

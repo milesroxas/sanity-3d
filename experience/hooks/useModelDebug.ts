@@ -23,12 +23,18 @@ export function useModelDebug({
   defaultPath,
 }: ModelDebugOptions) {
   useEffect(() => {
-    console.log(`${componentName} Debug:`, {
-      providedModelFiles: modelFiles,
-      selectedIndex: modelIndex,
-      selectedModelFile: modelFiles?.[modelIndex ?? 0],
-      usingPath: modelPath,
-      isFallback: modelPath === defaultPath,
-    });
+    const isDefaultPath = modelPath === defaultPath;
+    const source = isDefaultPath ? "public" : "Sanity";
+
+    console.log(`🔍 ${componentName} Model Source: ${source}`);
+    console.log(`📦 ${componentName} Model Path: ${modelPath}`);
+
+    if (!isDefaultPath) {
+      console.log("📋 Sanity Model Details:", {
+        fileName: modelFiles?.[modelIndex ?? 0]?.fileName,
+        filePath: modelFiles?.[modelIndex ?? 0]?.filePath,
+        fileUrl: modelFiles?.[modelIndex ?? 0]?.fileUrl,
+      });
+    }
   }, [componentName, modelFiles, modelIndex, modelPath, defaultPath]);
 }

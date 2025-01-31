@@ -441,7 +441,7 @@ export function HouseSmall2({ nodes, materials }: HouseProps) {
 // Reusable hook to load GLTF
 export function useHouseGLTF() {
   const { nodes, materials } = useGLTF(
-    "/models/base/bldg_homes.glb",
+    "/models/base/bldg_homes.glb"
   ) as GLTFResult;
   return { nodes, materials };
 }

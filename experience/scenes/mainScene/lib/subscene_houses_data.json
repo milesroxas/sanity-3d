@@ -1,0 +1,78 @@
+{
+  "medium_houses": [
+    {
+      "name": "BLDG_House_Medium_01",
+      "position": [-0.999, 1.569, -6.522],
+      "rotation": null
+    },
+    {
+      "name": "BLDG_House_Medium_01001",
+      "position": [2.129, 1.569, -6.522],
+      "rotation": null
+    },
+    {
+      "name": "BLDG_House_Medium_01002",
+      "position": [-6.557, 1.569, 6.863],
+      "rotation": [0, null, 0]
+    }
+  ],
+  "small_houses_1": [
+    {
+      "name": "BLDG_House_Small_01",
+      "position": [1.415, 1.569, 6.593],
+      "rotation": [0, null, 0]
+    },
+    {
+      "name": "BLDG_House_Small_01001",
+      "position": [-1.395, 1.569, -0.59],
+      "rotation": [0, null, 0]
+    },
+    {
+      "name": "BLDG_House_Small_01002",
+      "position": [2.059, 1.569, 3.771],
+      "rotation": [3.141592653589793, 0, 3.141592653589793]
+    },
+    {
+      "name": "BLDG_House_Small_01003",
+      "position": [1.415, 1.569, 0.904],
+      "rotation": [0, null, 0]
+    },
+    {
+      "name": "BLDG_House_Small_01004",
+      "position": [-1.395, 1.569, -6.179],
+      "rotation": [0, null, 0]
+    }
+  ],
+  "small_houses_2": [
+    {
+      "name": "BLDG_House_Small_02",
+      "position": [4.966, 1.569, 2.196],
+      "rotation": null
+    },
+    {
+      "name": "BLDG_House_Small_02001",
+      "position": [-4.308, 1.569, 4.073],
+      "rotation": [null, 0, null]
+    },
+    {
+      "name": "BLDG_House_Small_02002",
+      "position": [-4.014, 1.569, 1.845],
+      "rotation": null
+    },
+    {
+      "name": "BLDG_House_Small_02003",
+      "position": [5.895, 1.569, -1.383],
+      "rotation": null
+    },
+    {
+      "name": "BLDG_House_Small_02004",
+      "position": [3.479, 1.569, -2.445],
+      "rotation": [0, null, 0]
+    },
+    {
+      "name": "BLDG_House_Small_02005",
+      "position": [5.895, 1.569, -3.682],
+      "rotation": [3.141592653589793, 0, 3.141592653589793]
+    }
+  ]
+}
