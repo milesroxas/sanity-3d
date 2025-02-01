@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Vector3 } from "three";
+import { PointOfInterest } from "@/experience/scenes/subScene/components/SubSceneMarkers";
 
 type CameraState = "main" | "previous" | "current" | "subscene";
 type ControlType = "Map" | "CameraControls" | "Disabled";
@@ -10,6 +11,7 @@ interface CameraStore {
   target: Vector3;
   previousPosition: Vector3 | null;
   previousTarget: Vector3 | null;
+  selectedPoi: PointOfInterest | null;
 
   // State Properties
   controlType: ControlType;
@@ -35,6 +37,16 @@ interface CameraStore {
   setIsAnimating: (state: boolean) => void;
   setIsSubscene: (state: boolean) => void;
   setIsLoading: (state: boolean) => void;
+  setSelectedPoi: (poi: PointOfInterest | null) => void;
+
+  // New action
+  syncCameraPosition: (position: Vector3, target: Vector3) => void;
+
+  // Add to CameraStore interface
+  currentPoiIndex: number;
+  setCurrentPoiIndex: (index: number) => void;
+  navigateToNextPoi: (points: PointOfInterest[]) => void;
+  navigateToPreviousPoi: (points: PointOfInterest[]) => void;
 }
 
 export const INITIAL_POSITIONS = {
@@ -59,6 +71,8 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   state: "main",
   isSubscene: false,
   isLoading: false,
+  selectedPoi: null,
+  currentPoiIndex: 0,
 
   // Camera Actions
   resetToInitial: () => {
@@ -133,6 +147,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         controlType: "CameraControls",
       }),
     }),
+  setSelectedPoi: (poi) => set({ selectedPoi: poi }),
 
   // Animation
   startCameraTransition: (startPos, endPos, startTarget, endTarget) => {
@@ -153,7 +168,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       if (progress >= 1) {
         set({
           isAnimating: false,
-          isLoading: true,
+          isLoading: false,
           position: endPos.clone(),
           target: endTarget.clone(),
           previousPosition: startPos.clone(),
@@ -174,5 +189,71 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
     };
 
     animate();
+  },
+
+  // New action
+  syncCameraPosition: (position, target) =>
+    set({
+      position: position.clone(),
+      target: target.clone(),
+    }),
+
+  // Add new actions
+  setCurrentPoiIndex: (index) => set({ currentPoiIndex: index }),
+
+  navigateToNextPoi: (points) => {
+    const currentIndex = get().currentPoiIndex;
+    const nextIndex = (currentIndex + 1) % points.length;
+    const nextPoi = points[nextIndex];
+
+    console.log("NavigateToNextPoi:", { currentIndex, nextIndex, nextPoi });
+
+    if (nextPoi.cameraPosition && nextPoi.cameraTarget) {
+      console.log("Starting camera transition to next POI");
+      set({ currentPoiIndex: nextIndex });
+      get().startCameraTransition(
+        get().position,
+        new Vector3(
+          nextPoi.cameraPosition.x,
+          nextPoi.cameraPosition.y,
+          nextPoi.cameraPosition.z
+        ),
+        get().target,
+        new Vector3(
+          nextPoi.cameraTarget.x,
+          nextPoi.cameraTarget.y,
+          nextPoi.cameraTarget.z
+        )
+      );
+      get().setSelectedPoi(nextPoi);
+    } else {
+      console.warn("Missing camera position or target for next POI:", nextPoi);
+    }
+  },
+
+  navigateToPreviousPoi: (points) => {
+    const currentIndex = get().currentPoiIndex;
+    const previousIndex =
+      currentIndex === 0 ? points.length - 1 : currentIndex - 1;
+    const previousPoi = points[previousIndex];
+
+    if (previousPoi.cameraPosition && previousPoi.cameraTarget) {
+      set({ currentPoiIndex: previousIndex });
+      get().startCameraTransition(
+        get().position,
+        new Vector3(
+          previousPoi.cameraPosition.x,
+          previousPoi.cameraPosition.y,
+          previousPoi.cameraPosition.z
+        ),
+        get().target,
+        new Vector3(
+          previousPoi.cameraTarget.x,
+          previousPoi.cameraTarget.y,
+          previousPoi.cameraTarget.z
+        )
+      );
+      get().setSelectedPoi(previousPoi);
+    }
   },
 }));

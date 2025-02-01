@@ -15,16 +15,14 @@ import { ResortBuildings } from "@/experience/sceneCollections/resort/models/Res
 import { HomesRightBuildings } from "@/experience/sceneCollections/homesRight/models/HomesRightBuildings";
 import { EventsBuildings } from "@/experience/sceneCollections/events/models/EventsBuildings";
 import { FarmBuildings } from "@/experience/sceneCollections/farm/models/FarmBuildings";
-import MainSceneMarkers from "@/experience/sceneControllers/poiMarkers/MainSceneMarkers";
-import { CameraSystem } from "@/experience/sceneControllers/CameraSystem";
-import { useCameraStore } from "@/experience/sceneControllers/store/cameraStore";
+import MainSceneMarkers from "@/experience/scenes/mainScene/components/MainSceneMarkers";
 import { ResidentialProps } from "@/experience/sceneCollections/gatedCommunity/models/ResidentialProps";
 import { AnimatedCar } from "@/experience/sceneCollections/vehicles/AnimatedCar";
-
+import { MainSceneCameraSystem } from "@/experience/scenes/mainScene/MainSceneCameraSystem";
 export default function MainScene({ scene }: { scene: Sanity.Scene }) {
   return (
     <>
-      <CameraSystem scene={scene} />
+      <MainSceneCameraSystem />
       <MainSceneMarkers scene={scene} />
       <Environment preset="sunset" />
       <group position={[0, -0.2, 0]}>

@@ -8,35 +8,78 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import PortableTextRenderer from "@/components/portable-text-renderer";
-import { PortableTextBlock } from "next-sanity";
-
-type Poi = {
-  _key: string;
-  title: string;
-  body?: PortableTextBlock[];
-  cameraPosition?: {
-    x: number;
-    y: number;
-    z: number;
-  };
-  cameraTarget?: {
-    x: number;
-    y: number;
-    z: number;
-  };
-};
+import { PointOfInterest } from "@/experience/scenes/subScene/components/SubSceneMarkers";
+import { useCameraStore } from "@/experience/scenes/store/cameraStore";
 
 interface Carousel3Props {
-  pointsOfInterest?: Poi[];
+  scene: Sanity.Scene;
+  selectedPoi: PointOfInterest | null;
 }
 
-export function Carousel3({ pointsOfInterest }: Carousel3Props) {
-  if (!pointsOfInterest?.length) return null;
+export function Carousel3({ scene, selectedPoi }: Carousel3Props) {
+  const [api, setApi] = React.useState<any>();
+  const currentPoiIndex = useCameraStore((state) => state.currentPoiIndex);
+  const { navigateToNextPoi, navigateToPreviousPoi } = useCameraStore();
+
+  // Filter the points that have a markerPosition (only valid markers)
+  const validPointsOfInterest = React.useMemo(
+    () =>
+      (scene.pointsOfInterest ?? []).filter(
+        (poi): poi is PointOfInterest =>
+          (poi as PointOfInterest).markerPosition !== undefined
+      ),
+    [scene.pointsOfInterest]
+  );
+
+  const handleCarouselChange = React.useCallback(
+    (selectedIndex: number) => {
+      const currentIndex = useCameraStore.getState().currentPoiIndex;
+      console.log("Carousel change:", { selectedIndex, currentIndex });
+
+      if (selectedIndex > currentIndex) {
+        console.log("Navigating to next POI");
+        navigateToNextPoi(validPointsOfInterest);
+      } else if (selectedIndex < currentIndex) {
+        console.log("Navigating to previous POI");
+        navigateToPreviousPoi(validPointsOfInterest);
+      }
+    },
+    [navigateToNextPoi, navigateToPreviousPoi, validPointsOfInterest]
+  );
+
+  // When the carousel api is ready, sync with current index and set up event listeners
+  React.useEffect(() => {
+    if (!api) return;
+
+    console.log("Setting up carousel event listeners");
+    api.scrollTo(currentPoiIndex);
+
+    // Add select event listener
+    api.on("select", () => {
+      console.log("Carousel select event fired");
+      const selectedIndex = api.selectedScrollSnap();
+      console.log("Selected index from event:", selectedIndex);
+      handleCarouselChange(selectedIndex);
+    });
+
+    return () => {
+      api.off("select", () => {});
+    };
+  }, [api, currentPoiIndex, handleCarouselChange]);
+
+  if (!selectedPoi) return null;
 
   return (
-    <Carousel className="w-full">
+    <Carousel
+      className="max-w-md"
+      opts={{
+        align: "start",
+        startIndex: currentPoiIndex,
+      }}
+      setApi={setApi}
+    >
       <CarouselContent className="-ml-0">
-        {pointsOfInterest.map((poi) => (
+        {validPointsOfInterest.map((poi) => (
           <CarouselItem key={poi._key} className="pl-0">
             <div className="p-0">
               <Card className="overflow-hidden">

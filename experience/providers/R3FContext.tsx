@@ -7,7 +7,7 @@ import {
   Suspense,
 } from "react";
 import { Canvas } from "@react-three/fiber";
-import { Loading } from "../sceneControllers/Loading";
+import { Loading } from "../scenes/components/Loading";
 
 type R3FContextType = {
   setR3FContent: (content: ReactNode) => void;

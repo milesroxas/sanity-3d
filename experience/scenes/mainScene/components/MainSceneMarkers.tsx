@@ -4,8 +4,8 @@ import { useThree } from "@react-three/fiber";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Vector3 } from "three";
-import { useCameraStore } from "../store/cameraStore";
-import { Marker } from "@/experience/sceneControllers/poiMarkers/model/Marker";
+import { useCameraStore } from "../../store/cameraStore";
+import { Marker } from "@/experience/sceneCollections/markers/Marker";
 type MarkerPosition = {
   x: number;
   y: number;
@@ -34,20 +34,19 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
     useCameraStore.getState().setIsLoading(true);
 
     // Store the POI camera position and target
-    useCameraStore
-      .getState()
-      .setPreviousCamera(
-        new Vector3(
-          poi.mainSceneCameraPosition.x,
-          poi.mainSceneCameraPosition.y,
-          poi.mainSceneCameraPosition.z
-        ),
-        new Vector3(
-          poi.mainSceneCameraTarget.x,
-          poi.mainSceneCameraTarget.y,
-          poi.mainSceneCameraTarget.z
-        )
-      );
+    useCameraStore.getState();
+    // .setPreviousCamera(
+    //   new Vector3(
+    //     poi.mainSceneCameraPosition.x,
+    //     poi.mainSceneCameraPosition.y,
+    //     poi.mainSceneCameraPosition.z
+    //   ),
+    //   new Vector3(
+    //     poi.mainSceneCameraTarget.x,
+    //     poi.mainSceneCameraTarget.y,
+    //     poi.mainSceneCameraTarget.z
+    //   )
+    // );
 
     // Start the camera transition to the target position
     useCameraStore

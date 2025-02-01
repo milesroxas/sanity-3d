@@ -1,5 +1,5 @@
 "use client";
-import { useCameraStore } from "./store/cameraStore";
+import { useCameraStore } from "../store/cameraStore";
 
 export function Loading() {
   const { isLoading } = useCameraStore();

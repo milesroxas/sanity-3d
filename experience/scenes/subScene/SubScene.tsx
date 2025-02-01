@@ -2,10 +2,16 @@
 import { Suspense, useEffect, useState } from "react";
 import { getSceneComponent, SceneType } from "./lib/SubSceneComponentMap";
 import { Environment } from "@react-three/drei";
-import { CameraSystem } from "@/experience/sceneControllers/CameraSystem";
-import { useCameraStore } from "@/experience/sceneControllers/store/cameraStore";
-import SubSceneMarkers from "@/experience/sceneControllers/poiMarkers/SubSceneMarkers";
-export default function SubScene({ scene }: { scene: Sanity.Scene }) {
+import { useCameraStore } from "@/experience/scenes/store/cameraStore";
+import SubSceneMarkers, { PointOfInterest } from "./components/SubSceneMarkers";
+import { SubSceneCameraSystem } from "./SubSceneCameraSystem";
+
+interface SubSceneProps {
+  scene: Sanity.Scene;
+  onMarkerClick: (poi: PointOfInterest) => void;
+}
+
+export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
   const { setIsSubscene, setIsLoading } = useCameraStore();
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -31,19 +37,21 @@ export default function SubScene({ scene }: { scene: Sanity.Scene }) {
 
   return (
     <>
-      <CameraSystem scene={scene} />
-      <Environment preset="sunset" />
-      <SubSceneMarkers scene={scene} />
-      <Suspense fallback={null}>
-        <SceneComponent
-          modelFiles={scene.modelFiles}
-          modelIndex={0}
-          onLoad={() => {
-            console.log("SceneComponent onLoad triggered");
-            setIsLoaded(true);
-          }}
-        />
-      </Suspense>
+      <SubSceneCameraSystem />
+      <group position={[-4, 0, 0]}>
+        <Environment preset="sunset" />
+        <SubSceneMarkers scene={scene} onMarkerClick={onMarkerClick} />
+        <Suspense fallback={null}>
+          <SceneComponent
+            modelFiles={scene.modelFiles}
+            modelIndex={0}
+            onLoad={() => {
+              console.log("SceneComponent onLoad triggered");
+              setIsLoaded(true);
+            }}
+          />
+        </Suspense>
+      </group>
     </>
   );
 }

@@ -1,6 +1,6 @@
 import { Html } from "@react-three/drei";
-import { Marker } from "../model/Marker";
-import { MarkerPosition, toPosition } from "../types";
+import { Marker } from "../../sceneCollections/markers/Marker";
+import { MarkerPosition, toPosition } from "../../types/types";
 
 type PoiMarkerProps = {
   position: MarkerPosition;
