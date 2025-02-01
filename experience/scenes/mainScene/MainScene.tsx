@@ -18,6 +18,8 @@ import { FarmBuildings } from "@/experience/sceneCollections/farm/models/FarmBui
 import MainSceneMarkers from "@/experience/sceneControllers/poiMarkers/MainSceneMarkers";
 import { CameraSystem } from "@/experience/sceneControllers/CameraSystem";
 import { useCameraStore } from "@/experience/sceneControllers/store/cameraStore";
+import { ResidentialProps } from "@/experience/sceneCollections/gatedCommunity/models/ResidentialProps";
+import { AnimatedCar } from "@/experience/sceneCollections/vehicles/AnimatedCar";
 
 export default function MainScene({ scene }: { scene: Sanity.Scene }) {
   const { resetToInitial } = useCameraStore();
@@ -36,7 +38,9 @@ export default function MainScene({ scene }: { scene: Sanity.Scene }) {
         <WorldFloor />
       </group>
       <Trees />
+      <AnimatedCar />
       <GatedCommunity />
+      <ResidentialProps />
       <HomesRightBuildings />
       <ConstructionBuildings />
       <CompanyBuildings />

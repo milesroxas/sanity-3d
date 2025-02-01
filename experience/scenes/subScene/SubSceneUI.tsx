@@ -15,7 +15,7 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
 
   // Return non-R3F UI components
   return (
-    <div className="absolute right-0 top-0 p-4 max-w-lg z-50">
+    <div className="fixed right-0 top-12 p-4 max-w-lg z-50">
       <div className="flex flex-col gap-4 items-start">
         <h2 className="text-xl font-bold">{scene.title}</h2>
         <Carousel3 pointsOfInterest={scene.pointsOfInterest} />

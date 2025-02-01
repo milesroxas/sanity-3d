@@ -11,5 +11,5 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
     return () => setR3FContent(null);
   }, [setR3FContent, scene]);
 
-  return null; // All R3F content is handled through context
+  return null;
 }
