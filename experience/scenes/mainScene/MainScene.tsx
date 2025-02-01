@@ -22,16 +22,9 @@ import { ResidentialProps } from "@/experience/sceneCollections/gatedCommunity/m
 import { AnimatedCar } from "@/experience/sceneCollections/vehicles/AnimatedCar";
 
 export default function MainScene({ scene }: { scene: Sanity.Scene }) {
-  const { resetToInitial } = useCameraStore();
-
-  useEffect(() => {
-    resetToInitial();
-  }, []);
-
   return (
     <>
       <CameraSystem scene={scene} />
-
       <MainSceneMarkers scene={scene} />
       <Environment preset="sunset" />
       <group position={[0, -0.2, 0]}>

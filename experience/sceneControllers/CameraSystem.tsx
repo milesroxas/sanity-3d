@@ -79,12 +79,18 @@ export function CameraSystem({ scene }: { scene: Sanity.Scene }) {
   useEffect(() => {
     if (!cameraRef.current) return;
 
+    // Use the current animated position or the scene-appropriate initial position
     const newPosition = isAnimating
       ? position
-      : new Vector3(positionX, positionY, positionZ);
+      : isSubscene
+        ? INITIAL_POSITIONS.subscene.position.clone()
+        : position.clone();
+
     const newTarget = isAnimating
       ? target
-      : new Vector3(targetX, targetY, targetZ);
+      : isSubscene
+        ? INITIAL_POSITIONS.subscene.target.clone()
+        : target.clone();
 
     cameraRef.current.position.copy(newPosition);
     cameraRef.current.lookAt(newTarget);
@@ -100,17 +106,7 @@ export function CameraSystem({ scene }: { scene: Sanity.Scene }) {
         true
       );
     }
-  }, [
-    isAnimating,
-    position,
-    target,
-    positionX,
-    positionY,
-    positionZ,
-    targetX,
-    targetY,
-    targetZ,
-  ]);
+  }, [isAnimating, position, target, isSubscene]);
 
   return (
     <>

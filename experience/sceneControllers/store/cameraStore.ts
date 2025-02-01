@@ -72,26 +72,15 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
     }),
 
   restorePreviousCamera: () => {
-    const { previousPosition, previousTarget } = get();
-    if (previousPosition && previousTarget) {
-      set({
-        position: previousPosition.clone(),
-        target: previousTarget.clone(),
-        previousPosition: null,
-        previousTarget: null,
-        controlType: "Map",
-        isAnimating: false,
-        isSubscene: false,
-      });
-    } else {
-      set({
-        position: INITIAL_POSITIONS.main.position.clone(),
-        target: INITIAL_POSITIONS.main.target.clone(),
-        controlType: "Map",
-        isAnimating: false,
-        isSubscene: false,
-      });
-    }
+    set({
+      position: INITIAL_POSITIONS.main.position.clone(),
+      target: INITIAL_POSITIONS.main.target.clone(),
+      previousPosition: null,
+      previousTarget: null,
+      controlType: "Map",
+      isAnimating: false,
+      isSubscene: false,
+    });
   },
 
   setCamera: (position, target, state = "current") =>
@@ -118,7 +107,15 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         state,
       };
     }),
-  setIsSubscene: (isSubscene) => set({ isSubscene }),
+  setIsSubscene: (isSubscene) =>
+    set((state) => ({
+      isSubscene,
+      ...(isSubscene && {
+        position: INITIAL_POSITIONS.subscene.position.clone(),
+        target: INITIAL_POSITIONS.subscene.target.clone(),
+        controlType: "CameraControls",
+      }),
+    })),
   setControlType: (controlType) => set({ controlType }),
   setIsAnimating: (isAnimating) => set({ isAnimating }),
   setIsLoading: (isLoading) => set({ isLoading }),
@@ -150,7 +147,13 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
-        set({ isAnimating: false });
+        set((state) => ({
+          isAnimating: false,
+          position: endPos.clone(),
+          target: endTarget.clone(),
+          previousPosition: startPos.clone(),
+          previousTarget: startTarget.clone(),
+        }));
       }
     };
 

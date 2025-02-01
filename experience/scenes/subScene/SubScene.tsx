@@ -1,7 +1,7 @@
 "use client";
 import { Suspense, useEffect, useState } from "react";
 import { getSceneComponent, SceneType } from "./lib/SubSceneComponentMap";
-import { Environment, Html } from "@react-three/drei";
+import { Environment } from "@react-three/drei";
 import { CameraSystem } from "@/experience/sceneControllers/CameraSystem";
 import { useCameraStore } from "@/experience/sceneControllers/store/cameraStore";
 import SubSceneMarkers from "@/experience/sceneControllers/poiMarkers/SubSceneMarkers";
@@ -14,6 +14,8 @@ export default function SubScene({ scene }: { scene: Sanity.Scene }) {
     setIsLoading(true);
 
     return () => {
+      // Reset to main scene state on unmount
+      useCameraStore.getState().restorePreviousCamera();
       setIsSubscene(false);
       setIsLoading(false);
     };
@@ -21,10 +23,10 @@ export default function SubScene({ scene }: { scene: Sanity.Scene }) {
 
   useEffect(() => {
     if (isLoaded) {
-      resetToInitial();
       setTimeout(() => {
+        resetToInitial();
         setIsLoading(false);
-      }, 1000);
+      }, 500);
     }
   }, [isLoaded, resetToInitial, setIsLoading]);
 

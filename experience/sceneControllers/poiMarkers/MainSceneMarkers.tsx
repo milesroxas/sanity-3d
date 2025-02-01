@@ -33,18 +33,7 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
     // Set loading state immediately
     useCameraStore.getState().setIsLoading(true);
 
-    // Store current camera position before transitioning
-    useCameraStore
-      .getState()
-      .setPreviousCamera(
-        camera.position.clone(),
-        camera
-          .getWorldDirection(new Vector3())
-          .multiplyScalar(100)
-          .add(camera.position)
-      );
-
-    // Start the camera transition
+    // Start the camera transition to the target position
     useCameraStore
       .getState()
       .startCameraTransition(
@@ -68,7 +57,7 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
     // Navigate after animation completes
     setTimeout(() => {
       router.push(`/experience/${poi.slug.current}`);
-    }, 1800); // Slightly shorter than animation duration
+    }, 2000); // Match this with your camera transition duration
   };
 
   return (
