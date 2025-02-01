@@ -6,29 +6,21 @@ import { CameraSystem } from "@/experience/sceneControllers/CameraSystem";
 import { useCameraStore } from "@/experience/sceneControllers/store/cameraStore";
 import SubSceneMarkers from "@/experience/sceneControllers/poiMarkers/SubSceneMarkers";
 export default function SubScene({ scene }: { scene: Sanity.Scene }) {
-  const { setIsSubscene, resetToInitial, setIsLoading } = useCameraStore();
+  const { setIsSubscene, setIsLoading } = useCameraStore();
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    console.log("SubScene mount effect triggered");
     setIsSubscene(true);
-    setIsLoading(true);
-
-    return () => {
-      // Reset to main scene state on unmount
-      useCameraStore.getState().restorePreviousCamera();
-      setIsSubscene(false);
-      setIsLoading(false);
-    };
-  }, [setIsSubscene, setIsLoading]);
+  }, [setIsSubscene]);
 
   useEffect(() => {
+    console.log("isLoaded effect triggered, isLoaded:", isLoaded);
     if (isLoaded) {
-      setTimeout(() => {
-        resetToInitial();
-        setIsLoading(false);
-      }, 500);
+      console.log("Setting loading to false because model is loaded");
+      setIsLoading(false);
     }
-  }, [isLoaded, resetToInitial, setIsLoading]);
+  }, [isLoaded, setIsLoading]);
 
   if (!scene.sceneType) {
     console.warn("No scene type specified");
@@ -46,7 +38,10 @@ export default function SubScene({ scene }: { scene: Sanity.Scene }) {
         <SceneComponent
           modelFiles={scene.modelFiles}
           modelIndex={0}
-          onLoad={() => setIsLoaded(true)}
+          onLoad={() => {
+            console.log("SceneComponent onLoad triggered");
+            setIsLoaded(true);
+          }}
         />
       </Suspense>
     </>

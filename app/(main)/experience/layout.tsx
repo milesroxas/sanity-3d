@@ -12,8 +12,9 @@ export default function ExperienceLayout({
   return (
     <R3FProvider>
       {/* Non-R3F components render here */}
+
       <main className="h-screen w-screen mt-8">{children}</main>
-      <Leva hidden={process.env.NODE_ENV === "production"} />
+      <Leva hidden={true} />
     </R3FProvider>
   );
 }

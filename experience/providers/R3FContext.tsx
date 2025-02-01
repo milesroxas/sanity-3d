@@ -7,6 +7,7 @@ import {
   Suspense,
 } from "react";
 import { Canvas } from "@react-three/fiber";
+import { Loading } from "../sceneControllers/Loading";
 
 type R3FContextType = {
   setR3FContent: (content: ReactNode) => void;
@@ -20,6 +21,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
   return (
     <R3FContext.Provider value={{ setR3FContent }}>
       {/* Regular React components here */}
+      <Loading />
       {children}
 
       {/* Single Canvas instance */}

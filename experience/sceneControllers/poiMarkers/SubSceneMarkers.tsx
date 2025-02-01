@@ -6,6 +6,7 @@ import { Vector3 } from "three";
 import { Marker } from "./model/Marker";
 import { useControls, folder } from "leva";
 import { useThree } from "@react-three/fiber";
+import { Loading } from "../Loading";
 
 type MarkerPosition = {
   x: number;
@@ -28,7 +29,7 @@ type PointOfInterest = {
 export default function SubSceneMarkers({ scene }: { scene: Sanity.Scene }) {
   const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null);
   const { camera } = useThree();
-
+  const { setIsLoading, setIsAnimating } = useCameraStore();
   const initialPoi = scene.pointsOfInterest?.[0] as PointOfInterest;
 
   const { markerX, markerY, markerZ } = useControls("Marker Controls", {
@@ -57,14 +58,12 @@ export default function SubSceneMarkers({ scene }: { scene: Sanity.Scene }) {
     ),
   });
 
-  console.log(
-    "SubSceneMarkers rendering, points of interest:",
-    scene.pointsOfInterest
-  );
-
   const handleMarkerClick = (poi: any) => {
     if (poi.cameraPosition && poi.cameraTarget) {
+      // Set loading state immediately
       useCameraStore.getState().setControlType("Disabled");
+
+      // Start camera transition
       useCameraStore
         .getState()
         .startCameraTransition(
@@ -94,12 +93,6 @@ export default function SubSceneMarkers({ scene }: { scene: Sanity.Scene }) {
       {scene.pointsOfInterest?.map((poi) => {
         // Use the Leva controls position regardless of type
         const markerPosition = { x: markerX, y: markerY, z: markerZ };
-
-        console.log("Processing POI:", {
-          poi,
-          markerPosition,
-          leva: { markerX, markerY, markerZ },
-        });
 
         return (
           <group key={poi._key}>
