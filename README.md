@@ -19,7 +19,7 @@ This starter is a part of [Schema UI](https://schemaui.com) project, a comprehen
 Run the command in your Terminal to initialize this template on your local computer:
 
 ```bash
-npm create sanity@latest -- --template https://github.com/serge-0v/next-js-sanity-starter
+npm create sanity@latest -- --template serge-0v/next-js-sanity-starter
 ```
 
 See the documentation if you are [having issues with the CLI](https://www.sanity.io/help/cli-errors).
@@ -116,6 +116,12 @@ All environment variables and their descriptions:
 - `SANITY_API_READ_TOKEN` - your Sanity read token for Next.js to fetch data.
 - `RESEND_API_KEY` - your RESEND api key for the newsletter form.
 - `RESEND_AUDIENCE_ID` - your RESEND audience id for the newsletter form to store contacts.
+
+## Examples
+
+New i18n example added as separate branch at [example/i18n](https://github.com/serge-0v/next-js-sanity-starter/tree/example/i18n). Example is fully integrated with the template.
+
+[Preview i18n example Live](https://starter-i18n.schemaui.com/en)
 
 [react-url]: https://reactjs.org/
 [next-js-url]: https://nextjs.org/
