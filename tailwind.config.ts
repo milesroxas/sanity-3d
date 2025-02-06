@@ -78,6 +78,9 @@ const config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        "button-icon": "0 2px 2px 0 #90EF8F",
+      },
       keyframes: {
         "accordion-down": {
           from: {

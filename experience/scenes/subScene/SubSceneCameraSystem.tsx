@@ -12,21 +12,52 @@ import { Vector3 } from "three";
 export function SubSceneCameraSystem() {
   const cameraRef = useRef<any>(null);
   const controlsRef = useRef<any>(null);
-  const { position, target, controlType, isAnimating } = useCameraStore();
+  const { position, target, controlType, isAnimating, selectedPoi } =
+    useCameraStore();
 
   const { positionX, positionY, positionZ, targetX, targetY, targetZ } =
     useControls("Subscene Camera Controls", {
       Subscene: folder(
         {
           position: folder({
-            positionX: { value: position.x, min: -200, max: 200, step: 0.1 },
-            positionY: { value: position.y, min: -200, max: 200, step: 0.1 },
-            positionZ: { value: position.z, min: -200, max: 200, step: 0.1 },
+            positionX: {
+              value: INITIAL_POSITIONS.subscene.position.x,
+              min: -200,
+              max: 200,
+              step: 0.1,
+            },
+            positionY: {
+              value: INITIAL_POSITIONS.subscene.position.y,
+              min: -200,
+              max: 200,
+              step: 0.1,
+            },
+            positionZ: {
+              value: INITIAL_POSITIONS.subscene.position.z,
+              min: -200,
+              max: 200,
+              step: 0.1,
+            },
           }),
           target: folder({
-            targetX: { value: target.x, min: -200, max: 200, step: 0.1 },
-            targetY: { value: target.y, min: -200, max: 200, step: 0.1 },
-            targetZ: { value: target.z, min: -200, max: 200, step: 0.1 },
+            targetX: {
+              value: INITIAL_POSITIONS.subscene.target.x,
+              min: -200,
+              max: 200,
+              step: 0.1,
+            },
+            targetY: {
+              value: INITIAL_POSITIONS.subscene.target.y,
+              min: -200,
+              max: 200,
+              step: 0.1,
+            },
+            targetZ: {
+              value: INITIAL_POSITIONS.subscene.target.z,
+              min: -200,
+              max: 200,
+              step: 0.1,
+            },
           }),
         },
         { collapsed: true }
@@ -35,20 +66,22 @@ export function SubSceneCameraSystem() {
 
   useEffect(() => {
     if (!cameraRef.current) return;
-    console.log("Camera update:", {
-      isAnimating,
-      position: position.toArray(),
-      target: target.toArray(),
-    });
 
-    const newPosition = isAnimating ? position : position.clone();
-    const newTarget = isAnimating ? target : target.clone();
+    // Use Leva controls only when there's no selected POI and not animating
+    const newPosition =
+      isAnimating || selectedPoi
+        ? position
+        : new Vector3(positionX, positionY, positionZ);
+
+    const newTarget =
+      isAnimating || selectedPoi
+        ? target
+        : new Vector3(targetX, targetY, targetZ);
 
     cameraRef.current.position.copy(newPosition);
     cameraRef.current.lookAt(newTarget);
 
     if (controlsRef.current) {
-      console.log("Updating camera controls");
       controlsRef.current.setLookAt(
         newPosition.x,
         newPosition.y,
@@ -59,14 +92,29 @@ export function SubSceneCameraSystem() {
         true
       );
     }
-  }, [position, target, isAnimating]);
+  }, [
+    position,
+    target,
+    isAnimating,
+    selectedPoi,
+    positionX,
+    positionY,
+    positionZ,
+    targetX,
+    targetY,
+    targetZ,
+  ]);
 
   return (
     <>
       <PerspectiveCamera
         ref={cameraRef}
         makeDefault
-        position={[position.x, position.y, position.z]}
+        position={
+          isAnimating || selectedPoi
+            ? [position.x, position.y, position.z]
+            : [positionX, positionY, positionZ]
+        }
       />
       {controlType === "CameraControls" && !isAnimating && (
         <CameraControls
@@ -74,14 +122,10 @@ export function SubSceneCameraSystem() {
           makeDefault
           minDistance={10}
           maxDistance={50}
-          // minPolarAngle={Math.PI / 4}
-          // maxPolarAngle={Math.PI / 2}
-          // minAzimuthAngle={-Math.PI / 4}
-          // maxAzimuthAngle={Math.PI / 4}
         />
       )}
       {process.env.NODE_ENV === "development" && (
-        <mesh position={[target.x, target.y, target.z]}>
+        <mesh position={[targetX, targetY, targetZ]}>
           <sphereGeometry args={[0.3, 16, 16]} />
           <meshBasicMaterial color="lime" wireframe />
         </mesh>

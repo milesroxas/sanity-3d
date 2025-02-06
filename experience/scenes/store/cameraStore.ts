@@ -55,8 +55,8 @@ export const INITIAL_POSITIONS = {
     target: new Vector3(-10, 10, 50),
   },
   subscene: {
-    position: new Vector3(-20, 10, 20),
-    target: new Vector3(0, 0, 0),
+    position: new Vector3(-20, 10, 40),
+    target: new Vector3(0, 4.5, 7.0),
   },
 } as const;
 

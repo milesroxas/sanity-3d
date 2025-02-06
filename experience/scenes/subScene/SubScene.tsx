@@ -38,7 +38,7 @@ export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
   return (
     <>
       <SubSceneCameraSystem />
-      <group position={[-4, 0, 0]}>
+      <group position={[-5, 0, 0]}>
         <Environment preset="sunset" />
         <SubSceneMarkers scene={scene} onMarkerClick={onMarkerClick} />
         <Suspense fallback={null}>

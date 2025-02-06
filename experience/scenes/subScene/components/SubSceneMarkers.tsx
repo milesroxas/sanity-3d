@@ -108,7 +108,7 @@ export default function SubSceneMarkers({
           >
             <Html transform>
               <div className="bg-red-500 backdrop-blur-sm px-2 py-1 rounded-lg cursor-pointer">
-                <h3 className="text-lg font-bold">{poi.title}</h3>
+                <h3 className="text-sm font-bold">{poi.title}</h3>
               </div>
             </Html>
             <group position={[0, -1, 0]} scale={[0.25, 0.25, 0.25]}>
@@ -134,7 +134,7 @@ export default function SubSceneMarkers({
             >
               <Html transform>
                 <div className="bg-red-500 backdrop-blur-sm px-2 py-1 rounded-lg cursor-pointer">
-                  <h3 className="text-lg font-bold">Debug Marker</h3>
+                  <h3 className="text-sm font-bold">Debug Marker</h3>
                 </div>
               </Html>
               <group position={[0, -1, 0]} scale={[0.25, 0.25, 0.25]}>

@@ -11,15 +11,15 @@ const sceneComponents = {
   shops: withLoading(
     () => import("@/experience/sceneCollections/shops/ShopsSubScene")
   ),
-  //   company: lazy(
-  //     () => import("./company/models/CompanyBuildings")
-  //   ),
+  company: withLoading(
+    () => import("@/experience/sceneCollections/shops/ShopsSubScene")
+  ),
   //   resort: lazy(
   //     () => import("./resort/models/ResortBuildings")
   //   ),
-  //   events: lazy(
-  //     () => import("./events/models/EventsBuildings")
-  //   ),
+  events: withLoading(
+    () => import("@/experience/sceneCollections/shops/ShopsSubScene")
+  ),
   //   farm: lazy(() => import("./farm/models/FarmBuildings")),
   //   construction: lazy(
   //     () =>
