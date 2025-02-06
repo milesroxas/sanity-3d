@@ -25,7 +25,7 @@ export default function PostHero({
           <Image
             src={urlFor(image).quality(100).url()}
             alt={image.alt || ""}
-            placeholder="blur"
+            placeholder={image?.asset?.metadata?.lqip ? "blur" : undefined}
             blurDataURL={image.asset?.metadata?.lqip || undefined}
             width={image.asset?.metadata?.dimensions?.width || 1200}
             height={image?.asset?.metadata?.dimensions?.height || 630}
@@ -45,7 +45,9 @@ export default function PostHero({
                   style={{
                     objectFit: "cover",
                   }}
-                  placeholder="blur"
+                  placeholder={
+                    author.image.asset?.metadata?.lqip ? "blur" : undefined
+                  }
                   blurDataURL={author.image.asset?.metadata?.lqip || undefined}
                   sizes="40px"
                   className="w-10 h-10 rounded-full mr-2"
