@@ -4,6 +4,7 @@ export const POST_QUERY = groq`*[_type == "post" && slug.current == $slug][0]{
     title,
     slug,
     image{
+      ...,
       asset->{
         _id,
         url,
@@ -39,6 +40,7 @@ export const POST_QUERY = groq`*[_type == "post" && slug.current == $slug][0]{
     author->{
       name,
       image {
+        ...,
         asset->{
           _id,
           url,

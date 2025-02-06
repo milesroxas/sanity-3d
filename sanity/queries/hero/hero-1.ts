@@ -24,6 +24,7 @@ export const hero1Query = groq`
       }
     },
     image{
+      ...,
       asset->{
         _id,
         url,

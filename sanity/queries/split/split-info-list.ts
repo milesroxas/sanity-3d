@@ -5,6 +5,7 @@ export const splitInfoListQuery = groq`
     _type,
     list[]{
       image{
+        ...,
         asset->{
           _id,
           url,

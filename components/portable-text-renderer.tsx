@@ -14,8 +14,8 @@ const portableTextComponents: PortableTextProps["components"] = {
           alt={value.alt || "Image"}
           width={dimensions.width}
           height={dimensions.height}
-          placeholder="blur"
-          blurDataURL={lqip}
+          placeholder={lqip ? "blur" : undefined}
+          blurDataURL={lqip || undefined}
           style={{
             borderRadius: "1rem",
             marginLeft: "auto",
