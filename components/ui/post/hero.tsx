@@ -23,7 +23,7 @@ export default function PostHero({
       {image && image.asset?._id && (
         <div className="my-4 md:my-6 rounded-2xl overflow-hidden">
           <Image
-            src={urlFor(image).auto("format").fit("max").quality(100).url()}
+            src={urlFor(image).quality(100).url()}
             alt={image.alt || ""}
             placeholder="blur"
             blurDataURL={image.asset?.metadata?.lqip || undefined}

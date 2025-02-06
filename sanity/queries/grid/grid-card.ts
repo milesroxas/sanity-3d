@@ -6,6 +6,7 @@ export const gridCardQuery = groq`
     title,
     excerpt,
     image{
+      ...,
       asset->{
         _id,
         url,
