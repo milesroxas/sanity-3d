@@ -1,5 +1,5 @@
 import { defineType, defineArrayMember } from "sanity";
-import { VideoIcon } from "@radix-ui/react-icons";
+import { VideoIcon, CodeIcon } from "@radix-ui/react-icons";
 import { YouTubePreview } from "@/sanity/schemas/previews/youtube-preview";
 
 export default defineType({
@@ -79,6 +79,34 @@ export default defineType({
       },
       components: {
         preview: YouTubePreview,
+      },
+    }),
+    defineArrayMember({
+      name: "code",
+      title: "Code Block",
+      type: "code",
+      icon: CodeIcon,
+      options: {
+        withFilename: true,
+        language: "typescript",
+        languageAlternatives: [
+          { title: "TypeScript", value: "typescript" },
+          { title: "JavaScript", value: "javascript" },
+          { title: "JSX", value: "jsx" },
+          { title: "TSX", value: "tsx" },
+          { title: "HTML", value: "html" },
+          { title: "CSS", value: "css" },
+          { title: "SCSS", value: "scss" },
+          { title: "JSON", value: "json" },
+          { title: "Python", value: "python" },
+          { title: "PHP", value: "php" },
+          { title: "Ruby", value: "ruby" },
+          { title: "Shell", value: "shell" },
+          { title: "Markdown", value: "markdown" },
+          { title: "YAML", value: "yaml" },
+          { title: "GraphQL", value: "graphql" },
+          { title: "SQL", value: "sql" },
+        ],
       },
     }),
   ],

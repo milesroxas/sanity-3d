@@ -2,6 +2,8 @@ import { PortableText, PortableTextProps } from "@portabletext/react";
 import Image from "next/image";
 import Link from "next/link";
 import { YouTubeEmbed } from "@next/third-parties/google";
+import { Highlight, themes } from "prism-react-renderer";
+import { CopyButton } from "@/components/ui/copy-button";
 
 const portableTextComponents: PortableTextProps["components"] = {
   types: {
@@ -30,6 +32,43 @@ const portableTextComponents: PortableTextProps["components"] = {
       return (
         <div className="aspect-video max-w-[45rem] rounded-xl overflow-hidden mb-4">
           <YouTubeEmbed videoid={videoId} params="rel=0" />
+        </div>
+      );
+    },
+    code: ({ value }) => {
+      return (
+        <div className="grid my-4 overflow-x-auto rounded-lg border border-border text-xs lg:text-sm bg-primary/80 dark:bg-muted/80">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-primary/80 dark:bg-muted">
+            <div className="text-muted-foreground font-mono">
+              {value.filename || ""}
+            </div>
+            <CopyButton code={value.code} />
+          </div>
+          <Highlight
+            theme={themes.vsDark}
+            code={value.code}
+            language={value.language || "typescript"}
+          >
+            {({ style, tokens, getLineProps, getTokenProps }) => (
+              <pre
+                style={{
+                  ...style,
+                  padding: "1.5rem",
+                  margin: 0,
+                  overflow: "auto",
+                  backgroundColor: "transparent",
+                }}
+              >
+                {tokens.map((line, i) => (
+                  <div key={i} {...getLineProps({ line })}>
+                    {line.map((token, key) => (
+                      <span key={key} {...getTokenProps({ token })} />
+                    ))}
+                  </div>
+                ))}
+              </pre>
+            )}
+          </Highlight>
         </div>
       );
     },
