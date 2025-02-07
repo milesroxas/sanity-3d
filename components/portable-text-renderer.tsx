@@ -28,10 +28,8 @@ const portableTextComponents: PortableTextProps["components"] = {
     youtube: ({ value }) => {
       const { videoId } = value;
       return (
-        <div className="max-w-3xl w-full mx-auto">
-          <div className="aspect-video">
-            <YouTubeEmbed videoid={videoId} params="rel=0" />
-          </div>
+        <div className="aspect-video max-w-[45rem] rounded-xl overflow-hidden mb-4">
+          <YouTubeEmbed videoid={videoId} params="rel=0" />
         </div>
       );
     },
