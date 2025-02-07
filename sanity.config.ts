@@ -14,6 +14,7 @@ import { apiVersion, dataset, projectId } from "./sanity/env";
 import { schema } from "./sanity/schema";
 import { resolve } from "@/sanity/presentation/resolve";
 import { structure } from "./sanity/structure";
+import { codeInput } from "@sanity/code-input";
 
 export default defineConfig({
   basePath: "/studio",
@@ -35,5 +36,6 @@ export default defineConfig({
     // Vision is a tool that lets you query your content with GROQ in the studio
     // https://www.sanity.io/docs/the-vision-plugin
     visionTool({ defaultApiVersion: apiVersion }),
+    codeInput(),
   ],
 });
