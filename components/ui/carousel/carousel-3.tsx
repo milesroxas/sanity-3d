@@ -50,7 +50,6 @@ export function Carousel3({ scene, selectedPoi }: Carousel3Props) {
     [navigateToNextPoi, navigateToPreviousPoi, validPointsOfInterest]
   );
 
-  // When the carousel api is ready, sync with current index and set up event listeners
   React.useEffect(() => {
     if (!api) return;
 
@@ -85,7 +84,8 @@ export function Carousel3({ scene, selectedPoi }: Carousel3Props) {
         variant="icon"
         size="icon"
         onClick={() => {
-          useCameraStore.getState().resetToInitial();
+          const resetCamera = useCameraStore.getState().resetToInitial;
+          resetCamera();
           useCameraStore.getState().setSelectedPoi(null);
         }}
       >

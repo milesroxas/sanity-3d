@@ -34,19 +34,20 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
     useCameraStore.getState().setIsLoading(true);
 
     // Store the POI camera position and target
-    useCameraStore.getState();
-    // .setPreviousCamera(
-    //   new Vector3(
-    //     poi.mainSceneCameraPosition.x,
-    //     poi.mainSceneCameraPosition.y,
-    //     poi.mainSceneCameraPosition.z
-    //   ),
-    //   new Vector3(
-    //     poi.mainSceneCameraTarget.x,
-    //     poi.mainSceneCameraTarget.y,
-    //     poi.mainSceneCameraTarget.z
-    //   )
-    // );
+    useCameraStore
+      .getState()
+      .setPreviousCamera(
+        new Vector3(
+          poi.mainSceneCameraPosition.x,
+          poi.mainSceneCameraPosition.y,
+          poi.mainSceneCameraPosition.z
+        ),
+        new Vector3(
+          poi.mainSceneCameraTarget.x,
+          poi.mainSceneCameraTarget.y,
+          poi.mainSceneCameraTarget.z
+        )
+      );
 
     // Start the camera transition to the target position
     useCameraStore

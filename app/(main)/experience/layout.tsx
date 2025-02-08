@@ -13,8 +13,8 @@ export default function ExperienceLayout({
     <R3FProvider>
       {/* Non-R3F components render here */}
 
-      <main className="h-screen w-screen mt-8">{children}</main>
-      <Leva hidden={true} />
+      <main className="mt-8">{children}</main>
+      <Leva hidden={false} />
     </R3FProvider>
   );
 }

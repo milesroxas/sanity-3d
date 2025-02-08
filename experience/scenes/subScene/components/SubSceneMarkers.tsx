@@ -45,7 +45,6 @@ export default function SubSceneMarkers({
 }: SubSceneMarkersProps) {
   const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null);
   const { camera } = useThree();
-  const { setIsLoading } = useCameraStore();
 
   // IMPORTANT: filter out only the valid points so that both markers and carousel use the same data.
   const validPointsOfInterest = (scene.pointsOfInterest ?? []).filter(

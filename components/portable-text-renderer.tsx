@@ -16,10 +16,9 @@ const portableTextComponents: PortableTextProps["components"] = {
           height={dimensions.height}
           placeholder="blur"
           blurDataURL={lqip}
+          className="w-full h-auto max-w-full"
           style={{
             borderRadius: "1rem",
-            marginLeft: "auto",
-            marginRight: "auto",
           }}
           quality={100}
         />
@@ -38,7 +37,9 @@ const portableTextComponents: PortableTextProps["components"] = {
   },
   block: {
     normal: ({ children }) => (
-      <p style={{ marginBottom: "1rem" }}>{children}</p>
+      <p className="w-full max-w-full" style={{ marginBottom: "1rem" }}>
+        {children}
+      </p>
     ),
     h1: ({ children }) => (
       <h1 style={{ marginBottom: "1rem", marginTop: "1rem" }}>{children}</h1>

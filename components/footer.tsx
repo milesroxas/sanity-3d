@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navItems = [
   {
@@ -19,6 +22,13 @@ const navItems = [
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  // Hide footer on experience pages
+  if (pathname === "/experience" || pathname?.startsWith("/experience/")) {
+    return null;
+  }
+
   const getCurrentYear = () => {
     return new Date().getFullYear();
   };

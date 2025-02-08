@@ -76,12 +76,36 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
 
   // Camera Actions
   resetToInitial: () => {
-    if (get().isLoading) return;
+    console.log("🎥 Reset Camera Initiated", {
+      isLoading: get().isLoading,
+      isSubscene: get().isSubscene,
+      currentPosition: get().position,
+      currentTarget: get().target,
+    });
+
+    if (get().isLoading) {
+      console.log("❌ Reset cancelled - camera is loading");
+      return;
+    }
+
     const initial = INITIAL_POSITIONS[get().isSubscene ? "subscene" : "main"];
+
+    console.log("🎯 Resetting to position:", {
+      position: initial.position,
+      target: initial.target,
+      scene: get().isSubscene ? "subscene" : "main",
+    });
+
     set({
       position: initial.position.clone(),
       target: initial.target.clone(),
       isAnimating: false,
+      controlType: get().isSubscene ? "CameraControls" : "Map",
+    });
+
+    console.log("✅ Reset Complete", {
+      newPosition: initial.position,
+      newTarget: initial.target,
       controlType: get().isSubscene ? "CameraControls" : "Map",
     });
   },

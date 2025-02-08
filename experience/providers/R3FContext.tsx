@@ -20,17 +20,21 @@ export function R3FProvider({ children }: { children: ReactNode }) {
 
   return (
     <R3FContext.Provider value={{ setR3FContent }}>
-      {/* Regular React components here */}
-      <Loading />
-      {children}
+      <div className="relative w-full h-full">
+        {/* Regular React components in a properly constrained container */}
+        <div className="absolute max-w-lg mx-auto z-50">
+          <Loading />
+          {children}
+        </div>
 
-      {/* Single Canvas instance */}
-      <div className="fixed inset-0 w-full h-full">
-        <Canvas>
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} intensity={1} />
-          <Suspense fallback={null}>{r3fContent}</Suspense>
-        </Canvas>
+        {/* Canvas positioned behind the UI */}
+        <div className="fixed inset-0">
+          <Canvas>
+            <ambientLight intensity={0.5} />
+            <pointLight position={[10, 10, 10]} intensity={1} />
+            <Suspense fallback={null}>{r3fContent}</Suspense>
+          </Canvas>
+        </div>
       </div>
     </R3FContext.Provider>
   );

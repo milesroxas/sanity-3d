@@ -9,6 +9,7 @@ const config = {
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
+    "./experience/**/*.{ts,tsx}",
   ],
   // dynamic safelist for grid-cols and colors
   safelist: [
