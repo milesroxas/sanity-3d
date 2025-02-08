@@ -5,6 +5,8 @@ import { settingsQuery } from "@/sanity/queries/singleton/settings";
 import { SERVICES_QUERY } from "@/sanity/queries/services";
 import { SCENES_QUERY, SCENES_SLUGS_QUERY } from "@/sanity/queries/scenes";
 import { SCENE_QUERY } from "@/sanity/queries/scene";
+import { NAVIGATION_SCENES_QUERY } from "@/sanity/queries/scene";
+import { client } from "@/sanity/lib/client";
 
 export const fetchSanityPageBySlug = async ({
   slug,
@@ -68,3 +70,8 @@ export const fetchSanitySceneBySlug = async ({
 
   return data;
 };
+
+export async function fetchNavigationScenes() {
+  const data = await client.fetch(NAVIGATION_SCENES_QUERY);
+  return data?.navigationScenes ?? [];
+}

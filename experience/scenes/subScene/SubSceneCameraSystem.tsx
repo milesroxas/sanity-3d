@@ -8,6 +8,7 @@ import {
 } from "@/experience/scenes/store/cameraStore";
 import { useControls, folder } from "leva";
 import { Vector3 } from "three";
+import { useSceneStore } from "@/experience/scenes/store/sceneStore";
 
 export function SubSceneCameraSystem() {
   const cameraRef = useRef<any>(null);
@@ -67,7 +68,20 @@ export function SubSceneCameraSystem() {
   useEffect(() => {
     if (!cameraRef.current) return;
 
-    // Use Leva controls only when there's no selected POI and not animating
+    // Skip camera updates during scene transitions
+    if (useSceneStore.getState().isTransitioning) {
+      console.log("🚫 Skipping camera update during transition");
+      return;
+    }
+
+    console.log("📸 Updating camera", {
+      isAnimating,
+      selectedPoi,
+      position: [positionX, positionY, positionZ],
+      target: [targetX, targetY, targetZ],
+    });
+
+    // Use current position/target during transitions or POI selection
     const newPosition =
       isAnimating || selectedPoi
         ? position
@@ -78,6 +92,7 @@ export function SubSceneCameraSystem() {
         ? target
         : new Vector3(targetX, targetY, targetZ);
 
+    // Only update if we're not transitioning
     cameraRef.current.position.copy(newPosition);
     cameraRef.current.lookAt(newTarget);
 
@@ -89,7 +104,7 @@ export function SubSceneCameraSystem() {
         newTarget.x,
         newTarget.y,
         newTarget.z,
-        true
+        false // Changed to false to prevent animation
       );
     }
   }, [

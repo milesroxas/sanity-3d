@@ -6,43 +6,46 @@ import SubScene from "./SubScene";
 import { Carousel3 } from "@/components/ui/carousel/carousel-3";
 import { useCameraStore } from "@/experience/scenes/store/cameraStore";
 import { PointOfInterest } from "./components/SubSceneMarkers";
-import { Vector3 } from "three";
 import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import PortableTextRenderer from "@/components/portable-text-renderer";
+import { fetchNavigationScenes } from "@/app/(main)/actions";
+import { useSceneStore } from "@/experience/scenes/store/sceneStore";
+
+interface NavigationScene {
+  slug?: { current: string };
+  title: string;
+}
 
 export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
   const [showCarousel, setShowCarousel] = useState(false);
+  const [validScenes, setValidScenes] = useState<NavigationScene[]>([]);
   const router = useRouter();
   const { setR3FContent } = useR3F();
   const selectedPoi = useCameraStore((state) => state.selectedPoi);
   const setSelectedPoi = useCameraStore((state) => state.setSelectedPoi);
 
-  // Get all scenes for navigation
-  const validScenes = (scene.pointsOfInterest ?? []).filter(
-    (poi): poi is any => {
-      return !!(
-        poi &&
-        "_type" in poi &&
-        "_id" in poi &&
-        poi._type === "scenes" &&
-        "mainSceneMarkerPosition" in poi &&
-        poi.mainSceneMarkerPosition &&
-        "slug" in poi &&
-        poi.slug?.current
-      );
-    }
-  );
+  useEffect(() => {
+    // Fetch navigation scenes when component mounts
+    const getNavigationScenes = async () => {
+      const scenes = await fetchNavigationScenes();
+      setValidScenes(scenes);
+    };
+    getNavigationScenes();
+  }, []);
 
-  const handleNavigation = (direction: "next" | "previous") => {
-    // Find current scene index by matching current URL slug
+  const handleNavigation = async (direction: "next" | "previous") => {
+    console.log("🔄 Navigation triggered", {
+      direction,
+      isSubscene: useCameraStore.getState().isSubscene,
+      isAnimating: useCameraStore.getState().isAnimating,
+    });
+
     const currentSlug = window.location.pathname.split("/").pop();
     const currentIndex = validScenes.findIndex(
-      (scene: any) => scene?.slug?.current === currentSlug
+      (scene) => scene?.slug?.current === currentSlug
     );
-
     const targetIndex =
       direction === "next"
         ? (currentIndex + 1) % validScenes.length
@@ -51,20 +54,22 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
           : currentIndex - 1;
 
     const targetScene = validScenes[targetIndex];
+    if (!targetScene?.slug?.current) return;
 
-    if (!(targetScene as any)?.slug?.current) {
-      console.warn("No valid target scene found");
-      return;
-    }
+    console.log("📍 Pre-transition state", {
+      currentScene: currentSlug,
+      targetScene: targetScene.slug.current,
+      cameraPosition: useCameraStore.getState().position.toArray(),
+      cameraTarget: useCameraStore.getState().target.toArray(),
+    });
 
-    // Set loading state immediately
+    // Set loading and disable camera animation
     useCameraStore.getState().setIsLoading(true);
+    useCameraStore.getState().setIsAnimating(false);
+    await useSceneStore.getState().startTransitionOut();
 
-    // Navigate after a delay
-    setTimeout(() => {
-      const targetUrl = `/experience/${(targetScene as any).slug.current}`;
-      router.push(targetUrl);
-    }, 2000);
+    const targetUrl = `/experience/${targetScene.slug.current}`;
+    router.push(targetUrl);
   };
 
   const handleReset = () => {

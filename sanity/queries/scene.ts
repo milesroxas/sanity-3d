@@ -125,3 +125,24 @@ export const SCENE_QUERY = groq`
     }
   }
 `;
+
+export const NAVIGATION_SCENES_QUERY = groq`
+  *[_type == "scenes" && slug.current == "experience"][0]{
+    "navigationScenes": pointsOfInterest[]->{
+      _id,
+      _type,
+      title,
+      slug,
+      mainSceneCameraPosition {
+        x,
+        y,
+        z
+      },
+      mainSceneCameraTarget {
+        x,
+        y,
+        z
+      }
+    }
+  }
+`;

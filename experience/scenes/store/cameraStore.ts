@@ -76,36 +76,16 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
 
   // Camera Actions
   resetToInitial: () => {
-    console.log("🎥 Reset Camera Initiated", {
-      isLoading: get().isLoading,
-      isSubscene: get().isSubscene,
-      currentPosition: get().position,
-      currentTarget: get().target,
-    });
-
     if (get().isLoading) {
-      console.log("❌ Reset cancelled - camera is loading");
       return;
     }
 
     const initial = INITIAL_POSITIONS[get().isSubscene ? "subscene" : "main"];
 
-    console.log("🎯 Resetting to position:", {
-      position: initial.position,
-      target: initial.target,
-      scene: get().isSubscene ? "subscene" : "main",
-    });
-
     set({
       position: initial.position.clone(),
       target: initial.target.clone(),
       isAnimating: false,
-      controlType: get().isSubscene ? "CameraControls" : "Map",
-    });
-
-    console.log("✅ Reset Complete", {
-      newPosition: initial.position,
-      newTarget: initial.target,
       controlType: get().isSubscene ? "CameraControls" : "Map",
     });
   },
@@ -134,7 +114,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
 
   setCamera: (position, target, state = "current") =>
     set((prev) => {
-      if (get().isLoading) return prev;
+      if (get().isLoading || get().isSubscene) return prev;
 
       if (state === "subscene") {
         return {
@@ -165,16 +145,38 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
     set({
       isSubscene,
       isLoading: false,
-      ...(isSubscene && {
-        position: INITIAL_POSITIONS.subscene.position.clone(),
-        target: INITIAL_POSITIONS.subscene.target.clone(),
-        controlType: "CameraControls",
-      }),
+      controlType: "CameraControls",
+      position: INITIAL_POSITIONS.subscene.position.clone(),
+      target: INITIAL_POSITIONS.subscene.target.clone(),
+      isAnimating: false,
     }),
   setSelectedPoi: (poi) => set({ selectedPoi: poi }),
 
   // Animation
   startCameraTransition: (startPos, endPos, startTarget, endTarget) => {
+    console.log("🎯 startCameraTransition called", {
+      isSubscene: get().isSubscene,
+      startPos: startPos.toArray(),
+      endPos: endPos.toArray(),
+      startTarget: startTarget.toArray(),
+      endTarget: endTarget.toArray(),
+    });
+
+    // If we're in a subscene, just set the position immediately without animation
+    if (get().isSubscene) {
+      console.log("📍 In subscene, skipping animation");
+      set({
+        position: endPos.clone(),
+        target: endTarget.clone(),
+        previousPosition: startPos.clone(),
+        previousTarget: startTarget.clone(),
+        isAnimating: false,
+        isLoading: false,
+      });
+      return;
+    }
+
+    console.log("🎬 Starting camera animation");
     set({
       controlType: "Disabled",
       isAnimating: true,
@@ -230,10 +232,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
     const nextIndex = (currentIndex + 1) % points.length;
     const nextPoi = points[nextIndex];
 
-    console.log("NavigateToNextPoi:", { currentIndex, nextIndex, nextPoi });
-
     if (nextPoi.cameraPosition && nextPoi.cameraTarget) {
-      console.log("Starting camera transition to next POI");
       set({ currentPoiIndex: nextIndex });
       get().startCameraTransition(
         get().position,
@@ -250,8 +249,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         )
       );
       get().setSelectedPoi(nextPoi);
-    } else {
-      console.warn("Missing camera position or target for next POI:", nextPoi);
     }
   },
 

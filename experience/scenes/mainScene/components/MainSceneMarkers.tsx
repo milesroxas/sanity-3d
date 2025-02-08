@@ -49,7 +49,7 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
         )
       );
 
-    // Start the camera transition to the target position
+    // Otherwise, do the normal camera transition
     useCameraStore
       .getState()
       .startCameraTransition(
