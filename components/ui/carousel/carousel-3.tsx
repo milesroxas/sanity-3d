@@ -17,9 +17,10 @@ import { motion } from "framer-motion";
 interface Carousel3Props {
   scene: Sanity.Scene;
   selectedPoi: PointOfInterest | null;
+  onClose: () => void;
 }
 
-export function Carousel3({ scene, selectedPoi }: Carousel3Props) {
+export function Carousel3({ scene, selectedPoi, onClose }: Carousel3Props) {
   const [api, setApi] = React.useState<any>();
   const currentPoiIndex = useCameraStore((state) => state.currentPoiIndex);
   const { navigateToNextPoi, navigateToPreviousPoi } = useCameraStore();
@@ -87,6 +88,7 @@ export function Carousel3({ scene, selectedPoi }: Carousel3Props) {
           const resetCamera = useCameraStore.getState().resetToInitial;
           resetCamera();
           useCameraStore.getState().setSelectedPoi(null);
+          onClose();
         }}
       >
         <X className="w-6 h-6" />
@@ -113,7 +115,7 @@ export function Carousel3({ scene, selectedPoi }: Carousel3Props) {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <div className="flex justify-center gap-2 mt-4">
+        <div className="flex justify-center gap-2">
           <CarouselPrevious className="static transform-none" />
           <CarouselNext className="static transform-none" />
         </div>

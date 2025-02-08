@@ -108,7 +108,7 @@ export default function SubSceneMarkers({
             onPointerLeave={() => setHoveredMarkerId(null)}
           >
             <Html transform>
-              <div className="bg-red-500 backdrop-blur-sm px-2 py-1 rounded-lg cursor-pointer">
+              <div className="bg-primary backdrop-blur-sm px-2 py-1 rounded-lg cursor-pointer">
                 <h3 className="text-sm font-bold">{poi.title}</h3>
               </div>
             </Html>

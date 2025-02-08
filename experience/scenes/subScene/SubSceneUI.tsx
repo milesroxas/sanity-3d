@@ -36,12 +36,6 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
   }, []);
 
   const handleNavigation = async (direction: "next" | "previous") => {
-    console.log("🔄 Navigation triggered", {
-      direction,
-      isSubscene: useCameraStore.getState().isSubscene,
-      isAnimating: useCameraStore.getState().isAnimating,
-    });
-
     const currentSlug = window.location.pathname.split("/").pop();
     const currentIndex = validScenes.findIndex(
       (scene) => scene?.slug?.current === currentSlug
@@ -56,18 +50,8 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
     const targetScene = validScenes[targetIndex];
     if (!targetScene?.slug?.current) return;
 
-    console.log("📍 Pre-transition state", {
-      currentScene: currentSlug,
-      targetScene: targetScene.slug.current,
-      cameraPosition: useCameraStore.getState().position.toArray(),
-      cameraTarget: useCameraStore.getState().target.toArray(),
-    });
-
-    // Set loading and disable camera animation
-    useCameraStore.getState().setIsLoading(true);
-    useCameraStore.getState().setIsAnimating(false);
+    // Start transition without setting loading state
     await useSceneStore.getState().startTransitionOut();
-
     const targetUrl = `/experience/${targetScene.slug.current}`;
     router.push(targetUrl);
   };
@@ -99,7 +83,6 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
   }, [setR3FContent, scene, setSelectedPoi]);
 
   useEffect(() => {
-    // Setup browser back button listener
     const handleBrowserBack = () => {
       useCameraStore.getState().setIsSubscene(false);
       useCameraStore.getState().resetToInitial();
@@ -108,45 +91,62 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
 
     window.addEventListener("popstate", handleBrowserBack);
 
-    // Cleanup function
     return () => {
       handleBrowserBack();
       window.removeEventListener("popstate", handleBrowserBack);
     };
   }, []);
 
-  // Return non-R3F UI components
+  const currentSlug = window.location.pathname.split("/").pop();
+  const currentIndex = validScenes.findIndex(
+    (scene) => scene?.slug?.current === currentSlug
+  );
+
+  const canNavigatePrevious =
+    validScenes.length > 1 && currentIndex < validScenes.length - 1;
+  const canNavigateNext = validScenes.length > 1 && currentIndex > 0;
+
   return (
     <div className="z-50 mx-auto flex flex-col items-center w-full">
       <div className="flex flex-col items-center w-screen mx-auto">
         <div className="flex justify-center items-center gap-6 w-full">
-          <button
-            onClick={() => handleNavigation("previous")}
-            className="text-xl font-bold text-center hover:text-primary/70 transition-colors"
-          >
-            <ArrowLeftIcon className="w-6 h-6" />
-          </button>
+          {canNavigatePrevious && (
+            <button
+              onClick={() => handleNavigation("previous")}
+              className="text-xl font-bold text-center hover:text-primary/70 transition-colors"
+            >
+              <ArrowLeftIcon className="w-6 h-6" />
+            </button>
+          )}
           <h2 className="text-xl font-bold text-center">{scene.title}</h2>
-          <button
-            onClick={() => handleNavigation("next")}
-            className="text-xl font-bold text-center hover:text-primary/70 transition-colors"
-          >
-            <ArrowRightIcon className="w-6 h-6" />
-          </button>
+          {canNavigateNext && (
+            <button
+              onClick={() => handleNavigation("next")}
+              className="text-xl font-bold text-center hover:text-primary/70 transition-colors"
+            >
+              <ArrowRightIcon className="w-6 h-6" />
+            </button>
+          )}
         </div>
       </div>
-      {!showCarousel && scene.body && (
-        <div className="fixed right-0 top-0 h-screen w-full max-w-md px-4 flex items-center">
+      <div className="fixed right-8 top-0 h-screen w-full max-w-md px-4 flex items-center">
+        {!showCarousel && scene.body && (
           <div className="w-full">
             <PortableTextRenderer value={scene.body} />
           </div>
-        </div>
-      )}
-      {showCarousel && <Carousel3 scene={scene} selectedPoi={selectedPoi} />}
+        )}
+        {showCarousel && (
+          <Carousel3
+            scene={scene}
+            selectedPoi={selectedPoi}
+            onClose={() => setShowCarousel(false)}
+          />
+        )}
+      </div>
       <div className="fixed bottom-0 left-0 right-0 flex justify-center pb-8">
         <Button
           onClick={(e) => {
-            e.preventDefault(); // Prevent immediate navigation
+            e.preventDefault();
             handleReset();
             setTimeout(() => {
               router.push("/experience");
