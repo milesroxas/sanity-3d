@@ -54,10 +54,12 @@ export default function SubSceneMarkers({
   const handleMarkerClick = (poi: PointOfInterest) => {
     const index = validPointsOfInterest.findIndex((p) => p._key === poi._key);
     useCameraStore.getState().setCurrentPoiIndex(index);
+    useCameraStore.getState().setSelectedPoi(poi);
     onMarkerClick(poi);
 
     if (poi.cameraPosition && poi.cameraTarget) {
       useCameraStore.getState().setControlType("Disabled");
+
       useCameraStore
         .getState()
         .startCameraTransition(

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { Vector3 } from "three";
 import { PointOfInterest } from "@/experience/scenes/subScene/components/SubSceneMarkers";
+import { useSceneStore } from "@/experience/scenes/store/sceneStore";
 
 type CameraState = "main" | "previous" | "current" | "subscene";
 type ControlType = "Map" | "CameraControls" | "Disabled";
@@ -156,15 +157,18 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   startCameraTransition: (startPos, endPos, startTarget, endTarget) => {
     console.log("🎯 startCameraTransition called", {
       isSubscene: get().isSubscene,
+      isTransitioning: useSceneStore.getState().isTransitioning,
       startPos: startPos.toArray(),
       endPos: endPos.toArray(),
-      startTarget: startTarget.toArray(),
-      endTarget: endTarget.toArray(),
     });
 
-    // If we're in a subscene, just set the position immediately without animation
-    if (get().isSubscene) {
-      console.log("📍 In subscene, skipping animation");
+    // Skip animation ONLY during subscene navigation (not POI clicks)
+    if (
+      get().isSubscene &&
+      useSceneStore.getState().isTransitioning &&
+      !get().selectedPoi
+    ) {
+      console.log("📍 In subscene navigation, skipping animation");
       set({
         position: endPos.clone(),
         target: endTarget.clone(),
@@ -199,6 +203,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
           target: endTarget.clone(),
           previousPosition: startPos.clone(),
           previousTarget: startTarget.clone(),
+          controlType: "CameraControls", // Restore controls after animation
         });
       } else {
         const t =

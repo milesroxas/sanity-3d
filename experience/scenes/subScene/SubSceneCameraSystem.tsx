@@ -125,11 +125,7 @@ export function SubSceneCameraSystem() {
       <PerspectiveCamera
         ref={cameraRef}
         makeDefault
-        position={
-          isAnimating || selectedPoi
-            ? [position.x, position.y, position.z]
-            : [positionX, positionY, positionZ]
-        }
+        position={[position.x, position.y, position.z]}
       />
       {controlType === "CameraControls" && !isAnimating && (
         <CameraControls
@@ -137,6 +133,7 @@ export function SubSceneCameraSystem() {
           makeDefault
           minDistance={10}
           maxDistance={50}
+          enabled={!isAnimating}
         />
       )}
       {process.env.NODE_ENV === "development" && (
