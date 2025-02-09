@@ -7,5 +7,17 @@ import { dataset, projectId } from "../env";
 const builder = createImageUrlBuilder({ projectId, dataset });
 
 export const urlFor = (source: SanityImageSource) => {
-  return builder.image(source).format("webp").fit("crop");
+  const imageBuilder = builder.image(source);
+
+  const isSvg =
+    source &&
+    typeof source === "object" &&
+    "mimeType" in source &&
+    source.mimeType === "image/svg+xml";
+
+  if (isSvg) {
+    return imageBuilder;
+  }
+
+  return imageBuilder.format("webp").fit("crop");
 };
