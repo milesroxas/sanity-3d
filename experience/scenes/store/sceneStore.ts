@@ -1,49 +1,47 @@
 import { create } from "zustand";
-import { useCameraStore } from "../store/cameraStore";
 
 interface SceneStore {
   modelRotation: number;
   isTransitioning: boolean;
+  opacity: number;
+  poiActive: boolean;
   setModelRotation: (rotation: number) => void;
   startTransitionOut: () => Promise<void>;
   startTransitionIn: () => void;
+  setPOIActive: (poiActive: boolean) => void;
 }
 
 export const useSceneStore = create<SceneStore>((set) => ({
   modelRotation: 0,
   isTransitioning: false,
+  opacity: 1,
+  poiActive: false,
 
   setModelRotation: (rotation) => {
-    console.log("🎯 setModelRotation:", (rotation * 180) / Math.PI);
     set({ modelRotation: rotation });
   },
 
+  setPOIActive: (active) => {
+    set({ poiActive: active });
+  },
+
   startTransitionOut: () => {
-    console.log("🔄 Starting transition out", {
-      cameraState: {
-        position: useCameraStore.getState().position.toArray(),
-        isAnimating: useCameraStore.getState().isAnimating,
-        isSubscene: useCameraStore.getState().isSubscene,
-      },
-    });
     set({ isTransitioning: true });
     return new Promise((resolve) => {
       const startTime = Date.now();
-      const duration = 800;
+      const duration = 200;
 
       const animate = () => {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
 
         if (progress < 1) {
-          const rotation = progress * Math.PI * 2; // Full 360 degrees (2π)
-
-          set({ modelRotation: rotation });
+          const rotation = progress * Math.PI * 2;
+          const opacity = 1 - progress;
+          set({ modelRotation: rotation, opacity });
           requestAnimationFrame(animate);
         } else {
-          console.log("✅ Transition out complete");
-          set({ modelRotation: 0 }); // Reset to 0
-          set({ isTransitioning: false });
+          set({ modelRotation: 0, opacity: 0, isTransitioning: false });
           resolve();
         }
       };
@@ -53,28 +51,21 @@ export const useSceneStore = create<SceneStore>((set) => ({
   },
 
   startTransitionIn: () => {
-    console.log("🔄 Starting transition in", {
-      cameraState: {
-        position: useCameraStore.getState().position.toArray(),
-        isAnimating: useCameraStore.getState().isAnimating,
-        isSubscene: useCameraStore.getState().isSubscene,
-      },
-    });
     set({ isTransitioning: true });
     const startTime = Date.now();
-    const duration = 800;
+    const duration = 1000;
 
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
       if (progress < 1) {
-        const rotation = progress * Math.PI * 2; // Full 360 degrees (2π)
-        set({ modelRotation: rotation });
+        const rotation = progress * Math.PI * 2;
+        const opacity = progress;
+        set({ modelRotation: rotation, opacity });
         requestAnimationFrame(animate);
       } else {
-        console.log("✅ Transition in complete");
-        set({ modelRotation: 0, isTransitioning: false });
+        set({ modelRotation: 0, opacity: 1, isTransitioning: false });
       }
     };
 

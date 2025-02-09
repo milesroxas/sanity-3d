@@ -7,11 +7,12 @@ import { Carousel3 } from "@/components/ui/carousel/carousel-3";
 import { useCameraStore } from "@/experience/scenes/store/cameraStore";
 import { PointOfInterest } from "./components/SubSceneMarkers";
 import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import PortableTextRenderer from "@/components/portable-text-renderer";
 import { fetchNavigationScenes } from "@/app/(main)/actions";
 import { useSceneStore } from "@/experience/scenes/store/sceneStore";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface NavigationScene {
   slug?: { current: string };
@@ -22,9 +23,13 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
   const [showCarousel, setShowCarousel] = useState(false);
   const [validScenes, setValidScenes] = useState<NavigationScene[]>([]);
   const router = useRouter();
+  const pathname = usePathname();
   const { setR3FContent } = useR3F();
   const selectedPoi = useCameraStore((state) => state.selectedPoi);
   const setSelectedPoi = useCameraStore((state) => state.setSelectedPoi);
+  const poiActive = useSceneStore((state) => state.poiActive);
+  const setPOIActive = useSceneStore((state) => state.setPOIActive);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     // Fetch navigation scenes when component mounts
@@ -36,7 +41,7 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
   }, []);
 
   const handleNavigation = async (direction: "next" | "previous") => {
-    const currentSlug = window.location.pathname.split("/").pop();
+    const currentSlug = pathname?.split("/").pop();
     const currentIndex = validScenes.findIndex(
       (scene) => scene?.slug?.current === currentSlug
     );
@@ -69,8 +74,24 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
   );
 
   const handleMarkerClick = (poi: PointOfInterest) => {
+    setIsTransitioning(true);
     setSelectedPoi(poi);
-    setShowCarousel(true);
+
+    // Wait for camera transition to complete before showing carousel
+    setTimeout(() => {
+      setIsTransitioning(false);
+      setPOIActive(true);
+    }, 2800); // 800ms fade + 2000ms camera
+  };
+
+  const handleCarouselClose = () => {
+    setIsTransitioning(true);
+    setPOIActive(false);
+
+    // Reset transitioning state after camera animation completes
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 2800); // 800ms fade + 2000ms camera
   };
 
   useEffect(() => {
@@ -97,7 +118,7 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
     };
   }, []);
 
-  const currentSlug = window.location.pathname.split("/").pop();
+  const currentSlug = pathname?.split("/").pop();
   const currentIndex = validScenes.findIndex(
     (scene) => scene?.slug?.current === currentSlug
   );
@@ -107,55 +128,87 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
   const canNavigateNext = validScenes.length > 1 && currentIndex > 0;
 
   return (
-    <div className="z-50 mx-auto flex flex-col items-center w-full">
-      <div className="flex flex-col items-center w-screen mx-auto">
-        <div className="flex justify-center items-center gap-6 w-full">
-          {canNavigatePrevious && (
-            <button
-              onClick={() => handleNavigation("previous")}
-              className="text-xl font-bold text-center hover:text-primary/70 transition-colors"
-            >
-              <ArrowLeftIcon className="w-6 h-6" />
-            </button>
-          )}
-          <h2 className="text-xl font-bold text-center">{scene.title}</h2>
-          {canNavigateNext && (
-            <button
-              onClick={() => handleNavigation("next")}
-              className="text-xl font-bold text-center hover:text-primary/70 transition-colors"
-            >
-              <ArrowRightIcon className="w-6 h-6" />
-            </button>
-          )}
-        </div>
-      </div>
-      <div className="fixed right-8 top-0 h-screen w-full max-w-md px-4 flex items-center">
-        {!showCarousel && scene.body && (
-          <div className="w-full">
-            <PortableTextRenderer value={scene.body} />
-          </div>
+    <div className="z-20 mx-auto flex flex-col items-center w-full">
+      <AnimatePresence mode="wait">
+        {!poiActive && !isTransitioning && (
+          <motion.div
+            key="nav"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex flex-col items-center w-screen mx-auto"
+          >
+            <div className="flex justify-center items-center gap-6 w-full">
+              {canNavigatePrevious && (
+                <button
+                  onClick={() => handleNavigation("previous")}
+                  className="text-xl font-bold text-center hover:text-primary/70 transition-colors"
+                >
+                  <ArrowLeftIcon className="w-6 h-6" />
+                </button>
+              )}
+              <h2 className="text-xl font-bold text-center">{scene.title}</h2>
+              {canNavigateNext && (
+                <button
+                  onClick={() => handleNavigation("next")}
+                  className="text-xl font-bold text-center hover:text-primary/70 transition-colors"
+                >
+                  <ArrowRightIcon className="w-6 h-6" />
+                </button>
+              )}
+            </div>
+          </motion.div>
         )}
-        {showCarousel && (
-          <Carousel3
-            scene={scene}
-            selectedPoi={selectedPoi}
-            onClose={() => setShowCarousel(false)}
-          />
-        )}
+      </AnimatePresence>
+
+      <div className="fixed right-8 top-12 h-screen w-full max-w-md px-4 flex items-center">
+        <AnimatePresence mode="wait">
+          {!poiActive && !isTransitioning && scene.body && (
+            <motion.div
+              key="body"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
+              className="w-full"
+            >
+              <PortableTextRenderer value={scene.body} />
+            </motion.div>
+          )}
+          {poiActive && !isTransitioning && (
+            <Carousel3
+              key="carousel"
+              scene={scene}
+              selectedPoi={selectedPoi}
+              onClose={handleCarouselClose}
+            />
+          )}
+        </AnimatePresence>
       </div>
-      <div className="fixed bottom-0 left-0 right-0 flex justify-center pb-8">
-        <Button
-          onClick={(e) => {
-            e.preventDefault();
-            handleReset();
-            setTimeout(() => {
-              router.push("/experience");
-            }, 100);
-          }}
+      {!poiActive && !isTransitioning && (
+        <motion.div
+          key="back-button"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8 }}
+          className="fixed bottom-0 left-0 right-0 flex justify-center pb-8"
         >
-          Back to Main
-        </Button>
-      </div>
+          <Button
+            size="xl"
+            onClick={(e) => {
+              e.preventDefault();
+              handleReset();
+              setTimeout(() => {
+                router.push("/experience");
+              }, 100);
+            }}
+          >
+            Back to Main
+          </Button>
+        </motion.div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 import {
   getSceneComponent,
   SceneType,
@@ -11,6 +11,8 @@ import SubSceneMarkers, { PointOfInterest } from "./components/SubSceneMarkers";
 import { SubSceneCameraSystem } from "./SubSceneCameraSystem";
 import { preloadModel } from "@/experience/utils/modelCache";
 import { useSceneStore } from "@/experience/scenes/store/sceneStore";
+import gsap from "gsap";
+import type * as THREE from "three";
 
 interface SubSceneProps {
   scene: Sanity.Scene;
@@ -21,6 +23,7 @@ export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
   const { setIsSubscene, setIsLoading } = useCameraStore();
   const modelRotation = useSceneStore((state) => state.modelRotation);
   const [isLoaded, setIsLoaded] = useState(false);
+  const groupRef = useRef<THREE.Group>(null);
 
   useEffect(() => {
     console.log("🎯 Setting isSubscene", { sceneId: scene._id });
@@ -34,6 +37,17 @@ export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
       setIsLoading(false);
     }
   }, [isLoaded, setIsLoading]);
+
+  // Add GSAP animation effect for rotation
+  useEffect(() => {
+    if (groupRef.current) {
+      gsap.to(groupRef.current.rotation, {
+        x: modelRotation,
+        duration: 0.5,
+        ease: "power2.out",
+      });
+    }
+  }, [modelRotation]);
 
   useEffect(() => {
     if (scene.sceneType && scene.modelFiles) {
@@ -57,7 +71,7 @@ export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
   return (
     <>
       <SubSceneCameraSystem />
-      <group position={[-5, 0, 0]} rotation={[modelRotation, 0, 0]}>
+      <group ref={groupRef} position={[-5, 0, 0]}>
         <Environment preset="sunset" />
         <SubSceneMarkers scene={scene} onMarkerClick={onMarkerClick} />
         <Suspense fallback={null}>

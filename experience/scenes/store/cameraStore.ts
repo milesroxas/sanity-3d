@@ -168,7 +168,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       useSceneStore.getState().isTransitioning &&
       !get().selectedPoi
     ) {
-      console.log("📍 In subscene navigation, skipping animation");
       set({
         position: endPos.clone(),
         target: endTarget.clone(),
@@ -180,7 +179,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       return;
     }
 
-    console.log("🎬 Starting camera animation");
     set({
       controlType: "Disabled",
       isAnimating: true,
@@ -203,7 +201,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
           target: endTarget.clone(),
           previousPosition: startPos.clone(),
           previousTarget: startTarget.clone(),
-          controlType: "CameraControls", // Restore controls after animation
+          controlType: "CameraControls",
         });
       } else {
         const t =

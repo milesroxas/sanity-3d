@@ -38,6 +38,12 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.1.1
         version: 1.1.1(@types/react@19.0.4)(react@19.0.0)
+      '@react-spring/three':
+        specifier: ^9.7.5
+        version: 9.7.5(@react-three/fiber@9.0.0-rc.1(@types/react@19.0.4)(immer@10.1.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.169.0))(react@19.0.0)(three@0.169.0)
+      '@react-spring/web':
+        specifier: ^9.7.5
+        version: 9.7.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@react-three/drei':
         specifier: ^9.120.5
         version: 9.120.8(@react-three/fiber@9.0.0-rc.1(@types/react@19.0.4)(immer@10.1.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.169.0))(@types/react@19.0.4)(@types/three@0.170.0)(immer@10.1.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.169.0)(use-sync-external-store@1.4.0(react@19.0.0))
@@ -86,6 +92,9 @@ importers:
       framer-motion-3d:
         specifier: ^11.15.0
         version: 11.18.0(@emotion/is-prop-valid@1.2.2)(@react-three/fiber@9.0.0-rc.1(@types/react@19.0.4)(immer@10.1.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.169.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.169.0)
+      gsap:
+        specifier: ^3.12.7
+        version: 3.12.7
       leva:
         specifier: ^0.9.35
         version: 0.9.35(@types/react-dom@19.0.2(@types/react@19.0.4))(@types/react@19.0.4)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -1970,6 +1979,12 @@ packages:
 
   '@react-spring/types@9.7.5':
     resolution: {integrity: sha512-HVj7LrZ4ReHWBimBvu2SKND3cDVUPWKLqRTmWe/fNY6o1owGOX0cAHbdPDTMelgBlVbrTKrre6lFkhqGZErK/g==}
+
+  '@react-spring/web@9.7.5':
+    resolution: {integrity: sha512-lmvqGwpe+CSttsWNZVr+Dg62adtKhauGwLyGE/RRyZ8AAMLgb9x3NDMA5RMElXo+IMyTkPp7nxTB8ZQlmhb6JQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
 
   '@react-three/drei@9.120.8':
     resolution: {integrity: sha512-FOKKJWeY0lWe+fuIOH5ntUoqYp79Jw56hjV/kkg/Vzx8e4w1/iiqp0/pGq61La5gAjrKuqNJBpYmw8QTBCtMOg==}
@@ -4134,6 +4149,9 @@ packages:
   groq@3.69.0:
     resolution: {integrity: sha512-z/UnX+4op+xM1X4BStvydrHg484CbI/VoZcfhGDlIZA0xj5DeKQsPO3MXyWqLvuMcU2nnDlnpJZ1ccI1XAlO8Q==}
     engines: {node: '>=18'}
+
+  gsap@3.12.7:
+    resolution: {integrity: sha512-V4GsyVamhmKefvcAKaoy0h6si0xX7ogwBoBSs2CTJwt7luW0oZzC0LhdkyuKV8PJAXr7Yaj8pMjCKD4GJ+eEMg==}
 
   gunzip-maybe@1.4.2:
     resolution: {integrity: sha512-4haO1M4mLO91PW57BMsDFf75UmwoRX0GkdD+Faw+Lr+r/OZrOCS0pIBwOL1xCKQqnQzbNFGgK2V2CpBUPeFNTw==}
@@ -8655,6 +8673,15 @@ snapshots:
 
   '@react-spring/types@9.7.5': {}
 
+  '@react-spring/web@9.7.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      '@react-spring/animated': 9.7.5(react@19.0.0)
+      '@react-spring/core': 9.7.5(react@19.0.0)
+      '@react-spring/shared': 9.7.5(react@19.0.0)
+      '@react-spring/types': 9.7.5
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+
   '@react-three/drei@9.120.8(@react-three/fiber@9.0.0-rc.1(@types/react@19.0.4)(immer@10.1.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.169.0))(@types/react@19.0.4)(@types/three@0.170.0)(immer@10.1.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.169.0)(use-sync-external-store@1.4.0(react@19.0.0))':
     dependencies:
       '@babel/runtime': 7.26.0
@@ -11385,6 +11412,8 @@ snapshots:
       - supports-color
 
   groq@3.69.0: {}
+
+  gsap@3.12.7: {}
 
   gunzip-maybe@1.4.2:
     dependencies:

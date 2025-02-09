@@ -8,6 +8,7 @@ import { useControls } from "leva";
 import { useThree } from "@react-three/fiber";
 import { toPosition } from "../../../types/types";
 import { PortableTextBlock } from "next-sanity";
+import { useSceneStore } from "../../store/sceneStore";
 
 // Define the expected type for a point of interest coming from Sanity.
 export interface PointOfInterest {
@@ -57,31 +58,34 @@ export default function SubSceneMarkers({
     useCameraStore.getState().setSelectedPoi(poi);
     onMarkerClick(poi);
 
-    if (poi.cameraPosition && poi.cameraTarget) {
-      useCameraStore.getState().setControlType("Disabled");
+    // First fade out the UI
+    useSceneStore.getState().setPOIActive(true);
 
-      useCameraStore
-        .getState()
-        .startCameraTransition(
-          camera.position.clone(),
-          new Vector3(
-            poi.cameraPosition.x,
-            poi.cameraPosition.y,
-            poi.cameraPosition.z
-          ),
-          camera
-            .getWorldDirection(new Vector3())
-            .multiplyScalar(100)
-            .add(camera.position),
-          new Vector3(
-            poi.cameraTarget.x,
-            poi.cameraTarget.y,
-            poi.cameraTarget.z
-          )
-        );
-    } else {
-      console.warn("Missing camera position or target:", poi);
-    }
+    // Wait for UI to fade out before starting camera movement
+    setTimeout(() => {
+      if (poi.cameraPosition && poi.cameraTarget) {
+        useCameraStore.getState().setControlType("Disabled");
+        useCameraStore
+          .getState()
+          .startCameraTransition(
+            camera.position.clone(),
+            new Vector3(
+              poi.cameraPosition.x,
+              poi.cameraPosition.y,
+              poi.cameraPosition.z
+            ),
+            camera
+              .getWorldDirection(new Vector3())
+              .multiplyScalar(100)
+              .add(camera.position),
+            new Vector3(
+              poi.cameraTarget.x,
+              poi.cameraTarget.y,
+              poi.cameraTarget.z
+            )
+          );
+      }
+    }, 800); // Wait for UI fade out
   };
 
   // Leva controls for a debug marker

@@ -28,6 +28,7 @@ This is a test project to implement a 3D headless CMS experience using React Thr
 - [ ] Implement baked textures
 - [ ] Dynamic scene environment and lighting
 - [ ] Implement loading screen
+- [ ] Implement intro animations
 
 ## TODO: Chores
 
@@ -35,7 +36,7 @@ This is a test project to implement a 3D headless CMS experience using React Thr
   - [x] Subscene camera refinement for model positioning
   - [ ] Subscene layout design
   - [x] Subscene carousel implementation
-  - [ ] Subscene navigation refinement
+  - [x] Subscene navigation refinement
 - [ ] Review upstream updates from Schema UI
 - [ ] Clean up queries and types
 - [ ] Change /studio to /admin
