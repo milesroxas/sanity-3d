@@ -8,6 +8,7 @@ import { splitInfoListQuery } from "./split-info-list";
 export const splitRowQuery = groq`
   _type == "split-row" => {
     _type,
+    _key,
     padding,
     colorVariant,
     noGap,

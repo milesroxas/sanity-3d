@@ -10,7 +10,7 @@ export async function generateStaticParams() {
   const pages = await fetchSanityPagesStaticParams();
 
   return pages.map((page) => ({
-    slug: page.slug.current,
+    slug: page.slug?.current,
   }));
 }
 
@@ -37,5 +37,5 @@ export default async function Page(props: {
     notFound();
   }
 
-  return <Blocks blocks={page?.blocks} />;
+  return <Blocks blocks={page?.blocks ?? []} />;
 }

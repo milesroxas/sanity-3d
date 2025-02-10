@@ -1,12 +1,15 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import SectionContainer, {
-  ISectionContainer,
-  ISectionPadding,
-} from "@/components/ui/section-container";
+import SectionContainer from "@/components/ui/section-container";
 import { stegaClean } from "next-sanity";
 import Link from "next/link";
 import PortableTextRenderer from "@/components/portable-text-renderer";
+import { PAGE_QUERYResult } from "@/sanity.types";
+
+type Cta1Props = Extract<
+  NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number],
+  { _type: "cta-1" }
+>;
 
 export default function Cta1({
   padding,
@@ -17,29 +20,7 @@ export default function Cta1({
   title,
   body,
   links,
-}: Partial<{
-  padding: ISectionPadding;
-  colorVariant: ISectionContainer["color"];
-  stackAlign: "left" | "center";
-  sectionWidth: "default" | "narrow";
-  tagLine: string;
-  title: string;
-  body: any;
-  links: {
-    title: string;
-    href: string;
-    target?: boolean;
-    buttonVariant:
-      | "default"
-      | "secondary"
-      | "link"
-      | "destructive"
-      | "outline"
-      | "ghost"
-      | null
-      | undefined;
-  }[];
-}>) {
+}: Cta1Props) {
   const isNarrow = stegaClean(sectionWidth) === "narrow";
   const align = stegaClean(stackAlign);
   const color = stegaClean(colorVariant);

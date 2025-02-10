@@ -4,39 +4,15 @@ import { stegaClean } from "next-sanity";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
+import { PAGE_QUERYResult, ColorVariant } from "@/sanity.types";
 
-interface PricingCardProps {
-  color:
-    | "primary"
-    | "secondary"
-    | "card"
-    | "accent"
-    | "destructive"
-    | "background"
-    | "transparent";
-  title: string;
-  tagLine: string;
-  excerpt: string;
-  price: {
-    value: number;
-    period: string;
-  };
-  list: string[];
-  image: Sanity.Image;
-  link: {
-    title: string;
-    href: string;
-    target?: boolean;
-    buttonVariant:
-      | "default"
-      | "secondary"
-      | "link"
-      | "destructive"
-      | "outline"
-      | "ghost"
-      | null
-      | undefined;
-  };
+type Block = NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number];
+type GridRow = Extract<Block, { _type: "grid-row" }>;
+type GridColumn = NonNullable<NonNullable<GridRow["columns"]>>[number];
+type PricingCard = Extract<GridColumn, { _type: "pricing-card" }>;
+
+interface PricingCardProps extends Omit<PricingCard, "_type" | "_key"> {
+  color?: ColorVariant;
 }
 
 export default function PricingCard({
@@ -86,14 +62,14 @@ export default function PricingCard({
         <Button
           className="mt-6"
           size="lg"
-          variant={stegaClean(link.buttonVariant)}
+          variant={stegaClean(link?.buttonVariant)}
           asChild
         >
           <Link
             href={link?.href ? link.href : "#"}
-            target={link.target ? "_blank" : undefined}
+            target={link?.target ? "_blank" : undefined}
           >
-            {link.title}
+            {link?.title}
           </Link>
         </Button>
       </div>

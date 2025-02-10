@@ -1,16 +1,16 @@
 import { urlFor } from "@/sanity/lib/image";
-
+import { PAGE_QUERYResult, POST_QUERYResult } from "@/sanity.types";
 const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === "production";
 
 export function generatePageMetadata({
   page,
   slug,
 }: {
-  page: Sanity.Page | Sanity.Post;
+  page: PAGE_QUERYResult | POST_QUERYResult;
   slug: string;
 }) {
   return {
-    title: page?.meta_title || page?.title,
+    title: page?.meta_title,
     description: page?.meta_description,
     openGraph: {
       images: [

@@ -2,31 +2,14 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { stegaClean } from "next-sanity";
 import PortableTextRenderer from "@/components/portable-text-renderer";
+import { PAGE_QUERYResult } from "@/sanity.types";
 
-export default function Hero2({
-  tagLine,
-  title,
-  body,
-  links,
-}: Partial<{
-  tagLine: string;
-  title: string;
-  body: any;
-  links: {
-    title: string;
-    href: string;
-    target?: boolean;
-    buttonVariant:
-      | "default"
-      | "secondary"
-      | "link"
-      | "destructive"
-      | "outline"
-      | "ghost"
-      | null
-      | undefined;
-  }[];
-}>) {
+type Hero2Props = Extract<
+  NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number],
+  { _type: "hero-2" }
+>;
+
+export default function Hero2({ tagLine, title, body, links }: Hero2Props) {
   return (
     <div className="container dark:bg-background py-20 lg:pt-40 text-center">
       {tagLine && (

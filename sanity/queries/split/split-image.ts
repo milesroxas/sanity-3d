@@ -4,6 +4,7 @@ import { groq } from "next-sanity";
 export const splitImageQuery = groq`
   _type == "split-image" => {
     _type,
+    _key,
     image{
       asset->{
         _id,

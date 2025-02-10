@@ -1,20 +1,19 @@
-import SectionContainer, {
-  ISectionContainer,
-  ISectionPadding,
-} from "@/components/ui/section-container";
+import SectionContainer from "@/components/ui/section-container";
 import { stegaClean } from "next-sanity";
-import Timeline1, { Timeline1Props } from "@/components/ui/timeline/timeline-1";
+import Timeline1 from "@/components/ui/timeline/timeline-1";
+import { PAGE_QUERYResult, ColorVariant } from "@/sanity.types";
+
+type TimelineRow = Extract<
+  NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number],
+  { _type: "timeline-row" }
+>;
 
 export default function TimelineRow({
   padding,
   colorVariant,
   timelines,
-}: Partial<{
-  padding: ISectionPadding;
-  colorVariant: ISectionContainer["color"];
-  timelines: Timeline1Props[];
-}>) {
-  const color = stegaClean(colorVariant);
+}: TimelineRow) {
+  const color = stegaClean(colorVariant) as ColorVariant;
 
   return (
     <SectionContainer color={color} padding={padding}>

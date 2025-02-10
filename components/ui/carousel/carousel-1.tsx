@@ -12,6 +12,7 @@ import {
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import { cn } from "@/lib/utils";
+import { PAGE_QUERYResult } from "@/sanity.types";
 
 const CAROUSEL_SIZES = {
   one: "basis-full",
@@ -27,22 +28,15 @@ const IMAGE_SIZES = {
 
 type CarouselSize = keyof typeof CAROUSEL_SIZES;
 
-interface Carousel1Props {
-  padding: {
-    top: boolean;
-    bottom: boolean;
-  };
-  colorVariant:
-    | "primary"
-    | "secondary"
-    | "card"
-    | "accent"
-    | "destructive"
-    | "background"
-    | "transparent";
-  size: CarouselSize;
-  indicators: "none" | "dots" | "count";
-  images?: Sanity.Image[];
+type Carousel1 = Extract<
+  NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number],
+  { _type: "carousel-1" }
+>;
+
+interface Carousel1Props
+  extends Omit<NonNullable<Carousel1>, "_type" | "_key"> {
+  size: CarouselSize | null;
+  indicators: "none" | "dots" | "count" | null;
 }
 
 export default function Carousel1({
@@ -51,9 +45,10 @@ export default function Carousel1({
   size = "one",
   indicators = "none",
   images,
-}: Partial<Carousel1Props>) {
+}: Carousel1Props) {
   const color = stegaClean(colorVariant);
   const stegaIndicators = stegaClean(indicators);
+  const stegaSize = stegaClean(size) as CarouselSize;
 
   return (
     <SectionContainer color={color} padding={padding}>
@@ -63,19 +58,19 @@ export default function Carousel1({
             {images.map((image, index) => (
               <CarouselItem
                 key={`${index}-${image.alt}`}
-                className={CAROUSEL_SIZES[stegaClean(size)]}
+                className={CAROUSEL_SIZES[stegaSize]}
               >
                 {image && (
                   <div
                     className={cn(
                       "relative mx-auto overflow-hidden rounded-2xl",
-                      IMAGE_SIZES[stegaClean(size)],
-                      stegaClean(size) === "one" ? "max-w-[35rem]" : undefined
+                      IMAGE_SIZES[stegaSize],
+                      stegaSize === "one" ? "max-w-[35rem]" : undefined
                     )}
                   >
                     <Image
                       className="object-cover"
-                      src={urlFor(image.asset).url()}
+                      src={urlFor(image).url()}
                       alt={image.alt || ""}
                       fill
                       placeholder={

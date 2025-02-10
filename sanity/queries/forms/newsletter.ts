@@ -4,6 +4,7 @@ import { groq } from "next-sanity";
 export const formNewsletterQuery = groq`
   _type == "form-newsletter" => {
     _type,
+    _key,
     padding,
     colorVariant,
     stackAlign,

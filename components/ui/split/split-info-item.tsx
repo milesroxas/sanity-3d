@@ -6,20 +6,22 @@ import { urlFor } from "@/sanity/lib/image";
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
+import { PAGE_QUERYResult } from "@/sanity.types";
 
-interface SplitInfoItemProps {
-  image: Sanity.Image;
-  title: string;
-  body: any;
-  tags: string[];
-}
+type Block = NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number];
+type SplitRow = Extract<Block, { _type: "split-row" }>;
+type SplitInfoList = Extract<
+  NonNullable<SplitRow["splitColumns"]>[number],
+  { _type: "split-info-list" }
+>;
+type SplitInfoItem = NonNullable<SplitInfoList["list"]>[number];
 
 export default function SplitCardsItem({
   image,
   title,
   body,
   tags,
-}: Partial<SplitInfoItemProps>) {
+}: SplitInfoItem) {
   const ref = useRef(null);
   const isInView = useInView(ref, {
     amount: 1,
@@ -40,10 +42,10 @@ export default function SplitCardsItem({
         )}
       >
         <div className="flex items-center gap-2">
-          {image && image.asset._id && (
+          {image && image.asset?._id && (
             <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
               <Image
-                src={urlFor(image.asset).url()}
+                src={urlFor(image).url()}
                 alt={image.alt || ""}
                 placeholder={
                   image?.asset?.metadata?.lqip &&
@@ -54,7 +56,6 @@ export default function SplitCardsItem({
                 blurDataURL={image?.asset?.metadata?.lqip || ""}
                 width={image.asset?.metadata?.dimensions?.width || 40}
                 height={image?.asset?.metadata?.dimensions?.height || 40}
-                unoptimized={image?.asset?.mimeType === "image/svg+xml"}
               />
             </div>
           )}

@@ -4,36 +4,27 @@ import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import { ChevronRight } from "lucide-react";
 import { Badge } from "../badge";
+import { PAGE_QUERYResult, ColorVariant } from "@/sanity.types";
 
-interface GridPostProps {
-  color:
-    | "primary"
-    | "secondary"
-    | "card"
-    | "accent"
-    | "destructive"
-    | "background"
-    | "transparent";
-  title: string;
-  slug: Sanity.Post["slug"];
-  categories: Sanity.Category[];
-  excerpt: string;
-  image: Sanity.Image;
+type Block = NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number];
+type GridRow = Extract<Block, { _type: "grid-row" }>;
+type GridColumn = NonNullable<NonNullable<GridRow["columns"]>>[number];
+type GridPost = Extract<GridColumn, { _type: "grid-post" }>;
+
+interface GridPostProps extends Omit<NonNullable<GridPost>, "_type" | "_key"> {
+  color?: ColorVariant;
 }
 
-export default function GridPost({
-  color,
-  title,
-  slug,
-  excerpt,
-  image,
-  categories,
-}: GridPostProps) {
+export default function GridPost({ color, post }: GridPostProps) {
+  if (!post) return null;
+
+  const { title, slug, excerpt, image, categories } = post;
+
   return (
     <Link
       key={title}
       className="flex w-full rounded-3xl ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 group"
-      href={slug.current ? `/blog/${slug.current}` : "#"}
+      href={`/blog/${slug?.current}`}
     >
       <div
         className={cn(
@@ -47,7 +38,7 @@ export default function GridPost({
           {image && image.asset?._id && (
             <div className="mb-4 relative h-[15rem] sm:h-[20rem] md:h-[25rem] lg:h-[9.5rem] xl:h-[12rem] rounded-2xl overflow-hidden">
               <Image
-                src={urlFor(image.asset).url()}
+                src={urlFor(image).url()}
                 alt={image.alt || ""}
                 placeholder={image?.asset?.metadata?.lqip ? "blur" : undefined}
                 blurDataURL={image?.asset?.metadata?.lqip || ""}

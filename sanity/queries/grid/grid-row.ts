@@ -7,6 +7,7 @@ import { gridPostQuery } from "@/sanity/queries/grid/grid-post";
 export const gridRowQuery = groq`
   _type == "grid-row" => {
     _type,
+    _key,
     padding,
     colorVariant,
     gridColumns,

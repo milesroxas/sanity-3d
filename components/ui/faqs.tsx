@@ -7,33 +7,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import PortableTextRenderer from "@/components/portable-text-renderer";
+import { PAGE_QUERYResult } from "@/sanity.types";
 
-interface FAQProps {
-  padding: {
-    top: boolean;
-    bottom: boolean;
-  };
-  colorVariant:
-    | "primary"
-    | "secondary"
-    | "card"
-    | "accent"
-    | "destructive"
-    | "background"
-    | "transparent";
-  title: string;
-  faqs: {
-    _id: string;
-    title: string;
-    body: any;
-  }[];
-}
+type FAQProps = Extract<
+  NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number],
+  { _type: "faqs" }
+>;
 
-export default function FAQs({
-  padding,
-  colorVariant,
-  faqs,
-}: Partial<FAQProps>) {
+export default function FAQs({ padding, colorVariant, faqs }: FAQProps) {
   const color = stegaClean(colorVariant);
   return (
     <SectionContainer color={color} padding={padding}>
@@ -43,7 +24,7 @@ export default function FAQs({
             <AccordionItem key={faq.title} value={`item-${faq._id}`}>
               <AccordionTrigger>{faq.title}</AccordionTrigger>
               <AccordionContent>
-                <PortableTextRenderer value={faq.body} />
+                <PortableTextRenderer value={faq.body || []} />
               </AccordionContent>
             </AccordionItem>
           ))}

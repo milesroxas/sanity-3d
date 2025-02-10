@@ -4,6 +4,7 @@ import { groq } from "next-sanity";
 export const splitContentQuery = groq`
   _type == "split-content" => {
     _type,
+    _key,
     sticky,
     padding,
     colorVariant,

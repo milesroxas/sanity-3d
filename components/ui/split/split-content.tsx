@@ -3,33 +3,19 @@ import PortableTextRenderer from "@/components/portable-text-renderer";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import TagLine from "@/components/ui/tag-line";
-import { ISectionContainer } from "@/components/ui/section-container";
 import { createElement } from "react";
 import { stegaClean } from "next-sanity";
+import { PAGE_QUERYResult } from "@/sanity.types";
 
-interface SplitContentPros {
-  sticky: boolean;
-  color: ISectionContainer["color"];
-  colorVariant: ISectionContainer["color"];
-  padding: ISectionContainer["padding"];
-  noGap: boolean;
-  tagLine: string;
-  title: string;
-  body: any;
-  link: {
-    title: string;
-    href: string;
-    target?: boolean;
-    buttonVariant:
-      | "default"
-      | "secondary"
-      | "link"
-      | "destructive"
-      | "outline"
-      | "ghost"
-      | null
-      | undefined;
-  };
+type Block = NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number];
+type SplitRow = Extract<Block, { _type: "split-row" }>;
+type SplitContent = Extract<
+  NonNullable<SplitRow["splitColumns"]>[number],
+  { _type: "split-content" }
+>;
+
+interface SplitContentProps extends SplitContent {
+  noGap?: boolean;
 }
 
 export default function SplitContent({
@@ -40,7 +26,7 @@ export default function SplitContent({
   title,
   body,
   link,
-}: Partial<SplitContentPros>) {
+}: SplitContentProps) {
   return (
     <div
       className={cn(

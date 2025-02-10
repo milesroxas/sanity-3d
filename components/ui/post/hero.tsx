@@ -2,6 +2,9 @@ import Image from "next/image";
 import PostDate from "./date";
 import { Mail } from "lucide-react";
 import { urlFor } from "@/sanity/lib/image";
+import { POST_QUERYResult } from "@/sanity.types";
+
+type PostHeroProps = NonNullable<POST_QUERYResult>;
 
 export default function PostHero({
   title,
@@ -9,14 +12,7 @@ export default function PostHero({
   image,
   slug,
   _createdAt,
-}: Partial<{
-  title: string;
-  author: Sanity.Author;
-  excerpt: string;
-  image: Sanity.Image;
-  slug: { current: string };
-  _createdAt: string;
-}>) {
+}: PostHeroProps) {
   return (
     <>
       {title && <h1 className="mb-4 md:mb-6 text-3xl lg:text-5xl">{title}</h1>}
@@ -85,7 +81,7 @@ export default function PostHero({
             </a>
             <a
               className="hover:opacity-70"
-              href={`mailto:?subject=$title}&body=${title}%0A%0A${process.env.NEXT_PUBLIC_SITE_URL}/blog/${slug?.current}`}
+              href={`mailto:?subject=${title}&body=${title}%0A%0A${process.env.NEXT_PUBLIC_SITE_URL}/blog/${slug?.current}`}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Share via email"

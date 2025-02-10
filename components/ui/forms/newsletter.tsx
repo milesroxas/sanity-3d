@@ -16,24 +16,12 @@ import { toast } from "sonner";
 import { useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import { stegaClean } from "next-sanity";
+import { PAGE_QUERYResult } from "@/sanity.types";
 
-interface FormNewsletterProps {
-  padding: {
-    top: boolean;
-    bottom: boolean;
-  };
-  colorVariant:
-    | "primary"
-    | "secondary"
-    | "card"
-    | "accent"
-    | "destructive"
-    | "background"
-    | "transparent";
-  consentText: string;
-  buttonText: string;
-  successMessage: string;
-}
+type FormNewsletterProps = Extract<
+  NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number],
+  { _type: "form-newsletter" }
+>;
 
 export default function FormNewsletter({
   padding,
@@ -41,7 +29,7 @@ export default function FormNewsletter({
   consentText,
   buttonText,
   successMessage,
-}: Partial<FormNewsletterProps>) {
+}: FormNewsletterProps) {
   // form validation schema
   const formSchema = z.object({
     email: z

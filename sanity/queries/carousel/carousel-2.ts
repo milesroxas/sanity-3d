@@ -4,6 +4,7 @@ import { groq } from "next-sanity";
 export const carousel2Query = groq`
   _type == "carousel-2" => {
     _type,
+    _key,
     padding,
     colorVariant,
     testimonial[]->{

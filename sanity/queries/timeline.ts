@@ -4,6 +4,7 @@ import { groq } from "next-sanity";
 export const timelineQuery = groq`
   _type == "timeline-row" => {
     _type,
+    _key,
     padding,
     colorVariant,
     timelines[]{

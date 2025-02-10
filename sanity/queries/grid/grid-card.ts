@@ -4,6 +4,7 @@ import { groq } from "next-sanity";
 export const gridCardQuery = groq`
   _type == "grid-card" => {
     _type,
+    _key,
     title,
     excerpt,
     image{

@@ -1,20 +1,19 @@
-import { ISectionContainer } from "@/components/ui/section-container";
 import { stegaClean } from "next-sanity";
 import SplitCardsItem from "@/components/ui/split/split-cards-item";
+import { PAGE_QUERYResult, ColorVariant } from "@/sanity.types";
 
-interface SplitCardsListProps {
-  color: ISectionContainer["color"];
-  list: {
-    tagLine: string;
-    title: any;
-    body: any;
-  }[];
+type Block = NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number];
+type SplitRow = Extract<Block, { _type: "split-row" }>;
+type SplitCardsList = Extract<
+  NonNullable<SplitRow["splitColumns"]>[number],
+  { _type: "split-cards-list" }
+>;
+
+interface SplitCardsListProps extends SplitCardsList {
+  color?: ColorVariant;
 }
 
-export default function SplitCardsList({
-  color,
-  list,
-}: Partial<SplitCardsListProps>) {
+export default function SplitCardsList({ color, list }: SplitCardsListProps) {
   const colorParent = stegaClean(color);
 
   return (

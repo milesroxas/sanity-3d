@@ -4,6 +4,7 @@ import { groq } from "next-sanity";
 export const splitCardsListQuery = groq`
   _type == "split-cards-list" => {
     _type,
+    _key,
     list[]{
       tagLine,
       title,
