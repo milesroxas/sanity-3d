@@ -1,8 +1,10 @@
 import { groq } from "next-sanity";
 
+// @sanity-typegen-ignore
 export const carousel2Query = groq`
   _type == "carousel-2" => {
     _type,
+    _key,
     padding,
     colorVariant,
     testimonial[]->{
@@ -44,5 +46,5 @@ export const carousel2Query = groq`
       },
       rating,
     },
-  },
+  }
 `;

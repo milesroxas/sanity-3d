@@ -13,35 +13,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { urlFor } from "@/sanity/lib/image";
 import { StarRating } from "@/components/ui/star-rating";
 import PortableTextRenderer from "@/components/portable-text-renderer";
+import { PAGE_QUERYResult } from "@/sanity.types";
 
-interface Carousel2Props {
-  padding: {
-    top: boolean;
-    bottom: boolean;
-  };
-  colorVariant:
-    | "primary"
-    | "secondary"
-    | "card"
-    | "accent"
-    | "destructive"
-    | "background"
-    | "transparent";
-  testimonial: {
-    _id: string;
-    name: string;
-    title: string;
-    image: Sanity.Image;
-    body: any;
-    rating: number;
-  }[];
-}
+type Carousel2Props = Extract<
+  NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number],
+  { _type: "carousel-2" }
+>;
 
 export default function Carousel2({
   padding,
   colorVariant,
   testimonial,
-}: Partial<Carousel2Props>) {
+}: Carousel2Props) {
   const color = stegaClean(colorVariant);
 
   return (
@@ -61,12 +44,12 @@ export default function Carousel2({
                         <Avatar className="w-10 h-10 mr-3">
                           {item.image && (
                             <AvatarImage
-                              src={urlFor(item.image.asset).url()}
-                              alt={item.name}
+                              src={urlFor(item.image).url()}
+                              alt={item.name ?? ""}
                             />
                           )}
                           <AvatarFallback>
-                            {item.name.slice(0, 2)}
+                            {item.name?.slice(0, 2)}
                           </AvatarFallback>
                         </Avatar>
                         <div>
@@ -76,7 +59,7 @@ export default function Carousel2({
                           </p>
                         </div>
                       </div>
-                      <StarRating rating={item.rating} />
+                      <StarRating rating={item.rating ?? 0} />
                       {item.body && (
                         <div className="text-sm mt-2 line-clamp-4">
                           <PortableTextRenderer value={item.body} />

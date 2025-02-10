@@ -1,8 +1,10 @@
 import { groq } from "next-sanity";
 
+// @sanity-typegen-ignore
 export const sectionHeaderQuery = groq`
   _type == "section-header" => {
     _type,
+    _key,
     padding,
     colorVariant,
     sectionWidth,
@@ -11,5 +13,5 @@ export const sectionHeaderQuery = groq`
     title,
     description,
     link,
-  },
+  }
 `;

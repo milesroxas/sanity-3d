@@ -2,18 +2,20 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import { ChevronRight } from "lucide-react";
+import { POSTS_QUERYResult } from "@/sanity.types";
+
+type PostCard = NonNullable<POSTS_QUERYResult[number]>;
+
+interface PostCardProps extends Omit<PostCard, "slug"> {
+  className?: string;
+}
 
 export default function PostCard({
   className,
   title,
   excerpt,
   image,
-}: Partial<{
-  className: string;
-  title: string;
-  excerpt: string;
-  image: Sanity.Image;
-}>) {
+}: PostCardProps) {
   return (
     <div
       className={cn(
@@ -25,7 +27,7 @@ export default function PostCard({
         {image && image.asset?._id && (
           <div className="mb-4 relative h-[15rem] sm:h-[20rem] md:h-[25rem] lg:h-[9.5rem] xl:h-[12rem] rounded-2xl overflow-hidden">
             <Image
-              src={urlFor(image.asset).url()}
+              src={urlFor(image).url()}
               alt={image.alt || ""}
               placeholder={image?.asset?.metadata?.lqip ? "blur" : undefined}
               blurDataURL={image?.asset?.metadata?.lqip || ""}

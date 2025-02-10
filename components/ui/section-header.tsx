@@ -1,9 +1,13 @@
 import { cn } from "@/lib/utils";
-import SectionContainer, {
-  ISectionContainer,
-  ISectionPadding,
-} from "@/components/ui/section-container";
+import SectionContainer from "@/components/ui/section-container";
 import { stegaClean } from "next-sanity";
+
+import { PAGE_QUERYResult } from "@/sanity.types";
+
+type SectionHeaderProps = Extract<
+  NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number],
+  { _type: "section-header" }
+>;
 
 export default function SectionHeader({
   padding,
@@ -13,15 +17,7 @@ export default function SectionHeader({
   tagLine,
   title,
   description,
-}: Partial<{
-  padding: ISectionPadding;
-  colorVariant: ISectionContainer["color"];
-  stackAlign: "left" | "center";
-  sectionWidth: "default" | "narrow";
-  tagLine: string;
-  title: string;
-  description: string;
-}>) {
+}: SectionHeaderProps) {
   const isNarrow = stegaClean(sectionWidth) === "narrow";
   const align = stegaClean(stackAlign);
   const color = stegaClean(colorVariant);

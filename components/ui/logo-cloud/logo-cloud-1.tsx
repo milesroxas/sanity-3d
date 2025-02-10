@@ -5,30 +5,19 @@ import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import { Fragment } from "react";
 import { motion } from "motion/react";
+import { PAGE_QUERYResult } from "@/sanity.types";
 
-interface LogoCloud1Props {
-  padding: {
-    top: boolean;
-    bottom: boolean;
-  };
-  colorVariant:
-    | "primary"
-    | "secondary"
-    | "card"
-    | "accent"
-    | "destructive"
-    | "background"
-    | "transparent";
-  title: string;
-  images: Sanity.Image[];
-}
+type LogoCloud1Props = Extract<
+  NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number],
+  { _type: "logo-cloud-1" }
+>;
 
 export default function LogoCloud1({
   padding,
   colorVariant,
   title,
   images,
-}: Partial<LogoCloud1Props>) {
+}: LogoCloud1Props) {
   const color = stegaClean(colorVariant);
 
   return (
@@ -64,14 +53,17 @@ export default function LogoCloud1({
             <Fragment key={arrayIndex}>
               {images?.map((image, index) => (
                 <div
-                  key={`${image.asset._id}-${arrayIndex}-${index}`}
+                  key={`${image.asset?._id}-${arrayIndex}-${index}`}
                   className="flex-shrink-0 w-24 h-24 flex items-center justify-center"
                 >
                   <Image
-                    src={urlFor(image.asset).url()}
+                    src={urlFor(image).url()}
                     alt={image.alt || ""}
                     placeholder={
-                      image?.asset?.metadata?.lqip ? "blur" : undefined
+                      image?.asset?.metadata?.lqip &&
+                      image?.asset?.mimeType !== "image/svg+xml"
+                        ? "blur"
+                        : undefined
                     }
                     blurDataURL={image?.asset?.metadata?.lqip || ""}
                     width={image.asset?.metadata?.dimensions?.width || 220}

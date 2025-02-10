@@ -4,33 +4,15 @@ import { stegaClean } from "next-sanity";
 import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
+import { PAGE_QUERYResult, ColorVariant } from "@/sanity.types";
 
-interface GridCardProps {
-  color:
-    | "primary"
-    | "secondary"
-    | "card"
-    | "accent"
-    | "destructive"
-    | "background"
-    | "transparent";
-  title: string;
-  excerpt: string;
-  image: Sanity.Image;
-  link: {
-    title: string;
-    href: string;
-    target?: boolean;
-    buttonVariant:
-      | "default"
-      | "secondary"
-      | "link"
-      | "destructive"
-      | "outline"
-      | "ghost"
-      | null
-      | undefined;
-  };
+type Block = NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number];
+type GridRow = Extract<Block, { _type: "grid-row" }>;
+type GridColumn = NonNullable<NonNullable<GridRow["columns"]>>[number];
+type GridCard = Extract<GridColumn, { _type: "grid-card" }>;
+
+interface GridCardProps extends Omit<GridCard, "_type" | "_key"> {
+  color?: ColorVariant;
 }
 
 export default function GridCard({
@@ -44,8 +26,8 @@ export default function GridCard({
     <Link
       key={title}
       className="flex w-full rounded-3xl ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 group"
-      href={link?.href ? link.href : "#"}
-      target={link.target ? "_blank" : undefined}
+      href={link?.href ?? "#"}
+      target={link?.target ? "_blank" : undefined}
     >
       <div
         className={cn(
@@ -59,7 +41,7 @@ export default function GridCard({
           {image && image.asset?._id && (
             <div className="mb-4 relative h-[15rem] sm:h-[20rem] md:h-[25rem] lg:h-[9.5rem] xl:h-[12rem] rounded-2xl overflow-hidden">
               <Image
-                src={urlFor(image.asset).url()}
+                src={urlFor(image).url()}
                 alt={image.alt || ""}
                 placeholder={image?.asset?.metadata?.lqip ? "blur" : undefined}
                 blurDataURL={image?.asset?.metadata?.lqip || ""}
@@ -84,10 +66,10 @@ export default function GridCard({
         <Button
           className="mt-6"
           size="lg"
-          variant={stegaClean(link.buttonVariant)}
+          variant={stegaClean(link?.buttonVariant)}
           asChild
         >
-          <div>{link.title}</div>
+          <div>{link?.title ?? "Learn More"}</div>
         </Button>
       </div>
     </Link>

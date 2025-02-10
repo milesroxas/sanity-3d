@@ -104,6 +104,24 @@ To use the newsletter form, you need to configure Resend.
 3. Copy the [audience](https://resend.com/audiences) id
 4. Set the API key and audience ID in the Vercel project settings or in the `.env.local` file
 
+## Sanity TypeGen
+
+To generate the types, run the following command:
+
+```bash
+npx sanity schema extract
+```
+
+This will generate `schema.json` file in the root of the project.
+
+To generate the types, run the following command:
+
+```bash
+npx sanity typegen generate
+```
+
+This will generate the types in the `sanity.types.ts` file in the root of the project.
+
 ## Environment variables
 
 All environment variables and their descriptions:

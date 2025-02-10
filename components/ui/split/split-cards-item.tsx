@@ -1,15 +1,20 @@
 "use client";
 import PortableTextRenderer from "@/components/portable-text-renderer";
 import { cn } from "@/lib/utils";
-import { ISectionContainer } from "@/components/ui/section-container";
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
+import { PAGE_QUERYResult, ColorVariant } from "@/sanity.types";
 
-interface SplitCardsItemProps {
-  color: ISectionContainer["color"];
-  tagLine: string;
-  title: string;
-  body: any;
+type Block = NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number];
+type SplitRow = Extract<Block, { _type: "split-row" }>;
+type SplitCardsList = Extract<
+  NonNullable<SplitRow["splitColumns"]>[number],
+  { _type: "split-cards-list" }
+>;
+type SplitCardItem = NonNullable<NonNullable<SplitCardsList["list"]>[number]>;
+
+interface SplitCardsItemProps extends SplitCardItem {
+  color?: ColorVariant;
 }
 
 export default function SplitCardsItem({
@@ -17,7 +22,7 @@ export default function SplitCardsItem({
   tagLine,
   title,
   body,
-}: Partial<SplitCardsItemProps>) {
+}: SplitCardsItemProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, {
     amount: 1,

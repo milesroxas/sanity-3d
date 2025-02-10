@@ -1,27 +1,11 @@
 import { cn } from "@/lib/utils";
+import { SectionPadding, ColorVariant } from "@/sanity.types";
 
-export const DEFAULT_PADDING = {
-  top: true,
-  bottom: true,
-};
-
-export interface ISectionPadding {
-  top: boolean;
-  bottom: boolean;
-}
-
-export interface ISectionContainer {
-  color?:
-    | "primary"
-    | "secondary"
-    | "card"
-    | "accent"
-    | "destructive"
-    | "background"
-    | "transparent";
+interface SectionContainerProps {
+  color?: ColorVariant | null;
+  padding?: SectionPadding | null;
   children: React.ReactNode;
   className?: string;
-  padding?: ISectionPadding | null | undefined;
 }
 
 export default function SectionContainer({
@@ -29,7 +13,7 @@ export default function SectionContainer({
   padding,
   children,
   className,
-}: ISectionContainer) {
+}: SectionContainerProps) {
   return (
     <div
       className={cn(

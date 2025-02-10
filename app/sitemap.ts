@@ -3,7 +3,7 @@ import { groq } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
 
 async function getPagesSitemap(): Promise<MetadataRoute.Sitemap[]> {
-  const query = groq`
+  const pagesQuery = groq`
     *[_type == 'page'] | order(slug.current) {
       'url': $baseUrl + select(slug.current == 'index' => '', '/' + slug.current),
       'lastModified': _updatedAt,
@@ -16,7 +16,7 @@ async function getPagesSitemap(): Promise<MetadataRoute.Sitemap[]> {
   `;
 
   const { data } = await sanityFetch({
-    query,
+    query: pagesQuery,
     params: {
       baseUrl: process.env.NEXT_PUBLIC_SITE_URL,
     },
@@ -26,7 +26,7 @@ async function getPagesSitemap(): Promise<MetadataRoute.Sitemap[]> {
 }
 
 async function getPostsSitemap(): Promise<MetadataRoute.Sitemap[]> {
-  const query = groq`
+  const postsQuery = groq`
     *[_type == 'post'] | order(_updatedAt desc) {
       'url': $baseUrl + '/blog/' + slug.current,
       'lastModified': _updatedAt,
@@ -36,7 +36,7 @@ async function getPostsSitemap(): Promise<MetadataRoute.Sitemap[]> {
   `;
 
   const { data } = await sanityFetch({
-    query,
+    query: postsQuery,
     params: {
       baseUrl: process.env.NEXT_PUBLIC_SITE_URL,
     },

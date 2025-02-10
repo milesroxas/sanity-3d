@@ -1,9 +1,11 @@
 import { groq } from "next-sanity";
 
+// @sanity-typegen-ignore
 export const gridPostQuery = groq`
   _type == "grid-post" => {
     _type,
-    ...post->{
+    _key,
+    post->{
       title,
       slug,
       excerpt,
@@ -23,8 +25,9 @@ export const gridPostQuery = groq`
         alt
       },
       categories[]->{
+        _id,
         title,
       },
     },
-  },
+  }
 `;

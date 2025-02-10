@@ -1,15 +1,21 @@
 import { cn } from "@/lib/utils";
-import SectionContainer, {
-  ISectionPadding,
-  ISectionContainer,
-} from "@/components/ui/section-container";
+import SectionContainer from "@/components/ui/section-container";
 import { stegaClean } from "next-sanity";
+import { PAGE_QUERYResult } from "@/sanity.types";
 import SplitContent from "./split-content";
 import SplitCardsList from "./split-cards-list";
 import SplitImage from "./split-image";
 import SplitInfoList from "./split-info-list";
 
-const componentMap: { [key: string]: React.ComponentType<any> } = {
+type Block = NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number];
+type SplitRow = Extract<Block, { _type: "split-row" }>;
+type SplitColumn = NonNullable<NonNullable<SplitRow["splitColumns"]>[number]>;
+
+const componentMap: {
+  [K in SplitColumn["_type"]]: React.ComponentType<
+    Extract<SplitColumn, { _type: K }>
+  >;
+} = {
   "split-content": SplitContent,
   "split-cards-list": SplitCardsList,
   "split-image": SplitImage,
@@ -21,12 +27,7 @@ export default function SplitRow({
   colorVariant,
   noGap,
   splitColumns,
-}: Partial<{
-  padding: ISectionPadding;
-  colorVariant: ISectionContainer["color"];
-  noGap: boolean;
-  splitColumns: Sanity.Block[];
-}>) {
+}: SplitRow) {
   const color = stegaClean(colorVariant);
 
   return (
@@ -38,18 +39,21 @@ export default function SplitRow({
             noGap ? "gap-0" : "gap-12 lg:gap-20"
           )}
         >
-          {splitColumns?.map((block: Sanity.Block) => {
-            const Component = componentMap[block._type];
+          {splitColumns?.map((column) => {
+            const Component = componentMap[column._type];
             if (!Component) {
-              // Fallback for unknown block types to debug
-              return <div data-type={block._type} key={block._key} />;
+              // Fallback for development/debugging of new component types
+              console.warn(
+                `No component implemented for split column type: ${column._type}`
+              );
+              return <div data-type={column._type} key={column._key} />;
             }
             return (
               <Component
-                {...block}
+                {...(column as any)}
                 color={color}
                 noGap={noGap}
-                key={block._key}
+                key={column._key}
               />
             );
           })}

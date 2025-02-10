@@ -4,6 +4,12 @@ import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import { stegaClean } from "next-sanity";
 import PortableTextRenderer from "@/components/portable-text-renderer";
+import { PAGE_QUERYResult } from "@/sanity.types";
+
+type Hero1Props = Extract<
+  NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number],
+  { _type: "hero-1" }
+>;
 
 export default function Hero1({
   tagLine,
@@ -11,26 +17,7 @@ export default function Hero1({
   body,
   image,
   links,
-}: Partial<{
-  tagLine: string;
-  title: string;
-  body: any;
-  image: Sanity.Image;
-  links: {
-    title: string;
-    href: string;
-    target?: boolean;
-    buttonVariant:
-      | "default"
-      | "secondary"
-      | "link"
-      | "destructive"
-      | "outline"
-      | "ghost"
-      | null
-      | undefined;
-  }[];
-}>) {
+}: Hero1Props) {
   return (
     <div className="container dark:bg-background py-20 lg:pt-40">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -70,7 +57,7 @@ export default function Hero1({
           {image && image.asset?._id && (
             <Image
               className="rounded-xl"
-              src={urlFor(image.asset).url()}
+              src={urlFor(image).url()}
               alt={image.alt || ""}
               width={image.asset?.metadata?.dimensions?.width || 800}
               height={image.asset?.metadata?.dimensions?.height || 800}
