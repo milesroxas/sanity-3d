@@ -1,5 +1,6 @@
 import { groq } from "next-sanity";
 
+// @sanity-typegen-ignore
 export const cta1Query = groq`
   _type == "cta-1" => {
     _type,
@@ -28,5 +29,5 @@ export const cta1Query = groq`
       }
     },
     links,
-  },
+  }
 `;

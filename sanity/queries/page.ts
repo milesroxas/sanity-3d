@@ -16,19 +16,19 @@ import { allPostsQuery } from "./all-posts";
 export const PAGE_QUERY = groq`
   *[_type == "page" && slug.current == $slug][0]{
     blocks[]{
-      ${hero1Query}
-      ${hero2Query}
-      ${sectionHeaderQuery}
-      ${splitRowQuery}
-      ${gridRowQuery}
-      ${carousel1Query}
-      ${carousel2Query}
-      ${timelineQuery}
-      ${cta1Query}
-      ${logoCloud1Query}
-      ${faqsQuery}
-      ${formNewsletterQuery}
-      ${allPostsQuery}
+      ${hero1Query},
+      ${hero2Query},
+      ${sectionHeaderQuery},
+      ${splitRowQuery},
+      ${gridRowQuery},
+      ${carousel1Query},
+      ${carousel2Query},
+      ${timelineQuery},
+      ${cta1Query},
+      ${logoCloud1Query},
+      ${faqsQuery},
+      ${formNewsletterQuery},
+      ${allPostsQuery},
     },
     meta_title,
     meta_description,

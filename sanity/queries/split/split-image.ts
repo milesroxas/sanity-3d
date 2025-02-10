@@ -1,5 +1,6 @@
 import { groq } from "next-sanity";
 
+// @sanity-typegen-ignore
 export const splitImageQuery = groq`
   _type == "split-image" => {
     _type,
@@ -18,5 +19,5 @@ export const splitImageQuery = groq`
       },
       alt
     },
-  },
+  }
 `;

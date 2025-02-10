@@ -1,5 +1,6 @@
 import { groq } from "next-sanity";
 
+// @sanity-typegen-ignore
 export const formNewsletterQuery = groq`
   _type == "form-newsletter" => {
     _type,
@@ -9,5 +10,5 @@ export const formNewsletterQuery = groq`
     consentText,
     buttonText,
     successMessage,
-  },
+  }
 `;

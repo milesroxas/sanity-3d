@@ -1,5 +1,6 @@
 import { groq } from "next-sanity";
 
+// @sanity-typegen-ignore
 export const gridPostQuery = groq`
   _type == "grid-post" => {
     _type,
@@ -26,5 +27,5 @@ export const gridPostQuery = groq`
         title,
       },
     },
-  },
+  }
 `;
