@@ -109,7 +109,7 @@ To use the newsletter form, you need to configure Resend.
 To generate the types, run the following command:
 
 ```bash
-npx sanity@latest schema extract
+npx sanity schema extract
 ```
 
 This will generate `schema.json` file in the root of the project.
@@ -117,7 +117,7 @@ This will generate `schema.json` file in the root of the project.
 To generate the types, run the following command:
 
 ```bash
-npx sanity@latest typegen generate
+npx sanity typegen generate
 ```
 
 This will generate the types in the `sanity.types.ts` file in the root of the project.
