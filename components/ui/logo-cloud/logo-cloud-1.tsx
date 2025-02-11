@@ -27,7 +27,7 @@ export default function LogoCloud1({
       className="overflow-hidden"
     >
       {title && (
-        <h2 className="text-lg font-medium tracking-tighter text-center mb-4">
+        <h2 className="text-lg font-medium tracking-tighter text-center mb-4 animate-fade-up [animation-delay:100ms] opacity-0">
           {title}
         </h2>
       )}
@@ -59,6 +59,7 @@ export default function LogoCloud1({
                   <Image
                     src={urlFor(image).url()}
                     alt={image.alt || ""}
+                    priority={arrayIndex === 0 && index < 3}
                     placeholder={
                       image?.asset?.metadata?.lqip &&
                       image?.asset?.mimeType !== "image/svg+xml"
