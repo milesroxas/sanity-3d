@@ -1,5 +1,5 @@
 import { defineType, defineArrayMember } from "sanity";
-import { VideoIcon, CodeIcon } from "@radix-ui/react-icons";
+import { SquarePlay } from "lucide-react";
 import { YouTubePreview } from "@/sanity/schemas/previews/youtube-preview";
 
 export default defineType({
@@ -61,9 +61,9 @@ export default defineType({
     }),
     defineArrayMember({
       name: "youtube",
-      title: "YouTube Video",
       type: "object",
-      icon: VideoIcon,
+      title: "YouTube",
+      icon: SquarePlay,
       fields: [
         {
           name: "videoId",
@@ -83,9 +83,7 @@ export default defineType({
     }),
     defineArrayMember({
       name: "code",
-      title: "Code Block",
       type: "code",
-      icon: CodeIcon,
       options: {
         withFilename: true,
         language: "typescript",
