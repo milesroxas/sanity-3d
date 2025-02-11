@@ -43,7 +43,7 @@ export default function SplitCardsItem({
       >
         <div className="flex items-center gap-2">
           {image && image.asset?._id && (
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
+            <div className="shrink-0 w-10 h-10 flex items-center justify-center">
               <Image
                 src={urlFor(image).url()}
                 alt={image.alt || ""}

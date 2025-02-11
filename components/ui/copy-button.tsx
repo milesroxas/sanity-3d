@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckIcon, CopyIcon } from "@radix-ui/react-icons";
+import { Copy, Check } from "lucide-react";
 
 interface CopyButtonProps {
   code: string;
@@ -22,9 +22,9 @@ export function CopyButton({ code }: CopyButtonProps) {
       onClick={copy}
     >
       {isCopied ? (
-        <CheckIcon className="h-4 w-4 text-green-500" />
+        <Check className="h-4 w-4 text-green-500" />
       ) : (
-        <CopyIcon className="h-4 w-4 text-muted-foreground" />
+        <Copy className="h-4 w-4 text-muted-foreground" />
       )}
     </button>
   );

@@ -23,7 +23,7 @@ export default async function AllPosts({
         {posts.map((post) => (
           <Link
             key={post?.slug?.current}
-            className="flex w-full rounded-3xl ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="flex w-full rounded-3xl ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             href={`/blog/${post?.slug?.current}`}
           >
             <PostCard
