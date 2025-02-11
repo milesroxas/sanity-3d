@@ -20,6 +20,7 @@ export function CopyButton({ code }: CopyButtonProps) {
     <button
       className="p-2 rounded-md transition-colors hover:bg-muted-foreground/10"
       onClick={copy}
+      aria-label="Copy code"
     >
       {isCopied ? (
         <Check className="h-4 w-4 text-green-500" />

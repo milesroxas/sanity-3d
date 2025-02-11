@@ -42,7 +42,7 @@ const portableTextComponents: PortableTextProps["components"] = {
             <div className="text-muted-foreground font-mono">
               {value.filename || ""}
             </div>
-            <CopyButton aria-label="Copy code" code={value.code} />
+            <CopyButton code={value.code} />
           </div>
           <Highlight
             theme={themes.vsDark}

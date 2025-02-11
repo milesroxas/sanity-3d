@@ -1,5 +1,5 @@
 import { defineType, defineArrayMember } from "sanity";
-import { SquarePlay, Code } from "lucide-react";
+import { SquarePlay } from "lucide-react";
 import { YouTubePreview } from "@/sanity/schemas/previews/youtube-preview";
 
 export default defineType({
