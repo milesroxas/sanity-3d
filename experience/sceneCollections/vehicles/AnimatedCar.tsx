@@ -6,7 +6,7 @@ import { CarOne } from "./CarOne";
 import { useControls } from "leva";
 import { Line } from "@react-three/drei";
 
-import pathData from "@/experience/scenes/mainScene/lib/path_van_1.json";
+import pathData from "@/experience/scenes/mainScene/lib/car_1_path.json";
 
 export function AnimatedCar() {
   const carRef = useRef<THREE.Group>(null);

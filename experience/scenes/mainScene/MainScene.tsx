@@ -19,6 +19,8 @@ import MainSceneMarkers from "@/experience/scenes/mainScene/components/MainScene
 import { ResidentialProps } from "@/experience/sceneCollections/gatedCommunity/models/ResidentialProps";
 import { AnimatedCar } from "@/experience/sceneCollections/vehicles/AnimatedCar";
 import { MainSceneCameraSystem } from "@/experience/scenes/mainScene/MainSceneCameraSystem";
+import { HomesOuterBuildings } from "@/experience/sceneCollections/homesOuter/models/HomesOuterBuildings";
+import { CloudSimple } from "@/experience/sceneCollections/clouds/CloudSimple";
 export default function MainScene({ scene }: { scene: Sanity.Scene }) {
   return (
     <>
@@ -29,12 +31,14 @@ export default function MainScene({ scene }: { scene: Sanity.Scene }) {
         <WorldFloor />
       </group>
       <Trees />
+      <CloudSimple />
       <AnimatedCar />
       <GatedCommunity />
       <ResidentialProps />
       <HomesRightBuildings />
       <ConstructionBuildings />
       <CompanyBuildings />
+      <HomesOuterBuildings />
       <ShopsBuildings />
       <ResortBuildings />
       <EventsBuildings />

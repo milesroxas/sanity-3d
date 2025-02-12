@@ -126,7 +126,7 @@ export function Carousel3({ scene, selectedPoi, onClose }: Carousel3Props) {
         size="icon"
         onClick={handleClose}
       >
-        <X className="w-6 h-6" />
+        <X className="w-6 h-6 text-white" />
       </Button>
       <Carousel
         className="z-10"

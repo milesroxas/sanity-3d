@@ -82,7 +82,15 @@ export function MainSceneCameraSystem() {
         }
       />
       {controlType === "Map" && !isAnimating && (
-        <MapControls target={[targetX, targetY, targetZ]} />
+        <MapControls
+          target={[targetX, targetY, targetZ]}
+          maxPolarAngle={Math.PI / 2}
+          minPolarAngle={0}
+          maxAzimuthAngle={Math.PI / 2}
+          minAzimuthAngle={-Math.PI / 2}
+          maxDistance={200}
+          minDistance={10}
+        />
       )}
     </>
   );

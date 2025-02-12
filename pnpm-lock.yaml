@@ -71,9 +71,6 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.47.16
         version: 2.47.16
-      '@types/three':
-        specifier: ^0.170.0
-        version: 0.170.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -165,6 +162,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.0.2
         version: 19.0.2(@types/react@19.0.4)
+      '@types/three':
+        specifier: ^0.170.0
+        version: 0.170.0
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.49)

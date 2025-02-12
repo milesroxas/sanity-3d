@@ -16,7 +16,7 @@ const sceneComponents = {
     () => import("@/experience/sceneCollections/shops/ShopsSubScene")
   ),
   company: withLoading(
-    () => import("@/experience/sceneCollections/shops/ShopsSubScene")
+    () => import("@/experience/sceneCollections/company/MainSceneCompany")
   ),
   events: withLoading(
     () => import("@/experience/sceneCollections/shops/ShopsSubScene")
@@ -24,6 +24,9 @@ const sceneComponents = {
   gatedCommunity: withLoading(
     () =>
       import("@/experience/sceneCollections/gatedCommunity/ResidentialSubScene")
+  ),
+  construction: withLoading(
+    () => import("@/experience/sceneCollections/construction/POIConstruction")
   ),
 } as const;
 

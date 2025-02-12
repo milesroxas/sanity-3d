@@ -47,7 +47,6 @@ export default function SubSceneMarkers({
   const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null);
   const { camera } = useThree();
 
-  // IMPORTANT: filter out only the valid points so that both markers and carousel use the same data.
   const validPointsOfInterest = (scene.pointsOfInterest ?? []).filter(
     (poi): poi is PointOfInterest => (poi as any).markerPosition !== undefined
   );
@@ -112,8 +111,14 @@ export default function SubSceneMarkers({
             onPointerLeave={() => setHoveredMarkerId(null)}
           >
             <Html transform>
-              <div className="bg-primary backdrop-blur-sm px-2 py-1 rounded-lg cursor-pointer">
-                <h3 className="text-sm font-bold">{poi.title}</h3>
+              <div
+                className="bg-primary backdrop-blur-sm px-2 py-1 rounded-lg cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleMarkerClick(poi);
+                }}
+              >
+                <h3 className="text-sm text-white font-bold">{poi.title}</h3>
               </div>
             </Html>
             <group position={[0, -1, 0]} scale={[0.25, 0.25, 0.25]}>

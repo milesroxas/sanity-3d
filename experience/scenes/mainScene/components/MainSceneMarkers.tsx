@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Vector3 } from "three";
 import { useCameraStore } from "../../store/cameraStore";
 import { Marker } from "@/experience/sceneCollections/markers/Marker";
+import { useControls } from "leva";
+
 type MarkerPosition = {
   x: number;
   y: number;
@@ -23,6 +25,13 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
 
   const router = useRouter();
   const { camera } = useThree();
+
+  // Add Leva controls for debug marker
+  const debugMarkerPos = useControls("Main Scene Debug Marker", {
+    markerX: { value: 0, min: -200, max: 200, step: 0.1 },
+    markerY: { value: 0, min: -200, max: 200, step: 0.1 },
+    markerZ: { value: 0, min: -200, max: 200, step: 0.1 },
+  });
 
   const handleMarkerClick = (poi: any) => {
     if (!poi.mainSceneCameraPosition || !poi.mainSceneCameraTarget) {
@@ -102,8 +111,16 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
                 onPointerLeave={() => setHoveredMarkerId(null)}
               >
                 <Html transform>
-                  <div className="bg-primary backdrop-blur-sm px-4 py-2 rounded-lg cursor-pointer">
-                    <h3 className="text-2xl font-bold">{poi.title}</h3>
+                  <div
+                    className="bg-primary backdrop-blur-sm px-4 py-2 rounded-lg cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleMarkerClick(poi);
+                    }}
+                  >
+                    <h3 className="text-2xl text-white font-bold">
+                      {poi.title}
+                    </h3>
                   </div>
                 </Html>
                 <group position={[0, -3, 0]}>
@@ -115,6 +132,33 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
         }
         return null;
       })}
+
+      {/* Debug marker */}
+      {process.env.NODE_ENV === "development" && (
+        <Float
+          speed={10}
+          rotationIntensity={0}
+          floatIntensity={1}
+          floatingRange={[-0.1, 0.1]}
+        >
+          <group
+            position={[
+              debugMarkerPos.markerX,
+              debugMarkerPos.markerY,
+              debugMarkerPos.markerZ,
+            ]}
+          >
+            <Html transform>
+              <div className="bg-red-500 backdrop-blur-sm px-4 py-2 rounded-lg cursor-pointer">
+                <h3 className="text-2xl text-white font-bold">Debug Marker</h3>
+              </div>
+            </Html>
+            <group position={[0, -3, 0]}>
+              <Marker />
+            </group>
+          </group>
+        </Float>
+      )}
     </group>
   );
 }
