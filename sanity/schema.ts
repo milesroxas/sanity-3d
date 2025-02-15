@@ -16,6 +16,7 @@ import { colorVariant } from "./schemas/blocks/shared/color-variant";
 import { buttonVariant } from "./schemas/blocks/shared/button-variant";
 import sectionPadding from "./schemas/blocks/shared/section-padding";
 import { media } from "./schemas/blocks/shared/media";
+import video from "./schemas/blocks/shared/video";
 // Schema UI objects
 import hero1 from "./schemas/blocks/hero/hero-1";
 import hero2 from "./schemas/blocks/hero/hero-2";
@@ -43,6 +44,7 @@ import newsletter from "./schemas/blocks/forms/newsletter";
 // singleton
 import settings from "./schemas/singleton/settings";
 import modelFiles from "./schemas/objects/modelFiles";
+import splitVideo from "./schemas/blocks/split/split-video";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
@@ -62,6 +64,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     buttonVariant,
     sectionPadding,
     media,
+    video,
     // blocks
     hero1,
     hero2,
@@ -71,6 +74,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     splitCardsList,
     splitCard,
     splitImage,
+    splitVideo,
     splitInfoList,
     splitInfo,
     gridCard,

@@ -27,7 +27,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "app/experience/sceneCollections/gatedCommunity"
+    "experience/sceneCollections/gatedCommunity"
   ],
   "exclude": ["node_modules"]
 }

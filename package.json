@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
+    "@mux/mux-player-react": "^3.3.0",
     "@next/third-parties": "^15.1.4",
     "@portabletext/react": "^3.2.0",
     "@radix-ui/react-accordion": "^1.2.2",
@@ -52,6 +53,7 @@
     "react-player": "^2.16.0",
     "resend": "^4.0.1",
     "sanity": "^3.69.0",
+    "sanity-plugin-mux-input": "^2.5.0",
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",

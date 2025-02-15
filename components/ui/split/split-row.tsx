@@ -8,12 +8,13 @@ import SplitContent from "./split-content";
 import SplitCardsList from "./split-cards-list";
 import SplitImage from "./split-image";
 import SplitInfoList from "./split-info-list";
-
+import SplitVideo from "./split-video";
 const componentMap = {
   "split-content": SplitContent,
   "split-cards-list": SplitCardsList,
   "split-image": SplitImage,
   "split-info-list": SplitInfoList,
+  "split-video": SplitVideo,
 } as const;
 
 export default function SplitRow({
@@ -30,7 +31,8 @@ export default function SplitRow({
       | "split-content"
       | "split-cards-list"
       | "split-image"
-      | "split-info-list";
+      | "split-info-list"
+      | "split-video";
     _key: string;
   }>;
 }>) {

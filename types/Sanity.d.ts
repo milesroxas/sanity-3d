@@ -1,8 +1,10 @@
 import type {
   SanityImageObject,
   SanityImageDimensions,
+  SanityVideoObject,
 } from "@sanity/image-url/lib/types/types";
 import type { SanityDocument } from "next-sanity";
+import type { MuxVideoAsset } from "next-sanity";
 
 declare global {
   namespace Sanity {
@@ -143,6 +145,17 @@ declare global {
             dimensions: SanityImageDimensions;
             lqip: string;
           };
+        };
+      }>;
+
+    type Video = MuxVideoAsset &
+      Partial<{
+        alt: string;
+        asset: {
+          _id: string;
+          playbackId: string;
+          assetId: string;
+          filename: string;
         };
       }>;
 

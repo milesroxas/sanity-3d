@@ -20,7 +20,7 @@ export default function DesktopNav({ navItems }: { navItems: NavItem[] }) {
         href="/contact"
         className="transition-colors hover:text-primary text-foreground/80 uppercase font-semibold text-sm"
       >
-        <Button size="lg">Get in Touch</Button>
+        <Button size="sm">Get in Touch</Button>
       </Link>
     </div>
   );

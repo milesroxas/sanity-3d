@@ -3,7 +3,7 @@ import { splitContentQuery } from "./split-content";
 import { splitCardsListQuery } from "./split-cards-list";
 import { splitImageQuery } from "./split-image";
 import { splitInfoListQuery } from "./split-info-list";
-
+import { splitVideoQuery } from "./split-video";
 export const splitRowQuery = groq`
   _type == "split-row" => {
     _type,
@@ -15,6 +15,7 @@ export const splitRowQuery = groq`
       ${splitCardsListQuery}
       ${splitImageQuery}
       ${splitInfoListQuery}
+      ${splitVideoQuery}
     },
   },
 `;
