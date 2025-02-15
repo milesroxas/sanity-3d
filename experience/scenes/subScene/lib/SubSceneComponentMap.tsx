@@ -28,6 +28,9 @@ const sceneComponents = {
   construction: withLoading(
     () => import("@/experience/sceneCollections/construction/POIConstruction")
   ),
+  resort: withLoading(
+    () => import("@/experience/sceneCollections/construction/POIConstruction")
+  ),
 } as const;
 
 export type SceneType = keyof typeof sceneComponents;

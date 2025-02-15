@@ -8,18 +8,23 @@ import { fetchSanitySettings } from "@/app/(main)/actions";
 
 const navItems = [
   {
-    label: "Home",
-    href: "/",
+    label: "Services",
+    href: "/services",
     target: false,
   },
   {
-    label: "Blog",
-    href: "/blog",
-    target: false,
-  },
-  {
-    label: "About",
+    label: "About Us",
     href: "/about",
+    target: false,
+  },
+  {
+    label: "Testimonials",
+    href: "/testimonials",
+    target: false,
+  },
+  {
+    label: "News",
+    href: "/news",
     target: false,
   },
 ];
@@ -29,7 +34,7 @@ export default async function Header() {
   const logo = settings.logo;
 
   return (
-    <header className="sticky top-0 w-full border-border/40 bg-background z-50 py-2">
+    <header className="sticky top-0 w-full border-border/40 z-50 py-2">
       <div className="container flex items-center justify-between h-14">
         <Link href="/" aria-label="Home page" className="w-12">
           {logo && logo.asset?._id && (

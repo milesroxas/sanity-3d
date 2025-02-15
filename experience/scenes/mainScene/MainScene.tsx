@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { Environment } from "@react-three/drei";
-import { useEffect } from "react";
 
 import WorldFloor from "@/experience/sceneCollections/WorldFloor";
 import GatedCommunity from "@/experience/sceneCollections/gatedCommunity/GatedCommunity";
@@ -25,6 +24,7 @@ export default function MainScene({ scene }: { scene: Sanity.Scene }) {
   return (
     <>
       <MainSceneCameraSystem />
+
       <MainSceneMarkers scene={scene} />
       <Environment preset="sunset" />
       <group position={[0, -0.2, 0]}>
