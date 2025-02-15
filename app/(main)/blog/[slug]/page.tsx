@@ -6,8 +6,8 @@ import PortableTextRenderer from "@/components/portable-text-renderer";
 import {
   fetchSanityPostBySlug,
   fetchSanityPostsStaticParams,
-} from "../actions";
-import { generatePageMetadata } from "@/lib/metadata";
+} from "@/sanity/lib/fetch";
+import { generatePageMetadata } from "@/sanity/lib/metadata";
 
 export async function generateStaticParams() {
   const posts = await fetchSanityPostsStaticParams();
