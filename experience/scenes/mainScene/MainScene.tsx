@@ -20,6 +20,7 @@ import { AnimatedCar } from "@/experience/sceneCollections/vehicles/AnimatedCar"
 import { MainSceneCameraSystem } from "@/experience/scenes/mainScene/MainSceneCameraSystem";
 import { HomesOuterBuildings } from "@/experience/sceneCollections/homesOuter/models/HomesOuterBuildings";
 import { CloudSimple } from "@/experience/sceneCollections/clouds/CloudSimple";
+import { AnimatedTractor } from "@/experience/sceneCollections/vehicles/AnimatedTractor";
 
 interface MainSceneProps {
   scene: Sanity.Scene;
@@ -44,6 +45,7 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
       <Trees />
       <CloudSimple />
       <AnimatedCar />
+      <AnimatedTractor />
       <GatedCommunity />
       <ResidentialProps />
       <HomesRightBuildings />

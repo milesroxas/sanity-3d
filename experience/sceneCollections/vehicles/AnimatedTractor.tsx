@@ -2,28 +2,31 @@ import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef, useState } from "react";
 import type * as THREE from "three";
 import { CatmullRomCurve3, Vector3 } from "three";
-import { CarOne } from "./CarOne";
 import { folder, useControls } from "leva";
 import { Line } from "@react-three/drei";
 
-import pathData from "@/experience/scenes/mainScene/lib/car_1_path.json";
-
-export function AnimatedCar() {
+import pathData from "@/experience/scenes/mainScene/lib/tractor_1_path.json";
+import { TractorOne } from "./TractorOne";
+export function AnimatedTractor() {
   const carRef = useRef<THREE.Group>(null);
   const [progress, setProgress] = useState(0);
   const speed = 0.05;
 
-  const { x, y, z, showPath } = useControls("Car One", {
-    position: folder(
-      {
-        x: { value: -70.3, min: -100, max: 100, step: 0.1 },
-        y: { value: 2.5, min: -100, max: 100, step: 0.1 },
-        z: { value: 79.6, min: -100, max: 100, step: 0.1 },
-        showPath: { value: false, label: "Show Path" },
-      },
-      { collapsed: true }
-    ),
-  });
+  const { x, y, z, showPath } = useControls(
+    "Tractor",
+    {
+      position: folder(
+        {
+          x: { value: -127.5, min: -300, max: 300, step: 0.1 },
+          y: { value: 3.0, min: -300, max: 300, step: 0.1 },
+          z: { value: 58.4, min: -300, max: 300, step: 0.1 },
+        },
+        { collapsed: true }
+      ),
+      showPath: { value: false, label: "Show Path" },
+    },
+    { collapsed: true }
+  );
 
   const curve = useMemo(() => {
     // Create points from path data
@@ -63,7 +66,7 @@ export function AnimatedCar() {
   return (
     <>
       <group ref={carRef}>
-        <CarOne />
+        <TractorOne />
       </group>
       {showPath && <PathVisualizer curve={curve.curve} />}
     </>
