@@ -20,11 +20,16 @@ This is a test project to implement a 3D headless CMS experience using React Thr
 - [x] Implement a 3D experience using React Three Fiber
 - [x] Implement a headless CMS using Sanity
 - [x] Implement a basic file upload system using Supabase
-- [ ] Subscene navigation
+- [x] Subscene navigation
 - [x] Subscene blocks from Schema UI
 - [ ] Sanity CMS navigation settings
 - [x] Create a camera animation system
-- [ ] Implement 3D animations
+- [x] Implement 3D animations
+- [ ] Add animated vehicles
+- [ ] Setup boundaries for map controls
+- [ ] Setup limits for camera controls in subscene
+- [ ] Add environment features
+- [ ] Render billboard video texture 
 - [ ] Implement baked textures
 - [ ] Dynamic scene environment and lighting
 - [ ] Implement loading screen
@@ -34,9 +39,10 @@ This is a test project to implement a 3D headless CMS experience using React Thr
 
 - [ ] Subscene refinement
   - [x] Subscene camera refinement for model positioning
-  - [ ] Subscene layout design
+  - [x] Subscene layout design
   - [x] Subscene carousel implementation
   - [x] Subscene navigation refinement
+  - [ ] Intro sequence animation (component mount animation)
 - [ ] Review upstream updates from Schema UI
 - [ ] Clean up queries and types
 - [ ] Change /studio to /admin
