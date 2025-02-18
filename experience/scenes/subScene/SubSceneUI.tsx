@@ -55,10 +55,28 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
     const targetScene = validScenes[targetIndex];
     if (!targetScene?.slug?.current) return;
 
-    // Start transition without setting loading state
-    await useSceneStore.getState().startTransitionOut();
-    const targetUrl = `/experience/${targetScene.slug.current}`;
-    router.push(targetUrl);
+    setIsTransitioning(true);
+
+    try {
+      await useSceneStore.getState().startTransitionOut();
+      const targetUrl = `/experience/${targetScene.slug.current}`;
+      router.push(targetUrl);
+
+      // Only show loading if transition takes too long
+      const loadingTimer = setTimeout(() => {
+        useCameraStore.getState().setIsLoading(true);
+      }, 1000);
+
+      setTimeout(() => {
+        clearTimeout(loadingTimer);
+        setIsTransitioning(false);
+        useCameraStore.getState().setIsLoading(false);
+      }, 800);
+    } catch (error) {
+      console.error("Navigation failed:", error);
+      setIsTransitioning(false);
+      useCameraStore.getState().setIsLoading(false);
+    }
   };
 
   const handleReset = () => {
@@ -123,12 +141,12 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
     (scene) => scene?.slug?.current === currentSlug
   );
 
-  const canNavigatePrevious =
+  const canNavigateNext =
     validScenes.length > 1 && currentIndex < validScenes.length - 1;
-  const canNavigateNext = validScenes.length > 1 && currentIndex > 0;
+  const canNavigatePrevious = validScenes.length > 1 && currentIndex > 0;
 
   return (
-    <div className="z-20 mx-auto flex flex-col items-center w-full">
+    <div className="z-50 mx-auto flex flex-col items-center w-full">
       <AnimatePresence mode="wait">
         {!poiActive && !isTransitioning && (
           <motion.div
@@ -162,7 +180,7 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
         )}
       </AnimatePresence>
 
-      <div className="fixed right-8 top-12 h-screen w-full max-w-md px-4 flex items-center">
+      <div className="absolute right-8 top-40 h-full w-full max-w-md px-4 flex items-center">
         <AnimatePresence mode="wait">
           {!poiActive && !isTransitioning && scene.body && (
             <motion.div

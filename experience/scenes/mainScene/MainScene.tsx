@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { Environment } from "@react-three/drei";
 
 import WorldFloor from "@/experience/sceneCollections/WorldFloor";
@@ -20,7 +20,18 @@ import { AnimatedCar } from "@/experience/sceneCollections/vehicles/AnimatedCar"
 import { MainSceneCameraSystem } from "@/experience/scenes/mainScene/MainSceneCameraSystem";
 import { HomesOuterBuildings } from "@/experience/sceneCollections/homesOuter/models/HomesOuterBuildings";
 import { CloudSimple } from "@/experience/sceneCollections/clouds/CloudSimple";
-export default function MainScene({ scene }: { scene: Sanity.Scene }) {
+
+interface MainSceneProps {
+  scene: Sanity.Scene;
+  onLoad?: () => void;
+}
+
+export default function MainScene({ scene, onLoad }: MainSceneProps) {
+  useEffect(() => {
+    // Call onLoad when the scene is ready
+    onLoad?.();
+  }, [onLoad]);
+
   return (
     <>
       <MainSceneCameraSystem />

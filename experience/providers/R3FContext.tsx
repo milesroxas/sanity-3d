@@ -22,7 +22,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
     <R3FContext.Provider value={{ setR3FContent }}>
       <div className="relative w-full h-full">
         {/* Regular React components in a properly constrained container */}
-        <div className="absolute max-w-lg mx-auto z-50">
+        <div className="absolute mx-auto z-50">
           <Loading />
           {children}
         </div>

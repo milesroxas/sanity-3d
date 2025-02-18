@@ -9,7 +9,7 @@ import { Environment } from "@react-three/drei";
 import { useCameraStore } from "@/experience/scenes/store/cameraStore";
 import SubSceneMarkers, { PointOfInterest } from "./components/SubSceneMarkers";
 import { SubSceneCameraSystem } from "./SubSceneCameraSystem";
-import { preloadModel } from "@/experience/utils/modelCache";
+import { preloadModel, isModelLoaded } from "@/experience/utils/modelCache";
 import { useSceneStore } from "@/experience/scenes/store/sceneStore";
 import gsap from "gsap";
 import type * as THREE from "three";
@@ -34,7 +34,10 @@ export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
     if (isLoaded) {
       console.log("🎬 Scene loaded, starting transition");
       useSceneStore.getState().startTransitionIn();
-      setIsLoading(false);
+      // Delay clearing loading state to allow for smooth transition
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 800); // Increased from 300 to 800 to match other transitions
     }
   }, [isLoaded, setIsLoading]);
 
@@ -55,11 +58,36 @@ export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
         .map((file) => file.fileUrl)
         .filter((url): url is string => !!url);
 
-      Promise.all(modelUrls.map(preloadModel)).then(() => {
+      // Check if all models are already loaded
+      const allModelsLoaded = modelUrls.every(isModelLoaded);
+
+      if (allModelsLoaded) {
         setIsLoaded(true);
-      });
+        return;
+      }
+
+      // Start a timer to show loading only if it takes too long
+      const loadingTimer = setTimeout(() => {
+        if (!useSceneStore.getState().isTransitioning) {
+          setIsLoading(true);
+        }
+      }, 1000);
+
+      Promise.all(modelUrls.map(preloadModel))
+        .then(() => {
+          clearTimeout(loadingTimer);
+          setIsLoaded(true);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          clearTimeout(loadingTimer);
+          console.error("Failed to load models:", error);
+          setIsLoading(false);
+        });
+
+      return () => clearTimeout(loadingTimer);
     }
-  }, [scene.sceneType, scene.modelFiles]);
+  }, [scene.sceneType, scene.modelFiles, setIsLoading]);
 
   if (!scene.sceneType) {
     console.warn("❌ No scene type specified");

@@ -174,7 +174,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         previousPosition: startPos.clone(),
         previousTarget: startTarget.clone(),
         isAnimating: false,
-        isLoading: false,
+        isLoading: true,
       });
       return;
     }
@@ -196,7 +196,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       if (progress >= 1) {
         set({
           isAnimating: false,
-          isLoading: false,
           position: endPos.clone(),
           target: endTarget.clone(),
           previousPosition: startPos.clone(),

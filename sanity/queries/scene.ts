@@ -127,12 +127,13 @@ export const SCENE_QUERY = groq`
 `;
 
 export const NAVIGATION_SCENES_QUERY = groq`
-  *[_type == "scenes" && slug.current == "experience"][0]{
-    "navigationScenes": pointsOfInterest[]->{
+  *[_type == "scenes" && slug.current == "experience"][0] {
+    pointsOfInterest[]->{
       _id,
       _type,
       title,
       slug,
+      sceneType,
       mainSceneCameraPosition {
         x,
         y,

@@ -39,26 +39,8 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
       return;
     }
 
-    // Set loading state immediately
-    useCameraStore.getState().setIsLoading(true);
-
-    // Store the POI camera position and target
-    useCameraStore
-      .getState()
-      .setPreviousCamera(
-        new Vector3(
-          poi.mainSceneCameraPosition.x,
-          poi.mainSceneCameraPosition.y,
-          poi.mainSceneCameraPosition.z
-        ),
-        new Vector3(
-          poi.mainSceneCameraTarget.x,
-          poi.mainSceneCameraTarget.y,
-          poi.mainSceneCameraTarget.z
-        )
-      );
-
-    // Otherwise, do the normal camera transition
+    // Start camera transition without loading state
+    useCameraStore.getState().setIsLoading(false);
     useCameraStore
       .getState()
       .startCameraTransition(
@@ -68,10 +50,9 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
           poi.mainSceneCameraPosition.y,
           poi.mainSceneCameraPosition.z
         ),
-        camera
-          .getWorldDirection(new Vector3())
-          .multiplyScalar(100)
-          .add(camera.position),
+        camera.position
+          .clone()
+          .add(camera.getWorldDirection(new Vector3()).multiplyScalar(100)),
         new Vector3(
           poi.mainSceneCameraTarget.x,
           poi.mainSceneCameraTarget.y,
@@ -79,8 +60,9 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
         )
       );
 
-    // Navigate after animation completes
+    // After camera animation completes, set loading and navigate
     setTimeout(() => {
+      useCameraStore.getState().setIsLoading(true);
       router.push(`/experience/${poi.slug.current}`);
     }, 2000);
   };

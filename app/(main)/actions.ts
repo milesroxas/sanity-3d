@@ -73,5 +73,5 @@ export const fetchSanitySceneBySlug = async ({
 
 export async function fetchNavigationScenes() {
   const data = await client.fetch(NAVIGATION_SCENES_QUERY);
-  return data?.navigationScenes ?? [];
+  return data?.pointsOfInterest ?? [];
 }
