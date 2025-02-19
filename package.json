@@ -24,7 +24,7 @@
     "@react-spring/three": "^9.7.5",
     "@react-spring/web": "^9.7.5",
     "@react-three/drei": "^9.120.5",
-    "@react-three/fiber": "9.0.0-rc.1",
+    "@react-three/fiber": "9.0.0-rc.10",
     "@react-three/postprocessing": "^2.19.1",
     "@sanity/client": "^6.25.0",
     "@sanity/image-url": "^1.1.0",
