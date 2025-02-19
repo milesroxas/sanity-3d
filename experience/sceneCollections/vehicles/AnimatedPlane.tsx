@@ -1,29 +1,30 @@
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef, useState } from "react";
-import type * as THREE from "three";
+import * as THREE from "three";
 import { CatmullRomCurve3, Vector3 } from "three";
+import { Plane } from "./Plane";
 import { folder, useControls } from "leva";
 import { Line } from "@react-three/drei";
 
-import pathData from "@/experience/scenes/mainScene/lib/tractor_1_path.json";
-import { TractorOne } from "./TractorOne";
-export function AnimatedTractor() {
-  const carRef = useRef<THREE.Group>(null);
+import pathData from "@/experience/scenes/mainScene/lib/plane_1_path.json";
+
+export function AnimatedPlane() {
+  const planeRef = useRef<THREE.Group>(null);
   const [progress, setProgress] = useState(0);
-  const speed = 0.03;
+  const speed = 0.02;
 
   const { x, y, z, showPath } = useControls(
-    "Tractor",
+    "Plane One",
     {
       position: folder(
         {
-          x: { value: -127.5, min: -300, max: 300, step: 0.1 },
-          y: { value: 3.0, min: -300, max: 300, step: 0.1 },
-          z: { value: 58.4, min: -300, max: 300, step: 0.1 },
+          x: { value: -70.3, min: -100, max: 100, step: 0.1 },
+          y: { value: 2.5, min: -100, max: 100, step: 0.1 },
+          z: { value: 10, min: -100, max: 100, step: 0.1 },
+          showPath: { value: false, label: "Show Path" },
         },
         { collapsed: true }
       ),
-      showPath: { value: false, label: "Show Path" },
     },
     { collapsed: true }
   );
@@ -35,7 +36,7 @@ export function AnimatedTractor() {
     );
 
     // Create curve with more tension for smoother interpolation
-    const curve = new CatmullRomCurve3(points, false, "centripetal", 0.5);
+    const curve = new CatmullRomCurve3(points, false, "centripetal", 0.1);
 
     // Generate more points along the curve for smoother sampling
     return {
@@ -46,7 +47,7 @@ export function AnimatedTractor() {
   }, [x, y, z]);
 
   useFrame((_, delta) => {
-    if (!carRef.current) return;
+    if (!planeRef.current) return;
 
     // Calculate new progress based on actual distance along curve
     const distanceToMove = delta * speed * curve.length;
@@ -56,17 +57,22 @@ export function AnimatedTractor() {
     const position = curve.curve.getPoint(newProgress);
     const tangent = curve.curve.getTangent(newProgress);
 
-    carRef.current.position.copy(position);
-    carRef.current.quaternion.setFromUnitVectors(
-      new Vector3(0, 0, 1),
-      tangent.normalize()
-    );
+    // Create a matrix to orient the plane
+    const matrix = new THREE.Matrix4();
+    const up = new Vector3(0, 0, 1); // Keep the plane level
+    const axis = new Vector3().crossVectors(up, tangent).normalize();
+    const radians = Math.acos(up.dot(tangent));
+
+    matrix.makeRotationAxis(axis, radians);
+
+    planeRef.current.position.copy(position);
+    planeRef.current.quaternion.setFromRotationMatrix(matrix);
   });
 
   return (
     <>
-      <group ref={carRef}>
-        <TractorOne />
+      <group ref={planeRef} scale={[0.25, 0.25, 0.25]}>
+        <Plane />
       </group>
       {showPath && <PathVisualizer curve={curve.curve} />}
     </>

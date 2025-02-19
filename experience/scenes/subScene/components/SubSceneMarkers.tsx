@@ -1,16 +1,18 @@
 "use client";
 import { Float, Html } from "@react-three/drei";
 import { useState } from "react";
-import { useCameraStore } from "../../store/cameraStore";
+import { useCameraStore } from "@/experience/scenes/store/cameraStore";
 import { Vector3 } from "three";
-import { Marker } from "../../../sceneCollections/markers/Marker";
+import { Marker } from "@/experience/sceneCollections/markers/Marker";
 import { useControls } from "leva";
+import { useStoreContext } from "leva/plugin";
 import { useThree } from "@react-three/fiber";
-import { toPosition } from "../../../types/types";
+import { toPosition } from "@/experience/types/types";
 import { PortableTextBlock } from "next-sanity";
-import { useSceneStore } from "../../store/sceneStore";
+import { useSceneStore } from "@/experience/scenes/store/sceneStore";
+import { motion, AnimatePresence } from "framer-motion";
+import { motion as motion3d } from "framer-motion-3d";
 
-// Define the expected type for a point of interest coming from Sanity.
 export interface PointOfInterest {
   _key: string;
   _type: "pointOfInterest";
@@ -33,19 +35,29 @@ export interface PointOfInterest {
   };
 }
 
-// Accept the full scene type from Sanity.
-// (scene.pointsOfInterest may include other objects too.)
 interface SubSceneMarkersProps {
   scene: Sanity.Scene;
   onMarkerClick: (poi: PointOfInterest) => void;
+  poiActive: boolean;
 }
 
 export default function SubSceneMarkers({
   scene,
   onMarkerClick,
+  poiActive,
 }: SubSceneMarkersProps) {
   const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null);
   const { camera } = useThree();
+  const [markerOpacity, setMarkerOpacity] = useState(0);
+
+  // Move Leva controls hook to the top
+  const debugMarkerPos = useControls("Debug Marker Controls", {
+    markerX: { value: 1, min: -200, max: 200, step: 0.1 },
+    markerY: { value: 10, min: -200, max: 200, step: 0.1 },
+    markerZ: { value: 0, min: -200, max: 200, step: 0.1 },
+  });
+
+  const store = useStoreContext();
 
   const validPointsOfInterest = (scene.pointsOfInterest ?? []).filter(
     (poi): poi is PointOfInterest => (poi as any).markerPosition !== undefined
@@ -84,76 +96,119 @@ export default function SubSceneMarkers({
             )
           );
       }
-    }, 800); // Wait for UI fade out
+    }, 800);
   };
-
-  // Leva controls for a debug marker
-  const debugMarkerPos = useControls("Debug Marker Controls", {
-    markerX: { value: 1, min: -200, max: 200, step: 0.1 },
-    markerY: { value: 10, min: -200, max: 200, step: 0.1 },
-    markerZ: { value: 0, min: -200, max: 200, step: 0.1 },
-  });
 
   return (
     <group>
-      {validPointsOfInterest.map((poi) => (
-        <Float
-          key={poi._key}
-          speed={3}
-          rotationIntensity={0}
-          floatIntensity={1}
-          floatingRange={[-0.1, 0.1]}
-        >
-          <group
-            position={toPosition(poi.markerPosition)}
-            onClick={() => handleMarkerClick(poi)}
-            onPointerEnter={() => setHoveredMarkerId(poi._key)}
-            onPointerLeave={() => setHoveredMarkerId(null)}
-          >
-            <Html transform>
-              <div
-                className="bg-primary backdrop-blur-sm px-2 py-1 rounded-lg cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleMarkerClick(poi);
-                }}
+      <AnimatePresence mode="wait">
+        {!poiActive && (
+          <>
+            {validPointsOfInterest.map((poi) => (
+              <Float
+                key={poi._key}
+                speed={3}
+                rotationIntensity={0}
+                floatIntensity={1}
+                floatingRange={[-0.1, 0.1]}
               >
-                <h3 className="text-sm text-white font-bold">{poi.title}</h3>
-              </div>
-            </Html>
-            <group position={[0, -1, 0]} scale={[0.25, 0.25, 0.25]}>
-              <Marker />
-            </group>
-          </group>
-        </Float>
-      ))}
-      {process.env.NODE_ENV === "development" && (
-        <group>
-          <Float
-            speed={10}
-            rotationIntensity={0}
-            floatIntensity={1}
-            floatingRange={[-0.1, 0.1]}
-          >
-            <group
-              position={toPosition({
-                x: debugMarkerPos.markerX ?? 0,
-                y: debugMarkerPos.markerY ?? 0,
-                z: debugMarkerPos.markerZ ?? 0,
-              })}
-            >
-              <Html transform>
-                <div className="bg-red-500 backdrop-blur-sm px-2 py-1 rounded-lg cursor-pointer">
-                  <h3 className="text-sm font-bold">Debug Marker</h3>
-                </div>
-              </Html>
-              <group position={[0, -1, 0]} scale={[0.25, 0.25, 0.25]}>
-                <Marker />
-              </group>
-            </group>
-          </Float>
-        </group>
-      )}
+                <group
+                  position={toPosition(poi.markerPosition)}
+                  onClick={() => handleMarkerClick(poi)}
+                  onPointerEnter={() => setHoveredMarkerId(poi._key)}
+                  onPointerLeave={() => setHoveredMarkerId(null)}
+                >
+                  <Html transform>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        duration: 0.8,
+                        delay: 2,
+                      }}
+                      className="bg-primary backdrop-blur-sm px-2 py-1 rounded-lg cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMarkerClick(poi);
+                      }}
+                    >
+                      <h3 className="text-sm text-white font-bold">
+                        {poi.title}
+                      </h3>
+                    </motion.div>
+                  </Html>
+                  <motion3d.group
+                    position={[0, -1, 0]}
+                    scale={[0.25, 0.25, 0.25]}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: [0.25, 0.25, 0.25] }}
+                    exit={{ opacity: 0, scale: 0 }}
+                    transition={{
+                      duration: 0.8,
+                      delay: 2,
+                    }}
+                    onUpdate={(latest) => {
+                      setMarkerOpacity(Number(latest.opacity) || 0);
+                      console.log("Motion3D opacity:", latest.opacity);
+                    }}
+                  >
+                    <Marker opacity={markerOpacity} />
+                  </motion3d.group>
+                </group>
+              </Float>
+            ))}
+            {store?.get("hidden") === false && (
+              <Float
+                speed={10}
+                rotationIntensity={0}
+                floatIntensity={1}
+                floatingRange={[-0.1, 0.1]}
+              >
+                <group
+                  position={toPosition({
+                    x: debugMarkerPos.markerX ?? 0,
+                    y: debugMarkerPos.markerY ?? 0,
+                    z: debugMarkerPos.markerZ ?? 0,
+                  })}
+                >
+                  <Html transform>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        duration: 0.8,
+                        delay: 2,
+                      }}
+                      className="bg-red-500 backdrop-blur-sm px-2 py-1 rounded-lg cursor-pointer"
+                    >
+                      <h3 className="text-sm font-bold">Debug Marker</h3>
+                    </motion.div>
+                  </Html>
+                  <motion3d.group
+                    position={[0, -1, 0]}
+                    scale={[0.25, 0.25, 0.25]}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: [0.25, 0.25, 0.25] }}
+                    exit={{ opacity: 0, scale: 0 }}
+                    transition={{
+                      duration: 0.8,
+                      delay: 2,
+                    }}
+                    onUpdate={(latest) => {
+                      setMarkerOpacity(Number(latest.opacity) || 0);
+                      console.log("Motion3D opacity:", latest.opacity);
+                    }}
+                  >
+                    <Marker opacity={markerOpacity} />
+                  </motion3d.group>
+                </group>
+              </Float>
+            )}
+          </>
+        )}
+      </AnimatePresence>
     </group>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect } from "react";
 import { Environment } from "@react-three/drei";
-
 import WorldFloor from "@/experience/sceneCollections/WorldFloor";
 import GatedCommunity from "@/experience/sceneCollections/gatedCommunity/GatedCommunity";
 import { Mountains } from "@/experience/sceneCollections/mountains/Mountains";
@@ -21,6 +20,8 @@ import { MainSceneCameraSystem } from "@/experience/scenes/mainScene/MainSceneCa
 import { HomesOuterBuildings } from "@/experience/sceneCollections/homesOuter/models/HomesOuterBuildings";
 import { CloudSimple } from "@/experience/sceneCollections/clouds/CloudSimple";
 import { AnimatedTractor } from "@/experience/sceneCollections/vehicles/AnimatedTractor";
+import { AnimatedVan } from "@/experience/sceneCollections/vehicles/AnimatedVan";
+import { AnimatedPlane } from "@/experience/sceneCollections/vehicles/AnimatedPlane";
 
 interface MainSceneProps {
   scene: Sanity.Scene;
@@ -38,14 +39,16 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
       <MainSceneCameraSystem />
 
       <MainSceneMarkers scene={scene} />
-      <Environment preset="sunset" />
+      <Environment preset="sunset" environmentIntensity={0.8} />
       <group position={[0, -0.2, 0]}>
         <WorldFloor />
       </group>
       <Trees />
       <CloudSimple />
       <AnimatedCar />
+      <AnimatedVan />
       <AnimatedTractor />
+      <AnimatedPlane />
       <GatedCommunity />
       <ResidentialProps />
       <HomesRightBuildings />

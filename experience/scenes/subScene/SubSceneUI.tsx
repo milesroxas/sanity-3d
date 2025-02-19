@@ -99,7 +99,7 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
     setTimeout(() => {
       setIsTransitioning(false);
       setPOIActive(true);
-    }, 2800); // 800ms fade + 2000ms camera
+    }, 2800);
   };
 
   const handleCarouselClose = () => {
@@ -109,14 +109,12 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
     // Reset transitioning state after camera animation completes
     setTimeout(() => {
       setIsTransitioning(false);
-    }, 2800); // 800ms fade + 2000ms camera
+    }, 2800);
   };
 
   useEffect(() => {
-    console.log("SubSceneUI mount effect");
     setR3FContent(<SubScene scene={scene} onMarkerClick={handleMarkerClick} />);
     return () => {
-      console.log("SubSceneUI cleanup effect");
       setR3FContent(null);
     };
   }, [setR3FContent, scene, setSelectedPoi]);
@@ -146,7 +144,7 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
   const canNavigatePrevious = validScenes.length > 1 && currentIndex > 0;
 
   return (
-    <div className="z-50 mx-auto flex flex-col items-center w-full">
+    <div className="relative z-50 mx-auto flex flex-col items-center w-full">
       <AnimatePresence mode="wait">
         {!poiActive && !isTransitioning && (
           <motion.div
@@ -180,7 +178,7 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
         )}
       </AnimatePresence>
 
-      <div className="absolute right-8 top-40 h-full w-full max-w-md px-4 flex items-center">
+      <div className="fixed z-20 top-1/2 -translate-y-1/2 right-8 w-full max-w-md px-4 flex items-center">
         <AnimatePresence mode="wait">
           {!poiActive && !isTransitioning && scene.body && (
             <motion.div

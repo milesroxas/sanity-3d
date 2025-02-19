@@ -26,13 +26,11 @@ export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
   const groupRef = useRef<THREE.Group>(null);
 
   useEffect(() => {
-    console.log("🎯 Setting isSubscene", { sceneId: scene._id });
     setIsSubscene(true);
   }, [setIsSubscene, scene._id]);
 
   useEffect(() => {
     if (isLoaded) {
-      console.log("🎬 Scene loaded, starting transition");
       useSceneStore.getState().startTransitionIn();
       // Delay clearing loading state to allow for smooth transition
       setTimeout(() => {
@@ -90,7 +88,6 @@ export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
   }, [scene.sceneType, scene.modelFiles, setIsLoading]);
 
   if (!scene.sceneType) {
-    console.warn("❌ No scene type specified");
     return null;
   }
 
@@ -101,13 +98,16 @@ export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
       <SubSceneCameraSystem />
       <group ref={groupRef} position={[-5, 0, 0]}>
         <Environment preset="sunset" />
-        <SubSceneMarkers scene={scene} onMarkerClick={onMarkerClick} />
+        <SubSceneMarkers
+          scene={scene}
+          onMarkerClick={onMarkerClick}
+          poiActive={useSceneStore.getState().poiActive}
+        />
         <Suspense fallback={null}>
           <SceneComponent
             modelFiles={scene.modelFiles}
             modelIndex={0}
             onLoad={() => {
-              console.log("🎯 SceneComponent onLoad triggered");
               setIsLoaded(true);
             }}
           />

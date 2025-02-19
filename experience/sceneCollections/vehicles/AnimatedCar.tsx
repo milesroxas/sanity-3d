@@ -10,20 +10,24 @@ import pathData from "@/experience/scenes/mainScene/lib/car_1_path.json";
 
 export function AnimatedCar() {
   const carRef = useRef<THREE.Group>(null);
-  const [progress, setProgress] = useState(0);
-  const speed = 0.05;
+  const [progress, setProgress] = useState(0.5);
+  const speed = 0.02;
 
-  const { x, y, z, showPath } = useControls("Car One", {
-    position: folder(
-      {
-        x: { value: -70.3, min: -100, max: 100, step: 0.1 },
-        y: { value: 2.5, min: -100, max: 100, step: 0.1 },
-        z: { value: 79.6, min: -100, max: 100, step: 0.1 },
-        showPath: { value: false, label: "Show Path" },
-      },
-      { collapsed: true }
-    ),
-  });
+  const { x, y, z, showPath } = useControls(
+    "Car One",
+    {
+      position: folder(
+        {
+          x: { value: -70.3, min: -100, max: 100, step: 0.1 },
+          y: { value: 2.5, min: -100, max: 100, step: 0.1 },
+          z: { value: 79.6, min: -100, max: 100, step: 0.1 },
+          showPath: { value: false, label: "Show Path" },
+        },
+        { collapsed: true }
+      ),
+    },
+    { collapsed: true }
+  );
 
   const curve = useMemo(() => {
     // Create points from path data
@@ -32,7 +36,7 @@ export function AnimatedCar() {
     );
 
     // Create curve with more tension for smoother interpolation
-    const curve = new CatmullRomCurve3(points, false, "centripetal", 0.5);
+    const curve = new CatmullRomCurve3(points, false, "centripetal", 0.1);
 
     // Generate more points along the curve for smoother sampling
     return {

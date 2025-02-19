@@ -2,28 +2,30 @@ import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef, useState } from "react";
 import type * as THREE from "three";
 import { CatmullRomCurve3, Vector3 } from "three";
+import { CarOne } from "./CarOne";
 import { folder, useControls } from "leva";
 import { Line } from "@react-three/drei";
 
-import pathData from "@/experience/scenes/mainScene/lib/tractor_1_path.json";
-import { TractorOne } from "./TractorOne";
-export function AnimatedTractor() {
-  const carRef = useRef<THREE.Group>(null);
-  const [progress, setProgress] = useState(0);
-  const speed = 0.03;
+import pathData from "@/experience/scenes/mainScene/lib/van_1_path.json";
+import { VanOne } from "./VanOne";
+
+export function AnimatedVan() {
+  const vanRef = useRef<THREE.Group>(null);
+  const [progress, setProgress] = useState(0.8);
+  const speed = 0.05;
 
   const { x, y, z, showPath } = useControls(
-    "Tractor",
+    "Van One",
     {
       position: folder(
         {
-          x: { value: -127.5, min: -300, max: 300, step: 0.1 },
-          y: { value: 3.0, min: -300, max: 300, step: 0.1 },
-          z: { value: 58.4, min: -300, max: 300, step: 0.1 },
+          x: { value: 0, min: -100, max: 100, step: 0.1 },
+          y: { value: 2.5, min: -100, max: 100, step: 0.1 },
+          z: { value: 69.8, min: -100, max: 100, step: 0.1 },
+          showPath: { value: false, label: "Show Path" },
         },
         { collapsed: true }
       ),
-      showPath: { value: false, label: "Show Path" },
     },
     { collapsed: true }
   );
@@ -46,7 +48,7 @@ export function AnimatedTractor() {
   }, [x, y, z]);
 
   useFrame((_, delta) => {
-    if (!carRef.current) return;
+    if (!vanRef.current) return;
 
     // Calculate new progress based on actual distance along curve
     const distanceToMove = delta * speed * curve.length;
@@ -56,8 +58,8 @@ export function AnimatedTractor() {
     const position = curve.curve.getPoint(newProgress);
     const tangent = curve.curve.getTangent(newProgress);
 
-    carRef.current.position.copy(position);
-    carRef.current.quaternion.setFromUnitVectors(
+    vanRef.current.position.copy(position);
+    vanRef.current.quaternion.setFromUnitVectors(
       new Vector3(0, 0, 1),
       tangent.normalize()
     );
@@ -65,8 +67,8 @@ export function AnimatedTractor() {
 
   return (
     <>
-      <group ref={carRef}>
-        <TractorOne />
+      <group ref={vanRef}>
+        <VanOne />
       </group>
       {showPath && <PathVisualizer curve={curve.curve} />}
     </>

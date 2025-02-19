@@ -7,7 +7,6 @@ import React, { useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
 import { ThreeElements } from "@react-three/fiber";
-
 type GLTFResult = GLTF & {
   nodes: {
     ["tile-plain-nb"]: THREE.Mesh;
@@ -250,14 +249,14 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
           name="tile-plain-nb"
           geometry={nodes["tile-plain-nb"].geometry}
           material={materials["18 GREY-DARK"]}
-          position={[-3.695, 3.338, -2.995]}
+          position={[-3.503, 3.267, -2.783]}
           rotation={[0, -Math.PI / 2, 0]}
-          scale={0.16}
+          scale={0.189}
         />
         <group
           name="palm-high051"
-          position={[3.237, 3.338, 5.757]}
-          scale={0.16}
+          position={[3.635, 3.267, 6.772]}
+          scale={0.189}
         >
           <mesh
             name="palm-high"
@@ -274,135 +273,135 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
           name="Material2061"
           geometry={nodes.Material2061.geometry}
           material={materials["material_3.002"]}
-          position={[-4.306, 3.338, -5.093]}
+          position={[-4.224, 3.267, -5.261]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2015"
           geometry={nodes.Material2015.geometry}
           material={materials["material_3.002"]}
-          position={[-5.199, 3.338, -2.667]}
+          position={[-5.278, 3.267, -2.397]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2014"
           geometry={nodes.Material2014.geometry}
           material={materials["material_3.002"]}
-          position={[-5.199, 3.338, -5.093]}
+          position={[-5.278, 3.267, -5.261]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2013"
           geometry={nodes.Material2013.geometry}
           material={materials["material_3.002"]}
-          position={[-2.075, 3.338, -2.667]}
+          position={[-1.59, 3.267, -2.397]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2012"
           geometry={nodes.Material2012.geometry}
           material={materials["material_3.002"]}
-          position={[-4.752, 3.338, -2.667]}
+          position={[-4.751, 3.267, -2.397]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2011"
           geometry={nodes.Material2011.geometry}
           material={materials["material_3.002"]}
-          position={[-2.521, 3.338, -2.667]}
+          position={[-2.117, 3.267, -2.397]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2010"
           geometry={nodes.Material2010.geometry}
           material={materials["material_3.002"]}
-          position={[-2.967, 3.338, -2.667]}
+          position={[-2.644, 3.267, -2.397]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2009"
           geometry={nodes.Material2009.geometry}
           material={materials["material_3.002"]}
-          position={[-3.414, 3.338, -2.667]}
+          position={[-3.171, 3.267, -2.397]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2008"
           geometry={nodes.Material2008.geometry}
           material={materials["material_3.002"]}
-          position={[-3.86, 3.338, -2.667]}
+          position={[-3.698, 3.267, -2.397]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2007"
           geometry={nodes.Material2007.geometry}
           material={materials["material_3.002"]}
-          position={[-4.306, 3.338, -2.667]}
+          position={[-4.224, 3.267, -2.397]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2006"
           geometry={nodes.Material2006.geometry}
           material={materials["material_3.002"]}
-          position={[-2.075, 3.338, -5.093]}
+          position={[-1.59, 3.267, -5.261]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2005"
           geometry={nodes.Material2005.geometry}
           material={materials["material_3.002"]}
-          position={[-4.752, 3.338, -5.093]}
+          position={[-4.751, 3.267, -5.261]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2004"
           geometry={nodes.Material2004.geometry}
           material={materials["material_3.002"]}
-          position={[-2.521, 3.338, -5.093]}
+          position={[-2.117, 3.267, -5.261]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2003"
           geometry={nodes.Material2003.geometry}
           material={materials["material_3.002"]}
-          position={[-2.967, 3.338, -5.093]}
+          position={[-2.644, 3.267, -5.261]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2002"
           geometry={nodes.Material2002.geometry}
           material={materials["material_3.002"]}
-          position={[-3.414, 3.338, -5.093]}
+          position={[-3.171, 3.267, -5.261]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <mesh
           name="Material2001"
           geometry={nodes.Material2001.geometry}
           material={materials["material_3.002"]}
-          position={[-3.86, 3.338, -5.093]}
+          position={[-3.698, 3.267, -5.261]}
           rotation={[-Math.PI / 2, 0, -Math.PI]}
-          scale={0.004}
+          scale={0.005}
         />
         <group
           name="lamp-road-double003"
-          position={[-4.765, 3.338, -1.781]}
+          position={[-4.766, 3.267, -1.35]}
           rotation={[0, -Math.PI / 2, 0]}
-          scale={0.16}
+          scale={0.189}
         >
           <mesh
             name="lamp-road-double_1"
@@ -422,9 +421,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-road-double002"
-          position={[-2.974, 3.338, -1.781]}
+          position={[-2.652, 3.267, -1.35]}
           rotation={[0, -Math.PI / 2, 0]}
-          scale={0.16}
+          scale={0.189}
         >
           <mesh
             name="lamp-road-double_1"
@@ -444,9 +443,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-road-double001"
-          position={[-4.765, 3.338, -4.204]}
+          position={[-4.766, 3.267, -4.211]}
           rotation={[0, -Math.PI / 2, 0]}
-          scale={0.16}
+          scale={0.189}
         >
           <mesh
             name="lamp-road-double_1"
@@ -466,9 +465,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-road-double"
-          position={[-2.974, 3.338, -4.204]}
+          position={[-2.652, 3.267, -4.211]}
           rotation={[0, -Math.PI / 2, 0]}
-          scale={0.16}
+          scale={0.189}
         >
           <mesh
             name="lamp-road-double_1"
@@ -488,8 +487,8 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-city018"
-          position={[0.851, 3.338, 3.135]}
-          scale={0.16}
+          position={[1.195, 3.267, 3.677]}
+          scale={0.189}
         >
           <mesh
             name="lamp-city"
@@ -504,8 +503,8 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-city017"
-          position={[0.851, 3.338, 1.892]}
-          scale={0.16}
+          position={[1.195, 3.267, 2.209]}
+          scale={0.189}
         >
           <mesh
             name="lamp-city"
@@ -520,8 +519,8 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-city016"
-          position={[0.851, 3.338, 0.695]}
-          scale={0.16}
+          position={[1.195, 3.267, 0.796]}
+          scale={0.189}
         >
           <mesh
             name="lamp-city"
@@ -536,8 +535,8 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-city015"
-          position={[0.851, 3.338, 5.545]}
-          scale={0.16}
+          position={[1.195, 3.267, 6.522]}
+          scale={0.189}
         >
           <mesh
             name="lamp-city"
@@ -552,8 +551,8 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-city014"
-          position={[-3.637, 3.338, 2.991]}
-          scale={0.16}
+          position={[-3.416, 3.267, 2.444]}
+          scale={0.189}
         >
           <mesh
             name="lamp-city"
@@ -568,8 +567,8 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-city013"
-          position={[-3.637, 3.338, 1.594]}
-          scale={0.16}
+          position={[-3.416, 3.267, 0.796]}
+          scale={0.189}
         >
           <mesh
             name="lamp-city"
@@ -584,8 +583,8 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-city012"
-          position={[-3.637, 3.338, 6.445]}
-          scale={0.16}
+          position={[-3.416, 3.267, 6.522]}
+          scale={0.189}
         >
           <mesh
             name="lamp-city"
@@ -600,8 +599,8 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-city011"
-          position={[0.851, 3.338, 4.412]}
-          scale={0.16}
+          position={[1.195, 3.267, 5.184]}
+          scale={0.189}
         >
           <mesh
             name="lamp-city"
@@ -616,8 +615,8 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-city010"
-          position={[-3.637, 3.338, 5.311]}
-          scale={0.16}
+          position={[-3.416, 3.267, 5.184]}
+          scale={0.189}
         >
           <mesh
             name="lamp-city"
@@ -632,9 +631,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="fountain"
-          position={[-3.61, 3.338, 4.219]}
+          position={[-3.384, 3.267, 3.894]}
           rotation={[0, Math.PI / 2, 0]}
-          scale={0.16}
+          scale={0.189}
         >
           <mesh
             name="fountain_1"
@@ -654,8 +653,8 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="building-tattoo002"
-          position={[0.83, 3.293, -0.613]}
-          scale={0.16}
+          position={[1.169, 3.213, -0.749]}
+          scale={0.189}
         >
           <mesh
             name="building-tattoo"
@@ -705,9 +704,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="building-tattoo001"
-          position={[-1.789, 3.331, 3.717]}
+          position={[-1.234, 3.259, 3.301]}
           rotation={[0, -Math.PI / 2, 0]}
-          scale={0.16}
+          scale={0.189}
         >
           <mesh
             name="building-tattoo"
@@ -757,9 +756,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="building-shop-china005"
-          position={[-1.814, 3.331, 1.76]}
+          position={[-1.263, 3.259, 0.991]}
           rotation={[0, -Math.PI / 2, 0]}
-          scale={0.16}
+          scale={0.189}
         >
           <mesh
             name="building-shop-china"
@@ -814,9 +813,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="building-shop-china004"
-          position={[-5.433, 3.313, 5.763]}
-          rotation={[0, 1.571, 0]}
-          scale={0.16}
+          position={[-5.536, 3.237, 5.717]}
+          rotation={[0, Math.PI / 2, 0]}
+          scale={0.189}
         >
           <mesh
             name="building-shop-china"
@@ -871,9 +870,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="building-shop-china001"
-          position={[-5.433, 3.331, 1.76]}
-          rotation={[0, 1.571, 0]}
-          scale={0.16}
+          position={[-5.536, 3.259, 0.991]}
+          rotation={[0, Math.PI / 2, 0]}
+          scale={0.189}
         >
           <mesh
             name="building-shop-china"
@@ -928,9 +927,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="building-restaurant"
-          position={[-5.513, 3.347, 3.758]}
-          rotation={[0, 1.571, 0]}
-          scale={0.16}
+          position={[-5.631, 3.278, 3.35]}
+          rotation={[0, Math.PI / 2, 0]}
+          scale={0.189}
         >
           <mesh
             name="building-restaurant001"
@@ -985,9 +984,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="building-mall"
-          position={[5.54, 3.338, 4.457]}
+          position={[5.701, 3.267, 4.272]}
           rotation={[0, -Math.PI / 2, 0]}
-          scale={0.16}
+          scale={0.189}
         >
           <mesh
             name="building-mall_1"
@@ -1032,9 +1031,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="building-cafe002"
-          position={[5.773, 3.338, -0.676]}
-          rotation={[0, -1.571, 0]}
-          scale={0.16}
+          position={[5.59, 3.267, -0.823]}
+          rotation={[0, -Math.PI / 2, 0]}
+          scale={0.189}
         >
           <mesh
             name="building-cafe"
@@ -1079,9 +1078,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="building-cafe001"
-          position={[-1.727, 3.331, 5.773]}
+          position={[-1.16, 3.259, 5.729]}
           rotation={[Math.PI, 0, Math.PI]}
-          scale={0.16}
+          scale={0.189}
         >
           <mesh
             name="building-cafe"
@@ -1126,9 +1125,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="building-shop-china002"
-          position={[0.826, 3.331, -3.146]}
-          rotation={[0, 1.571, 0]}
-          scale={0.16}
+          position={[1.165, 3.259, -3.74]}
+          rotation={[0, Math.PI / 2, 0]}
+          scale={0.189}
         >
           <mesh
             name="building-shop-china"
@@ -1183,9 +1182,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="building-shop-china003"
-          position={[0.826, 3.331, -5.618]}
-          rotation={[0, 1.571, 0]}
-          scale={0.16}
+          position={[1.165, 3.259, -6.658]}
+          rotation={[0, Math.PI / 2, 0]}
+          scale={0.189}
         >
           <mesh
             name="building-shop-china"
@@ -1240,9 +1239,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="building-shop-china006"
-          position={[5.847, 3.377, -5.618]}
+          position={[6.127, 3.312, -6.658]}
           rotation={[0, -Math.PI / 2, 0]}
-          scale={0.16}
+          scale={0.189}
         >
           <mesh
             name="building-shop-china"
@@ -1297,9 +1296,9 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="building-shop-china007"
-          position={[5.847, 3.338, -3.146]}
+          position={[6.127, 3.267, -3.74]}
           rotation={[0, -Math.PI / 2, 0]}
-          scale={0.16}
+          scale={0.189}
         >
           <mesh
             name="building-shop-china"
@@ -1354,8 +1353,8 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-city001"
-          position={[3.32, 3.338, -0.021]}
-          scale={0.16}
+          position={[3.734, 3.267, -0.05]}
+          scale={0.189}
         >
           <mesh
             name="lamp-city"
@@ -1370,8 +1369,8 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-city002"
-          position={[3.32, 3.338, -4.775]}
-          scale={0.16}
+          position={[3.734, 3.267, -5.663]}
+          scale={0.189}
         >
           <mesh
             name="lamp-city"
@@ -1386,8 +1385,8 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="lamp-city003"
-          position={[3.32, 3.338, -2.349]}
-          scale={0.16}
+          position={[3.734, 3.267, -2.798]}
+          scale={0.189}
         >
           <mesh
             name="lamp-city"
@@ -1400,7 +1399,11 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
             material={materials.Lamp}
           />
         </group>
-        <group name="lamp-city004" position={[3.32, 3.338, 2.286]} scale={0.16}>
+        <group
+          name="lamp-city004"
+          position={[3.734, 3.267, 2.674]}
+          scale={0.189}
+        >
           <mesh
             name="lamp-city"
             geometry={nodes["lamp-city"].geometry}
@@ -1412,7 +1415,11 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
             material={materials.Lamp}
           />
         </group>
-        <group name="lamp-city005" position={[3.32, 3.338, 4.654]} scale={0.16}>
+        <group
+          name="lamp-city005"
+          position={[3.734, 3.267, 5.469]}
+          scale={0.189}
+        >
           <mesh
             name="lamp-city"
             geometry={nodes["lamp-city"].geometry}
@@ -1426,8 +1433,8 @@ export function ShopsSubSceneModel(props: ThreeElements["group"]) {
         </group>
         <group
           name="Cube"
-          position={[-0.202, 2.531, -0.067]}
-          scale={[0.152, 0.015, 0.152]}
+          position={[-0.05, 2.314, -0.105]}
+          scale={[0.151, 0.019, 0.151]}
         >
           <mesh
             name="Cube_1"

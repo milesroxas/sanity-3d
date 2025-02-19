@@ -155,13 +155,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
 
   // Animation
   startCameraTransition: (startPos, endPos, startTarget, endTarget) => {
-    console.log("🎯 startCameraTransition called", {
-      isSubscene: get().isSubscene,
-      isTransitioning: useSceneStore.getState().isTransitioning,
-      startPos: startPos.toArray(),
-      endPos: endPos.toArray(),
-    });
-
     // Skip animation ONLY during subscene navigation (not POI clicks)
     if (
       get().isSubscene &&

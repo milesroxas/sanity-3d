@@ -29,7 +29,7 @@ export const useSceneStore = create<SceneStore>((set) => ({
     set({ isTransitioning: true });
     return new Promise((resolve) => {
       const startTime = Date.now();
-      const duration = 800;
+      const duration = 300;
 
       const animate = () => {
         const elapsed = Date.now() - startTime;
