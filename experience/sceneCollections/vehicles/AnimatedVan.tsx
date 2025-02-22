@@ -11,8 +11,8 @@ import { VanOne } from "./VanOne";
 
 export function AnimatedVan() {
   const vanRef = useRef<THREE.Group>(null);
-  const [progress, setProgress] = useState(0.8);
-  const speed = 0.05;
+  const [distance, setDistance] = useState(0);
+  const speed = 20; // Units per second
 
   const { x, y, z, showPath } = useControls(
     "Van One",
@@ -31,32 +31,27 @@ export function AnimatedVan() {
   );
 
   const curve = useMemo(() => {
-    // Create points from path data
     const points = pathData.points.map(
       (p) => new Vector3(p.x + x, p.y + y, p.z + z)
     );
-
-    // Create curve with more tension for smoother interpolation
     const curve = new CatmullRomCurve3(points, false, "centripetal", 0.5);
-
-    // Generate more points along the curve for smoother sampling
     return {
       curve,
       length: curve.getLength(),
-      points: curve.getPoints(1000),
     };
   }, [x, y, z]);
 
   useFrame((_, delta) => {
     if (!vanRef.current) return;
 
-    // Calculate new progress based on actual distance along curve
-    const distanceToMove = delta * speed * curve.length;
-    const newProgress = (progress + distanceToMove / curve.length) % 1;
-    setProgress(newProgress);
+    // Update distance based on speed
+    const newDistance = (distance + speed * delta) % curve.length;
+    setDistance(newDistance);
 
-    const position = curve.curve.getPoint(newProgress);
-    const tangent = curve.curve.getTangent(newProgress);
+    // Get position at current distance
+    const progress = newDistance / curve.length;
+    const position = curve.curve.getPointAt(progress);
+    const tangent = curve.curve.getTangentAt(progress);
 
     vanRef.current.position.copy(position);
     vanRef.current.quaternion.setFromUnitVectors(

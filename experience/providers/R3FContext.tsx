@@ -29,7 +29,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
 
         {/* Canvas positioned behind the UI */}
         <div className="fixed inset-0">
-          <Canvas>
+          <Canvas shadows>
             <ambientLight intensity={0.5} />
             <pointLight position={[10, 10, 10]} intensity={1} />
             <Suspense fallback={null}>{r3fContent}</Suspense>

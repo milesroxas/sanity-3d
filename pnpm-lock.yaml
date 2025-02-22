@@ -54,8 +54,8 @@ importers:
         specifier: 9.0.0-rc.10
         version: 9.0.0-rc.10(@types/react@19.0.4)(immer@10.1.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.169.0)(use-sync-external-store@1.4.0(react@19.0.0))
       '@react-three/postprocessing':
-        specifier: ^2.19.1
-        version: 2.19.1(@react-three/fiber@9.0.0-rc.10(@types/react@19.0.4)(immer@10.1.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.169.0)(use-sync-external-store@1.4.0(react@19.0.0)))(@types/three@0.170.0)(react@19.0.0)(three@0.169.0)
+        specifier: 3.0.4
+        version: 3.0.4(@react-three/fiber@9.0.0-rc.10(@types/react@19.0.4)(immer@10.1.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.169.0)(use-sync-external-store@1.4.0(react@19.0.0)))(@types/three@0.170.0)(react@19.0.0)(three@0.169.0)
       '@sanity/client':
         specifier: ^6.25.0
         version: 6.25.0(debug@4.4.0)
@@ -2081,12 +2081,12 @@ packages:
       react-native:
         optional: true
 
-  '@react-three/postprocessing@2.19.1':
-    resolution: {integrity: sha512-7P25LOSToH/I6b3UipNK17IIFlX4FDUmWcaomfwu82+CzhXTOz8Fcc1ZXEZ7vFA/5Fr/2peNlXgXZJvoa+aCdA==}
+  '@react-three/postprocessing@3.0.4':
+    resolution: {integrity: sha512-e4+F5xtudDYvhxx3y0NtWXpZbwvQ0x1zdOXWTbXMK6fFLVDd4qucN90YaaStanZGS4Bd5siQm0lGL/5ogf8iDQ==}
     peerDependencies:
-      '@react-three/fiber': ^8.0
-      react: ^18.0
-      three: '>= 0.138.0'
+      '@react-three/fiber': ^9.0.0
+      react: ^19.0
+      three: '>= 0.156.0'
 
   '@rexxars/react-json-inspector@9.0.1':
     resolution: {integrity: sha512-4uZ4RnrVoOGOShIKKcPoF+qhwDCZJsPPqyoEoW/8HRdzNknN9Q2yhlbEgTX1lMZunF1fv7iHzAs+n1vgIgfg/g==}
@@ -8968,16 +8968,14 @@ snapshots:
       - immer
       - use-sync-external-store
 
-  '@react-three/postprocessing@2.19.1(@react-three/fiber@9.0.0-rc.10(@types/react@19.0.4)(immer@10.1.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.169.0)(use-sync-external-store@1.4.0(react@19.0.0)))(@types/three@0.170.0)(react@19.0.0)(three@0.169.0)':
+  '@react-three/postprocessing@3.0.4(@react-three/fiber@9.0.0-rc.10(@types/react@19.0.4)(immer@10.1.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.169.0)(use-sync-external-store@1.4.0(react@19.0.0)))(@types/three@0.170.0)(react@19.0.0)(three@0.169.0)':
     dependencies:
       '@react-three/fiber': 9.0.0-rc.10(@types/react@19.0.4)(immer@10.1.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.169.0)(use-sync-external-store@1.4.0(react@19.0.0))
-      buffer: 6.0.3
       maath: 0.6.0(@types/three@0.170.0)(three@0.169.0)
       n8ao: 1.9.4(postprocessing@6.36.7(three@0.169.0))(three@0.169.0)
       postprocessing: 6.36.7(three@0.169.0)
       react: 19.0.0
       three: 0.169.0
-      three-stdlib: 2.35.7(three@0.169.0)
     transitivePeerDependencies:
       - '@types/three'
 

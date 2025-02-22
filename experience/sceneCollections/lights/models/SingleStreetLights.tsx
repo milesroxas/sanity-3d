@@ -97,7 +97,7 @@ export function Instances({
   const emissiveMaterial = useMemo(() => {
     const material = new THREE.MeshStandardMaterial();
     material.emissive.set("#ffff80"); // Warm white color
-    material.emissiveIntensity = 2000;
+    material.emissiveIntensity = 50;
     return material;
   }, []);
 

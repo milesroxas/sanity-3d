@@ -1,6 +1,7 @@
 import { Html } from "@react-three/drei";
 import { Marker } from "../../sceneCollections/markers/Marker";
 import { MarkerPosition, toPosition } from "../../types/types";
+import { useState } from "react";
 
 type PoiMarkerProps = {
   position: MarkerPosition;
@@ -19,14 +20,26 @@ export function PoiMarker({
   onHoverEnd,
   size = "lg",
 }: PoiMarkerProps) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleHoverStart = () => {
+    setIsHovered(true);
+    onHoverStart();
+  };
+
+  const handleHoverEnd = () => {
+    setIsHovered(false);
+    onHoverEnd();
+  };
+
   return (
     <group position={toPosition(position)}>
       <Html center transform>
         <div
           className="bg-primary backdrop-blur-sm px-4 py-2 rounded-lg cursor-pointer"
           onClick={onClick}
-          onMouseEnter={onHoverStart}
-          onMouseLeave={onHoverEnd}
+          onMouseEnter={handleHoverStart}
+          onMouseLeave={handleHoverEnd}
         >
           <h3
             className={
@@ -40,10 +53,10 @@ export function PoiMarker({
       <group
         position={[0, -3, 0]}
         onClick={onClick}
-        onPointerEnter={onHoverStart}
-        onPointerLeave={onHoverEnd}
+        onPointerEnter={handleHoverStart}
+        onPointerLeave={handleHoverEnd}
       >
-        <Marker />
+        <Marker isHovered={isHovered} />
       </group>
     </group>
   );

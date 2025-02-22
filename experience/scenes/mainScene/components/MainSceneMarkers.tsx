@@ -1,12 +1,15 @@
 "use client";
-import { Float, Html } from "@react-three/drei";
+import { Float, Html, useCursor } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Vector3 } from "three";
 import { useCameraStore } from "../../store/cameraStore";
 import { Marker } from "@/experience/sceneCollections/markers/Marker";
 import { useControls } from "leva";
+import { useStoreContext } from "leva/plugin";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
 
 type MarkerPosition = {
   x: number;
@@ -22,9 +25,12 @@ const toPosition = (marker: MarkerPosition): Position => {
 
 export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
   const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null);
-
+  const store = useStoreContext();
   const router = useRouter();
   const { camera } = useThree();
+  const [lightIntensity, setLightIntensity] = useState(0);
+  const bgColorRef = useRef({ r: 34, g: 197, b: 94 });
+  const scaleRef = useRef({ x: 1, y: 1, z: 1 });
 
   // Add Leva controls for debug marker
   const debugMarkerPos = useControls("Main Scene Debug Marker", {
@@ -67,6 +73,46 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
     }, 2000);
   };
 
+  useFrame((_, delta) => {
+    const targetIntensity = hoveredMarkerId ? 100 : 0;
+    const newIntensity = THREE.MathUtils.lerp(
+      lightIntensity,
+      targetIntensity,
+      delta * 5
+    );
+    setLightIntensity(newIntensity);
+
+    // Animate background color
+    const targetColor = hoveredMarkerId
+      ? { r: 74, g: 222, b: 128 }
+      : { r: 34, g: 197, b: 94 };
+    bgColorRef.current = {
+      r: THREE.MathUtils.lerp(bgColorRef.current.r, targetColor.r, delta * 5),
+      g: THREE.MathUtils.lerp(bgColorRef.current.g, targetColor.g, delta * 5),
+      b: THREE.MathUtils.lerp(bgColorRef.current.b, targetColor.b, delta * 5),
+    };
+
+    // Animate scale for hovered marker
+    const targetScale = 1.2;
+    scaleRef.current = {
+      x: THREE.MathUtils.lerp(
+        scaleRef.current.x,
+        hoveredMarkerId ? targetScale : 1,
+        delta * 5
+      ),
+      y: THREE.MathUtils.lerp(
+        scaleRef.current.y,
+        hoveredMarkerId ? targetScale : 1,
+        delta * 5
+      ),
+      z: THREE.MathUtils.lerp(
+        scaleRef.current.z,
+        hoveredMarkerId ? targetScale : 1,
+        delta * 5
+      ),
+    };
+  });
+
   return (
     <group>
       {scene.pointsOfInterest?.map((poi) => {
@@ -78,6 +124,8 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
           "slug" in poi
         ) {
           const isHovered = hoveredMarkerId === poi._id;
+          useCursor(isHovered);
+
           return (
             <Float
               key={poi._id}
@@ -91,10 +139,22 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
                 onClick={() => handleMarkerClick(poi)}
                 onPointerEnter={() => setHoveredMarkerId(poi._id)}
                 onPointerLeave={() => setHoveredMarkerId(null)}
+                scale={
+                  isHovered
+                    ? [
+                        scaleRef.current.x,
+                        scaleRef.current.y,
+                        scaleRef.current.z,
+                      ]
+                    : 1
+                }
               >
                 <Html transform>
                   <div
-                    className="bg-primary backdrop-blur-sm px-4 py-2 rounded-lg cursor-pointer"
+                    className="backdrop-blur-sm px-4 py-2 rounded-lg cursor-pointer"
+                    style={{
+                      backgroundColor: `rgba(${bgColorRef.current.r}, ${bgColorRef.current.g}, ${bgColorRef.current.b}, 0.8)`,
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleMarkerClick(poi);
@@ -106,7 +166,18 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
                   </div>
                 </Html>
                 <group position={[0, -3, 0]}>
-                  <Marker />
+                  {isHovered && (
+                    <>
+                      <rectAreaLight
+                        position={[0, 5, 40]}
+                        width={20}
+                        height={20}
+                        color="#36A837"
+                        intensity={lightIntensity}
+                      />
+                    </>
+                  )}
+                  <Marker isHovered={isHovered} />
                 </group>
               </group>
             </Float>
@@ -116,7 +187,7 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
       })}
 
       {/* Debug marker */}
-      {process.env.NODE_ENV === "development" && (
+      {store?.get("hidden") === false && (
         <Float
           speed={10}
           rotationIntensity={0}

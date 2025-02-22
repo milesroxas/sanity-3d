@@ -90,6 +90,7 @@ export function MainSceneCameraSystem() {
           minAzimuthAngle={-Math.PI / 2}
           maxDistance={200}
           minDistance={10}
+          dampingFactor={0.07}
         />
       )}
     </>

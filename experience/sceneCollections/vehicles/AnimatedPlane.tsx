@@ -10,7 +10,7 @@ import pathData from "@/experience/scenes/mainScene/lib/plane_1_path.json";
 
 export function AnimatedPlane() {
   const planeRef = useRef<THREE.Group>(null);
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(0.8);
   const speed = 0.02;
 
   const { x, y, z, showPath } = useControls(

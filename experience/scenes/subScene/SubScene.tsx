@@ -1,18 +1,18 @@
 "use client";
 import { Suspense, useEffect, useState, useRef } from "react";
-import {
-  getSceneComponent,
-  SceneType,
-  preloadScene,
-} from "./lib/SubSceneComponentMap";
-import { Environment } from "@react-three/drei";
+import { getSceneComponent, SceneType } from "./lib/SubSceneComponentMap";
+import { Environment, Stars } from "@react-three/drei";
 import { useCameraStore } from "@/experience/scenes/store/cameraStore";
 import SubSceneMarkers, { PointOfInterest } from "./components/SubSceneMarkers";
 import { SubSceneCameraSystem } from "./SubSceneCameraSystem";
 import { preloadModel, isModelLoaded } from "@/experience/utils/modelCache";
 import { useSceneStore } from "@/experience/scenes/store/sceneStore";
 import gsap from "gsap";
-import type * as THREE from "three";
+import * as THREE from "three";
+import { Bloom, ToneMapping } from "@react-three/postprocessing";
+import { Vignette } from "@react-three/postprocessing";
+import { EffectComposer } from "@react-three/postprocessing";
+import { BlendFunction } from "postprocessing";
 
 interface SubSceneProps {
   scene: Sanity.Scene;
@@ -96,8 +96,43 @@ export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
   return (
     <>
       <SubSceneCameraSystem />
+      <Stars radius={100} count={2000} factor={2} saturation={0} speed={1} />
+      <EffectComposer>
+        <Vignette
+          offset={0.3} // vignette offset
+          darkness={0.8} // vignette darkness
+          eskil={false} // Eskil's vignette technique
+          blendFunction={BlendFunction.NORMAL} // blend mode
+        />
+        <Bloom
+          intensity={0.02} // Adjust bloom intensity
+          threshold={0.5} // Adjust threshold for bloom
+          radius={2} // Adjust bloom radius
+        />
+        <ToneMapping
+          blendFunction={BlendFunction.NORMAL} // blend mode
+          adaptive={true} // toggle adaptive luminance map usage
+          resolution={256} // texture resolution of the luminance map
+          middleGrey={0.5} // middle grey factor
+          maxLuminance={22.0} // maximum luminance
+          averageLuminance={2.0} // average luminance
+          adaptationRate={1.0} // luminance adaptation rate
+        />
+      </EffectComposer>
       <group ref={groupRef} position={[-5, 0, 0]}>
-        <Environment preset="sunset" />
+        <Environment
+          preset="sunset"
+          backgroundBlurriness={0.5}
+          background
+          backgroundIntensity={0.1}
+        />
+        <rectAreaLight
+          position={[0, 10, 20]}
+          width={20}
+          height={20}
+          intensity={5}
+          color="gold"
+        />
         <SubSceneMarkers
           scene={scene}
           onMarkerClick={onMarkerClick}

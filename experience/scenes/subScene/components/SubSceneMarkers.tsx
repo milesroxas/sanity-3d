@@ -1,6 +1,6 @@
 "use client";
 import { Float, Html } from "@react-three/drei";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useCameraStore } from "@/experience/scenes/store/cameraStore";
 import { Vector3 } from "three";
 import { Marker } from "@/experience/sceneCollections/markers/Marker";
@@ -12,6 +12,8 @@ import { PortableTextBlock } from "next-sanity";
 import { useSceneStore } from "@/experience/scenes/store/sceneStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { motion as motion3d } from "framer-motion-3d";
+import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 
 export interface PointOfInterest {
   _key: string;
@@ -49,6 +51,9 @@ export default function SubSceneMarkers({
   const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null);
   const { camera } = useThree();
   const [markerOpacity, setMarkerOpacity] = useState(0);
+  const [lightIntensity, setLightIntensity] = useState(0);
+  const bgColorRef = useRef({ r: 34, g: 197, b: 94 });
+  const scaleRef = useRef({ x: 1, y: 1, z: 1 });
 
   // Move Leva controls hook to the top
   const debugMarkerPos = useControls("Debug Marker Controls", {
@@ -99,6 +104,46 @@ export default function SubSceneMarkers({
     }, 800);
   };
 
+  useFrame((_, delta) => {
+    const targetIntensity = hoveredMarkerId ? 10 : 0;
+    const newIntensity = THREE.MathUtils.lerp(
+      lightIntensity,
+      targetIntensity,
+      delta * 5
+    );
+    setLightIntensity(newIntensity);
+
+    // Animate background color
+    const targetColor = hoveredMarkerId
+      ? { r: 74, g: 222, b: 128 }
+      : { r: 34, g: 197, b: 94 };
+    bgColorRef.current = {
+      r: THREE.MathUtils.lerp(bgColorRef.current.r, targetColor.r, delta * 5),
+      g: THREE.MathUtils.lerp(bgColorRef.current.g, targetColor.g, delta * 5),
+      b: THREE.MathUtils.lerp(bgColorRef.current.b, targetColor.b, delta * 5),
+    };
+
+    // Animate scale for hovered marker
+    const targetScale = 1.2;
+    scaleRef.current = {
+      x: THREE.MathUtils.lerp(
+        scaleRef.current.x,
+        hoveredMarkerId ? targetScale : 1,
+        delta * 5
+      ),
+      y: THREE.MathUtils.lerp(
+        scaleRef.current.y,
+        hoveredMarkerId ? targetScale : 1,
+        delta * 5
+      ),
+      z: THREE.MathUtils.lerp(
+        scaleRef.current.z,
+        hoveredMarkerId ? targetScale : 1,
+        delta * 5
+      ),
+    };
+  });
+
   return (
     <group>
       <AnimatePresence mode="wait">
@@ -117,6 +162,15 @@ export default function SubSceneMarkers({
                   onClick={() => handleMarkerClick(poi)}
                   onPointerEnter={() => setHoveredMarkerId(poi._key)}
                   onPointerLeave={() => setHoveredMarkerId(null)}
+                  scale={
+                    hoveredMarkerId === poi._key
+                      ? [
+                          scaleRef.current.x,
+                          scaleRef.current.y,
+                          scaleRef.current.z,
+                        ]
+                      : 1
+                  }
                 >
                   <Html transform>
                     <motion.div
@@ -127,7 +181,10 @@ export default function SubSceneMarkers({
                         duration: 0.8,
                         delay: 2,
                       }}
-                      className="bg-primary backdrop-blur-sm px-2 py-1 rounded-lg cursor-pointer"
+                      style={{
+                        backgroundColor: `rgba(${bgColorRef.current.r}, ${bgColorRef.current.g}, ${bgColorRef.current.b}, 0.8)`,
+                      }}
+                      className="backdrop-blur-sm px-2 py-1 rounded-lg cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleMarkerClick(poi);
@@ -153,7 +210,23 @@ export default function SubSceneMarkers({
                       console.log("Motion3D opacity:", latest.opacity);
                     }}
                   >
-                    <Marker opacity={markerOpacity} />
+                    <group position={[0, 0, 0]}>
+                      {hoveredMarkerId === poi._key && (
+                        <>
+                          <rectAreaLight
+                            position={[0, 5, 20]}
+                            width={20}
+                            height={20}
+                            color="#36A837"
+                            intensity={lightIntensity}
+                          />
+                        </>
+                      )}
+                      <Marker
+                        isHovered={hoveredMarkerId === poi._key}
+                        opacity={markerOpacity}
+                      />
+                    </group>
                   </motion3d.group>
                 </group>
               </Float>

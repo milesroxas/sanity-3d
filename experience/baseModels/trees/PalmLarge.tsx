@@ -181,8 +181,8 @@ function Palm({ position, rotation = [0, 0, 0], scale = 1 }: PalmProps) {
 
   return (
     <group position={position} rotation={rotation} scale={scale}>
-      <instances.Palmhigh />
-      <instances.Palmhigh1 />
+      <instances.Palmhigh castShadow />
+      <instances.Palmhigh1 castShadow />
     </group>
   );
 }
@@ -216,5 +216,5 @@ export function PalmLarge(props: ThreeElements["group"]) {
   );
 }
 
-// Preload the GLTF so it’s ready when <PalmLarge> mounts
+// Preload the GLTF so it's ready when <PalmLarge> mounts
 useGLTF.preload("/models/tree-large.glb");
