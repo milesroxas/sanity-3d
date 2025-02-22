@@ -1,12 +1,6 @@
 "use client";
 import React, { useEffect, useRef } from "react";
-import {
-  Cloud,
-  Clouds,
-  Environment,
-  Float,
-  Lightformer,
-} from "@react-three/drei";
+import { Cloud, Clouds, Environment, Float } from "@react-three/drei";
 import WorldFloor from "@/experience/sceneCollections/WorldFloor";
 import GatedCommunity from "@/experience/sceneCollections/gatedCommunity/GatedCommunity";
 import { Mountains } from "@/experience/sceneCollections/mountains/Mountains";
@@ -29,7 +23,7 @@ import { AnimatedVan } from "@/experience/sceneCollections/vehicles/AnimatedVan"
 import { AnimatedPlane } from "@/experience/sceneCollections/vehicles/AnimatedPlane";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { EffectComposer, Vignette } from "@react-three/postprocessing";
+import { EffectComposer, Vignette, Bloom } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
 
 interface MainSceneProps {
@@ -65,9 +59,14 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
       <EffectComposer>
         <Vignette
           offset={0.3}
-          darkness={0.2}
+          darkness={0.3}
           eskil={false}
           blendFunction={BlendFunction.NORMAL}
+        />
+        <Bloom
+          intensity={0.05}
+          threshold={0.1}
+          blendFunction={BlendFunction.ADD}
         />
       </EffectComposer>
 
