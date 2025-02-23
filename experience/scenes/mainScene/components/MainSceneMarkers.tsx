@@ -33,11 +33,15 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
   const scaleRef = useRef({ x: 1, y: 1, z: 1 });
 
   // Add Leva controls for debug marker
-  const debugMarkerPos = useControls("Main Scene Debug Marker", {
-    markerX: { value: 0, min: -200, max: 200, step: 0.1 },
-    markerY: { value: 0, min: -200, max: 200, step: 0.1 },
-    markerZ: { value: 0, min: -200, max: 200, step: 0.1 },
-  });
+  const debugMarkerPos = useControls(
+    "Main Scene Debug Marker",
+    {
+      markerX: { value: 0, min: -200, max: 200, step: 0.1 },
+      markerY: { value: 0, min: -200, max: 200, step: 0.1 },
+      markerZ: { value: 0, min: -200, max: 200, step: 0.1 },
+    },
+    { collapsed: true }
+  );
 
   const handleMarkerClick = (poi: any) => {
     if (!poi.mainSceneCameraPosition || !poi.mainSceneCameraTarget) {
@@ -160,7 +164,7 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
                       handleMarkerClick(poi);
                     }}
                   >
-                    <h3 className="text-2xl text-white font-bold">
+                    <h3 className="text-6xl text-white font-bold">
                       {poi.title}
                     </h3>
                   </div>

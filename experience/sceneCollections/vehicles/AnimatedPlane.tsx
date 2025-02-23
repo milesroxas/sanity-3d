@@ -57,16 +57,21 @@ export function AnimatedPlane() {
     const position = curve.curve.getPoint(newProgress);
     const tangent = curve.curve.getTangent(newProgress);
 
-    // Create a matrix to orient the plane
-    const matrix = new THREE.Matrix4();
-    const up = new Vector3(0, 0, 1); // Keep the plane level
-    const axis = new Vector3().crossVectors(up, tangent).normalize();
-    const radians = Math.acos(up.dot(tangent));
+    // Create a look-at matrix that maintains upright orientation
+    const lookAt = new THREE.Matrix4();
+    const up = new Vector3(0, 1, 0); // Use world up vector
 
-    matrix.makeRotationAxis(axis, radians);
+    // Calculate right vector
+    const right = new Vector3().crossVectors(up, tangent).normalize();
+
+    // Recalculate up to ensure perpendicular orientation
+    const adjustedUp = new Vector3().crossVectors(tangent, right).normalize();
+
+    // Construct rotation matrix
+    lookAt.makeBasis(right, adjustedUp, tangent);
 
     planeRef.current.position.copy(position);
-    planeRef.current.quaternion.setFromRotationMatrix(matrix);
+    planeRef.current.quaternion.setFromRotationMatrix(lookAt);
   });
 
   return (

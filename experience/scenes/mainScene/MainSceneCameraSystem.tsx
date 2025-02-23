@@ -13,53 +13,57 @@ export function MainSceneCameraSystem() {
   const { controlType, isAnimating, position, target } = useCameraStore();
 
   const { positionX, positionY, positionZ, targetX, targetY, targetZ } =
-    useControls("Main Camera Controls", {
-      "Main Scene": folder(
-        {
-          position: folder({
-            positionX: {
-              value: INITIAL_POSITIONS.main.position.x,
-              min: -200,
-              max: 200,
-              step: 0.1,
-            },
-            positionY: {
-              value: INITIAL_POSITIONS.main.position.y,
-              min: -200,
-              max: 200,
-              step: 0.1,
-            },
-            positionZ: {
-              value: INITIAL_POSITIONS.main.position.z,
-              min: -200,
-              max: 200,
-              step: 0.1,
-            },
-          }),
-          target: folder({
-            targetX: {
-              value: INITIAL_POSITIONS.main.target.x,
-              min: -200,
-              max: 200,
-              step: 0.1,
-            },
-            targetY: {
-              value: INITIAL_POSITIONS.main.target.y,
-              min: -200,
-              max: 200,
-              step: 0.1,
-            },
-            targetZ: {
-              value: INITIAL_POSITIONS.main.target.z,
-              min: -200,
-              max: 200,
-              step: 0.1,
-            },
-          }),
-        },
-        { collapsed: true }
-      ),
-    });
+    useControls(
+      "Main Camera Controls",
+      {
+        "Main Scene": folder(
+          {
+            position: folder({
+              positionX: {
+                value: INITIAL_POSITIONS.main.position.x,
+                min: -200,
+                max: 200,
+                step: 0.1,
+              },
+              positionY: {
+                value: INITIAL_POSITIONS.main.position.y,
+                min: -200,
+                max: 200,
+                step: 0.1,
+              },
+              positionZ: {
+                value: INITIAL_POSITIONS.main.position.z,
+                min: -200,
+                max: 200,
+                step: 0.1,
+              },
+            }),
+            target: folder({
+              targetX: {
+                value: INITIAL_POSITIONS.main.target.x,
+                min: -200,
+                max: 200,
+                step: 0.1,
+              },
+              targetY: {
+                value: INITIAL_POSITIONS.main.target.y,
+                min: -200,
+                max: 200,
+                step: 0.1,
+              },
+              targetZ: {
+                value: INITIAL_POSITIONS.main.target.z,
+                min: -200,
+                max: 200,
+                step: 0.1,
+              },
+            }),
+          },
+          { collapsed: true }
+        ),
+      },
+      { collapsed: true }
+    );
 
   useEffect(() => {
     if (!cameraRef.current) return;

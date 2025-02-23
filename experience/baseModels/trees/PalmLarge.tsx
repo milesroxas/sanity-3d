@@ -181,8 +181,8 @@ function Palm({ position, rotation = [0, 0, 0], scale = 1 }: PalmProps) {
 
   return (
     <group position={position} rotation={rotation} scale={scale}>
-      <instances.Palmhigh castShadow />
-      <instances.Palmhigh1 castShadow />
+      <instances.Palmhigh castShadow receiveShadow />
+      <instances.Palmhigh1 castShadow receiveShadow />
     </group>
   );
 }
