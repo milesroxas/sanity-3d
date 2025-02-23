@@ -96,11 +96,11 @@ export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
   return (
     <>
       <SubSceneCameraSystem />
-      <Stars radius={100} count={2000} factor={2} saturation={0} speed={1} />
+      {/* <Stars radius={400} count={20000} factor={2} saturation={0} speed={1} /> */}
       <EffectComposer>
         <Vignette
           offset={0.3} // vignette offset
-          darkness={0.3} // vignette darkness
+          darkness={0.5} // vignette darkness
           eskil={false} // Eskil's vignette technique
           blendFunction={BlendFunction.NORMAL} // blend mode
         />
@@ -113,9 +113,9 @@ export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
           blendFunction={BlendFunction.NORMAL} // blend mode
           adaptive={true} // toggle adaptive luminance map usage
           resolution={256} // texture resolution of the luminance map
-          middleGrey={0.3} // middle grey factor
-          maxLuminance={15.0} // maximum luminance
-          averageLuminance={2.0} // average luminance
+          middleGrey={0.5} // middle grey factor
+          maxLuminance={8.0} // maximum luminance
+          averageLuminance={1.0} // average luminance
           adaptationRate={1.0} // luminance adaptation rate
         />
       </EffectComposer>
@@ -124,14 +124,14 @@ export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
           preset="sunset"
           backgroundBlurriness={0.5}
           background
-          backgroundIntensity={0.1}
+          backgroundIntensity={1}
         />
         <rectAreaLight
           position={[0, 5, 10]}
           width={20}
           height={20}
-          intensity={3}
-          color="purple"
+          intensity={4}
+          color="pink"
         />
         <SubSceneMarkers
           scene={scene}
