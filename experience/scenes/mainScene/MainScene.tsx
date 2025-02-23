@@ -44,8 +44,8 @@ import { INITIAL_POSITIONS } from "@/experience/scenes/store/cameraStore";
 import MainSceneProps from "@/experience/sceneCollections/props/MainSceneProps";
 import { LevaInputs } from "leva";
 import NatureScene from "@/experience/sceneCollections/NatureInstances";
-import { Instances } from "@/experience/baseModels/nature/NatureGroup";
 import ParkedCars from "@/experience/sceneCollections/vehicles/ParkedCars";
+import SceneTransition from "../components/SceneTransition";
 interface MainSceneProps {
   scene: Sanity.Scene;
   onLoad?: () => void;
@@ -203,6 +203,7 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
       <MainSceneCameraSystem />
 
       <MainSceneMarkers scene={scene} />
+      <SceneTransition transition={true} color="#a5b4fc" />
       <fog
         attach="fog"
         args={[fogControls.color, fogControls.near, fogControls.far]}
