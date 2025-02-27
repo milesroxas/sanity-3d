@@ -1784,8 +1784,6 @@ export type POST_QUERYResult = {
     } | null;
   } | null;
 } | null;
-
-// Source: ./sanity/queries/posts.ts
 // Variable: POSTS_QUERY
 // Query: *[_type == "post" && defined(slug)] | order(_createdAt desc){    title,    slug,    excerpt,    image{      asset->{        _id,        url,        mimeType,        metadata {          lqip,          dimensions {            width,            height          }        }      },      alt    },}
 export type POSTS_QUERYResult = Array<{
