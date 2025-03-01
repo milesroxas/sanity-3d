@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useEffect } from "react";
 import type * as THREE from "three";
 import { CatmullRomCurve3, Vector3 } from "three";
 import { folder, useControls } from "leva";
@@ -7,9 +7,10 @@ import { Line } from "@react-three/drei";
 
 import pathData from "@/experience/scenes/mainScene/lib/tractor_1_path.json";
 import { TractorOne } from "./TractorOne";
+
 export function AnimatedTractor() {
-  const carRef = useRef<THREE.Group>(null);
-  const [progress, setProgress] = useState(0);
+  const tractorRef = useRef<THREE.Group>(null);
+  const progressRef = useRef(0);
   const speed = 0.03;
 
   const { x, y, z, showPath } = useControls(
@@ -28,44 +29,59 @@ export function AnimatedTractor() {
     { collapsed: true }
   );
 
+  const positionRef = useRef({ x, y, z });
+
+  useEffect(() => {
+    if (
+      Math.abs(positionRef.current.x - x) > 0.1 ||
+      Math.abs(positionRef.current.y - y) > 0.1 ||
+      Math.abs(positionRef.current.z - z) > 0.1
+    ) {
+      positionRef.current = { x, y, z };
+    }
+  }, [x, y, z]);
+
   const curve = useMemo(() => {
-    // Create points from path data
     const points = pathData.points.map(
-      (p) => new Vector3(p.x + x, p.y + y, p.z + z)
+      (p) =>
+        new Vector3(
+          p.x + positionRef.current.x,
+          p.y + positionRef.current.y,
+          p.z + positionRef.current.z
+        )
     );
 
-    // Create curve with more tension for smoother interpolation
     const curve = new CatmullRomCurve3(points, false, "centripetal", 0.5);
 
-    // Generate more points along the curve for smoother sampling
     return {
       curve,
       length: curve.getLength(),
       points: curve.getPoints(1000),
     };
-  }, [x, y, z]);
+  }, [positionRef.current.x, positionRef.current.y, positionRef.current.z]);
+
+  const positionVec = useMemo(() => new Vector3(), []);
+  const tangentVec = useMemo(() => new Vector3(), []);
+  const referenceVec = useMemo(() => new Vector3(0, 0, 1), []);
 
   useFrame((_, delta) => {
-    if (!carRef.current) return;
+    if (!tractorRef.current) return;
 
-    // Calculate new progress based on actual distance along curve
-    const distanceToMove = delta * speed * curve.length;
-    const newProgress = (progress + distanceToMove / curve.length) % 1;
-    setProgress(newProgress);
+    progressRef.current = (progressRef.current + delta * speed) % 1;
 
-    const position = curve.curve.getPoint(newProgress);
-    const tangent = curve.curve.getTangent(newProgress);
+    curve.curve.getPointAt(progressRef.current, positionVec);
+    curve.curve.getTangentAt(progressRef.current, tangentVec);
 
-    carRef.current.position.copy(position);
-    carRef.current.quaternion.setFromUnitVectors(
-      new Vector3(0, 0, 1),
-      tangent.normalize()
+    tractorRef.current.position.copy(positionVec);
+    tractorRef.current.quaternion.setFromUnitVectors(
+      referenceVec,
+      tangentVec.normalize()
     );
   });
 
   return (
     <>
-      <group ref={carRef}>
+      <group ref={tractorRef}>
         <TractorOne />
       </group>
       {showPath && <PathVisualizer curve={curve.curve} />}

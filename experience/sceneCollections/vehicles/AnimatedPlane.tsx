@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import * as THREE from "three";
 import { CatmullRomCurve3, Vector3 } from "three";
 import { Plane } from "./Plane";
@@ -10,7 +10,7 @@ import pathData from "@/experience/scenes/mainScene/lib/plane_1_path.json";
 
 export function AnimatedPlane() {
   const planeRef = useRef<THREE.Group>(null);
-  const [progress, setProgress] = useState(0.8);
+  const progressRef = useRef(0.8);
   const speed = 0.02;
 
   const { x, y, z, showPath } = useControls(
@@ -29,10 +29,29 @@ export function AnimatedPlane() {
     { collapsed: true }
   );
 
+  // Store position in a ref to avoid recalculating the curve
+  const positionRef = useRef({ x, y, z });
+
+  // Only recalculate when position changes significantly
+  useEffect(() => {
+    if (
+      Math.abs(positionRef.current.x - x) > 0.1 ||
+      Math.abs(positionRef.current.y - y) > 0.1 ||
+      Math.abs(positionRef.current.z - z) > 0.1
+    ) {
+      positionRef.current = { x, y, z };
+    }
+  }, [x, y, z]);
+
   const curve = useMemo(() => {
     // Create points from path data
     const points = pathData.points.map(
-      (p) => new Vector3(p.x + x, p.y + y, p.z + z)
+      (p) =>
+        new Vector3(
+          p.x + positionRef.current.x,
+          p.y + positionRef.current.y,
+          p.z + positionRef.current.z
+        )
     );
 
     // Create curve with more tension for smoother interpolation
@@ -42,36 +61,66 @@ export function AnimatedPlane() {
     return {
       curve,
       length: curve.getLength(),
-      points: curve.getPoints(1000),
+      points: curve.getPoints(200),
     };
   }, [x, y, z]);
+
+  // Create these outside the useFrame callback
+  const positionVec = useMemo(() => new Vector3(), []);
+  const tangentVec = useMemo(() => new Vector3(), []);
+  const rightVec = useMemo(() => new Vector3(), []);
+  const upVec = useMemo(() => new Vector3(0, 1, 0), []);
+  const worldUpVec = useMemo(() => new Vector3(0, 1, 0), []); // Stable world up vector
+  const lookAtMatrix = useMemo(() => new THREE.Matrix4(), []);
+
+  // Previous tangent for smooth transitions
+  const prevTangent = useRef(new Vector3(0, 0, 1));
 
   useFrame((_, delta) => {
     if (!planeRef.current) return;
 
-    // Calculate new progress based on actual distance along curve
-    const distanceToMove = delta * speed * curve.length;
-    const newProgress = (progress + distanceToMove / curve.length) % 1;
-    setProgress(newProgress);
+    // Update ref directly instead of state
+    progressRef.current = (progressRef.current + delta * speed) % 1;
 
-    const position = curve.curve.getPoint(newProgress);
-    const tangent = curve.curve.getTangent(newProgress);
+    // Use the ref value directly
+    curve.curve.getPointAt(progressRef.current, positionVec);
+    curve.curve.getTangentAt(progressRef.current, tangentVec);
 
-    // Create a look-at matrix that maintains upright orientation
-    const lookAt = new THREE.Matrix4();
-    const up = new Vector3(0, 1, 0); // Use world up vector
+    // Ensure tangent is normalized
+    tangentVec.normalize();
 
-    // Calculate right vector
-    const right = new Vector3().crossVectors(up, tangent).normalize();
+    // Smooth transition between tangents to prevent flickering
+    tangentVec.lerp(prevTangent.current, 0.8);
+    tangentVec.normalize();
 
-    // Recalculate up to ensure perpendicular orientation
-    const adjustedUp = new Vector3().crossVectors(tangent, right).normalize();
+    // Save current tangent for next frame
+    prevTangent.current.copy(tangentVec);
 
-    // Construct rotation matrix
-    lookAt.makeBasis(right, adjustedUp, tangent);
+    // The tangent is the forward direction (Z-axis in Three.js)
+    // Calculate up vector (Y-axis) - try to keep it aligned with world up when possible
+    upVec.copy(worldUpVec);
 
-    planeRef.current.position.copy(position);
-    planeRef.current.quaternion.setFromRotationMatrix(lookAt);
+    // Calculate right vector (X-axis) from forward and up
+    rightVec.crossVectors(upVec, tangentVec).normalize();
+
+    // If right vector is too small (when tangent is nearly parallel to up),
+    // use a fallback direction
+    if (rightVec.lengthSq() < 0.1) {
+      rightVec.set(1, 0, 0);
+    }
+
+    // Recalculate up vector to ensure it's perpendicular to forward and right
+    upVec.crossVectors(tangentVec, rightVec).normalize();
+
+    // Construct rotation matrix with the correct axes for a plane
+    // For a plane, we want:
+    // - X-axis (right) = rightVec
+    // - Y-axis (up) = upVec
+    // - Z-axis (forward) = tangentVec
+    lookAtMatrix.makeBasis(rightVec, upVec, tangentVec);
+
+    planeRef.current.position.copy(positionVec);
+    planeRef.current.quaternion.setFromRotationMatrix(lookAtMatrix);
   });
 
   return (

@@ -9,7 +9,6 @@ export default function ExperienceLayout({
 }: {
   children: ReactNode;
 }) {
-  // Check if we're in production environment
   const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === "production";
 
   return (

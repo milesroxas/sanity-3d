@@ -8,7 +8,6 @@ import {
 } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Loading } from "../scenes/components/Loading";
-import Header from "@/components/header";
 type R3FContextType = {
   setR3FContent: (content: ReactNode) => void;
 };

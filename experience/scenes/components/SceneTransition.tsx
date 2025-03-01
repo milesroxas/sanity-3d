@@ -9,6 +9,9 @@ function SceneTransition({
   transition: boolean;
   color: string;
 }) {
+  // If transition is false, don't render anything
+  if (!transition) return null;
+
   return (
     <>
       <Hud>
