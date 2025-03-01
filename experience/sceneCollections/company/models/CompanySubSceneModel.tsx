@@ -141,23 +141,20 @@ type GLTFResult = GLTF & {
     ["58 WHITE.004"]: THREE.MeshPhysicalMaterial;
     ["BROWN-MEDIUM.001"]: THREE.MeshPhysicalMaterial;
     ["GREEN-LIGHT.001"]: THREE.MeshPhysicalMaterial;
-
+    green: THREE.MeshPhysicalMaterial;
     ["grey light"]: THREE.MeshPhysicalMaterial;
-    ["20 GREY.006"]: THREE.MeshPhysicalMaterial;
+    grey: THREE.MeshPhysicalMaterial;
     ["18 GREY-DARK.003"]: THREE.MeshPhysicalMaterial;
-    ["64 GLASS.004"]: THREE.MeshPhysicalMaterial;
-    ["58 WHITE.005"]: THREE.MeshPhysicalMaterial;
-    ["17 GREY-DARKEST.004"]: THREE.MeshPhysicalMaterial;
-    ["58 WHITE.005"]: THREE.MeshPhysicalMaterial;
-    ["20 GREY.006"]: THREE.MeshPhysicalMaterial;
-    ["17 GREY-DARKEST.004"]: THREE.MeshPhysicalMaterial;
-    Green: THREE.MeshPhysicalMaterial;
+    glass: THREE.MeshPhysicalMaterial;
+    white: THREE.MeshPhysicalMaterial;
+    ["grey-darkest"]: THREE.MeshPhysicalMaterial;
+    ["grey-darkest"]: THREE.MeshPhysicalMaterial;
     ["grey light"]: THREE.MeshPhysicalMaterial;
     ["26 RED-DARK.003"]: THREE.MeshPhysicalMaterial;
-    ["64 GLASS.004"]: THREE.MeshPhysicalMaterial;
     ["15 BROWN-WHITE.002"]: THREE.MeshPhysicalMaterial;
     ["35 GREEN-MEDIUM.001"]: THREE.MeshPhysicalMaterial;
     ["21 GREY LIGHT.007"]: THREE.MeshPhysicalMaterial;
+    ["36 GREEN"]: THREE.MeshStandardMaterial;
     ["15 BROWN-WHITE.002"]: THREE.MeshPhysicalMaterial;
     ["14 BROWN-LIGHTEST"]: THREE.MeshPhysicalMaterial;
     ["26 RED-DARK"]: THREE.MeshPhysicalMaterial;
@@ -188,16 +185,22 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="road-sign-green001_1"
+            castShadow
+            receiveShadow
             geometry={nodes["road-sign-green001_1"].geometry}
             material={materials["20 GREY.004"]}
           />
           <mesh
             name="road-sign-green001_2"
+            castShadow
+            receiveShadow
             geometry={nodes["road-sign-green001_2"].geometry}
             material={materials["59 EMISSION-WHITE.001"]}
           />
           <mesh
             name="road-sign-green001_3"
+            castShadow
+            receiveShadow
             geometry={nodes["road-sign-green001_3"].geometry}
             material={materials["58 WHITE.004"]}
           />
@@ -209,11 +212,15 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="palm-high"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high"].geometry}
             material={materials["BROWN-MEDIUM.001"]}
           />
           <mesh
             name="palm-high_1"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high_1"].geometry}
             material={materials["GREEN-LIGHT.001"]}
           />
@@ -225,11 +232,15 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="palm-high"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high"].geometry}
             material={materials["BROWN-MEDIUM.001"]}
           />
           <mesh
             name="palm-high_1"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high_1"].geometry}
             material={materials["GREEN-LIGHT.001"]}
           />
@@ -241,11 +252,15 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="palm-high"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high"].geometry}
             material={materials["BROWN-MEDIUM.001"]}
           />
           <mesh
             name="palm-high_1"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high_1"].geometry}
             material={materials["GREEN-LIGHT.001"]}
           />
@@ -257,11 +272,15 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="palm-high"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high"].geometry}
             material={materials["BROWN-MEDIUM.001"]}
           />
           <mesh
             name="palm-high_1"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high_1"].geometry}
             material={materials["GREEN-LIGHT.001"]}
           />
@@ -273,11 +292,15 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="palm-high"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high"].geometry}
             material={materials["BROWN-MEDIUM.001"]}
           />
           <mesh
             name="palm-high_1"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high_1"].geometry}
             material={materials["GREEN-LIGHT.001"]}
           />
@@ -289,11 +312,15 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="palm-high"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high"].geometry}
             material={materials["BROWN-MEDIUM.001"]}
           />
           <mesh
             name="palm-high_1"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high_1"].geometry}
             material={materials["GREEN-LIGHT.001"]}
           />
@@ -305,11 +332,15 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="palm-high"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high"].geometry}
             material={materials["BROWN-MEDIUM.001"]}
           />
           <mesh
             name="palm-high_1"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high_1"].geometry}
             material={materials["GREEN-LIGHT.001"]}
           />
@@ -321,11 +352,15 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="palm-high"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high"].geometry}
             material={materials["BROWN-MEDIUM.001"]}
           />
           <mesh
             name="palm-high_1"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high_1"].geometry}
             material={materials["GREEN-LIGHT.001"]}
           />
@@ -337,11 +372,15 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="palm-high"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high"].geometry}
             material={materials["BROWN-MEDIUM.001"]}
           />
           <mesh
             name="palm-high_1"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high_1"].geometry}
             material={materials["GREEN-LIGHT.001"]}
           />
@@ -353,38 +392,52 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="industry-storage001_1"
+            castShadow
+            receiveShadow
             geometry={nodes["industry-storage001_1"].geometry}
-            material={materials["35 GREEN-MEDIUM.001"]}
+            material={materials.green}
           />
           <mesh
             name="industry-storage001_2"
+            castShadow
+            receiveShadow
             geometry={nodes["industry-storage001_2"].geometry}
             material={materials["grey light"]}
           />
           <mesh
             name="industry-storage001_3"
+            castShadow
+            receiveShadow
             geometry={nodes["industry-storage001_3"].geometry}
-            material={materials["20 GREY.006"]}
+            material={materials.grey}
           />
           <mesh
             name="industry-storage001_4"
+            castShadow
+            receiveShadow
             geometry={nodes["industry-storage001_4"].geometry}
             material={materials["18 GREY-DARK.003"]}
           />
           <mesh
             name="industry-storage001_5"
+            castShadow
+            receiveShadow
             geometry={nodes["industry-storage001_5"].geometry}
-            material={materials["64 GLASS.004"]}
+            material={materials.glass}
           />
           <mesh
             name="industry-storage001_6"
+            castShadow
+            receiveShadow
             geometry={nodes["industry-storage001_6"].geometry}
-            material={materials["58 WHITE.005"]}
+            material={materials.white}
           />
           <mesh
             name="industry-storage001_7"
+            castShadow
+            receiveShadow
             geometry={nodes["industry-storage001_7"].geometry}
-            material={materials["17 GREY-DARKEST.004"]}
+            material={materials["grey-darkest"]}
           />
         </group>
         <group
@@ -395,41 +448,57 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="building-policestation001_1"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_1"].geometry}
-            material={materials["58 WHITE.005"]}
+            material={materials.white}
           />
           <mesh
             name="building-policestation001_2"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_2"].geometry}
-            material={materials["20 GREY.006"]}
+            material={materials.grey}
           />
           <mesh
             name="building-policestation001_3"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_3"].geometry}
-            material={materials["17 GREY-DARKEST.004"]}
+            material={materials["grey-darkest"]}
           />
           <mesh
             name="building-policestation001_4"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_4"].geometry}
-            material={materials["35 GREEN-MEDIUM.001"]}
+            material={materials.green}
           />
           <mesh
             name="building-policestation001_5"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_5"].geometry}
             material={materials["grey light"]}
           />
           <mesh
             name="building-policestation001_6"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_6"].geometry}
             material={materials["26 RED-DARK.003"]}
           />
           <mesh
             name="building-policestation001_7"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_7"].geometry}
-            material={materials["64 GLASS.004"]}
+            material={materials.glass}
           />
           <mesh
             name="building-policestation001_8"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_8"].geometry}
             material={materials["15 BROWN-WHITE.002"]}
           />
@@ -442,41 +511,57 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="building-policestation001_1"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_1"].geometry}
-            material={materials["58 WHITE.005"]}
+            material={materials.white}
           />
           <mesh
             name="building-policestation001_2"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_2"].geometry}
-            material={materials["20 GREY.006"]}
+            material={materials.grey}
           />
           <mesh
             name="building-policestation001_3"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_3"].geometry}
-            material={materials["17 GREY-DARKEST.004"]}
+            material={materials["grey-darkest"]}
           />
           <mesh
             name="building-policestation001_4"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_4"].geometry}
-            material={materials["35 GREEN-MEDIUM.001"]}
+            material={materials.green}
           />
           <mesh
             name="building-policestation001_5"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_5"].geometry}
             material={materials["grey light"]}
           />
           <mesh
             name="building-policestation001_6"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_6"].geometry}
             material={materials["26 RED-DARK.003"]}
           />
           <mesh
             name="building-policestation001_7"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_7"].geometry}
-            material={materials["64 GLASS.004"]}
+            material={materials.glass}
           />
           <mesh
             name="building-policestation001_8"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_8"].geometry}
             material={materials["15 BROWN-WHITE.002"]}
           />
@@ -488,33 +573,45 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="building-policestation-garage001_1"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_1"].geometry}
-            material={materials["58 WHITE.005"]}
+            material={materials.white}
           />
           <mesh
             name="building-policestation-garage001_2"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_2"].geometry}
-            material={materials["17 GREY-DARKEST.004"]}
+            material={materials["grey-darkest"]}
           />
           <mesh
             name="building-policestation-garage001_3"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_3"].geometry}
-            material={materials["35 GREEN-MEDIUM.001"]}
+            material={materials.green}
           />
           <mesh
             name="building-policestation-garage001_4"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_4"].geometry}
             material={materials["grey light"]}
           />
           <mesh
             name="building-policestation-garage001_5"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_5"].geometry}
-            material={materials["20 GREY.006"]}
+            material={materials.grey}
           />
           <mesh
             name="building-policestation-garage001_6"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_6"].geometry}
-            material={materials["64 GLASS.004"]}
+            material={materials.glass}
           />
         </group>
         <group
@@ -525,33 +622,45 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="building-policestation-garage001_1"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_1"].geometry}
-            material={materials["58 WHITE.005"]}
+            material={materials.white}
           />
           <mesh
             name="building-policestation-garage001_2"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_2"].geometry}
-            material={materials["17 GREY-DARKEST.004"]}
+            material={materials["grey-darkest"]}
           />
           <mesh
             name="building-policestation-garage001_3"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_3"].geometry}
-            material={materials["35 GREEN-MEDIUM.001"]}
+            material={materials.green}
           />
           <mesh
             name="building-policestation-garage001_4"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_4"].geometry}
             material={materials["grey light"]}
           />
           <mesh
             name="building-policestation-garage001_5"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_5"].geometry}
-            material={materials["20 GREY.006"]}
+            material={materials.grey}
           />
           <mesh
             name="building-policestation-garage001_6"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_6"].geometry}
-            material={materials["64 GLASS.004"]}
+            material={materials.glass}
           />
         </group>
         <group
@@ -561,33 +670,45 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="building-policestation-garage001_1"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_1"].geometry}
-            material={materials["58 WHITE.005"]}
+            material={materials.white}
           />
           <mesh
             name="building-policestation-garage001_2"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_2"].geometry}
-            material={materials["17 GREY-DARKEST.004"]}
+            material={materials["grey-darkest"]}
           />
           <mesh
             name="building-policestation-garage001_3"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_3"].geometry}
-            material={materials["35 GREEN-MEDIUM.001"]}
+            material={materials.green}
           />
           <mesh
             name="building-policestation-garage001_4"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_4"].geometry}
             material={materials["grey light"]}
           />
           <mesh
             name="building-policestation-garage001_5"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_5"].geometry}
-            material={materials["20 GREY.006"]}
+            material={materials.grey}
           />
           <mesh
             name="building-policestation-garage001_6"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation-garage001_6"].geometry}
-            material={materials["64 GLASS.004"]}
+            material={materials.glass}
           />
         </group>
         <group
@@ -598,36 +719,50 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="building-carwash001"
+            castShadow
+            receiveShadow
             geometry={nodes["building-carwash001"].geometry}
             material={materials["35 GREEN-MEDIUM.001"]}
           />
           <mesh
             name="building-carwash001_1"
+            castShadow
+            receiveShadow
             geometry={nodes["building-carwash001_1"].geometry}
             material={materials["21 GREY LIGHT.007"]}
           />
           <mesh
             name="building-carwash001_2"
+            castShadow
+            receiveShadow
             geometry={nodes["building-carwash001_2"].geometry}
-            material={materials["58 WHITE.005"]}
+            material={materials.white}
           />
           <mesh
             name="building-carwash001_3"
+            castShadow
+            receiveShadow
             geometry={nodes["building-carwash001_3"].geometry}
-            material={materials["17 GREY-DARKEST.004"]}
+            material={materials["grey-darkest"]}
           />
           <mesh
             name="building-carwash001_4"
+            castShadow
+            receiveShadow
             geometry={nodes["building-carwash001_4"].geometry}
-            material={materials["35 GREEN-MEDIUM.001"]}
+            material={materials["36 GREEN"]}
           />
           <mesh
             name="building-carwash001_5"
+            castShadow
+            receiveShadow
             geometry={nodes["building-carwash001_5"].geometry}
-            material={materials["64 GLASS.004"]}
+            material={materials.glass}
           />
           <mesh
             name="building-carwash001_6"
+            castShadow
+            receiveShadow
             geometry={nodes["building-carwash001_6"].geometry}
             material={materials["15 BROWN-WHITE.002"]}
           />
@@ -639,38 +774,52 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="industry-storage001_1"
+            castShadow
+            receiveShadow
             geometry={nodes["industry-storage001_1"].geometry}
-            material={materials["35 GREEN-MEDIUM.001"]}
+            material={materials.green}
           />
           <mesh
             name="industry-storage001_2"
+            castShadow
+            receiveShadow
             geometry={nodes["industry-storage001_2"].geometry}
             material={materials["grey light"]}
           />
           <mesh
             name="industry-storage001_3"
+            castShadow
+            receiveShadow
             geometry={nodes["industry-storage001_3"].geometry}
-            material={materials["20 GREY.006"]}
+            material={materials.grey}
           />
           <mesh
             name="industry-storage001_4"
+            castShadow
+            receiveShadow
             geometry={nodes["industry-storage001_4"].geometry}
             material={materials["18 GREY-DARK.003"]}
           />
           <mesh
             name="industry-storage001_5"
+            castShadow
+            receiveShadow
             geometry={nodes["industry-storage001_5"].geometry}
-            material={materials["64 GLASS.004"]}
+            material={materials.glass}
           />
           <mesh
             name="industry-storage001_6"
+            castShadow
+            receiveShadow
             geometry={nodes["industry-storage001_6"].geometry}
-            material={materials["58 WHITE.005"]}
+            material={materials.white}
           />
           <mesh
             name="industry-storage001_7"
+            castShadow
+            receiveShadow
             geometry={nodes["industry-storage001_7"].geometry}
-            material={materials["17 GREY-DARKEST.004"]}
+            material={materials["grey-darkest"]}
           />
         </group>
         <group
@@ -680,41 +829,57 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="building-policestation001_1"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_1"].geometry}
-            material={materials["58 WHITE.005"]}
+            material={materials.white}
           />
           <mesh
             name="building-policestation001_2"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_2"].geometry}
-            material={materials["20 GREY.006"]}
+            material={materials.grey}
           />
           <mesh
             name="building-policestation001_3"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_3"].geometry}
-            material={materials["17 GREY-DARKEST.004"]}
+            material={materials["grey-darkest"]}
           />
           <mesh
             name="building-policestation001_4"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_4"].geometry}
-            material={materials["35 GREEN-MEDIUM.001"]}
+            material={materials.green}
           />
           <mesh
             name="building-policestation001_5"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_5"].geometry}
             material={materials["grey light"]}
           />
           <mesh
             name="building-policestation001_6"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_6"].geometry}
             material={materials["26 RED-DARK.003"]}
           />
           <mesh
             name="building-policestation001_7"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_7"].geometry}
-            material={materials["64 GLASS.004"]}
+            material={materials.glass}
           />
           <mesh
             name="building-policestation001_8"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_8"].geometry}
             material={materials["15 BROWN-WHITE.002"]}
           />
@@ -726,41 +891,57 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="building-policestation001_1"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_1"].geometry}
-            material={materials["58 WHITE.005"]}
+            material={materials.white}
           />
           <mesh
             name="building-policestation001_2"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_2"].geometry}
-            material={materials["20 GREY.006"]}
+            material={materials.grey}
           />
           <mesh
             name="building-policestation001_3"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_3"].geometry}
-            material={materials["17 GREY-DARKEST.004"]}
+            material={materials["grey-darkest"]}
           />
           <mesh
             name="building-policestation001_4"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_4"].geometry}
-            material={materials["35 GREEN-MEDIUM.001"]}
+            material={materials.green}
           />
           <mesh
             name="building-policestation001_5"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_5"].geometry}
             material={materials["grey light"]}
           />
           <mesh
             name="building-policestation001_6"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_6"].geometry}
             material={materials["26 RED-DARK.003"]}
           />
           <mesh
             name="building-policestation001_7"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_7"].geometry}
-            material={materials["64 GLASS.004"]}
+            material={materials.glass}
           />
           <mesh
             name="building-policestation001_8"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation001_8"].geometry}
             material={materials["15 BROWN-WHITE.002"]}
           />
@@ -772,17 +953,23 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="palm-high"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high"].geometry}
             material={materials["BROWN-MEDIUM.001"]}
           />
           <mesh
             name="palm-high_1"
+            castShadow
+            receiveShadow
             geometry={nodes["palm-high_1"].geometry}
             material={materials["GREEN-LIGHT.001"]}
           />
         </group>
         <mesh
           name="rock-large"
+          castShadow
+          receiveShadow
           geometry={nodes["rock-large"].geometry}
           material={materials["14 BROWN-LIGHTEST"]}
           position={[-6.388, 1.71, 6.429]}
@@ -796,17 +983,23 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="cactus-big_1"
+            castShadow
+            receiveShadow
             geometry={nodes["cactus-big_1"].geometry}
             material={materials["26 RED-DARK"]}
           />
           <mesh
             name="cactus-big_2"
+            castShadow
+            receiveShadow
             geometry={nodes["cactus-big_2"].geometry}
-            material={materials["35 GREEN-MEDIUM.001"]}
+            material={materials["36 GREEN"]}
           />
         </group>
         <mesh
           name="rock-large001"
+          castShadow
+          receiveShadow
           geometry={nodes["rock-large001"].geometry}
           material={materials["14 BROWN-LIGHTEST"]}
           position={[-5.94, 1.651, -5.933]}
@@ -815,6 +1008,8 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         />
         <mesh
           name="rock-large002"
+          castShadow
+          receiveShadow
           geometry={nodes["rock-large002"].geometry}
           material={materials["14 BROWN-LIGHTEST"]}
           position={[2.569, 1.71, 5.937]}
@@ -829,17 +1024,23 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="cactus-big_1"
+            castShadow
+            receiveShadow
             geometry={nodes["cactus-big_1"].geometry}
             material={materials["26 RED-DARK"]}
           />
           <mesh
             name="cactus-big_2"
+            castShadow
+            receiveShadow
             geometry={nodes["cactus-big_2"].geometry}
-            material={materials["35 GREEN-MEDIUM.001"]}
+            material={materials["36 GREEN"]}
           />
         </group>
         <mesh
           name="Stage"
+          castShadow
+          receiveShadow
           geometry={nodes.Stage.geometry}
           material={materials["10 BROWN-DARK"]}
           position={[0.006, 0.762, 0.006]}
@@ -853,16 +1054,22 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="tile-road-straight-nb003_1"
+            castShadow
+            receiveShadow
             geometry={nodes["tile-road-straight-nb003_1"].geometry}
             material={materials["BROWN-LIGHTEST"]}
           />
           <mesh
             name="tile-road-straight-nb003_2"
+            castShadow
+            receiveShadow
             geometry={nodes["tile-road-straight-nb003_2"].geometry}
             material={materials["18 GREY-DARK"]}
           />
           <mesh
             name="tile-road-straight-nb003_3"
+            castShadow
+            receiveShadow
             geometry={nodes["tile-road-straight-nb003_3"].geometry}
             material={materials["21 GREY LIGHT"]}
           />
@@ -875,16 +1082,22 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="tile-road-straight-nb004"
+            castShadow
+            receiveShadow
             geometry={nodes["tile-road-straight-nb004"].geometry}
             material={materials["BROWN-LIGHTEST"]}
           />
           <mesh
             name="tile-road-straight-nb004_1"
+            castShadow
+            receiveShadow
             geometry={nodes["tile-road-straight-nb004_1"].geometry}
             material={materials["18 GREY-DARK"]}
           />
           <mesh
             name="tile-road-straight-nb004_2"
+            castShadow
+            receiveShadow
             geometry={nodes["tile-road-straight-nb004_2"].geometry}
             material={materials["21 GREY LIGHT"]}
           />
@@ -896,13 +1109,17 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="building-policestation002_1"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation002_1"].geometry}
-            material={materials["58 WHITE.005"]}
+            material={materials.white}
           />
           <mesh
             name="building-policestation002_2"
+            castShadow
+            receiveShadow
             geometry={nodes["building-policestation002_2"].geometry}
-            material={materials["35 GREEN-MEDIUM.001"]}
+            material={materials.green}
           />
         </group>
         <group
@@ -912,33 +1129,45 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="airport-hangar001"
+            castShadow
+            receiveShadow
             geometry={nodes["airport-hangar001"].geometry}
-            material={materials["58 WHITE.005"]}
+            material={materials.white}
           />
           <mesh
             name="airport-hangar001_1"
+            castShadow
+            receiveShadow
             geometry={nodes["airport-hangar001_1"].geometry}
-            material={materials["20 GREY.006"]}
+            material={materials.grey}
           />
           <mesh
             name="airport-hangar001_2"
+            castShadow
+            receiveShadow
             geometry={nodes["airport-hangar001_2"].geometry}
-            material={materials["35 GREEN-MEDIUM.001"]}
+            material={materials.green}
           />
           <mesh
             name="airport-hangar001_3"
+            castShadow
+            receiveShadow
             geometry={nodes["airport-hangar001_3"].geometry}
             material={materials["14 BROWN-LIGHTEST.002"]}
           />
           <mesh
             name="airport-hangar001_4"
+            castShadow
+            receiveShadow
             geometry={nodes["airport-hangar001_4"].geometry}
-            material={materials["64 GLASS.004"]}
+            material={materials.glass}
           />
           <mesh
             name="airport-hangar001_5"
+            castShadow
+            receiveShadow
             geometry={nodes["airport-hangar001_5"].geometry}
-            material={materials["17 GREY-DARKEST.004"]}
+            material={materials["grey-darkest"]}
           />
         </group>
         <group
@@ -948,36 +1177,50 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
         >
           <mesh
             name="military-headquarters001_1"
+            castShadow
+            receiveShadow
             geometry={nodes["military-headquarters001_1"].geometry}
             material={materials["15 BROWN-WHITE.001"]}
           />
           <mesh
             name="military-headquarters001_2"
+            castShadow
+            receiveShadow
             geometry={nodes["military-headquarters001_2"].geometry}
             material={materials["17 GREY-DARKEST.002"]}
           />
           <mesh
             name="military-headquarters001_3"
+            castShadow
+            receiveShadow
             geometry={nodes["military-headquarters001_3"].geometry}
             material={materials["17 GREY-DARKEST.003"]}
           />
           <mesh
             name="military-headquarters001_4"
+            castShadow
+            receiveShadow
             geometry={nodes["military-headquarters001_4"].geometry}
             material={materials["64 GLASS.003"]}
           />
           <mesh
             name="military-headquarters001_5"
+            castShadow
+            receiveShadow
             geometry={nodes["military-headquarters001_5"].geometry}
             material={materials["20 GREY.005"]}
           />
           <mesh
             name="military-headquarters001_6"
+            castShadow
+            receiveShadow
             geometry={nodes["military-headquarters001_6"].geometry}
             material={materials["21 GREY LIGHT.004"]}
           />
           <mesh
             name="military-headquarters001_7"
+            castShadow
+            receiveShadow
             geometry={nodes["military-headquarters001_7"].geometry}
             material={materials["Material.001"]}
           />
@@ -987,13 +1230,17 @@ export function CompanySubSceneModel(props: ThreeElements["group"]) {
           >
             <mesh
               name="building-policestation002_1"
+              castShadow
+              receiveShadow
               geometry={nodes["building-policestation002_1"].geometry}
-              material={materials["58 WHITE.005"]}
+              material={materials.white}
             />
             <mesh
               name="building-policestation002_2"
+              castShadow
+              receiveShadow
               geometry={nodes["building-policestation002_2"].geometry}
-              material={materials["35 GREEN-MEDIUM.001"]}
+              material={materials.green}
             />
           </group>
         </group>

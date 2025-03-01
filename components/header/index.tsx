@@ -1,10 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import MobileNav from "@/components/header/mobile-nav";
 import DesktopNav from "@/components/header/desktop-nav";
-import { ModeToggle } from "@/components/menu-toggle";
 import { urlFor } from "@/sanity/lib/image";
 import { fetchSanitySettings } from "@/app/(main)/actions";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const navItems = [
   {
@@ -29,9 +32,22 @@ const navItems = [
   },
 ];
 
-export default async function Header() {
-  const settings = await fetchSanitySettings();
-  const logo = settings.logo;
+export default function Header() {
+  const pathname = usePathname();
+  const [logo, setLogo] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      const settings = await fetchSanitySettings();
+      setLogo(settings.logo);
+    };
+    fetchLogo();
+  }, []);
+
+  // Hide header on homepage
+  if (pathname === "/") {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 w-full border-border/40 z-50 py-2">
@@ -51,10 +67,10 @@ export default async function Header() {
         </Link>
         <div className="hidden xl:flex gap-7 items-center justify-between">
           <DesktopNav navItems={navItems} />
-          <ModeToggle />
+          {/* <ModeToggle /> */}
         </div>
         <div className="flex items-center xl:hidden">
-          <ModeToggle />
+          {/* <ModeToggle /> */}
           <MobileNav navItems={navItems} />
         </div>
       </div>

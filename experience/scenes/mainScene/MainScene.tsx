@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import {
   Cloud,
   Clouds,
@@ -46,16 +46,30 @@ import { LevaInputs } from "leva";
 import NatureScene from "@/experience/sceneCollections/NatureInstances";
 import ParkedCars from "@/experience/sceneCollections/vehicles/ParkedCars";
 import SceneTransition from "../components/SceneTransition";
+import { useCameraStore } from "../store/cameraStore";
+
 interface MainSceneProps {
   scene: Sanity.Scene;
   onLoad?: () => void;
 }
 
 export default function MainScene({ scene, onLoad }: MainSceneProps) {
+  const { startCameraTransition } = useCameraStore();
+
   useEffect(() => {
     // Call onLoad when the scene is ready
     onLoad?.();
-  }, [onLoad]);
+
+    // Animate camera from mainIntro to main position
+    const mainIntro = INITIAL_POSITIONS.mainIntro;
+    const main = INITIAL_POSITIONS.main;
+    startCameraTransition(
+      mainIntro.position,
+      main.position,
+      mainIntro.target,
+      main.target
+    );
+  }, [onLoad, startCameraTransition]);
 
   const cloudsRef = useRef<THREE.Group>(null);
 
@@ -189,7 +203,7 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
 
   useFrame((state, delta) => {
     if (cloudsRef.current) {
-      cloudsRef.current.position.x += delta * 0.5; // Adjust speed by changing 0.5
+      cloudsRef.current.position.x += delta * 0.8;
 
       // Reset position when clouds move too far right
       if (cloudsRef.current.position.x > 200) {
@@ -198,17 +212,9 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
     }
   });
 
-  return (
-    <>
-      <MainSceneCameraSystem />
-
-      <MainSceneMarkers scene={scene} />
-      <SceneTransition transition={true} color="#a5b4fc" />
-      <fog
-        attach="fog"
-        args={[fogControls.color, fogControls.near, fogControls.far]}
-      />
-      <group ref={cloudsRef} position={[-40, 0, 0]}>
+  const cloudsGroup = useMemo(
+    () => (
+      <group position={[-40, 0, 0]}>
         <Float
           speed={0.8}
           floatIntensity={0.3}
@@ -250,6 +256,21 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
           </Clouds>
         </Float>
       </group>
+    ),
+    []
+  );
+
+  return (
+    <>
+      <MainSceneCameraSystem />
+
+      <MainSceneMarkers scene={scene} />
+      <SceneTransition transition={true} color="#a5b4fc" />
+      <fog
+        attach="fog"
+        args={[fogControls.color, fogControls.near, fogControls.far]}
+      />
+      {cloudsGroup}
 
       <EffectComposer>
         <Bloom

@@ -51,6 +51,10 @@ interface CameraStore {
 }
 
 export const INITIAL_POSITIONS = {
+  mainIntro: {
+    position: new Vector3(-10, 200, 200),
+    target: new Vector3(-10, 10, 50),
+  },
   main: {
     position: new Vector3(-10, 60, 200),
     target: new Vector3(-10, 10, 50),
@@ -193,7 +197,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
           target: endTarget.clone(),
           previousPosition: startPos.clone(),
           previousTarget: startTarget.clone(),
-          controlType: "CameraControls",
+          controlType: get().isSubscene ? "CameraControls" : "Map",
         });
       } else {
         const t =

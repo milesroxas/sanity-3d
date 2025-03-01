@@ -35,8 +35,6 @@ export function Windmill({ speed = 1, ...props }: WindmillProps) {
   const { actions } = useAnimations(animations, group);
 
   useEffect(() => {
-    console.log("Available animations:", animations);
-    console.log("Available actions:", actions);
     const action = actions["windmill-propellerAction.001"];
     if (action) {
       // Stop any existing animation

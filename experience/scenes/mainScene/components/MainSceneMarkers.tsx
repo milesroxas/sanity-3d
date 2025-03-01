@@ -4,7 +4,7 @@ import { useThree } from "@react-three/fiber";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Vector3 } from "three";
-import { useCameraStore } from "../../store/cameraStore";
+import { useCameraStore } from "@/experience/scenes/store/cameraStore";
 import { Marker } from "@/experience/sceneCollections/markers/Marker";
 import { useControls } from "leva";
 import { useStoreContext } from "leva/plugin";
@@ -49,32 +49,78 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
       return;
     }
 
-    // Start camera transition without loading state
-    useCameraStore.getState().setIsLoading(false);
-    useCameraStore
-      .getState()
-      .startCameraTransition(
-        camera.position.clone(),
-        new Vector3(
-          poi.mainSceneCameraPosition.x,
-          poi.mainSceneCameraPosition.y,
-          poi.mainSceneCameraPosition.z
-        ),
-        camera.position
-          .clone()
-          .add(camera.getWorldDirection(new Vector3()).multiplyScalar(100)),
-        new Vector3(
-          poi.mainSceneCameraTarget.x,
-          poi.mainSceneCameraTarget.y,
-          poi.mainSceneCameraTarget.z
-        )
-      );
+    // Create target vectors
+    const targetPos = new Vector3(
+      poi.mainSceneCameraPosition.x,
+      poi.mainSceneCameraPosition.y,
+      poi.mainSceneCameraPosition.z
+    );
 
-    // After camera animation completes, set loading and navigate
-    setTimeout(() => {
-      useCameraStore.getState().setIsLoading(true);
-      router.push(`/experience/${poi.slug.current}`);
-    }, 2000);
+    const targetLookAt = new Vector3(
+      poi.mainSceneCameraTarget.x,
+      poi.mainSceneCameraTarget.y,
+      poi.mainSceneCameraTarget.z
+    );
+
+    // Start camera transition
+    console.log("📸 Starting camera transition");
+    useCameraStore.getState().setControlType("Disabled");
+
+    // Store the final camera position for the subscene
+    useCameraStore.getState().setPreviousCamera(targetPos, targetLookAt);
+
+    // Start the camera animation
+    const startTime = Date.now();
+    const duration = 2000;
+    const startPos = camera.position.clone();
+    const startTarget = camera.position
+      .clone()
+      .add(camera.getWorldDirection(new Vector3()).multiplyScalar(100));
+
+    // Set animating state
+    useCameraStore.getState().setIsAnimating(true);
+
+    // Custom animation function that doesn't reset at the end
+    const animate = () => {
+      const now = Date.now();
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Cubic easing
+      const t =
+        progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+      // Calculate new position and target
+      const newPosition = new Vector3().lerpVectors(startPos, targetPos, t);
+      const newTarget = new Vector3().lerpVectors(startTarget, targetLookAt, t);
+
+      // Update camera position
+      useCameraStore.getState().syncCameraPosition(newPosition, newTarget);
+
+      if (progress >= 1) {
+        // Animation complete
+        console.log("⏱️ Animation complete");
+
+        // Important: DON'T set isAnimating to false or change controlType
+        // This prevents the camera from resetting
+
+        // Set loading state
+        console.log("🔄 Setting loading state");
+        useCameraStore.getState().setIsLoading(true);
+
+        // Navigate to subscene
+        console.log("🚀 Navigating to:", `/experience/${poi.slug.current}`);
+        router.push(`/experience/${poi.slug.current}`);
+      } else {
+        // Continue animation
+        requestAnimationFrame(animate);
+      }
+    };
+
+    // Start animation
+    animate();
   };
 
   useFrame((_, delta) => {
@@ -190,7 +236,6 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
         return null;
       })}
 
-      {/* Debug marker */}
       {store?.get("hidden") === false && (
         <Float
           speed={10}

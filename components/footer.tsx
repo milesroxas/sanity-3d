@@ -24,8 +24,12 @@ const navItems = [
 export default function Footer() {
   const pathname = usePathname();
 
-  // Hide footer on experience pages
-  if (pathname === "/experience" || pathname?.startsWith("/experience/")) {
+  // Hide footer on homepage and experience pages
+  if (
+    pathname === "/" ||
+    pathname === "/experience" ||
+    pathname?.startsWith("/experience/")
+  ) {
     return null;
   }
 
