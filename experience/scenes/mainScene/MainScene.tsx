@@ -75,98 +75,98 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
 
   const cloudsRef = useRef<THREE.Group>(null);
 
-  // const effectsControls = useControls(
-  //   "Post Processing",
-  //   {
-  //     // Depth of Field
-  //     focusDistance: {
-  //       value: 150,
-  //       min: 0,
-  //       max: 300,
-  //       step: 1,
-  //       label: "Focus Distance",
-  //       control: "slider",
-  //     },
-  //     focalLength: {
-  //       value: 0.29,
-  //       min: 0.01,
-  //       max: 1,
-  //       step: 0.01,
-  //       label: "Focal Length",
-  //       control: "slider",
-  //     },
-  //     bokehScale: {
-  //       value: 4,
-  //       min: 0,
-  //       max: 20,
-  //       step: 0.1,
-  //       label: "Bokeh Scale",
-  //       control: "slider",
-  //     },
+  const effectsControls = useControls(
+    "Post Processing",
+    {
+      //     // Depth of Field
+      //     focusDistance: {
+      //       value: 150,
+      //       min: 0,
+      //       max: 300,
+      //       step: 1,
+      //       label: "Focus Distance",
+      //       control: "slider",
+      //     },
+      //     focalLength: {
+      //       value: 0.29,
+      //       min: 0.01,
+      //       max: 1,
+      //       step: 0.01,
+      //       label: "Focal Length",
+      //       control: "slider",
+      //     },
+      //     bokehScale: {
+      //       value: 4,
+      //       min: 0,
+      //       max: 20,
+      //       step: 0.1,
+      //       label: "Bokeh Scale",
+      //       control: "slider",
+      //     },
 
-  //     // Vignette
-  //     vignetteOffset: {
-  //       value: 0.3,
-  //       min: 0,
-  //       max: 1,
-  //       step: 0.05,
-  //       label: "Vignette Offset",
-  //       control: "slider",
-  //     },
-  //     vignetteDarkness: {
-  //       value: 0.4,
-  //       min: 0,
-  //       max: 1,
-  //       step: 0.05,
-  //       label: "Vignette Darkness",
-  //       control: "slider",
-  //     },
+      //     // Vignette
+      //     vignetteOffset: {
+      //       value: 0.3,
+      //       min: 0,
+      //       max: 1,
+      //       step: 0.05,
+      //       label: "Vignette Offset",
+      //       control: "slider",
+      //     },
+      //     vignetteDarkness: {
+      //       value: 0.4,
+      //       min: 0,
+      //       max: 1,
+      //       step: 0.05,
+      //       label: "Vignette Darkness",
+      //       control: "slider",
+      //     },
 
-  //     // Bloom
-  //     bloomIntensity: {
-  //       value: 0.07,
-  //       min: 0,
-  //       max: 1,
-  //       step: 0.01,
-  //       label: "Bloom Intensity",
-  //       control: "slider",
-  //     },
-  //     bloomThreshold: {
-  //       value: 0.27,
-  //       min: 0,
-  //       max: 1,
-  //       step: 0.01,
-  //       label: "Bloom Threshold",
-  //       control: "slider",
-  //     },
+      //     // Bloom
+      bloomIntensity: {
+        value: 0.07,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        label: "Bloom Intensity",
+        control: "slider",
+      },
+      bloomThreshold: {
+        value: 0.27,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        label: "Bloom Threshold",
+        control: "slider",
+      },
 
-  //     brightness: {
-  //       value: -0.12,
-  //       min: -1,
-  //       max: 1,
-  //       step: 0.0001,
-  //       label: "Brightness",
-  //       control: "slider",
-  //     },
-  //     contrast: {
-  //       value: 0.08,
-  //       min: -1,
-  //       max: 1,
-  //       step: 0.0001,
-  //       label: "Contrast",
-  //       control: "slider",
-  //     },
-  //     saturation: {
-  //       value: -0.06,
-  //       min: -1,
-  //       max: 1,
-  //       step: 0.0001,
-  //       label: "Saturation",
-  //       control: "slider",
-  //     },
-  //   },
-  //   { collapsed: true }
-  // );
+      //     brightness: {
+      //       value: -0.12,
+      //       min: -1,
+      //       max: 1,
+      //       step: 0.0001,
+      //       label: "Brightness",
+      //       control: "slider",
+      //     },
+      //     contrast: {
+      //       value: 0.08,
+      //       min: -1,
+      //       max: 1,
+      //       step: 0.0001,
+      //       label: "Contrast",
+      //       control: "slider",
+      //     },
+      //     saturation: {
+      //       value: -0.06,
+      //       min: -1,
+      //       max: 1,
+      //       step: 0.0001,
+      //       label: "Saturation",
+      //       control: "slider",
+      //     },
+    },
+    { collapsed: true }
+  );
 
   const environmentControls = useControls(
     "Environment",
@@ -188,20 +188,20 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
       },
       background: { value: true },
       blur: { value: 0.9, min: 0, max: 1, step: 0.1 },
-      intensity: { value: 1.5, min: 0, max: 5, step: 0.1 },
+      intensity: { value: 1.2, min: 0, max: 5, step: 0.1 },
     },
     { collapsed: true }
   );
 
-  // const fogControls = useControls(
-  //   "Fog",
-  //   {
-  //     color: { value: "#f2e0c7", type: LevaInputs.COLOR },
-  //     near: { value: -34, min: -100, max: 100, step: 1 },
-  //     far: { value: 900, min: 0, max: 2000, step: 10 },
-  //   },
-  //   { collapsed: true }
-  // );
+  const fogControls = useControls(
+    "Fog",
+    {
+      color: { value: "#f2e0c7", type: LevaInputs.COLOR },
+      near: { value: -34, min: -100, max: 100, step: 1 },
+      far: { value: 1240, min: 0, max: 2000, step: 10 },
+    },
+    { collapsed: true }
+  );
 
   useFrame((state, delta) => {
     if (cloudsRef.current) {
@@ -269,10 +269,15 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
       <PerformanceComparison />
       <MainSceneMarkers scene={scene} />
       <SceneTransition transition={false} color="#a5b4fc" />
-      {/* <fog
+      <fog
         attach="fog"
         args={[fogControls.color, fogControls.near, fogControls.far]}
-      /> */}
+      />
+
+      <EffectComposer>
+        <Bloom intensity={0.08} threshold={0.5} radius={2} />
+      </EffectComposer>
+
       {cloudsGroup}
 
       <Environment

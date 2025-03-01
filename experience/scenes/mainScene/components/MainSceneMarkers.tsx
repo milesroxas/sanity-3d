@@ -136,7 +136,6 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
   const router = useRouter();
   const { camera } = useThree();
 
-  // Add Leva controls for debug marker
   const debugMarkerPos = useControls(
     "Main Scene Debug Marker",
     {
@@ -174,14 +173,10 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
       poi.mainSceneCameraTarget.z
     );
 
-    // Start camera transition
-    console.log("📸 Starting camera transition");
     useCameraStore.getState().setControlType("Disabled");
 
-    // Store the final camera position for the subscene
     useCameraStore.getState().setPreviousCamera(targetPos, targetLookAt);
 
-    // Start the camera animation
     const startTime = Date.now();
     const duration = 2000;
     const startPos = camera.position.clone();
@@ -189,10 +184,8 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
       .clone()
       .add(camera.getWorldDirection(new Vector3()).multiplyScalar(100));
 
-    // Set animating state
     useCameraStore.getState().setIsAnimating(true);
 
-    // Custom animation function that doesn't reset at the end
     const animate = () => {
       const now = Date.now();
       const elapsed = now - startTime;
@@ -204,34 +197,20 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
           ? 4 * progress * progress * progress
           : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-      // Calculate new position and target
       const newPosition = new Vector3().lerpVectors(startPos, targetPos, t);
       const newTarget = new Vector3().lerpVectors(startTarget, targetLookAt, t);
 
-      // Update camera position
       useCameraStore.getState().syncCameraPosition(newPosition, newTarget);
 
       if (progress >= 1) {
-        // Animation complete
-        console.log("⏱️ Animation complete");
-
-        // Important: DON'T set isAnimating to false or change controlType
-        // This prevents the camera from resetting
-
-        // Set loading state
-        console.log("🔄 Setting loading state");
         useCameraStore.getState().setIsLoading(true);
 
-        // Navigate to subscene
-        console.log("🚀 Navigating to:", `/experience/${poi.slug.current}`);
         router.push(`/experience/${poi.slug.current}`);
       } else {
-        // Continue animation
         requestAnimationFrame(animate);
       }
     };
 
-    // Start animation
     animate();
   };
 
