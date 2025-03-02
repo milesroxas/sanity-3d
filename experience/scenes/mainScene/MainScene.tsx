@@ -275,7 +275,7 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
       />
 
       <EffectComposer>
-        <Bloom intensity={0.08} threshold={0.5} radius={2} />
+        <Bloom intensity={0.04} threshold={0.5} radius={2} />
       </EffectComposer>
 
       {cloudsGroup}
