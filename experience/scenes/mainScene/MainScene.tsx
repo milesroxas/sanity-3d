@@ -49,80 +49,36 @@ import SceneTransition from "../components/SceneTransition";
 import { useCameraStore } from "../store/cameraStore";
 import { PerformanceMonitor } from "@/experience/components/PerformanceMonitor";
 import { PerformanceComparison } from "@/experience/components/PerformanceComparison";
+import { preloadModel, isModelLoaded } from "@/experience/utils/modelCache";
+import { useProgress } from "@react-three/drei";
 
 interface MainSceneProps {
   scene: Sanity.Scene;
-  onLoad?: () => void;
 }
 
-export default function MainScene({ scene, onLoad }: MainSceneProps) {
+export default function MainScene({ scene }: MainSceneProps) {
   const { startCameraTransition } = useCameraStore();
+  const { progress, active } = useProgress();
 
   useEffect(() => {
-    // Call onLoad when the scene is ready
-    onLoad?.();
-
-    // Animate camera from mainIntro to main position
-    const mainIntro = INITIAL_POSITIONS.mainIntro;
-    const main = INITIAL_POSITIONS.main;
-    startCameraTransition(
-      mainIntro.position,
-      main.position,
-      mainIntro.target,
-      main.target
-    );
-  }, [onLoad, startCameraTransition]);
+    if (progress === 100 && !active) {
+      console.log("MainScene: Loading complete, starting camera transition");
+      const mainIntro = INITIAL_POSITIONS.mainIntro;
+      const main = INITIAL_POSITIONS.main;
+      startCameraTransition(
+        mainIntro.position,
+        main.position,
+        mainIntro.target,
+        main.target
+      );
+    }
+  }, [progress, active, startCameraTransition]);
 
   const cloudsRef = useRef<THREE.Group>(null);
 
   const effectsControls = useControls(
     "Post Processing",
     {
-      //     // Depth of Field
-      //     focusDistance: {
-      //       value: 150,
-      //       min: 0,
-      //       max: 300,
-      //       step: 1,
-      //       label: "Focus Distance",
-      //       control: "slider",
-      //     },
-      //     focalLength: {
-      //       value: 0.29,
-      //       min: 0.01,
-      //       max: 1,
-      //       step: 0.01,
-      //       label: "Focal Length",
-      //       control: "slider",
-      //     },
-      //     bokehScale: {
-      //       value: 4,
-      //       min: 0,
-      //       max: 20,
-      //       step: 0.1,
-      //       label: "Bokeh Scale",
-      //       control: "slider",
-      //     },
-
-      //     // Vignette
-      //     vignetteOffset: {
-      //       value: 0.3,
-      //       min: 0,
-      //       max: 1,
-      //       step: 0.05,
-      //       label: "Vignette Offset",
-      //       control: "slider",
-      //     },
-      //     vignetteDarkness: {
-      //       value: 0.4,
-      //       min: 0,
-      //       max: 1,
-      //       step: 0.05,
-      //       label: "Vignette Darkness",
-      //       control: "slider",
-      //     },
-
-      //     // Bloom
       bloomIntensity: {
         value: 0.07,
         min: 0,
@@ -139,31 +95,6 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
         label: "Bloom Threshold",
         control: "slider",
       },
-
-      //     brightness: {
-      //       value: -0.12,
-      //       min: -1,
-      //       max: 1,
-      //       step: 0.0001,
-      //       label: "Brightness",
-      //       control: "slider",
-      //     },
-      //     contrast: {
-      //       value: 0.08,
-      //       min: -1,
-      //       max: 1,
-      //       step: 0.0001,
-      //       label: "Contrast",
-      //       control: "slider",
-      //     },
-      //     saturation: {
-      //       value: -0.06,
-      //       min: -1,
-      //       max: 1,
-      //       step: 0.0001,
-      //       label: "Saturation",
-      //       control: "slider",
-      //     },
     },
     { collapsed: true }
   );
@@ -207,7 +138,6 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
     if (cloudsRef.current) {
       cloudsRef.current.position.x += delta * 0.8;
 
-      // Reset position when clouds move too far right
       if (cloudsRef.current.position.x > 200) {
         cloudsRef.current.position.x = -200;
       }
@@ -265,8 +195,6 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
   return (
     <>
       <MainSceneCameraSystem />
-      <PerformanceMonitor />
-      <PerformanceComparison />
       <MainSceneMarkers scene={scene} />
       <SceneTransition transition={false} color="#a5b4fc" />
       <fog

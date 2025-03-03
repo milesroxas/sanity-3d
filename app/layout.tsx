@@ -4,8 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 // import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { Loading } from "@/experience/scenes/components/Loading";
-
+import Loading from "@/experience/scenes/components/Loading";
 const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === "production";
 
 export const metadata: Metadata = {
@@ -54,8 +53,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         > */}
-        {children}
         <Loading />
+        {children}
+
         {/* </ThemeProvider> */}
         <Toaster position="top-center" richColors />
       </body>

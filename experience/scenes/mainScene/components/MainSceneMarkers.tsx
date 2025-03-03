@@ -10,6 +10,7 @@ import { useControls } from "leva";
 import { useStoreContext } from "leva/plugin";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { ANIMATION_DURATIONS } from "@/experience/config/animations";
 
 type MarkerPosition = {
   x: number;
@@ -178,7 +179,7 @@ export default function MainSceneMarkers({ scene }: { scene: Sanity.Scene }) {
     useCameraStore.getState().setPreviousCamera(targetPos, targetLookAt);
 
     const startTime = Date.now();
-    const duration = 2000;
+    const duration = ANIMATION_DURATIONS.CAMERA_TRANSITION;
     const startPos = camera.position.clone();
     const startTarget = camera.position
       .clone()

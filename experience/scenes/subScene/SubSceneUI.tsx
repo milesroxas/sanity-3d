@@ -13,6 +13,7 @@ import PortableTextRenderer from "@/components/portable-text-renderer";
 import { fetchNavigationScenes } from "@/app/(main)/actions";
 import { useSceneStore } from "@/experience/scenes/store/sceneStore";
 import { AnimatePresence, motion } from "framer-motion";
+import { ANIMATION_DURATIONS } from "@/experience/config/animations";
 
 interface NavigationScene {
   slug?: { current: string };
@@ -20,7 +21,6 @@ interface NavigationScene {
 }
 
 export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
-  const [showCarousel, setShowCarousel] = useState(false);
   const [validScenes, setValidScenes] = useState<NavigationScene[]>([]);
   const router = useRouter();
   const pathname = usePathname();
@@ -30,6 +30,22 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
   const poiActive = useSceneStore((state) => state.poiActive);
   const setPOIActive = useSceneStore((state) => state.setPOIActive);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const isLoading = useCameraStore((state) => state.isLoading);
+  const [uiReady, setUiReady] = useState(false);
+
+  // Track when loading state changes to false and add a delay before showing UI
+  useEffect(() => {
+    if (isLoading) {
+      setUiReady(false);
+    } else {
+      // Add a delay to ensure loading screen has completely faded out
+      const timer = setTimeout(() => {
+        setUiReady(true);
+      }, ANIMATION_DURATIONS.LOADING_FADE); // Delay to ensure loading animation is complete
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
 
   useEffect(() => {
     // Fetch navigation scenes when component mounts
@@ -56,22 +72,24 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
     if (!targetScene?.slug?.current) return;
 
     setIsTransitioning(true);
+    setUiReady(false);
 
     try {
+      // Start transition out animation
+      console.log("SubSceneUI: Starting transition out");
       await useSceneStore.getState().startTransitionOut();
+
+      // Set loading state to true before navigation
+      console.log("SubSceneUI: Setting loading state to true for navigation");
+      useCameraStore.getState().setIsLoading(true);
+
+      // Navigate to the new scene
       const targetUrl = `/experience/${targetScene.slug.current}`;
+      console.log(`SubSceneUI: Navigating to ${targetUrl}`);
       router.push(targetUrl);
 
-      // Only show loading if transition takes too long
-      const loadingTimer = setTimeout(() => {
-        useCameraStore.getState().setIsLoading(true);
-      }, 1000);
-
-      setTimeout(() => {
-        clearTimeout(loadingTimer);
-        setIsTransitioning(false);
-        useCameraStore.getState().setIsLoading(false);
-      }, 800);
+      // The new scene component will handle its own loading state
+      setIsTransitioning(false);
     } catch (error) {
       console.error("Navigation failed:", error);
       setIsTransitioning(false);
@@ -99,7 +117,7 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
     setTimeout(() => {
       setIsTransitioning(false);
       setPOIActive(true);
-    }, 2800);
+    }, ANIMATION_DURATIONS.CAMERA_TRANSITION + 800); // Add buffer time after camera transition
   };
 
   const handleCarouselClose = () => {
@@ -143,16 +161,19 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
     validScenes.length > 1 && currentIndex < validScenes.length - 1;
   const canNavigatePrevious = validScenes.length > 1 && currentIndex > 0;
 
+  // Only show UI when loading is complete AND uiReady is true
+  const shouldShowUI = !isLoading && uiReady && !isTransitioning;
+
   return (
-    <div className="relative z-50 mx-auto flex flex-col items-center w-full">
+    <div className="relative z-40 mx-auto flex flex-col items-center w-full">
       <AnimatePresence mode="wait">
-        {!poiActive && !isTransitioning && (
+        {!poiActive && shouldShowUI && (
           <motion.div
             key="nav"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: ANIMATION_DURATIONS.UI_FADE / 1000 }}
             className="flex flex-col items-center w-screen mx-auto"
           >
             <div className="flex justify-center items-center gap-6 w-full">
@@ -180,19 +201,19 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
 
       <div className="fixed z-20 top-1/2 -translate-y-1/2 right-8 w-full max-w-md px-4 flex items-center">
         <AnimatePresence mode="wait">
-          {!poiActive && !isTransitioning && scene.body && (
+          {!poiActive && shouldShowUI && scene.body && (
             <motion.div
               key="body"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: ANIMATION_DURATIONS.UI_FADE / 1000 }}
               className="w-full"
             >
               <PortableTextRenderer value={scene.body} />
             </motion.div>
           )}
-          {poiActive && !isTransitioning && (
+          {poiActive && shouldShowUI && (
             <Carousel3
               key="carousel"
               scene={scene}
@@ -202,13 +223,13 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
           )}
         </AnimatePresence>
       </div>
-      {!poiActive && !isTransitioning && (
+      {!poiActive && shouldShowUI && (
         <motion.div
           key="back-button"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: ANIMATION_DURATIONS.UI_FADE / 1000 }}
           className="fixed bottom-0 left-0 right-0 flex justify-center pb-8"
         >
           <Button

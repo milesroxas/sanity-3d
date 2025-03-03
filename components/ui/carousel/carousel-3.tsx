@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { motion } from "framer-motion";
 import { Vector3 } from "three";
+import { ANIMATION_DURATIONS } from "@/experience/config/animations";
 
 interface Carousel3Props {
   scene: Sanity.Scene;
@@ -73,7 +74,9 @@ export function Carousel3({ scene, selectedPoi, onClose }: Carousel3Props) {
 
     onClose();
 
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise((resolve) =>
+      setTimeout(resolve, ANIMATION_DURATIONS.UI_FADE)
+    );
 
     const initialPosition = INITIAL_POSITIONS.subscene;
     useCameraStore
@@ -93,11 +96,11 @@ export function Carousel3({ scene, selectedPoi, onClose }: Carousel3Props) {
         )
       );
 
-    // 4. After camera transition completes, reset camera and POI state
+    // After camera transition completes, reset camera and POI state
     setTimeout(() => {
       useCameraStore.getState().resetToInitial();
       useCameraStore.getState().setSelectedPoi(null);
-    }, 2000);
+    }, ANIMATION_DURATIONS.CAMERA_TRANSITION);
   };
 
   if (!selectedPoi) return null;

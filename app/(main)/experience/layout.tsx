@@ -17,7 +17,7 @@ export default function ExperienceLayout({
 
       <main className="mt-8">{children}</main>
 
-      {/* Hide Leva in production, show in development */}
+      {/* <Leva hidden={isProduction} /> */}
       <Leva hidden={isProduction} />
     </R3FProvider>
   );

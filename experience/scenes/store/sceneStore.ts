@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { ANIMATION_DURATIONS } from "@/experience/config/animations";
 
 interface SceneStore {
   modelRotation: number;
@@ -34,7 +35,7 @@ export const useSceneStore = create<SceneStore>((set) => ({
     set({ isTransitioning: true });
     return new Promise((resolve) => {
       const startTime = Date.now();
-      const duration = 300;
+      const duration = ANIMATION_DURATIONS.TRANSITION_OUT;
 
       const animate = () => {
         const elapsed = Date.now() - startTime;
@@ -59,7 +60,7 @@ export const useSceneStore = create<SceneStore>((set) => ({
     set({ isTransitioning: true });
     return new Promise((resolve) => {
       const startTime = Date.now();
-      const duration = 800;
+      const duration = ANIMATION_DURATIONS.TRANSITION_IN;
 
       const animate = () => {
         const elapsed = Date.now() - startTime;
@@ -84,7 +85,7 @@ export const useSceneStore = create<SceneStore>((set) => ({
     set({ isInitialReveal: true, opacity: 1 });
     return new Promise((resolve) => {
       const startTime = Date.now();
-      const duration = 2000;
+      const duration = ANIMATION_DURATIONS.CAMERA_TRANSITION;
 
       const animate = () => {
         const elapsed = Date.now() - startTime;

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { Vector3 } from "three";
 import { PointOfInterest } from "@/experience/scenes/subScene/components/SubSceneMarkers";
 import { useSceneStore } from "@/experience/scenes/store/sceneStore";
+import { ANIMATION_DURATIONS } from "@/experience/config/animations";
 
 type CameraState = "main" | "previous" | "current" | "subscene";
 type ControlType = "Map" | "CameraControls" | "Disabled";
@@ -183,7 +184,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
     });
 
     const startTime = Date.now();
-    const duration = 2000;
+    const duration = ANIMATION_DURATIONS.CAMERA_TRANSITION;
 
     const animate = () => {
       const now = Date.now();

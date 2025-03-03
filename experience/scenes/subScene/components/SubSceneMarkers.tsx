@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { motion as motion3d } from "framer-motion-3d";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
+import { ANIMATION_DURATIONS } from "@/experience/config/animations";
 
 export interface PointOfInterest {
   _key: string;
@@ -101,7 +102,7 @@ export default function SubSceneMarkers({
             )
           );
       }
-    }, 800);
+    }, ANIMATION_DURATIONS.UI_FADE);
   };
 
   useFrame((_, delta) => {
@@ -178,8 +179,8 @@ export default function SubSceneMarkers({
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{
-                        duration: 0.8,
-                        delay: 2,
+                        duration: ANIMATION_DURATIONS.MARKER_FADE / 1000,
+                        delay: ANIMATION_DURATIONS.MARKER_APPEAR_DELAY / 1000,
                       }}
                       style={{
                         backgroundColor: `rgba(${bgColorRef.current.r}, ${bgColorRef.current.g}, ${bgColorRef.current.b}, 0.8)`,
@@ -202,8 +203,8 @@ export default function SubSceneMarkers({
                     animate={{ opacity: 1, scale: [0.25, 0.25, 0.25] }}
                     exit={{ opacity: 0, scale: 0 }}
                     transition={{
-                      duration: 0.8,
-                      delay: 2,
+                      duration: ANIMATION_DURATIONS.MARKER_FADE / 1000,
+                      delay: ANIMATION_DURATIONS.MARKER_APPEAR_DELAY / 1000,
                     }}
                     onUpdate={(latest) => {
                       setMarkerOpacity(Number(latest.opacity) || 0);
@@ -251,8 +252,8 @@ export default function SubSceneMarkers({
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{
-                        duration: 0.8,
-                        delay: 2,
+                        duration: ANIMATION_DURATIONS.MARKER_FADE / 1000,
+                        delay: ANIMATION_DURATIONS.MARKER_APPEAR_DELAY / 1000,
                       }}
                       className="bg-red-500 backdrop-blur-sm px-2 py-1 rounded-lg cursor-pointer"
                     >
@@ -266,8 +267,8 @@ export default function SubSceneMarkers({
                     animate={{ opacity: 1, scale: [0.25, 0.25, 0.25] }}
                     exit={{ opacity: 0, scale: 0 }}
                     transition={{
-                      duration: 0.8,
-                      delay: 2,
+                      duration: ANIMATION_DURATIONS.MARKER_FADE / 1000,
+                      delay: ANIMATION_DURATIONS.MARKER_APPEAR_DELAY / 1000,
                     }}
                     onUpdate={(latest) => {
                       setMarkerOpacity(Number(latest.opacity) || 0);

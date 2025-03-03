@@ -5,9 +5,11 @@ import {
   useState,
   ReactNode,
   Suspense,
+  useEffect,
 } from "react";
 import { Canvas } from "@react-three/fiber";
-import { Loading } from "../scenes/components/Loading";
+import { ANIMATION_DURATIONS } from "@/experience/config/animations";
+
 type R3FContextType = {
   setR3FContent: (content: ReactNode) => void;
 };
@@ -15,16 +17,21 @@ type R3FContextType = {
 const R3FContext = createContext<R3FContextType | null>(null);
 
 export function R3FProvider({ children }: { children: ReactNode }) {
-  const [r3fContent, setR3FContent] = useState<ReactNode>(null);
+  const [r3fContent, setR3FContent] = useState<ReactNode | null>(null);
+
+  // Set CSS variables for animation durations
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--loading-fade-duration",
+      `${ANIMATION_DURATIONS.LOADING_FADE}ms`
+    );
+  }, []);
 
   return (
     <R3FContext.Provider value={{ setR3FContent }}>
       <div className="relative w-full h-full">
         {/* Regular React components in a properly constrained container */}
-        <div className="absolute mx-auto z-50">
-          <Loading />
-          {children}
-        </div>
+        <div className="absolute mx-auto z-50">{children}</div>
 
         {/* Canvas positioned behind the UI */}
         <div className="fixed inset-0">

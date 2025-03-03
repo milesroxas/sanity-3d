@@ -99,10 +99,21 @@ const config = {
             height: "0",
           },
         },
+        "loading-screen": {
+          from: {
+            opacity: "1",
+          },
+          to: {
+            opacity: "0",
+            visibility: "hidden",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "loading-screen":
+          "loading-screen var(--loading-fade-duration, 2s) forwards",
       },
     },
   },
