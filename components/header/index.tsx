@@ -49,8 +49,11 @@ export default function Header() {
     return null;
   }
 
+  // Check if we're in an experience slug route (but not the main experience page)
+  const isExperienceSlugPage = pathname?.startsWith("/experience/") && pathname !== "/experience";
+
   return (
-    <header className="sticky top-0 w-full border-border/40 z-50 py-2">
+    <header className={`sticky top-0 w-full border-border/40 z-50 py-2 ${isExperienceSlugPage ? 'text-white' : ''}`}>
       <div className="container flex items-center justify-between h-14">
         <Link href="/" aria-label="Home page" className="w-12">
           {logo && logo.asset?._id && (
@@ -66,12 +69,12 @@ export default function Header() {
           )}
         </Link>
         <div className="hidden xl:flex gap-7 items-center justify-between">
-          <DesktopNav navItems={navItems} />
+          <DesktopNav navItems={navItems} isExperiencePage={isExperienceSlugPage} />
           {/* <ModeToggle /> */}
         </div>
         <div className="flex items-center xl:hidden">
           {/* <ModeToggle /> */}
-          <MobileNav navItems={navItems} />
+          <MobileNav navItems={navItems} isExperiencePage={isExperienceSlugPage} />
         </div>
       </div>
     </header>

@@ -14,7 +14,7 @@ import Logo from "@/components/logo";
 import { useState } from "react";
 import { TextAlignRightIcon } from "@radix-ui/react-icons";
 
-export default function MobileNav({ navItems }: { navItems: NavItem[] }) {
+export default function MobileNav({ navItems, isExperiencePage }: { navItems: NavItem[]; isExperiencePage?: boolean }) {
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -24,7 +24,7 @@ export default function MobileNav({ navItems }: { navItems: NavItem[] }) {
           variant="ghost"
           className="w-[1.75rem] p-5 focus-visible:ring-1 focus-visible:ring-offset-1"
         >
-          <TextAlignRightIcon className="dark:text-white" />
+          <TextAlignRightIcon className={isExperiencePage ? "text-white" : "dark:text-white"} />
         </Button>
       </SheetTrigger>
       <SheetContent>

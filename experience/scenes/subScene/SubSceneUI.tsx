@@ -158,15 +158,17 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
             <div className="flex justify-center items-center gap-6 w-full">
               {canNavigatePrevious && (
                 <button
+                  style={{ color: "white" }}
                   onClick={() => handleNavigation("previous")}
                   className="text-xl font-bold text-center hover:text-primary/70 transition-colors"
                 >
                   <ArrowLeftIcon className="w-6 h-6" />
                 </button>
               )}
-              <h2 className="text-xl font-bold text-center">{scene.title}</h2>
+              <h2 className="text-xl font-bold text-center text-white">{scene.title}</h2>
               {canNavigateNext && (
                 <button
+                  style={{ color: "white" }}
                   onClick={() => handleNavigation("next")}
                   className="text-xl font-bold text-center hover:text-primary/70 transition-colors"
                 >
@@ -189,7 +191,9 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
               transition={{ duration: 0.8 }}
               className="w-full"
             >
-              <PortableTextRenderer value={scene.body} />
+              <div className="text-white">
+                <PortableTextRenderer value={scene.body} />
+              </div>
             </motion.div>
           )}
           {poiActive && !isTransitioning && (
