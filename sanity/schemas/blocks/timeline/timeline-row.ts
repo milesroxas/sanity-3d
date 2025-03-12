@@ -21,6 +21,17 @@ export default defineType({
       name: "timelines",
       type: "array",
       of: [{ type: "timelines-1" }],
+      options: {
+        insertMenu: {
+          views: [
+            {
+              name: "grid",
+              previewImageUrl: (block) => `/sanity/preview/${block}.webp`,
+            },
+            { name: "list" },
+          ],
+        },
+      },
     }),
   ],
   preview: {
