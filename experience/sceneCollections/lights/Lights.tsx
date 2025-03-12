@@ -25,11 +25,11 @@ function Lights() {
     {
       showHelpers: { value: true },
       position: {
-        value: [288, 52, 213],
+        value: [32, 38, 49],
         step: 1,
       },
       intensity: { 
-        value: 4, 
+        value: 1.2, 
         min: 0, 
         max: 10, 
         step: 0.1 
@@ -65,7 +65,7 @@ function Lights() {
         step: 10 
       },
       shadowCameraRight: { 
-        value: 220, 
+        value: 100, 
         min: 0, 
         max: 500, 
         step: 10 
