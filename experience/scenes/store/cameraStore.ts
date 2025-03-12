@@ -52,11 +52,11 @@ interface CameraStore {
 
 export const INITIAL_POSITIONS = {
   mainIntro: {
-    position: new Vector3(-10, 200, 200),
+    position: new Vector3(-10, 200, 160),
     target: new Vector3(-10, 10, 50),
   },
   main: {
-    position: new Vector3(-10, 60, 200),
+    position: new Vector3(-10, 60, 160),
     target: new Vector3(-10, 10, 50),
   },
   subscene: {

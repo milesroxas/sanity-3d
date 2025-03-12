@@ -49,31 +49,43 @@ export function CarOne(props: ThreeElements["group"]) {
               name="car-passenger-base001"
               geometry={nodes["car-passenger-base001"].geometry}
               material={materials["23 GREY-WHITE.001"]}
+              castShadow
+              receiveShadow
             />
             <mesh
               name="car-passenger-base001_1"
               geometry={nodes["car-passenger-base001_1"].geometry}
               material={materials["64 GLASS.002"]}
+              castShadow
+              receiveShadow
             />
             <mesh
               name="car-passenger-base001_2"
               geometry={nodes["car-passenger-base001_2"].geometry}
               material={materials["17 GREY-DARKEST.002"]}
+              castShadow
+              receiveShadow
             />
             <mesh
               name="car-passenger-base001_3"
               geometry={nodes["car-passenger-base001_3"].geometry}
               material={materials.Head_Lights}
+              castShadow
+              receiveShadow
             />
             <mesh
               name="car-passenger-base001_4"
               geometry={nodes["car-passenger-base001_4"].geometry}
               material={materials["57 BLACK.001"]}
+              castShadow
+              receiveShadow
             />
             <mesh
               name="car-passenger-base001_5"
               geometry={nodes["car-passenger-base001_5"].geometry}
               material={materials.Tail_Light}
+              castShadow
+              receiveShadow
             />
           </group>
           <group name="car-passenger-wheel_BL">
@@ -81,11 +93,15 @@ export function CarOne(props: ThreeElements["group"]) {
               name="car-passenger-wheel_BL001"
               geometry={nodes["car-passenger-wheel_BL001"].geometry}
               material={materials["17 GREY-DARKEST.002"]}
+              castShadow
+              receiveShadow
             />
             <mesh
               name="car-passenger-wheel_BL001_1"
               geometry={nodes["car-passenger-wheel_BL001_1"].geometry}
               material={materials["20 GREY.002"]}
+              castShadow
+              receiveShadow
             />
           </group>
           <group name="car-passenger-wheel_BR">
@@ -93,11 +109,15 @@ export function CarOne(props: ThreeElements["group"]) {
               name="car-passenger-wheel_BR001"
               geometry={nodes["car-passenger-wheel_BR001"].geometry}
               material={materials["17 GREY-DARKEST.002"]}
+              castShadow
+              receiveShadow
             />
             <mesh
               name="car-passenger-wheel_BR001_1"
               geometry={nodes["car-passenger-wheel_BR001_1"].geometry}
               material={materials["20 GREY.002"]}
+              castShadow
+              receiveShadow
             />
           </group>
           <group name="car-passenger-wheel_FL">
@@ -105,11 +125,15 @@ export function CarOne(props: ThreeElements["group"]) {
               name="car-passenger-wheel_FL001"
               geometry={nodes["car-passenger-wheel_FL001"].geometry}
               material={materials["17 GREY-DARKEST.002"]}
+              castShadow
+              receiveShadow
             />
             <mesh
               name="car-passenger-wheel_FL001_1"
               geometry={nodes["car-passenger-wheel_FL001_1"].geometry}
               material={materials["20 GREY.002"]}
+              castShadow
+              receiveShadow
             />
           </group>
           <group name="car-passenger-wheel_FR">
@@ -117,11 +141,15 @@ export function CarOne(props: ThreeElements["group"]) {
               name="car-passenger-wheel_FR_1"
               geometry={nodes["car-passenger-wheel_FR_1"].geometry}
               material={materials["17 GREY-DARKEST.002"]}
+              castShadow
+              receiveShadow
             />
             <mesh
               name="car-passenger-wheel_FR_2"
               geometry={nodes["car-passenger-wheel_FR_2"].geometry}
               material={materials["20 GREY.002"]}
+              castShadow
+              receiveShadow
             />
           </group>
         </group>

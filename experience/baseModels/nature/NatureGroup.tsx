@@ -45,6 +45,14 @@ export const context = createContext<NatureInstances | null>(null);
 export function Instances({ children, ...props }: InstancesProps) {
   const { nodes } = useGLTF("/models/nature_group.glb") as GLTFResult;
 
+  // Add castShadow and receiveShadow to all meshes
+  Object.values(nodes).forEach((node: any) => {
+    if (node.isMesh) {
+      node.castShadow = true;
+      node.receiveShadow = true;
+    }
+  });
+
   const instanceMeshes = useMemo(
     () => ({
       RockLarge: nodes["rock-large002"],

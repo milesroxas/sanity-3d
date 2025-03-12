@@ -68,11 +68,11 @@ export function Billboard(props: ThreeElements["group"]) {
           <rectAreaLight
             ref={lightRef}
             name="Light"
-            position={[0, 1, 15]}
+            position={[0, .5, 15]}
             rotation={[-1.5, 0, 0]}
             width={14}
             height={10}
-            intensity={8}
+            intensity={5}
           />
         </group>
       </group>

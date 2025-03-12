@@ -274,6 +274,8 @@ export function HomesOuterBuildings(props: ThreeElements["group"]) {
   return (
     <group {...props} dispose={null}>
       <group
+      castShadow
+      receiveShadow
         name="BLDG_House_Small_02012"
         position={[-22.189, 2.678, 90.105]}
         rotation={[0, -Math.PI / 2, 0]}

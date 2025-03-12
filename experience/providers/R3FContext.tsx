@@ -8,6 +8,8 @@ import {
 } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Loading } from "../scenes/components/Loading";
+import * as THREE from "three";
+
 type R3FContextType = {
   setR3FContent: (content: ReactNode) => void;
 };
@@ -28,7 +30,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
 
         {/* Canvas positioned behind the UI */}
         <div className="fixed inset-0">
-          <Canvas shadows>
+          <Canvas shadows="soft">
             <Suspense fallback={null}>{r3fContent}</Suspense>
           </Canvas>
         </div>

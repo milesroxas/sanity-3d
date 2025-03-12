@@ -202,6 +202,16 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
     { collapsed: true }
   );
 
+  const shadowControls = useControls(
+    "Shadows",
+    {
+      enabled: { value: true },
+      mapSize: { value: 2048, min: 512, max: 4096, step: 512 },
+      bias: { value: -0.0001, min: -0.01, max: 0.01, step: 0.0001 },
+    },
+    { collapsed: true }
+  );
+
   useFrame((state, delta) => {
     if (cloudsRef.current) {
       cloudsRef.current.position.x += delta * 0.8;
@@ -287,7 +297,7 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
       ></Environment>
 
       <group position={[0, -0.2, 0]}>
-        <WorldFloor />
+        <WorldFloor  />
       </group>
 
       <Trees />

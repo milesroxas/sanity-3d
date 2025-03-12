@@ -68,8 +68,8 @@ function Palm({
 
   return (
     <group position={position} rotation={rotation}>
-      <instances.Palm name="palm_1" />
-      <instances.Palm1 name="palm_2" />
+      <instances.Palm name="palm_1" castShadow receiveShadow />
+      <instances.Palm1 name="palm_2" castShadow receiveShadow />
     </group>
   );
 }
