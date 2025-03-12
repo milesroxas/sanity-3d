@@ -217,6 +217,7 @@ export function GroundResort(props: ThreeElements["group"]) {
           material={materials["36 GREEN"]}
           position={[-90, 2.667, -105]}
         />
+        <group name="Material2016" position={[0, .2, 0]}>
         <mesh
           name="Material2016"
           geometry={nodes.Material2016.geometry}
@@ -344,7 +345,8 @@ export function GroundResort(props: ThreeElements["group"]) {
           position={[-87.892, 2.667, -5.438]}
           rotation={[-Math.PI / 2, 0, -Math.PI / 2]}
           scale={0.026}
-        />
+          />
+        </group>
         <mesh
           name="tile-plain-nb070"
           geometry={nodes["tile-plain-nb070"].geometry}

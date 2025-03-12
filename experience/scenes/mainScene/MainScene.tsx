@@ -28,7 +28,7 @@ import { AnimatedTractor } from "@/experience/sceneCollections/vehicles/Animated
 import { AnimatedVan } from "@/experience/sceneCollections/vehicles/AnimatedVan";
 import { AnimatedPlane } from "@/experience/sceneCollections/vehicles/AnimatedPlane";
 import * as THREE from "three";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import {
   EffectComposer,
   // Vignette,
@@ -49,6 +49,8 @@ import { useCameraStore } from "../store/cameraStore";
 // import { PerformanceMonitor } from "@/experience/components/PerformanceMonitor";
 // import { PerformanceComparison } from "@/experience/components/PerformanceComparison";
 import EventsParkedCars from "@/experience/sceneCollections/vehicles/EventsParkedCars";
+import { setupInstancedShadowUpdates } from "@/experience/utils/instancedShadows";
+
 interface MainSceneProps {
   scene: Sanity.Scene;
   onLoad?: () => void;
@@ -56,6 +58,24 @@ interface MainSceneProps {
 
 export default function MainScene({ scene, onLoad }: MainSceneProps) {
   const { startCameraTransition } = useCameraStore();
+  const { scene: threeScene } = useThree();
+
+  // Setup shadow updates for instanced meshes
+  useEffect(() => {
+    // Set up shadow updates for instanced meshes
+    const cleanup = setupInstancedShadowUpdates(threeScene);
+    
+    // Trigger a shadow update after a short delay to ensure all models are loaded
+    const updateTimeout = setTimeout(() => {
+      const event = new CustomEvent('shadow-update');
+      window.dispatchEvent(event);
+    }, 1000);
+    
+    return () => {
+      cleanup();
+      clearTimeout(updateTimeout);
+    };
+  }, [threeScene]);
 
   useEffect(() => {
     // Call onLoad when the scene is ready
@@ -123,7 +143,7 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
 
       //     // Bloom
       bloomIntensity: {
-        value: 0.07,
+        value: 0.04,
         min: 0,
         max: 1,
         step: 0.01,
@@ -131,7 +151,7 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
         control: "slider",
       },
       bloomThreshold: {
-        value: 0.27,
+        value: 0.4,
         min: 0,
         max: 1,
         step: 0.01,
@@ -187,7 +207,7 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
       },
       background: { value: true },
       blur: { value: 0.9, min: 0, max: 1, step: 0.1 },
-      intensity: { value: 1.2, min: 0, max: 5, step: 0.1 },
+      intensity: { value: 1.5, min: 0, max: 5, step: 0.1 },
     },
     { collapsed: true }
   );
@@ -284,7 +304,11 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
       />
 
       <EffectComposer>
-        <Bloom intensity={0.04} threshold={0.5} radius={2} />
+        <Bloom 
+          intensity={effectsControls.bloomIntensity} 
+          threshold={effectsControls.bloomThreshold} 
+          radius={2} 
+        />
       </EffectComposer>
 
       {cloudsGroup}

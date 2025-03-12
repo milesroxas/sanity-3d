@@ -29,7 +29,7 @@ function Lights() {
         step: 1,
       },
       intensity: { 
-        value: 1.2, 
+        value: 0.5, 
         min: 0, 
         max: 10, 
         step: 0.1 
@@ -69,6 +69,12 @@ function Lights() {
         min: 0, 
         max: 500, 
         step: 10 
+      },
+      shadowRadius: {
+        value: 8,
+        min: 0,
+        max: 20,
+        step: 0.5
       },
       shadowCameraTop: { 
         value: 50, 
@@ -169,6 +175,15 @@ function Lights() {
         position={shadowControls.position}
         intensity={shadowControls.intensity} 
         castShadow 
+        shadow-mapSize-width={shadowControls.shadowMapSize}
+        shadow-mapSize-height={shadowControls.shadowMapSize}
+        shadow-camera-far={shadowControls.shadowCameraFar}
+        shadow-camera-left={shadowControls.shadowCameraLeft}
+        shadow-camera-right={shadowControls.shadowCameraRight}
+        shadow-camera-top={shadowControls.shadowCameraTop}
+        shadow-camera-bottom={shadowControls.shadowCameraBottom}
+        shadow-bias={shadowControls.shadowBias}
+        shadow-normalBias={shadowControls.shadowNormalBias}
       />
       <ambientLight intensity={shadowControls.ambientIntensity} />
       <DoubleStreetLights />
