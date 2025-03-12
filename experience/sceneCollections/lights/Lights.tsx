@@ -9,6 +9,8 @@ function Lights() {
   const directionalLightRef = useRef<THREE.DirectionalLight>(null);
   const { scene, gl } = useThree();
   const [helpers, setHelpers] = useState<THREE.Object3D[]>([]);
+  // Check if we're in production mode using NEXT_PUBLIC_SITE_ENV
+  const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === 'production';
 
   // Configure renderer for better shadows
   useEffect(() => {
@@ -23,7 +25,7 @@ function Lights() {
   const shadowControls = useControls(
     "Directional Light & Shadows",
     {
-      showHelpers: { value: true },
+      showHelpers: { value: !isProduction },
       position: {
         value: [32, 38, 49],
         step: 1,
@@ -100,6 +102,11 @@ function Lights() {
 
   // Add helpers when the component mounts
   useEffect(() => {
+    // Don't add helpers in production mode
+    if (isProduction) {
+      return;
+    }
+    
     if (directionalLightRef.current && shadowControls.showHelpers) {
       // Create directional light helper
       const lightHelper = new THREE.DirectionalLightHelper(
@@ -129,7 +136,7 @@ function Lights() {
       helpers.forEach(helper => scene.remove(helper));
       setHelpers([]);
     }
-  }, [scene, shadowControls.showHelpers]);
+  }, [scene, shadowControls.showHelpers, isProduction]);
 
   // Update shadow camera when shadow camera settings change
   useEffect(() => {
