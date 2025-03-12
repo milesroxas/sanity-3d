@@ -34,6 +34,17 @@ export default defineType({
         { type: "split-info-list" },
       ],
       validation: (rule) => rule.max(2),
+      options: {
+        insertMenu: {
+          views: [
+            {
+              name: "grid",
+              previewImageUrl: (block) => `/sanity/preview/${block}.webp`,
+            },
+            { name: "list" },
+          ],
+        },
+      },
     }),
   ],
   preview: {

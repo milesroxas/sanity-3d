@@ -16,7 +16,6 @@ export const colorVariant = defineType({
   type: "string",
   options: {
     list: COLOR_VARIANTS.map(({ title, value }) => ({ title, value })),
-    layout: "radio",
   },
   initialValue: "background",
 });

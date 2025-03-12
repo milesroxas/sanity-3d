@@ -37,16 +37,28 @@ export default defineType({
         { type: "grid-post" },
         { type: "pricing-card" },
       ],
+      options: {
+        insertMenu: {
+          views: [
+            {
+              name: "grid",
+              previewImageUrl: (block) => `/sanity/preview/${block}.webp`,
+            },
+            { name: "list" },
+          ],
+        },
+      },
     }),
   ],
   preview: {
     select: {
       title: "columns.0.title",
+      postTitle: "columns.0.post.title",
     },
-    prepare({ title }) {
+    prepare({ title, postTitle }) {
       return {
         title: "Grid Row",
-        subtitle: title,
+        subtitle: title || postTitle,
       };
     },
   },
