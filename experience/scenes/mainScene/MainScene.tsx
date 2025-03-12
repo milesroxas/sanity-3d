@@ -5,7 +5,6 @@ import {
   Clouds,
   Environment,
   Float,
-  Instance,
   type EnvironmentProps,
 } from "@react-three/drei";
 import WorldFloor from "@/experience/sceneCollections/WorldFloor";
@@ -32,11 +31,11 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import {
   EffectComposer,
-  Vignette,
+  // Vignette,
   Bloom,
-  DepthOfField,
-  BrightnessContrast,
-  HueSaturation,
+  // DepthOfField,
+  // BrightnessContrast,
+  // HueSaturation,
 } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
 import { useControls } from "leva";
@@ -44,12 +43,12 @@ import { INITIAL_POSITIONS } from "@/experience/scenes/store/cameraStore";
 import MainSceneProps from "@/experience/sceneCollections/props/MainSceneProps";
 import { LevaInputs } from "leva";
 import NatureScene from "@/experience/sceneCollections/NatureInstances";
-import ParkedCars from "@/experience/sceneCollections/vehicles/ParkedCars";
+import ShopsParkedCars from "@/experience/sceneCollections/vehicles/ShopsParkedCars";
 import SceneTransition from "../components/SceneTransition";
 import { useCameraStore } from "../store/cameraStore";
-import { PerformanceMonitor } from "@/experience/components/PerformanceMonitor";
-import { PerformanceComparison } from "@/experience/components/PerformanceComparison";
-
+// import { PerformanceMonitor } from "@/experience/components/PerformanceMonitor";
+// import { PerformanceComparison } from "@/experience/components/PerformanceComparison";
+import EventsParkedCars from "@/experience/sceneCollections/vehicles/EventsParkedCars";
 interface MainSceneProps {
   scene: Sanity.Scene;
   onLoad?: () => void;
@@ -265,8 +264,8 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
   return (
     <>
       <MainSceneCameraSystem />
-      <PerformanceMonitor />
-      <PerformanceComparison />
+      {/* <PerformanceMonitor /> */}
+      {/* <PerformanceComparison /> */}
       <MainSceneMarkers scene={scene} />
       <SceneTransition transition={false} color="#a5b4fc" />
       <fog
@@ -293,7 +292,8 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
 
       <Trees />
       <NatureScene />
-      <ParkedCars />
+      <ShopsParkedCars />
+      <EventsParkedCars />
       <AnimatedCar />
       <AnimatedVan />
       <AnimatedTractor />

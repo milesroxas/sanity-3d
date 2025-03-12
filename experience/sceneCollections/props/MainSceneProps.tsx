@@ -1,7 +1,9 @@
 import React from "react";
 import { Windmill } from "./models/Windmill";
+import { Billboard } from "./models/Billboard";
 
 function MainSceneProps() {
+
   return (
     <>
       {/* Front row */}
@@ -11,6 +13,11 @@ function MainSceneProps() {
       {/* Back row */}
       <Windmill position={[-57.942, 2.667, 109.056]} speed={1.2} />
       <Windmill position={[-70.284, 2.667, 109.056]} speed={0.9} />
+
+      <Billboard 
+        position={[10, 6, 15.3]} 
+        rotation={[0, 0, 0]}
+      />
     </>
   );
 }

@@ -1,10 +1,69 @@
 import { useGLTF } from "@react-three/drei";
-import { Merged } from "@react-three/drei";
 import * as THREE from "three";
 import { GLTF } from "three-stdlib";
-import { createContext, useContext, useMemo } from "react";
+import React, { createContext, useContext, useMemo } from "react";
 import { ThreeElements } from "@react-three/fiber";
-import { CarInstances } from "./types";
+
+// Basic car colors
+export const carColors = {
+  red: new THREE.MeshPhysicalMaterial({ 
+    color: '#ff0000',
+    metalness: 0.6,
+    roughness: 0.4,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.2
+  }),
+  green: new THREE.MeshPhysicalMaterial({ 
+    color: '#00ff00',
+    metalness: 0.6,
+    roughness: 0.4,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.2
+  }),
+  beige: new THREE.MeshPhysicalMaterial({ 
+    color: '#f5f5dc',
+    metalness: 0.6,
+    roughness: 0.4,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.2
+  }),
+  blue: new THREE.MeshPhysicalMaterial({ 
+    color: '#0000ff',
+    metalness: 0.6,
+    roughness: 0.4,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.2
+  }),
+  white: new THREE.MeshPhysicalMaterial({ 
+    color: '#ffffff',
+    metalness: 0.6,
+    roughness: 0.4,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.2
+  }),
+  black: new THREE.MeshPhysicalMaterial({ 
+    color: '#000000',
+    metalness: 0.6,
+    roughness: 0.4,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.2
+  })
+};
+
+// Basic materials for car parts
+export const carPartMaterials = {
+  headlights: new THREE.MeshBasicMaterial({ 
+    color: '#ffffff',
+  })
+};
+
+export type CarColor = keyof typeof carColors;
+
+export type CarProps = ThreeElements["group"] & { color?: CarColor };
+
+type CarInstancesType = {
+  Car: (props: CarProps) => React.ReactNode;
+};
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -34,72 +93,47 @@ type GLTFResult = GLTF & {
   };
 };
 
-const context = createContext<CarInstances | null>(null);
+const context = createContext<CarInstancesType | null>(null);
 
-const CAR_POSITIONS: Array<{
+export type CarPosition = {
   position: [number, number, number];
   rotation: [number, number, number];
-}> = [
-  { position: [64.85141, 2.687342, 23.099749], rotation: [0.0, 1.570796, 0.0] },
-  {
-    position: [55.614433, 2.687342, 20.36821],
-    rotation: [0.0, 1.570796, 0.0],
-  },
-  {
-    position: [55.614433, 2.687342, 14.881134],
-    rotation: [0.0, 1.570796, 0.0],
-  },
-  {
-    position: [55.614433, 2.687342, 11.823608],
-    rotation: [0.0, 1.570796, 0.0],
-  },
-  {
-    position: [55.614433, 2.687342, 6.425247],
-    rotation: [0.0, 1.570796, 0.0],
-  },
-  {
-    position: [64.85141, 2.687342, 17.612673],
-    rotation: [0.0, 1.570796, 0.0],
-  },
-  {
-    position: [64.85141, 2.687342, 14.555147],
-    rotation: [0.0, 4.712389, 0.0],
-  },
-  {
-    position: [64.85141, 2.687342, 9.156786],
-    rotation: [0.0, 1.570796, 0.0],
-  },
-];
+  color: CarColor;
+};
 
-function Car({
+export function Car({
   position,
   rotation,
+  color = 'white'
 }: {
   position: [number, number, number];
   rotation: [number, number, number];
+  color: CarColor;
 }) {
   const instances = useContext(context);
   if (!instances) return null;
 
-  return <instances.Car position={position} rotation={rotation} />;
+  return <instances.Car position={position} rotation={rotation} color={color} />;
 }
 
 export function Instances({ children }: { children: React.ReactNode }) {
   const { nodes } = useGLTF("/models/vehicles_car_1.glb") as GLTFResult;
 
   const Car = useMemo(() => {
-    return function Car(props?: ThreeElements["group"]) {
+    return function Car(props?: ThreeElements["group"] & { color?: CarColor }) {
+      const material = carColors[props?.color || 'white'];
+      
       return (
         <group {...props}>
           <group name="car-passenger">
             <group name="car-passenger-base">
               <mesh
                 geometry={nodes["car-passenger-base001"].geometry}
-                material={nodes["car-passenger-base001"].material}
+                material={material}
               />
               <mesh
                 geometry={nodes["car-passenger-base001_1"].geometry}
-                material={nodes["car-passenger-base001_1"].material}
+                material={nodes["car-passenger-base001_2"].material}
               />
               <mesh
                 geometry={nodes["car-passenger-base001_2"].geometry}
@@ -107,7 +141,7 @@ export function Instances({ children }: { children: React.ReactNode }) {
               />
               <mesh
                 geometry={nodes["car-passenger-base001_3"].geometry}
-                material={nodes["car-passenger-base001_3"].material}
+                material={nodes["car-passenger-base001_2"].material}
               />
               <mesh
                 geometry={nodes["car-passenger-base001_4"].geometry}
@@ -159,16 +193,4 @@ export function Instances({ children }: { children: React.ReactNode }) {
   }, [nodes]);
 
   return <context.Provider value={{ Car }}>{children}</context.Provider>;
-}
-
-function ParkedCars() {
-  return (
-    <Instances>
-      {CAR_POSITIONS.map((props, i) => (
-        <Car key={i} {...props} />
-      ))}
-    </Instances>
-  );
-}
-
-export default ParkedCars;
+} 

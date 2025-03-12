@@ -126,7 +126,6 @@ type GLTFResult = GLTF & {
     ["20 GREY.003"]: THREE.MeshPhysicalMaterial;
     ["59 EMISSION-WHITE"]: THREE.MeshStandardMaterial;
     ["58 WHITE.002"]: THREE.MeshPhysicalMaterial;
-    videoTexture: THREE.MeshBasicMaterial;
   };
 };
 
@@ -134,13 +133,6 @@ export function CompanyBuildings(props: ThreeElements["group"]) {
   const { nodes, materials } = useGLTF(
     "/models/main_scene_company-bldgs.glb"
   ) as GLTFResult;
-
-  const videoTexture = useVideoTexture("/videos/loop-1.mp4");
-  videoTexture.center.set(0.5, 0.5);
-  videoTexture.repeat.set(4, 4); // Values > 1 zoom out, < 1 zoom in
-
-  videoTexture.rotation = Math.PI / 2;
-  materials.videoTexture = new THREE.MeshBasicMaterial({ map: videoTexture });
 
   return (
     <group {...props} dispose={null}>
@@ -799,30 +791,7 @@ export function CompanyBuildings(props: ThreeElements["group"]) {
             material={materials["36 GREEN"]}
           />
         </group>
-        <group name="road-sign-green" position={[10.574, 6.005, 15.917]}>
-          <mesh
-            name="road-sign-green_1"
-            castShadow
-            receiveShadow
-            geometry={nodes["road-sign-green_1"].geometry}
-            material={materials["20 GREY.003"]}
-          />
-          <mesh
-            name="road-sign-green_2"
-            castShadow
-            receiveShadow
-            geometry={nodes["road-sign-green_2"].geometry}
-          >
-            <meshBasicMaterial map={videoTexture} />
-          </mesh>
-          <mesh
-            name="road-sign-green_3"
-            castShadow
-            receiveShadow
-            geometry={nodes["road-sign-green_3"].geometry}
-            material={materials["58 WHITE.002"]}
-          />
-        </group>
+        
       </group>
     </group>
   );
