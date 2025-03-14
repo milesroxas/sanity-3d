@@ -50,6 +50,7 @@ import { useCameraStore } from "../store/cameraStore";
 // import { PerformanceComparison } from "@/experience/components/PerformanceComparison";
 import EventsParkedCars from "@/experience/sceneCollections/vehicles/EventsParkedCars";
 import { setupInstancedShadowUpdates } from "@/experience/utils/instancedShadows";
+import { MainSceneCommercialBldgs } from "@/experience/sceneCollections/commercialBldgs/mainSceneCommercialBldgs";
 
 interface MainSceneProps {
   scene: Sanity.Scene;
@@ -328,6 +329,7 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
       <NatureScene />
       <ShopsParkedCars />
       <EventsParkedCars />
+      <MainSceneCommercialBldgs position={[0, 0, 0]} />
       <AnimatedCar />
       <AnimatedVan />
       <AnimatedTractor />

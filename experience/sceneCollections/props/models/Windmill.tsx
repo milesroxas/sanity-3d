@@ -24,12 +24,13 @@ type GLTFResult = GLTF & {
 
 type WindmillProps = ThreeElements["group"] & {
   speed?: number;
+  rotation?: [number, number, number] | THREE.Euler | undefined;
 };
 
 const MODEL_PATH = "/models/windmill.glb";
 useGLTF.preload(MODEL_PATH);
 
-export function Windmill({ speed = 1, ...props }: WindmillProps) {
+export function Windmill({ speed = 1, rotation = [0, 0, 0], ...props }: WindmillProps) {
   const group = useRef<THREE.Group>(null);
   const { nodes, materials, animations } = useGLTF(MODEL_PATH) as GLTFResult;
   const { actions } = useAnimations(animations, group);
@@ -50,7 +51,7 @@ export function Windmill({ speed = 1, ...props }: WindmillProps) {
   }, [speed, actions]);
 
   return (
-    <group ref={group} {...props}>
+    <group ref={group} {...props} rotation={rotation}>
       <mesh
         geometry={nodes["windmill-base_1"].geometry}
         material={materials["23 GREY-WHITE"]}
