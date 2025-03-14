@@ -25,7 +25,7 @@ function Lights() {
   const shadowControls = useControls(
     "Directional Light & Shadows",
     {
-      showHelpers: { value: !isProduction },
+      showHelpers: { value: false },
       position: {
         value: [32, 38, 49],
         step: 1,

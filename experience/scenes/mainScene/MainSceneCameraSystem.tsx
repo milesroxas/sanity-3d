@@ -100,9 +100,6 @@ export function MainSceneCameraSystem() {
     const currentPosition = cameraRef.current.position;
     const currentTarget = controlsRef.current.target;
     
-    console.log("Controls change - Position:", currentPosition.toArray());
-    console.log("Controls change - Target:", currentTarget.toArray());
-    
     // Store original values before applying constraints
     const originalPosition = currentPosition.clone();
     const originalTarget = currentTarget.clone();
@@ -112,33 +109,27 @@ export function MainSceneCameraSystem() {
     
     // Check and apply X boundary
     if (currentPosition.x < BOUNDARY_LIMITS.minX) {
-      console.log("Hit minX boundary");
       currentPosition.x = BOUNDARY_LIMITS.minX;
       needsUpdate = true;
     } else if (currentPosition.x > BOUNDARY_LIMITS.maxX) {
-      console.log("Hit maxX boundary");
       currentPosition.x = BOUNDARY_LIMITS.maxX;
       needsUpdate = true;
     }
     
     // Check and apply Y boundary
     if (currentPosition.y < BOUNDARY_LIMITS.minY) {
-      console.log("Hit minY boundary");
       currentPosition.y = BOUNDARY_LIMITS.minY;
       needsUpdate = true;
     } else if (currentPosition.y > BOUNDARY_LIMITS.maxY) {
-      console.log("Hit maxY boundary");
       currentPosition.y = BOUNDARY_LIMITS.maxY;
       needsUpdate = true;
     }
     
     // Check and apply Z boundary
     if (currentPosition.z < BOUNDARY_LIMITS.minZ) {
-      console.log("Hit minZ boundary");
       currentPosition.z = BOUNDARY_LIMITS.minZ;
       needsUpdate = true;
     } else if (currentPosition.z > BOUNDARY_LIMITS.maxZ) {
-      console.log("Hit maxZ boundary");
       currentPosition.z = BOUNDARY_LIMITS.maxZ;
       needsUpdate = true;
     }
@@ -150,8 +141,6 @@ export function MainSceneCameraSystem() {
       // If we hit a boundary, also move the target by the same amount
       // This prevents the camera from rotating when hitting a boundary
       currentTarget.add(positionDelta);
-      
-      console.log("Adjusted target to prevent rotation:", currentTarget.toArray());
     }
   };
 

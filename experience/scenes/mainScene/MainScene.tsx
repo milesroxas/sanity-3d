@@ -37,11 +37,9 @@ import {
   // BrightnessContrast,
   // HueSaturation,
 } from "@react-three/postprocessing";
-import { BlendFunction } from "postprocessing";
 import { useControls } from "leva";
 import { INITIAL_POSITIONS } from "@/experience/scenes/store/cameraStore";
 import MainSceneProps from "@/experience/sceneCollections/props/MainSceneProps";
-import { LevaInputs } from "leva";
 import NatureScene from "@/experience/sceneCollections/NatureInstances";
 import ShopsParkedCars from "@/experience/sceneCollections/vehicles/ShopsParkedCars";
 import SceneTransition from "../components/SceneTransition";
@@ -51,6 +49,10 @@ import { useCameraStore } from "../store/cameraStore";
 import EventsParkedCars from "@/experience/sceneCollections/vehicles/EventsParkedCars";
 import { setupInstancedShadowUpdates } from "@/experience/utils/instancedShadows";
 import { MainSceneCommercialBldgs } from "@/experience/sceneCollections/commercialBldgs/mainSceneCommercialBldgs";
+import { HomesOuterLeft } from "@/experience/sceneCollections/homesOuterLeft/homesOuterLeft";
+import { AnimatedTruckFlatBed } from "@/experience/sceneCollections/vehicles/AnimatedTruckFlatBed";
+import { Crane } from "@/experience/sceneCollections/construction/models/Crane";
+import { Excavator } from "@/experience/sceneCollections/construction/models/Excavator";
 
 interface MainSceneProps {
   scene: Sanity.Scene;
@@ -208,7 +210,7 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
       },
       background: { value: true },
       blur: { value: 0.9, min: 0, max: 1, step: 0.1 },
-      intensity: { value: 1.5, min: 0, max: 5, step: 0.1 },
+      intensity: { value: 0.7, min: 0, max: 5, step: 0.1 },
     },
     { collapsed: true }
   );
@@ -216,22 +218,13 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
   const fogControls = useControls(
     "Fog",
     {
-      color: { value: "#f2e0c7", type: LevaInputs.COLOR },
-      near: { value: -34, min: -100, max: 100, step: 1 },
-      far: { value: 1240, min: 0, max: 2000, step: 10 },
+      color: { value: "#ffffff" },
+      near: { value: 80, min: -100, max: 100, step: 1 },
+      far: { value: 1000, min: 0, max: 2000, step: 10 },
     },
     { collapsed: true }
   );
 
-  const shadowControls = useControls(
-    "Shadows",
-    {
-      enabled: { value: true },
-      mapSize: { value: 2048, min: 512, max: 4096, step: 512 },
-      bias: { value: -0.0001, min: -0.01, max: 0.01, step: 0.0001 },
-    },
-    { collapsed: true }
-  );
 
   useFrame((state, delta) => {
     if (cloudsRef.current) {
@@ -310,6 +303,7 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
           threshold={effectsControls.bloomThreshold} 
           radius={2} 
         />
+        
       </EffectComposer>
 
       {cloudsGroup}
@@ -334,10 +328,14 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
       <AnimatedVan />
       <AnimatedTractor />
       <AnimatedPlane />
+      <AnimatedTruckFlatBed />
       <GatedCommunity />
       <ResidentialProps />
       <HomesRightBuildings />
+      <HomesOuterLeft />
       <ConstructionBuildings />
+      <Crane />
+      <Excavator position={[-20, 0, -30]} playAnimation={true} />
       <CompanyBuildings />
       <HomesOuterBuildings />
       <ShopsBuildings />
