@@ -4,6 +4,7 @@ import { useThree } from "@react-three/fiber";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Vector3 } from "three";
+import * as THREE from "three";
 import { useCameraStore } from "@/experience/scenes/store/cameraStore";
 import { useControls } from "leva";
 import { useStoreContext } from "leva/plugin";
@@ -33,6 +34,11 @@ function PoiMarker({
   const hoverTimerRef = useRef<NodeJS.Timeout | null>(null);
   const HOVER_IN_DELAY = 50; // milliseconds delay for hover in (shorter than hover out)
   const HOVER_OUT_DELAY = 150; // milliseconds delay for hover out
+  
+  // Add refs for light animation
+  const lightRef = useRef<THREE.RectAreaLight>(null);
+  const lightAnimationRef = useRef<number | null>(null);
+  const lightIntensityRef = useRef<number>(0);
   
   // Update hover state with delay for both hover in and out
   useEffect(() => {
@@ -76,6 +82,53 @@ function PoiMarker({
       containerRef.current.style.transform = 'scale(1)';
       textRef.current.style.transform = 'scale(1)';
     }
+  }, [effectiveHoverState]);
+
+  // Animate light intensity
+  useEffect(() => {
+    if (!lightRef.current) return;
+    
+    // Cancel any ongoing animation
+    if (lightAnimationRef.current !== null) {
+      cancelAnimationFrame(lightAnimationRef.current);
+      lightAnimationRef.current = null;
+    }
+    
+    const targetIntensity = effectiveHoverState ? 100 : 0;
+    const startIntensity = lightIntensityRef.current;
+    const startTime = Date.now();
+    const duration = 400; // Match the 400ms transition of other elements
+    
+    const animateLight = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Use the same cubic-bezier timing function
+      const t = progress < 0.5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      
+      const newIntensity = startIntensity + (targetIntensity - startIntensity) * t;
+      lightIntensityRef.current = newIntensity;
+      
+      if (lightRef.current) {
+        lightRef.current.intensity = newIntensity;
+      }
+      
+      if (progress < 1) {
+        lightAnimationRef.current = requestAnimationFrame(animateLight);
+      } else {
+        lightAnimationRef.current = null;
+      }
+    };
+    
+    lightAnimationRef.current = requestAnimationFrame(animateLight);
+    
+    return () => {
+      if (lightAnimationRef.current !== null) {
+        cancelAnimationFrame(lightAnimationRef.current);
+      }
+    };
   }, [effectiveHoverState]);
 
   return (
@@ -132,15 +185,14 @@ function PoiMarker({
           </div>
         </Html>
         <group position={[0, -3, 0]}>
-          {effectiveHoverState && (
-            <rectAreaLight
-              position={[0, 5, 40]}
-              width={20}
-              height={20}
-              color="#36A837"
-              intensity={100}
-            />
-          )}
+          <rectAreaLight
+            ref={lightRef}
+            position={[0, 5, 40]}
+            width={20}
+            height={20}
+            color="#36A837"
+            intensity={lightIntensityRef.current}
+          />
           <LogoMarker 
             isHovered={effectiveHoverState} 
             position={[0, 0, 0]}
