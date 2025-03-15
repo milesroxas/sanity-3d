@@ -1,7 +1,6 @@
 "use client";
 import { useR3F } from "@/experience/providers/R3FContext";
 import MainScene from "@/experience/scenes/mainScene/MainScene";
-import { Loading } from "@/experience/scenes/components/Loading";
 import { useEffect } from "react";
 import { useCameraStore } from "../store/cameraStore";
 

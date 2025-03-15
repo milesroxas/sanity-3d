@@ -7,6 +7,7 @@ import {
   INITIAL_POSITIONS,
 } from "@/experience/scenes/store/cameraStore";
 import { useControls, folder } from "leva";
+import { useStoreContext } from "leva/plugin";
 import { Vector3 } from "three";
 import { useSceneStore } from "@/experience/scenes/store/sceneStore";
 
@@ -15,6 +16,7 @@ export function SubSceneCameraSystem() {
   const controlsRef = useRef<any>(null);
   const { position, target, controlType, isAnimating, selectedPoi } =
     useCameraStore();
+  const store = useStoreContext();
 
   const { positionX, positionY, positionZ, targetX, targetY, targetZ } =
     useControls("Subscene Camera Controls", {
@@ -70,7 +72,6 @@ export function SubSceneCameraSystem() {
 
     // Skip camera updates during scene transitions
     if (useSceneStore.getState().isTransitioning) {
-      console.log("🚫 Skipping camera update during transition");
       return;
     }
 
@@ -136,7 +137,7 @@ export function SubSceneCameraSystem() {
           enabled={!isAnimating}
         />
       )}
-      {process.env.NODE_ENV === "development" && (
+      {store?.get("hidden") === false && (
         <mesh position={[targetX, targetY, targetZ]}>
           <sphereGeometry args={[0.3, 16, 16]} />
           <meshBasicMaterial color="lime" wireframe />

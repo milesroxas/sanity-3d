@@ -16,7 +16,7 @@ const sceneComponents = {
     () => import("@/experience/sceneCollections/shops/ShopsSubScene")
   ),
   company: withLoading(
-    () => import("@/experience/sceneCollections/company/MainSceneCompany")
+    () => import("@/experience/sceneCollections/company/SubSceneCompany")
   ),
   events: withLoading(
     () => import("@/experience/sceneCollections/shops/ShopsSubScene")

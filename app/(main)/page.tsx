@@ -2,6 +2,7 @@ import Blocks from "@/components/blocks";
 import { fetchSanityPageBySlug } from "./actions";
 import { generatePageMetadata } from "@/lib/metadata";
 import MissingSanityPage from "@/components/ui/missing-sanity-page";
+import LandingPage from "@/experience/scenes/landing/LandingPage";
 
 export const dynamic = "force-static";
 
@@ -11,7 +12,19 @@ export async function generateMetadata() {
   return generatePageMetadata({ page, slug: "index" });
 }
 
-export default async function IndexPage() {
+// Update your PageProps interface to match Next.js 13+ types
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function Page({ searchParams }: PageProps) {
+  const resolvedSearchParams = await searchParams;
+  const isRootPath = Object.keys(resolvedSearchParams).length === 0;
+
+  if (isRootPath) {
+    return <LandingPage />;
+  }
+
   const page = await fetchSanityPageBySlug({ slug: "index" });
 
   if (!page) {

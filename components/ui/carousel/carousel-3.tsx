@@ -41,13 +41,10 @@ export function Carousel3({ scene, selectedPoi, onClose }: Carousel3Props) {
   const handleCarouselChange = React.useCallback(
     (selectedIndex: number) => {
       const currentIndex = useCameraStore.getState().currentPoiIndex;
-      console.log("Carousel change:", { selectedIndex, currentIndex });
 
       if (selectedIndex > currentIndex) {
-        console.log("Navigating to next POI");
         navigateToNextPoi(validPointsOfInterest);
       } else if (selectedIndex < currentIndex) {
-        console.log("Navigating to previous POI");
         navigateToPreviousPoi(validPointsOfInterest);
       }
     },
@@ -74,13 +71,10 @@ export function Carousel3({ scene, selectedPoi, onClose }: Carousel3Props) {
     const isAnimating = useCameraStore.getState().isAnimating;
     if (isAnimating) return;
 
-    // 1. Start exit animation of carousel
     onClose();
 
-    // 2. Wait for carousel exit animation to complete
     await new Promise((resolve) => setTimeout(resolve, 800));
 
-    // 3. Start camera transition back to initial position
     const initialPosition = INITIAL_POSITIONS.subscene;
     useCameraStore
       .getState()

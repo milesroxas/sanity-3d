@@ -51,12 +51,16 @@ interface CameraStore {
 }
 
 export const INITIAL_POSITIONS = {
+  mainIntro: {
+    position: new Vector3(-10, 200, 160),
+    target: new Vector3(-10, 10, 50),
+  },
   main: {
-    position: new Vector3(-10, 60, 200),
+    position: new Vector3(-10, 60, 160),
     target: new Vector3(-10, 10, 50),
   },
   subscene: {
-    position: new Vector3(-20, 10, 40),
+    position: new Vector3(-20, 10, 30),
     target: new Vector3(0, 4.5, 7.0),
   },
 } as const;
@@ -155,13 +159,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
 
   // Animation
   startCameraTransition: (startPos, endPos, startTarget, endTarget) => {
-    console.log("🎯 startCameraTransition called", {
-      isSubscene: get().isSubscene,
-      isTransitioning: useSceneStore.getState().isTransitioning,
-      startPos: startPos.toArray(),
-      endPos: endPos.toArray(),
-    });
-
     // Skip animation ONLY during subscene navigation (not POI clicks)
     if (
       get().isSubscene &&
@@ -200,7 +197,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
           target: endTarget.clone(),
           previousPosition: startPos.clone(),
           previousTarget: startTarget.clone(),
-          controlType: "CameraControls",
+          controlType: get().isSubscene ? "CameraControls" : "Map",
         });
       } else {
         const t =

@@ -9,12 +9,16 @@ export default function ExperienceLayout({
 }: {
   children: ReactNode;
 }) {
+  const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === "production";
+
   return (
     <R3FProvider>
       {/* Non-R3F components render here */}
 
       <main className="mt-8">{children}</main>
-      <Leva hidden={true} />
+
+      {/* Hide Leva in production, show in development */}
+      <Leva hidden={isProduction} />
     </R3FProvider>
   );
 }
