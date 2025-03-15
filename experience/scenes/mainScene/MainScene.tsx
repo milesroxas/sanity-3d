@@ -53,6 +53,7 @@ import { HomesOuterLeft } from "@/experience/sceneCollections/homesOuterLeft/hom
 import { AnimatedTruckFlatBed } from "@/experience/sceneCollections/vehicles/AnimatedTruckFlatBed";
 import { Crane } from "@/experience/sceneCollections/construction/models/Crane";
 import { Excavator } from "@/experience/sceneCollections/construction/models/Excavator";
+import LogoMarkers from "./components/LogoMarkers";
 
 interface MainSceneProps {
   scene: Sanity.Scene;
@@ -290,7 +291,8 @@ export default function MainScene({ scene, onLoad }: MainSceneProps) {
       <MainSceneCameraSystem />
       {/* <PerformanceMonitor /> */}
       {/* <PerformanceComparison /> */}
-      <MainSceneMarkers scene={scene} />
+      <LogoMarkers scene={scene} />
+      {/* <MainSceneMarkers scene={scene} /> */}
       <SceneTransition transition={false} color="#a5b4fc" />
       <fog
         attach="fog"
