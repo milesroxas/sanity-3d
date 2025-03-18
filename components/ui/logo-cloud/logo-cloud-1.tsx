@@ -31,13 +31,7 @@ export default function LogoCloud1({
           {title}
         </h2>
       )}
-      <div
-        className="flex relative overflow-hidden 
-            before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-10 
-            before:bg-linear-to-r before:from-background before:to-transparent before:content-[''] 
-            after:absolute after:right-0 after:top-0 after:h-full after:w-10 
-            after:bg-linear-to-l after:from-background after:to-transparent after:content-['']"
-      >
+      <div className="flex relative overflow-hidden before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-10 before:bg-linear-to-r before:from-background before:to-transparent before:content-[''] after:absolute after:right-0 after:top-0 after:h-full after:w-10 after:bg-linear-to-l after:from-background after:to-transparent after:content-['']">
         <motion.div
           transition={{
             duration: 20,
