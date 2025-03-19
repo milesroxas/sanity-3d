@@ -1,5 +1,5 @@
 import { stegaClean } from "next-sanity";
-import SplitCardsItem from "@/components/ui/split/split-cards-item";
+import SplitCardsItem from "@/components/blocks/split/split-cards-item";
 import { PAGE_QUERYResult, ColorVariant } from "@/sanity.types";
 
 type Block = NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number];

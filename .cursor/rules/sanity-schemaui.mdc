@@ -167,9 +167,10 @@ defineField({
 
 ```tsx
 // Example React component for a parent block
+// components/blocks/parent-component.tsx
 import { stegaClean } from "next-sanity";
 import { PAGE_QUERYResult } from "@/sanity.types";
-import SectionContainer from "@/components/ui/section-container";
+import SectionContainer from "@/components/blocks/section-container";
 import ChildComponent1 from "./child-component-1";
 import ChildComponent2 from "./child-component-2";
 
