@@ -1,17 +1,17 @@
 import { PAGE_QUERYResult } from "@/sanity.types";
-import Hero1 from "@/components/ui/hero/hero-1";
-import Hero2 from "@/components/ui/hero/hero-2";
-import SectionHeader from "@/components/ui/section-header";
-import SplitRow from "@/components/ui/split/split-row";
-import GridRow from "@/components/ui/grid/grid-row";
-import Carousel1 from "@/components/ui/carousel/carousel-1";
-import Carousel2 from "@/components/ui/carousel/carousel-2";
-import TimelineRow from "@/components/ui/timeline/timeline-row";
-import Cta1 from "@/components/ui/cta/cta-1";
-import LogoCloud1 from "@/components/ui/logo-cloud/logo-cloud-1";
-import FAQs from "@/components/ui/faqs";
-import FormNewsletter from "@/components/ui/forms/newsletter";
-import AllPosts from "@/components/ui/all-posts";
+import Hero1 from "@/components/blocks/hero/hero-1";
+import Hero2 from "@/components/blocks/hero/hero-2";
+import SectionHeader from "@/components/blocks/section-header";
+import SplitRow from "@/components/blocks/split/split-row";
+import GridRow from "@/components/blocks/grid/grid-row";
+import Carousel1 from "@/components/blocks/carousel/carousel-1";
+import Carousel2 from "@/components/blocks/carousel/carousel-2";
+import TimelineRow from "@/components/blocks/timeline/timeline-row";
+import Cta1 from "@/components/blocks/cta/cta-1";
+import LogoCloud1 from "@/components/blocks/logo-cloud/logo-cloud-1";
+import FAQs from "@/components/blocks/faqs";
+import FormNewsletter from "@/components/blocks/forms/newsletter";
+import AllPosts from "@/components/blocks/all-posts";
 
 type Block = NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number];
 

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/ui/breadcrumbs";
-import PostHero from "@/components/ui/post/hero";
+import PostHero from "@/components/blocks/post-hero";
 import { BreadcrumbLink } from "@/types";
 import PortableTextRenderer from "@/components/portable-text-renderer";
 import {

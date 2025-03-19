@@ -1,6 +1,6 @@
 import SectionContainer from "@/components/ui/section-container";
 import { stegaClean } from "next-sanity";
-import Timeline1 from "@/components/ui/timeline/timeline-1";
+import Timeline1 from "@/components/blocks/timeline/timeline-1";
 import { PAGE_QUERYResult, ColorVariant } from "@/sanity.types";
 
 type TimelineRow = Extract<

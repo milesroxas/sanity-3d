@@ -1,4 +1,4 @@
-import SplitInfoItem from "@/components/ui/split/split-info-item";
+import SplitInfoItem from "@/components/blocks/split/split-info-item";
 import { PAGE_QUERYResult } from "@/sanity.types";
 
 type Block = NonNullable<NonNullable<PAGE_QUERYResult>["blocks"]>[number];

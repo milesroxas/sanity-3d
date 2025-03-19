@@ -1,5 +1,5 @@
 import Image from "next/image";
-import PostDate from "./date";
+import PostDate from "@/components/post-date";
 import { Mail } from "lucide-react";
 import { urlFor } from "@/sanity/lib/image";
 import { POST_QUERYResult } from "@/sanity.types";
