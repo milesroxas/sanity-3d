@@ -115,7 +115,7 @@ export default defineType({
           views: [
             {
               name: "grid",
-              previewImageUrl: (block) => `/sanity/preview/${block}.webp`,
+              previewImageUrl: (block) => `/sanity/preview/${block}.jpg`,
             },
             { name: "list" },
           ],
