@@ -1,6 +1,7 @@
 import { defineType, defineArrayMember } from "sanity";
 import { VideoIcon } from "@radix-ui/react-icons";
 import { YouTubePreview } from "@/sanity/schemas/previews/youtube-preview";
+import { BUTTON_VARIANTS } from "./button-variant";
 
 export default defineType({
   title: "Block Content",
@@ -29,19 +30,76 @@ export default defineType({
         ],
         annotations: [
           {
-            title: "URL",
+            title: "Link",
             name: "link",
             type: "object",
             fields: [
               {
-                title: "URL",
-                name: "href",
-                type: "url",
-                validation: (Rule) =>
-                  Rule.uri({
-                    allowRelative: true,
-                    scheme: ["http", "https", "mailto", "tel"],
-                  }),
+                name: 'linkType',
+                type: 'string',
+                title: 'Link Type',
+                options: {
+                  list: [
+                    { title: 'URL', value: 'url' },
+                    { title: 'Document', value: 'document' },
+                  ],
+                  layout: 'radio',
+                },
+                initialValue: 'url',
+              },
+              {
+                name: 'href',
+                type: 'url',
+                title: 'URL',
+                validation: Rule => Rule.uri({
+                  allowRelative: true,
+                  scheme: ['http', 'https', 'mailto', 'tel']
+                }),
+                hidden: ({ parent }) => parent?.linkType === 'document',
+              },
+              {
+                name: 'reference',
+                type: 'reference',
+                title: 'Document Reference',
+                to: [
+                  { type: 'post' },
+                  { type: 'page' },
+                  // Add other document types as needed
+                ],
+                hidden: ({ parent }) => parent?.linkType !== 'document',
+              },
+              {
+                name: 'isButton',
+                type: 'boolean',
+                title: 'Display as Button',
+                initialValue: false,
+              },
+              {
+                name: 'buttonVariant',
+                type: 'string',
+                title: 'Button Style',
+                options: {
+                  list: BUTTON_VARIANTS.map(({ title, value }) => ({ title, value })),
+                  layout: 'radio',
+                },
+                initialValue: 'default',
+                hidden: ({ parent }) => !parent?.isButton,
+              },
+              {
+                name: 'buttonSize',
+                type: 'string',
+                title: 'Button Size',
+                options: {
+                  list: [
+                    { title: 'Default', value: 'default' },
+                    { title: 'Small', value: 'sm' },
+                    { title: 'Large', value: 'lg' },
+                    { title: 'Extra Large', value: 'xl' },
+                  ],
+                  layout: 'radio',
+                },
+                initialValue: 'default',
+                hidden: ({ parent }) => !parent?.isButton,
               },
             ],
           },

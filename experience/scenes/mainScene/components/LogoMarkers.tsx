@@ -27,6 +27,7 @@ function PoiMarker({
   hoveredMarkerId,
   setHoveredMarkerId,
   handleMarkerClick,
+  otherMarkersVisible
 }: any) {
   const isHovered = hoveredMarkerId === poi._id;
   
@@ -61,6 +62,9 @@ function PoiMarker({
     }
   }, [isHovered]);
 
+  // Handle marker visibility
+  const opacity = otherMarkersVisible ? 1 : 0;
+
   // Event handlers
   const handlePointerEnter = () => {
     setHoveredMarkerId(poi._id);
@@ -81,7 +85,7 @@ function PoiMarker({
     <group>
       {/* Single hitbox for 3D interaction */}
       <mesh 
-        visible={false}
+        visible={otherMarkersVisible}
         position={markerPosition}
         scale={[10, 10, 10]}
         onClick={handleClick}
@@ -102,7 +106,10 @@ function PoiMarker({
         floatIntensity={1}
         floatingRange={[-0.1, 0.1]}
       >
-        <group position={markerPosition}>
+        <group 
+          position={markerPosition}
+          visible={otherMarkersVisible}
+        >
           {/* Logo marker with light */}
           <group position={[0, 0, 0]}>
             <rectAreaLight
@@ -117,6 +124,7 @@ function PoiMarker({
               isHovered={isHovered} 
               position={[0, 0, 0]}
               scale={1}
+              opacity={opacity}
             />
           </group>
           
@@ -131,6 +139,7 @@ function PoiMarker({
                   transition: 'all 400ms cubic-bezier(0.4, 0, 0.2, 1)',
                   transformOrigin: 'center center',
                   cursor: 'pointer', // Add pointer cursor
+                  opacity: opacity,
                 }}
                 onMouseEnter={handlePointerEnter}
                 onMouseLeave={handlePointerLeave}
@@ -168,7 +177,9 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     setContentVisible,
     initialCameraPosition,
     initialCameraTarget,
-    setInitialCameraState 
+    setInitialCameraState,
+    otherMarkersVisible,
+    setOtherMarkersVisible
   } = useLogoMarkerStore();
   const { setControlType, setIsAnimating, syncCameraPosition } = useCameraStore();
 
@@ -190,6 +201,9 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
       return;
     }
 
+    // First, fade out all markers
+    setOtherMarkersVisible(false);
+
     // Store the exact camera state before we do anything else
     const currentPosition = camera.position.clone();
     const currentTarget = new Vector3();
@@ -200,8 +214,8 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     // Store these values immediately
     setInitialCameraState(currentPosition, currentTarget);
 
-    // Wait for store to update before proceeding
-    requestAnimationFrame(() => {
+    // Wait for markers to fade out before starting camera animation
+    setTimeout(() => {
       // Now we can proceed with the animation setup
       setControlType("Disabled");
       setIsAnimating(true);
@@ -252,7 +266,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
       const duration = 2000;
 
       animate();
-    });
+    }, 500); // Wait 500ms for markers to fade out
   };
 
   // Handle camera animation when closing
@@ -352,6 +366,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
               hoveredMarkerId={hoveredMarkerId}
               setHoveredMarkerId={setHoveredMarkerId}
               handleMarkerClick={handleMarkerClick}
+              otherMarkersVisible={otherMarkersVisible}
             />
           );
         }

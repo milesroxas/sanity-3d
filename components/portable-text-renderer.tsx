@@ -1,7 +1,11 @@
+"use client";
+
 import { PortableText, PortableTextProps } from "@portabletext/react";
 import Image from "next/image";
 import Link from "next/link";
 import { YouTubeEmbed } from "@next/third-parties/google";
+import { Button } from "@/components/ui/button";
+import { extractHrefFromLinkMark } from "@/lib/sanity-utils";
 
 const portableTextComponents: PortableTextProps["components"] = {
   types: {
@@ -59,17 +63,73 @@ const portableTextComponents: PortableTextProps["components"] = {
   },
   marks: {
     link: ({ value, children }) => {
+      // Extract href using our utility function
+      const href = extractHrefFromLinkMark(value) || '#';
+      
       const isExternal =
-        (value?.href || "").startsWith("http") ||
-        (value?.href || "").startsWith("https") ||
-        (value?.href || "").startsWith("mailto");
+        href.startsWith("http") ||
+        href.startsWith("https") ||
+        href.startsWith("mailto");
       const target = isExternal ? "_blank" : undefined;
+      const rel = isExternal ? "noopener noreferrer" : undefined;
+      
+      // Render as Button component if specified
+      if (value?.isButton) {
+        // External site links should open in a new window
+        if (isExternal) {
+          return (
+            <Button 
+              asChild 
+              variant={value?.buttonVariant || "default"}
+              size={value?.buttonSize || "default"}
+            >
+              <a href={href} target="_blank" rel="noopener noreferrer">
+                {children}
+              </a>
+            </Button>
+          );
+        }
+        
+        // Internal links use Next.js Link
+        return (
+          <Button 
+            asChild 
+            variant={value?.buttonVariant || "default"}
+            size={value?.buttonSize || "default"}
+          >
+            <Link
+              href={href}
+              target={target}
+              rel={rel}
+              prefetch={false}
+            >
+              {children}
+            </Link>
+          </Button>
+        );
+      }
+      
+      // Default link rendering
+      // External site links should open in a new window
+      if (isExternal) {
+        return (
+          <a 
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: "underline" }}
+          >
+            {children}
+          </a>
+        );
+      }
+      
+      // Internal links use Next.js Link
       return (
         <Link
-          href={value?.href}
-          target={target}
-          rel={target ? "noopener" : undefined}
+          href={href}
           style={{ textDecoration: "underline" }}
+          prefetch={false}
         >
           {children}
         </Link>

@@ -24,13 +24,75 @@ type GLTFResult = GLTF & {
 type LogoMarkerProps = ThreeElements['group'] & {
   isHovered?: boolean;
   scale?: number | [number, number, number];
+  opacity?: number;
 }
 
 export function LogoMarker(props: LogoMarkerProps) {
   const { nodes, materials } = useGLTF('/models/logoMarker.glb') as GLTFResult
-  const { isHovered = false, scale = 1, ...groupProps } = props;
+  const { isHovered = false, scale = 1, opacity = 1, ...groupProps } = props;
   const groupRef = useRef<THREE.Group>(null);
   const animationRef = useRef<number | null>(null);
+  
+  // Apply opacity to all materials
+  useEffect(() => {
+    if (!materials) return;
+    
+    // Store original opacity values if not already stored
+    if (!materials['Material.003'].userData.originalOpacity) {
+      materials['Material.003'].userData.originalOpacity = materials['Material.003'].opacity;
+      materials['Material.004'].userData.originalOpacity = materials['Material.004'].opacity;
+      materials.Material.userData.originalOpacity = materials.Material.opacity;
+    }
+    
+    // Animate the opacity change
+    const duration = 500; // 500ms transition
+    const startTime = Date.now();
+    const startOpacities = {
+      material003: materials['Material.003'].opacity,
+      material004: materials['Material.004'].opacity,
+      material: materials.Material.opacity
+    };
+    
+    // Always set transparent when we want to animate opacity
+    materials['Material.003'].transparent = true;
+    materials['Material.004'].transparent = true;
+    materials.Material.transparent = true;
+    
+    const animateOpacity = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Ease out cubic function for smooth transition
+      const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+      const easedProgress = easeOut(progress);
+      
+      // Interpolate opacity values
+      materials['Material.003'].opacity = startOpacities.material003 + (opacity - startOpacities.material003) * easedProgress;
+      materials['Material.004'].opacity = startOpacities.material004 + (opacity - startOpacities.material004) * easedProgress;
+      materials.Material.opacity = startOpacities.material + (opacity - startOpacities.material) * easedProgress;
+      
+      if (progress < 1) {
+        requestAnimationFrame(animateOpacity);
+      } else {
+        // Final opacity set
+        materials['Material.003'].opacity = opacity;
+        materials['Material.004'].opacity = opacity;
+        materials.Material.opacity = opacity;
+        
+        // Set transparent property based on final opacity
+        materials['Material.003'].transparent = opacity < 1;
+        materials['Material.004'].transparent = opacity < 1;
+        materials.Material.transparent = opacity < 1;
+      }
+    };
+    
+    // Start animation
+    requestAnimationFrame(animateOpacity);
+    
+    return () => {
+      // No specific cleanup needed since we're not creating new materials
+    };
+  }, [materials, opacity]);
   
   // Simplified animation approach - just apply rotation and position directly
   useEffect(() => {

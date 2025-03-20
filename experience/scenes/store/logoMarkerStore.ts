@@ -10,6 +10,7 @@ interface LogoMarkerStore {
   shouldAnimateBack: boolean;
   initialCameraPosition: Vector3 | null;
   initialCameraTarget: Vector3 | null;
+  otherMarkersVisible: boolean;
 
   // Actions
   setSelectedScene: (scene: Sanity.Scene | null) => void;
@@ -17,6 +18,7 @@ interface LogoMarkerStore {
   setIsLoading: (loading: boolean) => void;
   setShouldAnimateBack: (should: boolean) => void;
   setInitialCameraState: (position: Vector3, target: Vector3) => void;
+  setOtherMarkersVisible: (visible: boolean) => void;
   fetchAndSetScene: (slug: string) => Promise<void>;
   reset: () => void;
 }
@@ -29,6 +31,7 @@ export const useLogoMarkerStore = create<LogoMarkerStore>((set) => ({
   shouldAnimateBack: false,
   initialCameraPosition: null,
   initialCameraTarget: null,
+  otherMarkersVisible: true,
 
   // Actions
   setSelectedScene: (scene) => set({ selectedScene: scene }),
@@ -39,6 +42,7 @@ export const useLogoMarkerStore = create<LogoMarkerStore>((set) => ({
     initialCameraPosition: position.clone(),
     initialCameraTarget: target.clone()
   }),
+  setOtherMarkersVisible: (visible) => set({ otherMarkersVisible: visible }),
 
   fetchAndSetScene: async (slug) => {
     set({ isLoading: true });
@@ -58,6 +62,7 @@ export const useLogoMarkerStore = create<LogoMarkerStore>((set) => ({
     isLoading: false,
     shouldAnimateBack: false,
     initialCameraPosition: null,
-    initialCameraTarget: null
+    initialCameraTarget: null,
+    otherMarkersVisible: true
   }),
 })); 
