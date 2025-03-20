@@ -52,7 +52,7 @@
     "react-hook-form": "^7.54.2",
     "react-player": "^2.16.0",
     "resend": "^4.0.1",
-    "sanity": "^3.69.0",
+    "sanity": "^3.80.1",
     "sanity-plugin-mux-input": "^2.5.0",
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.6.0",

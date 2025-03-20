@@ -20,9 +20,9 @@ const portableTextComponents: PortableTextProps["components"] = {
           height={dimensions.height}
           placeholder="blur"
           blurDataURL={lqip}
-          className="w-full h-auto max-w-full"
+          className="w-full h-auto"
           style={{
-            borderRadius: "1rem",
+            borderRadius: "0.5rem",
           }}
           quality={100}
         />

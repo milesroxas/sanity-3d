@@ -21,7 +21,7 @@ export default function PostHero({
     <>
       {title && <h1 className="mb-4 md:mb-6 text-3xl lg:text-5xl">{title}</h1>}
       {image && image.asset?._id && (
-        <div className="my-4 md:my-6 rounded-2xl overflow-hidden">
+        <div className="my-4 md:my-6 rounded-md overflow-hidden">
           <Image
             src={urlFor(image).auto("format").fit("max").quality(100).url()}
             alt={image.alt || ""}

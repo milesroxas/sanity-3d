@@ -30,7 +30,7 @@ export default function SplitCardsItem({
     <motion.div
       ref={ref}
       className={cn(
-        "border border-primary rounded-3xl px-6 lg:px-8 py-6 lg:py-8 transition-colors duration-1000 ease-in-out",
+        "border border-primary rounded-sm px-6 lg:px-8 py-6 lg:py-8 transition-colors duration-1000 ease-in-out",
         isInView ? "bg-foreground/85" : "bg-background"
       )}
     >

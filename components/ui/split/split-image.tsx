@@ -7,7 +7,7 @@ export interface SplitImageProps {
 
 export default function SplitImage({ image }: Partial<SplitImageProps>) {
   return image && image.asset?._id ? (
-    <div className="relative h-[25rem] sm:h-[30rem] md:h-[25rem] lg:h-full rounded-lg overflow-hidden">
+    <div className="relative h-[25rem] sm:h-[30rem] md:h-[25rem] lg:h-full rounded-sm overflow-hidden">
       <Image
         src={urlFor(image.asset).url()}
         alt={image.alt || ""}

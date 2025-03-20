@@ -27,7 +27,7 @@ export default function SplitCardsItem({
     <motion.div
       ref={ref}
       className={cn(
-        "flex flex-col items-start border border-primary rounded-3xl px-6 lg:px-8 py-6 lg:py-8 transition-colors duration-1000 ease-in-out",
+        "flex flex-col items-start border border-primary rounded-md px-6 lg:px-8 py-6 lg:py-8 transition-colors duration-1000 ease-in-out",
         isInView ? "bg-foreground/85" : "bg-background",
         color === "primary" ? "text-background" : undefined
       )}

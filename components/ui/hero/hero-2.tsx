@@ -36,7 +36,7 @@ export default function Hero2({
   return (
     <div
       ref={ref}
-      className="container dark:bg-background py-20 lg:pt-40 text-center"
+      className="container dark:bg-background py-20 text-center"
     >
       {tagLine && (
         <motion.h1

@@ -69,7 +69,7 @@ export default function Hero1({
         <div className="flex flex-col justify-center">
           {image && image.asset?._id && (
             <Image
-              className="rounded-xl"
+              className="rounded-md"
               src={urlFor(image.asset).url()}
               alt={image.alt || ""}
               width={image.asset?.metadata?.dimensions?.width || 800}
