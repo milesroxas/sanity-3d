@@ -144,6 +144,15 @@ export function MainSceneCameraSystem() {
     }
   };
 
+  // Add this effect to keep Leva controls in sync
+  useEffect(() => {
+    if (!isAnimating) {
+      // Update Leva controls to match current state
+      // Note: you'd need to use the appropriate Leva API
+      // to programmatically update these values
+    }
+  }, [isAnimating]);
+
   return (
     <>
       <PerspectiveCamera
@@ -158,7 +167,7 @@ export function MainSceneCameraSystem() {
       {controlType === "Map" && !isAnimating && (
         <MapControls
           ref={controlsRef}
-          target={[targetX, targetY, targetZ]}
+          target={[target.x, target.y, target.z]}
           // Use the angle limits defined above
           maxPolarAngle={ANGLE_LIMITS.maxPolar}
           minPolarAngle={ANGLE_LIMITS.minPolar}

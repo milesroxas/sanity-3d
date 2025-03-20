@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Vector3 } from "three";
 import * as THREE from "three";
 import { useCameraStore } from "@/experience/scenes/store/cameraStore";
+import { useLogoMarkerStore } from "@/experience/scenes/store/logoMarkerStore";
 import { LogoMarker } from "@/experience/sceneCollections/markers/LogoMarker";
 
 type MarkerPosition = {
@@ -160,6 +161,16 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
   const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null);
   const router = useRouter();
   const { camera } = useThree();
+  const { 
+    fetchAndSetScene, 
+    shouldAnimateBack, 
+    setShouldAnimateBack, 
+    setContentVisible,
+    initialCameraPosition,
+    initialCameraTarget,
+    setInitialCameraState 
+  } = useLogoMarkerStore();
+  const { setControlType, setIsAnimating, syncCameraPosition } = useCameraStore();
 
   // Reset hover state on scene changes or unmount
   useEffect(() => {
@@ -179,57 +190,150 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
       return;
     }
 
-    // Create target vectors
-    const targetPos = new Vector3(
-      poi.mainSceneCameraPosition.x,
-      poi.mainSceneCameraPosition.y,
-      poi.mainSceneCameraPosition.z
-    );
+    // Store the exact camera state before we do anything else
+    const currentPosition = camera.position.clone();
+    const currentTarget = new Vector3();
+    // Get exact point camera is looking at
+    camera.getWorldDirection(currentTarget);
+    currentTarget.multiplyScalar(100).add(currentPosition);
+    
+    // Store these values immediately
+    setInitialCameraState(currentPosition, currentTarget);
 
-    const targetLookAt = new Vector3(
-      poi.mainSceneCameraTarget.x,
-      poi.mainSceneCameraTarget.y,
-      poi.mainSceneCameraTarget.z
-    );
+    // Wait for store to update before proceeding
+    requestAnimationFrame(() => {
+      // Now we can proceed with the animation setup
+      setControlType("Disabled");
+      setIsAnimating(true);
 
-    useCameraStore.getState().setControlType("Disabled");
-    useCameraStore.getState().setPreviousCamera(targetPos, targetLookAt);
+      // Create target vectors for where we want to animate TO
+      const targetPos = new Vector3(
+        poi.mainSceneCameraPosition.x,
+        poi.mainSceneCameraPosition.y,
+        poi.mainSceneCameraPosition.z
+      );
 
-    const startTime = Date.now();
-    const duration = 2000;
+      const targetLookAt = new Vector3(
+        poi.mainSceneCameraTarget.x,
+        poi.mainSceneCameraTarget.y,
+        poi.mainSceneCameraTarget.z
+      );
+
+      const animate = () => {
+        const now = Date.now();
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Cubic easing
+        const t =
+          progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+        const newPosition = new Vector3().lerpVectors(currentPosition, targetPos, t);
+        const newTarget = new Vector3().lerpVectors(currentTarget, targetLookAt, t);
+
+        syncCameraPosition(newPosition, newTarget);
+
+        if (progress >= 1) {
+          // Ensure we're exactly at the target position and target
+          syncCameraPosition(targetPos, targetLookAt);
+          
+          setIsAnimating(false);
+          if (poi.slug?.current) {
+            fetchAndSetScene(poi.slug.current);
+          }
+        } else {
+          requestAnimationFrame(animate);
+        }
+      };
+
+      const startTime = Date.now();
+      const duration = 2000;
+
+      animate();
+    });
+  };
+
+  // Handle camera animation when closing
+  useEffect(() => {
+    if (!shouldAnimateBack || !initialCameraPosition || !initialCameraTarget) return;
+
+    // Disable controls during animation
+    setControlType("Disabled");
+    setIsAnimating(true);
+
+    // Get the current camera state
     const startPos = camera.position.clone();
-    const startTarget = camera.position
-      .clone()
-      .add(camera.getWorldDirection(new Vector3()).multiplyScalar(100));
+    const startTarget = new Vector3();
+    camera.getWorldDirection(startTarget);
+    startTarget.multiplyScalar(100).add(camera.position);
 
-    useCameraStore.getState().setIsAnimating(true);
+    // Define animation parameters
+    const duration = 2000;
+    const startTime = Date.now();
 
-    const animate = () => {
+    // Create our own animation loop for full control
+    const animateBack = () => {
       const now = Date.now();
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Cubic easing
-      const t =
-        progress < 0.5
-          ? 4 * progress * progress * progress
-          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      // Use cubic easing for smooth motion
+      const t = progress < 0.5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-      const newPosition = new Vector3().lerpVectors(startPos, targetPos, t);
-      const newTarget = new Vector3().lerpVectors(startTarget, targetLookAt, t);
+      // Interpolate position and target
+      const newPosition = new Vector3().lerpVectors(startPos, initialCameraPosition, t);
+      const newTarget = new Vector3().lerpVectors(startTarget, initialCameraTarget, t);
 
-      useCameraStore.getState().syncCameraPosition(newPosition, newTarget);
+      // Update camera directly
+      syncCameraPosition(newPosition, newTarget);
 
       if (progress >= 1) {
-        useCameraStore.getState().setIsLoading(true);
-        router.push(`/experience/${poi.slug.current}`);
+        // Ensure we land exactly at the desired position
+        syncCameraPosition(initialCameraPosition, initialCameraTarget);
+        
+        // Complete animation first
+        setIsAnimating(false);
+        
+        // Set a delay before re-enabling controls to ensure the camera has fully settled
+        setTimeout(() => {
+          // Force another sync just before re-enabling controls
+          syncCameraPosition(initialCameraPosition, initialCameraTarget);
+          
+          // Create a temporary "lookAt" function to restore the camera direction
+          const restoreTarget = () => {
+            // Calculate direction vector from position to target
+            const direction = new Vector3().subVectors(initialCameraTarget, camera.position).normalize();
+            // Apply this direction to the camera
+            camera.lookAt(initialCameraTarget);
+          };
+          
+          // Now re-enable controls
+          setControlType("Map");
+          
+          // Apply our target correction repeatedly to ensure it sticks
+          requestAnimationFrame(() => {
+            restoreTarget();
+            // Try again a few more times to make sure it sticks
+            setTimeout(restoreTarget, 10);
+            setTimeout(restoreTarget, 50);
+            setTimeout(restoreTarget, 100);
+          });
+        }, 50);
       } else {
-        requestAnimationFrame(animate);
+        requestAnimationFrame(animateBack);
       }
     };
 
-    animate();
-  };
+    // Start animation
+    animateBack();
+
+    // Reset our local state
+    setShouldAnimateBack(false);
+  }, [shouldAnimateBack, camera, initialCameraPosition, initialCameraTarget, setShouldAnimateBack, setControlType, setIsAnimating, syncCameraPosition]);
 
   return (
     <group>

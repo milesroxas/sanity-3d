@@ -63,6 +63,7 @@
     "zustand": "^5.0.2"
   },
   "devDependencies": {
+    "@agentdeskai/browser-tools-mcp": "1.2.0",
     "@types/formidable": "^3.4.5",
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.4",

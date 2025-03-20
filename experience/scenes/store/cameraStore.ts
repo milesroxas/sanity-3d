@@ -191,13 +191,30 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       const progress = Math.min(elapsed / duration, 1);
 
       if (progress >= 1) {
+        // First update state with our desired end position
         set({
           isAnimating: false,
           position: endPos.clone(),
           target: endTarget.clone(),
           previousPosition: startPos.clone(),
           previousTarget: startTarget.clone(),
-          controlType: get().isSubscene ? "CameraControls" : "Map",
+        });
+
+        // Re-enable controls
+        set({ controlType: get().isSubscene ? "CameraControls" : "Map" });
+
+        // After controls are re-enabled, check if position changed and force it back
+        requestAnimationFrame(() => {
+          const currentPos = get().position;
+          const currentTarget = get().target;
+          
+          // If position changed, force it back to our desired position
+          if (!currentPos.equals(endPos) || !currentTarget.equals(endTarget)) {
+            set({
+              position: endPos.clone(),
+              target: endTarget.clone()
+            });
+          }
         });
       } else {
         const t =

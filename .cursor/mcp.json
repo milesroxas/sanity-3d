@@ -1,0 +1,8 @@
+{
+  "name": "browser-tools",
+  "version": "1.2.0",
+  "type": "npm",
+  "package": "@agentdeskai/browser-tools-mcp",
+  "command": "npx @agentdeskai/browser-tools-mcp@1.2.0",
+  "enabled": true
+} 

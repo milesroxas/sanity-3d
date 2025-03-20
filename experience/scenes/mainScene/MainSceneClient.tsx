@@ -3,6 +3,7 @@ import { useR3F } from "@/experience/providers/R3FContext";
 import MainScene from "@/experience/scenes/mainScene/MainScene";
 import { useEffect } from "react";
 import { useCameraStore } from "../store/cameraStore";
+import LogoMarkerContent from "./components/LogoMarkerContent";
 
 export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
   const { setR3FContent } = useR3F();
@@ -27,5 +28,9 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
     };
   }, [setR3FContent, scene, setIsLoading]);
 
-  return null;
+  return (
+    <>
+      <LogoMarkerContent />
+    </>
+  );
 }
