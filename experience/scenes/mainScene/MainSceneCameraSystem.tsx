@@ -10,11 +10,11 @@ import {
 
 // Define boundary limits for camera movement
 const BOUNDARY_LIMITS = {
-  minX: -400,
-  maxX: 400,
+  minX: -200,
+  maxX: 200,
   minY: -400,
   maxY: 400,
-  minZ: -400,
+  minZ: -80,
   maxZ: 400
 };
 
@@ -177,9 +177,9 @@ export function MainSceneCameraSystem() {
           minAzimuthAngle={ANGLE_LIMITS.minAzimuth}
           // Prevent automatic adjustments when hitting angle limits
           enableDamping={true}
-          dampingFactor={0.07}
+          dampingFactor={0.08}
           rotateSpeed={0.5}
-          maxDistance={200}
+          maxDistance={250}
           minDistance={10}
           onChange={handleControlsChange}
         />

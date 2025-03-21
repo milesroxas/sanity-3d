@@ -1,7 +1,7 @@
 "use client";
 import { Float, Html, useCursor } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Vector3 } from "three";
 import * as THREE from "three";
@@ -174,7 +174,6 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     fetchAndSetScene, 
     shouldAnimateBack, 
     setShouldAnimateBack, 
-    setContentVisible,
     initialCameraPosition,
     initialCameraTarget,
     setInitialCameraState,
@@ -182,24 +181,63 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     setOtherMarkersVisible
   } = useLogoMarkerStore();
   const { setControlType, setIsAnimating, syncCameraPosition } = useCameraStore();
+  
+  // Refs to track animation frames and timeouts for cleanup
+  const animationFrameRef = useRef<number | null>(null);
+  const timeoutRefs = useRef<Array<NodeJS.Timeout>>([]);
+
+  // Helper to safely set timeouts that we can clean up
+  const safeSetTimeout = useCallback((callback: () => void, delay: number) => {
+    const timeoutId = setTimeout(callback, delay);
+    timeoutRefs.current.push(timeoutId);
+    return timeoutId;
+  }, []);
+
+  // Clear all timeouts
+  const clearAllTimeouts = useCallback(() => {
+    timeoutRefs.current.forEach(clearTimeout);
+    timeoutRefs.current = [];
+  }, []);
+
+  // Clear animation frame
+  const clearAnimationFrame = useCallback(() => {
+    if (animationFrameRef.current !== null) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+  }, []);
 
   // Reset hover state on scene changes or unmount
   useEffect(() => {
     return () => {
       setHoveredMarkerId(null);
+      clearAnimationFrame();
+      clearAllTimeouts();
+    };
+  }, [clearAnimationFrame, clearAllTimeouts]);
+
+  // Preload marker model on component mount with proper error handling
+  useEffect(() => {
+    let isMounted = true;
+    // Force preload of marker model
+    import("@/experience/sceneCollections/markers/LogoMarker")
+      .catch(err => {
+        console.error("Failed to preload LogoMarker:", err);
+      });
+      
+    return () => {
+      isMounted = false;
     };
   }, []);
 
-  // Preload marker model on component mount
-  useEffect(() => {
-    // Force preload of marker model
-    import("@/experience/sceneCollections/markers/LogoMarker");
-  }, []);
-
-  const handleMarkerClick = (poi: any) => {
+  const handleMarkerClick = useCallback((poi: any) => {
     if (!poi.mainSceneCameraPosition || !poi.mainSceneCameraTarget) {
       return;
     }
+
+    // Clean up any existing animations or timeouts
+    clearAnimationFrame();
+    clearAllTimeouts();
 
     // First, fade out all markers
     setOtherMarkersVisible(false);
@@ -215,7 +253,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     setInitialCameraState(currentPosition, currentTarget);
 
     // Wait for markers to fade out before starting camera animation
-    setTimeout(() => {
+    safeSetTimeout(() => {
       // Now we can proceed with the animation setup
       setControlType("Disabled");
       setIsAnimating(true);
@@ -258,20 +296,27 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
             fetchAndSetScene(poi.slug.current);
           }
         } else {
-          requestAnimationFrame(animate);
+          animationFrameRef.current = requestAnimationFrame(animate);
         }
       };
 
       const startTime = Date.now();
       const duration = 2000;
 
-      animate();
+      // Start animation and store the ID for potential cleanup
+      animationFrameRef.current = requestAnimationFrame(animate);
     }, 500); // Wait 500ms for markers to fade out
-  };
+  }, [camera, setInitialCameraState, setControlType, setIsAnimating, syncCameraPosition, fetchAndSetScene, setOtherMarkersVisible, clearAnimationFrame, clearAllTimeouts, safeSetTimeout]);
 
   // Handle camera animation when closing
   useEffect(() => {
-    if (!shouldAnimateBack || !initialCameraPosition || !initialCameraTarget) return;
+    if (!shouldAnimateBack || !initialCameraPosition || !initialCameraTarget) {
+      return;
+    }
+
+    // Clean up any existing animations before starting a new one
+    clearAnimationFrame();
+    clearAllTimeouts();
 
     // Disable controls during animation
     setControlType("Disabled");
@@ -284,7 +329,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     startTarget.multiplyScalar(100).add(camera.position);
 
     // Define animation parameters
-    const duration = 2000;
+    const duration = 2500;
     const startTime = Date.now();
 
     // Create our own animation loop for full control
@@ -309,45 +354,40 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
         // Ensure we land exactly at the desired position
         syncCameraPosition(initialCameraPosition, initialCameraTarget);
         
-        // Complete animation first
-        setIsAnimating(false);
+        // Create a temporary "lookAt" function to restore the camera direction
+        const restoreTarget = () => {
+          const direction = new Vector3().subVectors(initialCameraTarget, camera.position).normalize();
+          camera.lookAt(initialCameraTarget);
+        };
         
-        // Set a delay before re-enabling controls to ensure the camera has fully settled
-        setTimeout(() => {
-          // Force another sync just before re-enabling controls
-          syncCameraPosition(initialCameraPosition, initialCameraTarget);
-          
-          // Create a temporary "lookAt" function to restore the camera direction
-          const restoreTarget = () => {
-            // Calculate direction vector from position to target
-            const direction = new Vector3().subVectors(initialCameraTarget, camera.position).normalize();
-            // Apply this direction to the camera
-            camera.lookAt(initialCameraTarget);
-          };
-          
-          // Now re-enable controls
-          setControlType("Map");
-          
-          // Apply our target correction repeatedly to ensure it sticks
-          requestAnimationFrame(() => {
-            restoreTarget();
-            // Try again a few more times to make sure it sticks
-            setTimeout(restoreTarget, 10);
-            setTimeout(restoreTarget, 50);
-            setTimeout(restoreTarget, 100);
-          });
-        }, 50);
+        // Apply direction correction immediately
+        restoreTarget();
+        
+        // Complete animation and immediately re-enable controls
+        setIsAnimating(false);
+        setControlType("Map");
+        
+        // Reset shouldAnimateBack after animation completes
+        setShouldAnimateBack(false);
+        
+        // Apply our target correction one more time to ensure it sticks
+        requestAnimationFrame(restoreTarget);
       } else {
-        requestAnimationFrame(animateBack);
+        animationFrameRef.current = requestAnimationFrame(animateBack);
       }
     };
 
     // Start animation
-    animateBack();
-
-    // Reset our local state
-    setShouldAnimateBack(false);
-  }, [shouldAnimateBack, camera, initialCameraPosition, initialCameraTarget, setShouldAnimateBack, setControlType, setIsAnimating, syncCameraPosition]);
+    animationFrameRef.current = requestAnimationFrame(animateBack);
+    
+    // Clean up function to handle component unmounting during animation
+    return () => {
+      clearAnimationFrame();
+      clearAllTimeouts();
+    };
+  }, [shouldAnimateBack, camera, initialCameraPosition, initialCameraTarget, 
+      setShouldAnimateBack, setControlType, setIsAnimating, syncCameraPosition, 
+      clearAnimationFrame, clearAllTimeouts, safeSetTimeout]);
 
   return (
     <group>

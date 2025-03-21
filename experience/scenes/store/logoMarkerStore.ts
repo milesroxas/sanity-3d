@@ -37,11 +37,20 @@ export const useLogoMarkerStore = create<LogoMarkerStore>((set) => ({
   setSelectedScene: (scene) => set({ selectedScene: scene }),
   setContentVisible: (visible) => set({ isContentVisible: visible }),
   setIsLoading: (loading) => set({ isLoading: loading }),
-  setShouldAnimateBack: (should) => set({ shouldAnimateBack: should }),
-  setInitialCameraState: (position, target) => set({ 
-    initialCameraPosition: position.clone(),
-    initialCameraTarget: target.clone()
-  }),
+  setShouldAnimateBack: (should) => {
+    console.log("Setting shouldAnimateBack to:", should);
+    set({ shouldAnimateBack: should });
+  },
+  setInitialCameraState: (position, target) => {
+    console.log("Storing initial camera state:", {
+      position: position.toArray(),
+      target: target.toArray()
+    });
+    set({ 
+      initialCameraPosition: position.clone(),
+      initialCameraTarget: target.clone()
+    });
+  },
   setOtherMarkersVisible: (visible) => set({ otherMarkersVisible: visible }),
 
   fetchAndSetScene: async (slug) => {

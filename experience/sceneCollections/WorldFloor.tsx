@@ -11,6 +11,7 @@ import { GroundCompany } from "./ground/models/GroundCompany";
 import { addShadowsToModel } from "../utils/shadows";
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
+import { GroundPlane } from "./ground/models/GroundPlane";
 
 function WorldFloor() {
   const groupRef = useRef<THREE.Group>(null);
@@ -34,6 +35,7 @@ function WorldFloor() {
       <GroundCompany />
       <GroundResort />
       <GroundFarm />
+      <GroundPlane />
     </group>
   );
 }

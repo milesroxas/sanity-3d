@@ -12,6 +12,7 @@ interface SceneStore {
   startTransitionIn: () => Promise<void>;
   setPOIActive: (poiActive: boolean) => void;
   startInitialReveal: () => Promise<void>;
+  setIsTransitioning: (isTransitioning: boolean) => void;
 }
 
 export const useSceneStore = create<SceneStore>((set) => ({
@@ -28,6 +29,10 @@ export const useSceneStore = create<SceneStore>((set) => ({
 
   setPOIActive: (active) => {
     set({ poiActive: active });
+  },
+  
+  setIsTransitioning: (isTransitioning) => {
+    set({ isTransitioning });
   },
 
   startTransitionOut: () => {

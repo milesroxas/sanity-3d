@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useMemo } from "react";
+import React, { useEffect, useRef, useMemo, useState, forwardRef } from "react";
 import {
   Cloud,
   Clouds,
@@ -31,11 +31,7 @@ import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import {
   EffectComposer,
-  // Vignette,
   Bloom,
-  // DepthOfField,
-  // BrightnessContrast,
-  // HueSaturation,
 } from "@react-three/postprocessing";
 import { useControls } from "leva";
 import { INITIAL_POSITIONS } from "@/experience/scenes/store/cameraStore";
@@ -44,8 +40,6 @@ import NatureScene from "@/experience/sceneCollections/NatureInstances";
 import ShopsParkedCars from "@/experience/sceneCollections/vehicles/ShopsParkedCars";
 import SceneTransition from "../components/SceneTransition";
 import { useCameraStore } from "../store/cameraStore";
-// import { PerformanceMonitor } from "@/experience/components/PerformanceMonitor";
-// import { PerformanceComparison } from "@/experience/components/PerformanceComparison";
 import EventsParkedCars from "@/experience/sceneCollections/vehicles/EventsParkedCars";
 import { setupInstancedShadowUpdates } from "@/experience/utils/instancedShadows";
 import { MainSceneCommercialBldgs } from "@/experience/sceneCollections/commercialBldgs/mainSceneCommercialBldgs";
@@ -58,295 +52,259 @@ import LogoMarkers from "./components/LogoMarkers";
 interface MainSceneProps {
   scene: Sanity.Scene;
   onLoad?: () => void;
+  startTransitionsAfterLoad?: boolean;
 }
 
-export default function MainScene({ scene, onLoad }: MainSceneProps) {
-  const { startCameraTransition } = useCameraStore();
-  const { scene: threeScene } = useThree();
+export interface MainSceneRef {
+  startCameraTransition: () => void;
+}
 
-  // Setup shadow updates for instanced meshes
-  useEffect(() => {
-    // Set up shadow updates for instanced meshes
-    const cleanup = setupInstancedShadowUpdates(threeScene);
-    
-    // Trigger a shadow update after a short delay to ensure all models are loaded
-    const updateTimeout = setTimeout(() => {
-      const event = new CustomEvent('shadow-update');
-      window.dispatchEvent(event);
-    }, 1000);
-    
-    return () => {
-      cleanup();
-      clearTimeout(updateTimeout);
-    };
-  }, [threeScene]);
+const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
+  ({ scene, onLoad, startTransitionsAfterLoad = false }, ref) => {
+    const { startCameraTransition, setIsLoading } = useCameraStore();
+    const { scene: threeScene } = useThree();
+    const [isLoaded, setIsLoaded] = useState(false);
+    const cloudsRef = useRef<THREE.Group>(null);
 
-  useEffect(() => {
-    // Call onLoad when the scene is ready
-    onLoad?.();
+    // Handle all loading in a single effect
+    useEffect(() => {
+      // Signal loading start
+      setIsLoading(true);
+      
+      // Setup shadow updates for instanced meshes
+      const cleanup = setupInstancedShadowUpdates(threeScene);
 
-    // Animate camera from mainIntro to main position
-    const mainIntro = INITIAL_POSITIONS.mainIntro;
-    const main = INITIAL_POSITIONS.main;
-    startCameraTransition(
-      mainIntro.position,
-      main.position,
-      mainIntro.target,
-      main.target
-    );
-  }, [onLoad, startCameraTransition]);
-
-  const cloudsRef = useRef<THREE.Group>(null);
-
-  const effectsControls = useControls(
-    "Post Processing",
-    {
-      //     // Depth of Field
-      //     focusDistance: {
-      //       value: 150,
-      //       min: 0,
-      //       max: 300,
-      //       step: 1,
-      //       label: "Focus Distance",
-      //       control: "slider",
-      //     },
-      //     focalLength: {
-      //       value: 0.29,
-      //       min: 0.01,
-      //       max: 1,
-      //       step: 0.01,
-      //       label: "Focal Length",
-      //       control: "slider",
-      //     },
-      //     bokehScale: {
-      //       value: 4,
-      //       min: 0,
-      //       max: 20,
-      //       step: 0.1,
-      //       label: "Bokeh Scale",
-      //       control: "slider",
-      //     },
-
-      //     // Vignette
-      //     vignetteOffset: {
-      //       value: 0.3,
-      //       min: 0,
-      //       max: 1,
-      //       step: 0.05,
-      //       label: "Vignette Offset",
-      //       control: "slider",
-      //     },
-      //     vignetteDarkness: {
-      //       value: 0.4,
-      //       min: 0,
-      //       max: 1,
-      //       step: 0.05,
-      //       label: "Vignette Darkness",
-      //       control: "slider",
-      //     },
-
-      //     // Bloom
-      bloomIntensity: {
-        value: 0.04,
-        min: 0,
-        max: 1,
-        step: 0.01,
-        label: "Bloom Intensity",
-        control: "slider",
-      },
-      bloomThreshold: {
-        value: 0.4,
-        min: 0,
-        max: 1,
-        step: 0.01,
-        label: "Bloom Threshold",
-        control: "slider",
-      },
-
-      //     brightness: {
-      //       value: -0.12,
-      //       min: -1,
-      //       max: 1,
-      //       step: 0.0001,
-      //       label: "Brightness",
-      //       control: "slider",
-      //     },
-      //     contrast: {
-      //       value: 0.08,
-      //       min: -1,
-      //       max: 1,
-      //       step: 0.0001,
-      //       label: "Contrast",
-      //       control: "slider",
-      //     },
-      //     saturation: {
-      //       value: -0.06,
-      //       min: -1,
-      //       max: 1,
-      //       step: 0.0001,
-      //       label: "Saturation",
-      //       control: "slider",
-      //     },
-    },
-    { collapsed: true }
-  );
-
-  const environmentControls = useControls(
-    "Environment",
-    {
-      preset: {
-        value: "sunset",
-        options: [
-          "sunset",
-          "dawn",
-          "night",
-          "warehouse",
-          "forest",
-          "apartment",
-          "studio",
-          "city",
-          "park",
-          "lobby",
-        ],
-      },
-      background: { value: true },
-      blur: { value: 0.9, min: 0, max: 1, step: 0.1 },
-      intensity: { value: 0.7, min: 0, max: 5, step: 0.1 },
-    },
-    { collapsed: true }
-  );
-
-  const fogControls = useControls(
-    "Fog",
-    {
-      color: { value: "#ffffff" },
-      near: { value: 80, min: -100, max: 100, step: 1 },
-      far: { value: 1000, min: 0, max: 2000, step: 10 },
-    },
-    { collapsed: true }
-  );
-
-
-  useFrame((state, delta) => {
-    if (cloudsRef.current) {
-      cloudsRef.current.position.x += delta * 0.8;
-
-      // Reset position when clouds move too far right
-      if (cloudsRef.current.position.x > 200) {
-        cloudsRef.current.position.x = -200;
-      }
-    }
-  });
-
-  const cloudsGroup = useMemo(
-    () => (
-      <group position={[-40, 0, 0]}>
-        <Float
-          speed={0.8}
-          floatIntensity={0.3}
-          rotationIntensity={0.1}
-          floatingRange={[-0.08, 0.4]}
-        >
-          <Clouds material={THREE.MeshBasicMaterial}>
-            <Cloud
-              segments={20}
-              scale={0.8}
-              bounds={[12, 2, 2]}
-              position={[0, 60, 50]}
-              volume={10}
-              color="white"
-            />
-            <Cloud
-              segments={50}
-              scale={1}
-              bounds={[8, 2, 2]}
-              position={[-80, 60, 0]}
-              volume={10}
-              color="white"
-            />
-            <Cloud
-              segments={50}
-              bounds={[20, 4, 2]}
-              position={[80, 60, -20]}
-              volume={10}
-              color="white"
-            />
-            <Cloud
-              segments={60}
-              bounds={[12, 4, 4]}
-              position={[-40, 60, -80]}
-              volume={10}
-              scale={0.5}
-              color="white"
-            />
-          </Clouds>
-        </Float>
-      </group>
-    ),
-    []
-  );
-
-  return (
-    <>
-      <MainSceneCameraSystem />
-      {/* <PerformanceMonitor /> */}
-      {/* <PerformanceComparison /> */}
-      <LogoMarkers scene={scene} />
-      {/* <MainSceneMarkers scene={scene} /> */}
-      <SceneTransition transition={false} color="#a5b4fc" />
-      <fog
-        attach="fog"
-        args={[fogControls.color, fogControls.near, fogControls.far]}
-      />
-
-      <EffectComposer>
-        <Bloom 
-          intensity={effectsControls.bloomIntensity} 
-          threshold={effectsControls.bloomThreshold} 
-          radius={2} 
-        />
+      // Set a timeout to allow models to load and trigger a shadow update
+      const loadingTimeout = setTimeout(() => {
+        // Trigger shadow update
+        window.dispatchEvent(new CustomEvent('shadow-update'));
         
-      </EffectComposer>
+        // Mark the scene as loaded
+        setIsLoaded(true);
+        
+        // If we should start camera transitions automatically
+        if (!startTransitionsAfterLoad) {
+          const mainIntro = INITIAL_POSITIONS.mainIntro;
+          const main = INITIAL_POSITIONS.main;
+          startCameraTransition(
+            mainIntro.position,
+            main.position,
+            mainIntro.target,
+            main.target
+          );
+        }
+        
+        // Signal loading complete
+        setIsLoading(false);
+        
+        // Notify parent that loading is complete
+        onLoad?.();
+      }, 1000);
+      
+      return () => {
+        cleanup();
+        clearTimeout(loadingTimeout);
+      };
+    }, [threeScene, startCameraTransition, onLoad, startTransitionsAfterLoad, setIsLoading]);
 
-      {cloudsGroup}
+    // Expose the camera transition function through ref
+    React.useImperativeHandle(ref, () => ({
+      startCameraTransition: () => {
+        if (isLoaded) {
+          const mainIntro = INITIAL_POSITIONS.mainIntro;
+          const main = INITIAL_POSITIONS.main;
+          startCameraTransition(
+            mainIntro.position,
+            main.position,
+            mainIntro.target,
+            main.target
+          );
+        } else {
+          console.warn("Cannot start camera transition - scene not fully loaded");
+        }
+      }
+    }));
 
-      <Environment
-        preset={environmentControls.preset as EnvironmentProps["preset"]}
-        background={environmentControls.background}
-        backgroundBlurriness={environmentControls.blur}
-        environmentIntensity={environmentControls.intensity}
-      ></Environment>
+    const effectsControls = useControls(
+      "Post Processing",
+      {
+        bloomIntensity: {
+          value: 0.04,
+          min: 0,
+          max: 1,
+          step: 0.01,
+          label: "Bloom Intensity",
+          control: "slider",
+        },
+        bloomThreshold: {
+          value: 0.4,
+          min: 0,
+          max: 1,
+          step: 0.01,
+          label: "Bloom Threshold",
+          control: "slider",
+        },
+      },
+      { collapsed: true }
+    );
 
-      <group position={[0, -0.2, 0]}>
-        <WorldFloor  />
-      </group>
+    const environmentControls = useControls(
+      "Environment",
+      {
+        preset: {
+          value: "sunset",
+          options: [
+            "sunset",
+            "dawn",
+            "night",
+            "warehouse",
+            "forest",
+            "apartment",
+            "studio",
+            "city",
+            "park",
+            "lobby",
+          ],
+        },
+        background: { value: true },
+        blur: { value: 0.9, min: 0, max: 1, step: 0.1 },
+        intensity: { value: 0.7, min: 0, max: 5, step: 0.1 },
+      },
+      { collapsed: true }
+    );
 
-      <Trees />
-      <NatureScene />
-      <ShopsParkedCars />
-      <EventsParkedCars />
-      <MainSceneCommercialBldgs position={[0, 0, 0]} />
-      <AnimatedCar />
-      <AnimatedVan />
-      <AnimatedTractor />
-      <AnimatedPlane />
-      <AnimatedTruckFlatBed />
-      <GatedCommunity />
-      <ResidentialProps />
-      <HomesRightBuildings />
-      <HomesOuterLeft />
-      <ConstructionBuildings />
-      <Crane />
-      <Excavator position={[-20, 0, -30]} playAnimation={true} />
-      <CompanyBuildings />
-      <HomesOuterBuildings />
-      <ShopsBuildings />
-      <ResortBuildings />
-      <EventsBuildings />
-      <FarmBuildings />
-      <Mountains />
-      <MainSceneProps />
-      <Lights />
-    </>
-  );
-}
+    const fogControls = useControls(
+      "Fog",
+      {
+        color: { value: "#ffffff" },
+        near: { value: 80, min: -100, max: 100, step: 1 },
+        far: { value: 1000, min: 0, max: 2000, step: 10 },
+      },
+      { collapsed: true }
+    );
+
+    useFrame((state, delta) => {
+      if (cloudsRef.current) {
+        cloudsRef.current.position.x += delta * 0.8;
+
+        // Reset position when clouds move too far right
+        if (cloudsRef.current.position.x > 200) {
+          cloudsRef.current.position.x = -200;
+        }
+      }
+    });
+
+    const cloudsGroup = useMemo(
+      () => (
+        <group ref={cloudsRef} position={[-40, 0, 0]}>
+          <Float
+            speed={0.8}
+            floatIntensity={0.3}
+            rotationIntensity={0.1}
+            floatingRange={[-0.08, 0.4]}
+          >
+            <Clouds material={THREE.MeshBasicMaterial}>
+              <Cloud
+                segments={20}
+                scale={0.8}
+                bounds={[12, 2, 2]}
+                position={[0, 60, 50]}
+                volume={10}
+                color="white"
+              />
+              <Cloud
+                segments={50}
+                scale={1}
+                bounds={[8, 2, 2]}
+                position={[-80, 60, 0]}
+                volume={10}
+                color="white"
+              />
+              <Cloud
+                segments={50}
+                bounds={[20, 4, 2]}
+                position={[80, 60, -20]}
+                volume={10}
+                color="white"
+              />
+              <Cloud
+                segments={60}
+                bounds={[12, 4, 4]}
+                position={[-40, 60, -80]}
+                volume={10}
+                scale={0.5}
+                color="white"
+              />
+            </Clouds>
+          </Float>
+        </group>
+      ),
+      []
+    );
+
+    return (
+      <>
+        <MainSceneCameraSystem />
+        <LogoMarkers scene={scene} />
+        <SceneTransition transition={false} color="#a5b4fc" />
+        <fog
+          attach="fog"
+          args={[fogControls.color, fogControls.near, fogControls.far]}
+        />
+
+        <EffectComposer>
+          <Bloom 
+            intensity={effectsControls.bloomIntensity} 
+            threshold={effectsControls.bloomThreshold} 
+            radius={2} 
+          />
+        </EffectComposer>
+
+        {cloudsGroup}
+
+        <Environment
+          preset={environmentControls.preset as EnvironmentProps["preset"]}
+          background={environmentControls.background}
+          backgroundBlurriness={environmentControls.blur}
+          environmentIntensity={environmentControls.intensity}
+        ></Environment>
+
+        <group position={[0, -0.2, 0]}>
+          <WorldFloor  />
+        </group>
+
+        <Trees />
+        <NatureScene />
+        <ShopsParkedCars />
+        <EventsParkedCars />
+        <MainSceneCommercialBldgs position={[0, 0, 0]} />
+        <AnimatedCar />
+        <AnimatedVan />
+        <AnimatedTractor />
+        <AnimatedPlane />
+        <AnimatedTruckFlatBed />
+        <GatedCommunity />
+        <ResidentialProps />
+        <HomesRightBuildings />
+        <HomesOuterLeft />
+        <ConstructionBuildings />
+        <Crane />
+        <Excavator position={[-20, 0, -30]} />
+        <CompanyBuildings />
+        <HomesOuterBuildings />
+        <ShopsBuildings />
+        <ResortBuildings />
+        <EventsBuildings />
+        <FarmBuildings />
+        <Mountains />
+        <MainSceneProps />
+        <Lights />
+      </>
+    );
+  }
+);
+
+// Display name for React DevTools
+MainScene.displayName = "MainScene";
+
+export default MainScene;

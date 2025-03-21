@@ -5,8 +5,8 @@ Files: public/models/vehicles_excavator.glb [48.48KB] > /Users/milesroxas/SITES/
 */
 
 import * as THREE from 'three'
-import React, { useRef, useEffect } from 'react'
-import { useGLTF, useAnimations } from '@react-three/drei'
+import React, { useRef  } from 'react'
+import { useGLTF } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 import { ThreeElements } from '@react-three/fiber'
 
@@ -26,49 +26,11 @@ type GLTFResult = GLTF & {
   }
 }
 
-type ExcavatorProps = ThreeElements['group'] & {
-  playAnimation?: boolean
-}
-
-// Define the model path as a constant for consistency
-// Using the transformed file from the public directory
 const MODEL_PATH = '/models/vehicles_excavator-transformed.glb'
 
-export function Excavator(props: ExcavatorProps) {
+export function Excavator(props: ThreeElements['group']) {
   const group = useRef<THREE.Group>(null)
-  const { nodes, materials, animations } = useGLTF(MODEL_PATH) as GLTFResult
-  const { actions } = useAnimations(animations, group)
-
-  // Log animations and actions to check what's available
-  useEffect(() => {
-    console.log('Excavator animations:', animations)
-    console.log('Excavator animation actions:', actions)
-    console.log('Available action names:', Object.keys(actions))
-    
-    if (animations && animations.length > 0) {
-      animations.forEach((clip, index) => {
-        console.log(`Animation ${index}:`, {
-          name: clip.name,
-          duration: clip.duration,
-          tracks: clip.tracks.length
-        })
-      })
-    } else {
-      console.log('No animations found in the model')
-    }
-  }, [animations, actions])
-
-  useEffect(() => {
-    if (props.playAnimation && actions && Object.keys(actions).length > 0) {
-      // Get the first animation action
-      const action = Object.values(actions)[0]
-      console.log('Playing animation action:', action)
-      if (action) {
-        action.reset().play()
-        action.setLoop(THREE.LoopRepeat, Infinity)
-      }
-    }
-  }, [props.playAnimation, actions])
+  const { nodes, materials } = useGLTF(MODEL_PATH) as GLTFResult
 
   return (
     <group ref={group} {...props} dispose={null}>

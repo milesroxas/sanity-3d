@@ -4,7 +4,7 @@ import { useLogoMarkerStore } from "@/experience/scenes/store/logoMarkerStore";
 import PortableTextRenderer from "@/components/portable-text-renderer";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function LogoMarkerContent() {
   const { 
@@ -12,20 +12,49 @@ export default function LogoMarkerContent() {
     isContentVisible, 
     setContentVisible, 
     setShouldAnimateBack,
-    setOtherMarkersVisible 
-  } = useLogoMarkerStore();
+    setOtherMarkersVisible,
+    initialCameraPosition,
+    initialCameraTarget
+} = useLogoMarkerStore();
+
+  // Keep track of timeouts to clean up
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Clean up any pending timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleClose = () => {
+    console.log("Close button clicked");
+    
     // First fade out the content
     setContentVisible(false);
     
     // Start fading in the markers
     setOtherMarkersVisible(true);
     
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    // Debug info to inspect the stored camera position/target
+    console.log("Current stored camera data:", {
+      initialPosition: initialCameraPosition,
+      initialTarget: initialCameraTarget
+    });
+    
     // Then trigger camera animation after a short delay to allow fade out
-    setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
+      console.log("Setting shouldAnimateBack to true");
       setShouldAnimateBack(true);
-    }, 800); // Match the fade out duration
+      timeoutRef.current = null;
+    }, 1200); // Match the fade out duration
   };
 
   if (!selectedScene) return null;

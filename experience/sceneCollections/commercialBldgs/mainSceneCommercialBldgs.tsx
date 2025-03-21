@@ -15,17 +15,14 @@ export function MainSceneCommercialBldgs(props: ThreeElements['group']) {
   const [modelError, setModelError] = useState<string | null>(null);
   
   // Load the model to check if it exists
-  const { nodes, materials } = useCommercialBuildingsGLTF();
+  const { nodes } = useCommercialBuildingsGLTF();
 
   // Check if the model loaded successfully
   useEffect(() => {
-    console.log('Commercial buildings component mounted');
     
     if (nodes && Object.keys(nodes).length > 0) {
-      console.log('Commercial buildings model loaded successfully');
       setModelLoaded(true);
     } else {
-      console.error('Failed to load commercial buildings model');
       setModelError('Failed to load model nodes');
     }
   }, [nodes]);
