@@ -30,21 +30,34 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
   const poiActive = useSceneStore((state) => state.poiActive);
   const setPOIActive = useSceneStore((state) => state.setPOIActive);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   useEffect(() => {
     // Fetch navigation scenes when component mounts
     const getNavigationScenes = async () => {
-      const scenes = await fetchNavigationScenes();
-      setValidScenes(scenes);
+      try {
+        const scenes = await fetchNavigationScenes();
+        setValidScenes(scenes || []);
+      } catch (error) {
+        console.error("Failed to fetch navigation scenes:", error);
+        setValidScenes([]);
+      }
     };
     getNavigationScenes();
   }, []);
 
   const handleNavigation = async (direction: "next" | "previous") => {
+    if (isNavigating) return; // Prevent multiple navigation attempts
+    
     const currentSlug = pathname?.split("/").pop();
+    if (!currentSlug || validScenes.length === 0) return;
+    
     const currentIndex = validScenes.findIndex(
       (scene) => scene?.slug?.current === currentSlug
     );
+    
+    if (currentIndex === -1) return;
+    
     const targetIndex =
       direction === "next"
         ? (currentIndex + 1) % validScenes.length
@@ -56,42 +69,71 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
     if (!targetScene?.slug?.current) return;
 
     setIsTransitioning(true);
+    setIsNavigating(true);
 
     try {
-      await useSceneStore.getState().startTransitionOut();
+      // Start transition with safeguards
+      const sceneStore = useSceneStore.getState();
+      if (typeof sceneStore.startTransitionOut === 'function') {
+        await sceneStore.startTransitionOut();
+      }
+      
       const targetUrl = `/experience/${targetScene.slug.current}`;
       router.push(targetUrl);
 
       // Only show loading if transition takes too long
       const loadingTimer = setTimeout(() => {
-        useCameraStore.getState().setIsLoading(true);
+        const cameraStore = useCameraStore.getState();
+        if (cameraStore && typeof cameraStore.setIsLoading === 'function') {
+          cameraStore.setIsLoading(true);
+        }
       }, 1000);
 
       setTimeout(() => {
         clearTimeout(loadingTimer);
         setIsTransitioning(false);
-        useCameraStore.getState().setIsLoading(false);
+        setIsNavigating(false);
+        const cameraStore = useCameraStore.getState();
+        if (cameraStore && typeof cameraStore.setIsLoading === 'function') {
+          cameraStore.setIsLoading(false);
+        }
       }, 800);
     } catch (error) {
       console.error("Navigation failed:", error);
       setIsTransitioning(false);
-      useCameraStore.getState().setIsLoading(false);
+      setIsNavigating(false);
+      const cameraStore = useCameraStore.getState();
+      if (cameraStore && typeof cameraStore.setIsLoading === 'function') {
+        cameraStore.setIsLoading(false);
+      }
     }
   };
 
   const handleReset = () => {
-    useCameraStore.getState().setIsSubscene(false);
-    const resetCamera = useCameraStore.getState().resetToInitial;
-    resetCamera();
-    useCameraStore.getState().setSelectedPoi(null);
+    const cameraStore = useCameraStore.getState();
+    if (!cameraStore) return;
+    
+    if (typeof cameraStore.setIsSubscene === 'function') {
+      cameraStore.setIsSubscene(false);
+    }
+    
+    if (typeof cameraStore.resetToInitial === 'function') {
+      cameraStore.resetToInitial();
+    }
+    
+    if (typeof cameraStore.setSelectedPoi === 'function') {
+      cameraStore.setSelectedPoi(null);
+    }
   };
 
   // Filter valid points of interest
-  const validPointsOfInterest = (scene.pointsOfInterest ?? []).filter(
-    (poi): poi is PointOfInterest => (poi as any).markerPosition !== undefined
+  const validPointsOfInterest = (scene?.pointsOfInterest ?? []).filter(
+    (poi): poi is PointOfInterest => 
+      poi && (poi as any).markerPosition !== undefined
   );
 
   const handleMarkerClick = (poi: PointOfInterest) => {
+    if (!poi) return;
     setIsTransitioning(true);
     setSelectedPoi(poi);
 
@@ -113,7 +155,9 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
   };
 
   useEffect(() => {
-    setR3FContent(<SubScene scene={scene} onMarkerClick={handleMarkerClick} />);
+    if (scene) {
+      setR3FContent(<SubScene scene={scene} onMarkerClick={handleMarkerClick} />);
+    }
     return () => {
       setR3FContent(null);
     };
@@ -121,9 +165,20 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
 
   useEffect(() => {
     const handleBrowserBack = () => {
-      useCameraStore.getState().setIsSubscene(false);
-      useCameraStore.getState().resetToInitial();
-      useCameraStore.getState().setSelectedPoi(null);
+      const cameraStore = useCameraStore.getState();
+      if (!cameraStore) return;
+      
+      if (typeof cameraStore.setIsSubscene === 'function') {
+        cameraStore.setIsSubscene(false);
+      }
+      
+      if (typeof cameraStore.resetToInitial === 'function') {
+        cameraStore.resetToInitial();
+      }
+      
+      if (typeof cameraStore.setSelectedPoi === 'function') {
+        cameraStore.setSelectedPoi(null);
+      }
     };
 
     window.addEventListener("popstate", handleBrowserBack);
@@ -143,6 +198,15 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
     validScenes.length > 1 && currentIndex < validScenes.length - 1;
   const canNavigatePrevious = validScenes.length > 1 && currentIndex > 0;
 
+  // If scene is undefined or null, render a fallback UI
+  if (!scene) {
+    return (
+      <div className="relative z-50 mx-auto flex flex-col items-center w-full text-white">
+        <p>Loading scene...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="relative z-50 mx-auto flex flex-col items-center w-full">
       <AnimatePresence mode="wait">
@@ -159,8 +223,9 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
               {canNavigatePrevious && (
                 <button
                   style={{ color: "white" }}
-                  onClick={() => handleNavigation("previous")}
+                  onClick={() => !isNavigating && handleNavigation("previous")}
                   className="text-xl font-bold text-center hover:text-primary/70 transition-colors"
+                  disabled={isNavigating}
                 >
                   <ArrowLeftIcon className="w-6 h-6" />
                 </button>
@@ -169,8 +234,9 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
               {canNavigateNext && (
                 <button
                   style={{ color: "white" }}
-                  onClick={() => handleNavigation("next")}
+                  onClick={() => !isNavigating && handleNavigation("next")}
                   className="text-xl font-bold text-center hover:text-primary/70 transition-colors"
+                  disabled={isNavigating}
                 >
                   <ArrowRightIcon className="w-6 h-6" />
                 </button>
@@ -196,7 +262,7 @@ export default function SubSceneUI({ scene }: { scene: Sanity.Scene }) {
               </div>
             </motion.div>
           )}
-          {poiActive && !isTransitioning && (
+          {poiActive && !isTransitioning && selectedPoi && (
             <Carousel3
               key="carousel"
               scene={scene}

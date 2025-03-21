@@ -31,10 +31,15 @@ export const useSceneStore = create<SceneStore>((set) => ({
   },
 
   startTransitionOut: () => {
+    if (useSceneStore.getState().isTransitioning) {
+      return Promise.resolve();
+    }
+    
     set({ isTransitioning: true });
     return new Promise((resolve) => {
       const startTime = Date.now();
       const duration = 300;
+      let animationFrameId: number;
 
       const animate = () => {
         const elapsed = Date.now() - startTime;
@@ -44,7 +49,7 @@ export const useSceneStore = create<SceneStore>((set) => ({
           const rotation = progress * Math.PI * 2;
           const opacity = 1 - progress;
           set({ modelRotation: rotation, opacity });
-          requestAnimationFrame(animate);
+          animationFrameId = requestAnimationFrame(animate);
         } else {
           set({ modelRotation: 0, opacity: 0, isTransitioning: false });
           resolve();
@@ -52,14 +57,27 @@ export const useSceneStore = create<SceneStore>((set) => ({
       };
 
       animate();
+      
+      return () => {
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+        }
+        set({ isTransitioning: false });
+        resolve();
+      };
     });
   },
 
   startTransitionIn: () => {
+    if (useSceneStore.getState().isTransitioning) {
+      return Promise.resolve();
+    }
+    
     set({ isTransitioning: true });
     return new Promise((resolve) => {
       const startTime = Date.now();
       const duration = 800;
+      let animationFrameId: number;
 
       const animate = () => {
         const elapsed = Date.now() - startTime;
@@ -69,7 +87,7 @@ export const useSceneStore = create<SceneStore>((set) => ({
           const rotation = progress * Math.PI * 2;
           const opacity = progress;
           set({ modelRotation: rotation, opacity });
-          requestAnimationFrame(animate);
+          animationFrameId = requestAnimationFrame(animate);
         } else {
           set({ modelRotation: 0, opacity: 1, isTransitioning: false });
           resolve();
@@ -77,6 +95,14 @@ export const useSceneStore = create<SceneStore>((set) => ({
       };
 
       animate();
+      
+      return () => {
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+        }
+        set({ isTransitioning: false });
+        resolve();
+      };
     });
   },
 
@@ -85,6 +111,7 @@ export const useSceneStore = create<SceneStore>((set) => ({
     return new Promise((resolve) => {
       const startTime = Date.now();
       const duration = 2000;
+      let animationFrameId: number;
 
       const animate = () => {
         const elapsed = Date.now() - startTime;
@@ -92,7 +119,7 @@ export const useSceneStore = create<SceneStore>((set) => ({
 
         if (progress < 1) {
           set({ opacity: 1 - progress });
-          requestAnimationFrame(animate);
+          animationFrameId = requestAnimationFrame(animate);
         } else {
           set({
             opacity: 0,
@@ -103,6 +130,14 @@ export const useSceneStore = create<SceneStore>((set) => ({
       };
 
       animate();
+      
+      return () => {
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+        }
+        set({ isInitialReveal: false });
+        resolve();
+      };
     });
   },
 }));

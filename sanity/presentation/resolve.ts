@@ -12,15 +12,42 @@ export const resolve: PresentationPluginOptions["resolve"] = {
         title: "title",
         slug: "slug.current",
       },
-      resolve: (doc) => ({
-        locations: [
-          {
-            title: doc?.title || "Untitled",
-            href: `/blog/${doc?.slug}`,
-          },
-          { title: "Blog", href: `/blog` },
-        ],
-      }),
+      resolve: (doc) => {
+        if (!doc) {
+          return { locations: [] };
+        }
+        
+        return {
+          locations: [
+            {
+              title: doc?.title || "Untitled",
+              href: `/blog/${doc?.slug}`,
+            },
+            { title: "Blog", href: `/blog` },
+          ],
+        };
+      },
+    }),
+    scenes: defineLocations({
+      select: {
+        title: "title",
+        slug: "slug.current",
+      },
+      resolve: (doc) => {
+        if (!doc || !doc.slug) {
+          return { locations: [] };
+        }
+        
+        return {
+          locations: [
+            {
+              title: doc?.title || "Untitled",
+              href: `/experience/${doc?.slug}`,
+            },
+            { title: "Experience", href: `/experience` },
+          ],
+        };
+      },
     }),
   },
   mainDocuments: defineDocuments([
@@ -35,6 +62,10 @@ export const resolve: PresentationPluginOptions["resolve"] = {
     {
       route: "/blog/:slug",
       filter: `_type == 'post' && slug.current == $slug`,
+    },
+    {
+      route: "/experience/:slug",
+      filter: `_type == 'scenes' && slug.current == $slug`,
     },
   ]),
 };

@@ -10,12 +10,12 @@ import {
 
 // Define boundary limits for camera movement
 const BOUNDARY_LIMITS = {
-  minX: -300,
-  maxX: 300,
-  minY: -100,
-  maxY: 200,
-  minZ: -60,
-  maxZ: 160
+  minX: -400,
+  maxX: 400,
+  minY: -400,
+  maxY: 400,
+  minZ: -400,
+  maxZ: 400
 };
 
 // Define angle limits
@@ -40,40 +40,40 @@ export function MainSceneCameraSystem() {
             position: folder({
               positionX: {
                 value: INITIAL_POSITIONS.main.position.x,
-                min: -200,
-                max: 200,
+                min: -400,
+                max: 400,
                 step: 0.1,
               },
               positionY: {
                 value: INITIAL_POSITIONS.main.position.y,
-                min: -200,
-                max: 200,
+                min: -400,
+                max: 400,
                 step: 0.1,
               },
               positionZ: {
                 value: INITIAL_POSITIONS.main.position.z,
-                min: -200,
-                max: 200,
+                min: -400,
+                max: 400,
                 step: 0.1,
               },
             }),
             target: folder({
               targetX: {
                 value: INITIAL_POSITIONS.main.target.x,
-                min: -200,
-                max: 200,
+                min: -400,
+                max: 400,
                 step: 0.1,
               },
               targetY: {
                 value: INITIAL_POSITIONS.main.target.y,
-                min: -200,
-                max: 200,
+                min: -400,
+                max: 400,
                 step: 0.1,
               },
               targetZ: {
                 value: INITIAL_POSITIONS.main.target.z,
-                min: -200,
-                max: 200,
+                min: -400,
+                max: 400,
                 step: 0.1,
               },
             }),
@@ -86,12 +86,27 @@ export function MainSceneCameraSystem() {
 
   useEffect(() => {
     if (!cameraRef.current) return;
-    const newPosition = isAnimating ? position : position.clone();
-    const newTarget = isAnimating ? target : target.clone();
+    
+    // Clone position and target to avoid potential reference issues
+    const newPosition = position.clone();
+    const newTarget = target.clone();
 
+    // Update camera position and orientation
     cameraRef.current.position.copy(newPosition);
     cameraRef.current.lookAt(newTarget);
-  }, [isAnimating, position, target]);
+    
+    // Only sync with Leva controls when not animating and values actually changed
+    if (!isAnimating && (
+      Math.abs(positionX - newPosition.x) > 0.001 ||
+      Math.abs(positionY - newPosition.y) > 0.001 ||
+      Math.abs(positionZ - newPosition.z) > 0.001 ||
+      Math.abs(targetX - newTarget.x) > 0.001 ||
+      Math.abs(targetY - newTarget.y) > 0.001 ||
+      Math.abs(targetZ - newTarget.z) > 0.001
+    )) {
+      // We're not modifying state here, just letting the component render with the current camera values
+    }
+  }, [isAnimating, position, target, positionX, positionY, positionZ, targetX, targetY, targetZ]);
 
   // Handle camera movement constraints
   const handleControlsChange = () => {
@@ -144,25 +159,12 @@ export function MainSceneCameraSystem() {
     }
   };
 
-  // Add this effect to keep Leva controls in sync
-  useEffect(() => {
-    if (!isAnimating) {
-      // Update Leva controls to match current state
-      // Note: you'd need to use the appropriate Leva API
-      // to programmatically update these values
-    }
-  }, [isAnimating]);
-
   return (
     <>
       <PerspectiveCamera
         ref={cameraRef}
         makeDefault
-        position={
-          isAnimating
-            ? [position.x, position.y, position.z]
-            : [positionX, positionY, positionZ]
-        }
+        position={[position.x, position.y, position.z]}
       />
       {controlType === "Map" && !isAnimating && (
         <MapControls

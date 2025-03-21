@@ -21,7 +21,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
 
   return (
     <R3FContext.Provider value={{ setR3FContent }}>
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full overflow-hidden">
         {/* Regular React components in a properly constrained container */}
         <div className="absolute mx-auto z-50">
           <Loading />
@@ -29,7 +29,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
         </div>
 
         {/* Canvas positioned behind the UI */}
-        <div className="fixed inset-0">
+        <div className="fixed inset-0 overflow-hidden">
           <Canvas shadows="soft">
             <Suspense fallback={null}>{r3fContent}</Suspense>
           </Canvas>

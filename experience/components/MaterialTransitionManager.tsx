@@ -13,7 +13,7 @@ export function MaterialTransitionManager({
 
   // Store material references when group is available
   useEffect(() => {
-    if (!group) return;
+    if (!group || isInitialized.current) return;
 
     const materials: THREE.Material[] = [];
     group.traverse((child) => {
@@ -21,20 +21,19 @@ export function MaterialTransitionManager({
         const material = (child as THREE.Mesh).material as THREE.Material;
         if (material && !materials.includes(material)) {
           material.transparent = true;
-          // Set initial opacity if not initialized
-          if (!isInitialized.current) {
-            material.opacity = opacity;
-          }
+          material.opacity = opacity;
           materials.push(material);
         }
       }
     });
+    
     materialRefs.current = materials;
     isInitialized.current = true;
   }, [group, opacity]);
 
-  // Handle opacity changes
+  // Handle opacity changes in a separate effect
   useEffect(() => {
+    if (materialRefs.current.length === 0) return;
     materialRefs.current.forEach((material) => {
       material.opacity = opacity;
       material.needsUpdate = true;

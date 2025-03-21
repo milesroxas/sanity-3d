@@ -28,13 +28,6 @@ export default function LogoMarkerContent() {
     }, 800); // Match the fade out duration
   };
 
-  // Debug effect
-  useEffect(() => {
-    if (selectedScene?.body) {
-      console.log("Scene body content:", selectedScene.body);
-    }
-  }, [selectedScene?.body]);
-
   if (!selectedScene) return null;
 
   return (

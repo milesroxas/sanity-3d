@@ -52,11 +52,11 @@ interface CameraStore {
 
 export const INITIAL_POSITIONS = {
   mainIntro: {
-    position: new Vector3(-10, 200, 160),
+    position: new Vector3(-10, 400, 260),
     target: new Vector3(-10, 10, 50),
   },
   main: {
-    position: new Vector3(-10, 60, 160),
+    position: new Vector3(-10, 100, 200),
     target: new Vector3(-10, 10, 50),
   },
   subscene: {
@@ -176,6 +176,18 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       return;
     }
 
+    // Prevent multiple animations from running simultaneously
+    if (get().isAnimating) {
+      set({
+        position: endPos.clone(),
+        target: endTarget.clone(),
+        previousPosition: startPos.clone(),
+        previousTarget: startTarget.clone(),
+        isAnimating: false,
+      });
+      return;
+    }
+
     set({
       controlType: "Disabled",
       isAnimating: true,
@@ -186,6 +198,9 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
     const duration = 2000;
 
     const animate = () => {
+      // Check if component is still mounted
+      if (!get) return;
+      
       const now = Date.now();
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
@@ -200,22 +215,11 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
           previousTarget: startTarget.clone(),
         });
 
-        // Re-enable controls
-        set({ controlType: get().isSubscene ? "CameraControls" : "Map" });
-
-        // After controls are re-enabled, check if position changed and force it back
-        requestAnimationFrame(() => {
-          const currentPos = get().position;
-          const currentTarget = get().target;
-          
-          // If position changed, force it back to our desired position
-          if (!currentPos.equals(endPos) || !currentTarget.equals(endTarget)) {
-            set({
-              position: endPos.clone(),
-              target: endTarget.clone()
-            });
-          }
-        });
+        // Re-enable controls with a slight delay to ensure state has settled
+        setTimeout(() => {
+          if (!get) return; // Check if component is still mounted
+          set({ controlType: get().isSubscene ? "CameraControls" : "Map" });
+        }, 50);
       } else {
         const t =
           progress < 0.5

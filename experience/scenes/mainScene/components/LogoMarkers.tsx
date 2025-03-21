@@ -188,7 +188,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     return () => {
       setHoveredMarkerId(null);
     };
-  }, [scene]);
+  }, []);
 
   // Preload marker model on component mount
   useEffect(() => {

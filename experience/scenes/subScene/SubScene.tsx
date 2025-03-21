@@ -1,18 +1,13 @@
 "use client";
-import { Suspense, useEffect, useState, useRef } from "react";
-import { getSceneComponent, SceneType } from "./lib/SubSceneComponentMap";
-import { Environment, Stars } from "@react-three/drei";
+import { useEffect, useMemo, useRef } from "react";
+import { PerspectiveCamera } from "@react-three/drei";
 import { useCameraStore } from "@/experience/scenes/store/cameraStore";
-import SubSceneMarkers, { PointOfInterest } from "./components/SubSceneMarkers";
-import { SubSceneCameraSystem } from "./SubSceneCameraSystem";
-import { preloadModel, isModelLoaded } from "@/experience/utils/modelCache";
+import { PointOfInterest } from "./components/SubSceneMarkers";
+import SubSceneMarkers from "./components/SubSceneMarkers";
+import { MaterialTransitionManager } from "@/experience/components/MaterialTransitionManager";
 import { useSceneStore } from "@/experience/scenes/store/sceneStore";
-import gsap from "gsap";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { Bloom, ToneMapping } from "@react-three/postprocessing";
-import { Vignette } from "@react-three/postprocessing";
-import { EffectComposer } from "@react-three/postprocessing";
-import { BlendFunction } from "postprocessing";
 
 interface SubSceneProps {
   scene: Sanity.Scene;
@@ -20,133 +15,105 @@ interface SubSceneProps {
 }
 
 export default function SubScene({ scene, onMarkerClick }: SubSceneProps) {
-  const { setIsSubscene, setIsLoading } = useCameraStore();
+  const cameraRef = useRef<THREE.PerspectiveCamera>(null);
+  const { camera } = useThree();
   const modelRotation = useSceneStore((state) => state.modelRotation);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const poiActive = useSceneStore((state) => state.poiActive);
+  const isTransitioning = useSceneStore((state) => state.isTransitioning);
+  const startTransitionIn = useSceneStore((state) => state.startTransitionIn);
   const groupRef = useRef<THREE.Group>(null);
-
-  useEffect(() => {
-    setIsSubscene(true);
-  }, [setIsSubscene, scene._id]);
-
-  useEffect(() => {
-    if (isLoaded) {
-      useSceneStore.getState().startTransitionIn();
-      // Delay clearing loading state to allow for smooth transition
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 800); // Increased from 300 to 800 to match other transitions
-    }
-  }, [isLoaded, setIsLoading]);
-
-  // Add GSAP animation effect for rotation
-  useEffect(() => {
-    if (groupRef.current) {
-      gsap.to(groupRef.current.rotation, {
-        x: modelRotation,
-        duration: 0.5,
-        ease: "power2.out",
-      });
-    }
-  }, [modelRotation]);
-
-  useEffect(() => {
-    if (scene.sceneType && scene.modelFiles) {
-      const modelUrls = scene.modelFiles
-        .map((file) => file.fileUrl)
-        .filter((url): url is string => !!url);
-
-      // Check if all models are already loaded
-      const allModelsLoaded = modelUrls.every(isModelLoaded);
-
-      if (allModelsLoaded) {
-        setIsLoaded(true);
-        return;
-      }
-
-      // Start a timer to show loading only if it takes too long
-      const loadingTimer = setTimeout(() => {
-        if (!useSceneStore.getState().isTransitioning) {
-          setIsLoading(true);
-        }
-      }, 1000);
-
-      Promise.all(modelUrls.map(preloadModel))
-        .then(() => {
-          clearTimeout(loadingTimer);
-          setIsLoaded(true);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          clearTimeout(loadingTimer);
-          console.error("Failed to load models:", error);
-          setIsLoading(false);
-        });
-
-      return () => clearTimeout(loadingTimer);
-    }
-  }, [scene.sceneType, scene.modelFiles, setIsLoading]);
-
-  if (!scene.sceneType) {
+  
+  // Guard against null scene
+  if (!scene) {
     return null;
   }
+  
+  // Get valid points of interest safely
+  const validPointsOfInterest = useMemo(() => {
+    if (!scene.pointsOfInterest) return [];
+    
+    return scene.pointsOfInterest.filter(
+      (poi): poi is PointOfInterest => (poi as any).markerPosition !== undefined
+    );
+  }, [scene.pointsOfInterest]);
 
-  const SceneComponent = getSceneComponent(scene.sceneType as SceneType);
+  // Start transition safely
+  useEffect(() => {
+    if (startTransitionIn) {
+      try {
+        startTransitionIn();
+      } catch (error) {
+        console.error("Error starting transition:", error);
+      }
+    }
+  }, [startTransitionIn, scene]);
 
+  // Camera initialization
+  useEffect(() => {
+    if (cameraRef.current) {
+      camera.position.set(0, 5, 30);
+      camera.lookAt(0, 0, 0);
+    }
+  }, [camera]);
+
+  // Safely update camera store
+  useEffect(() => {
+    const cameraStore = useCameraStore.getState();
+    if (!cameraStore) return;
+    
+    if (typeof cameraStore.setIsSubscene === 'function') {
+      cameraStore.setIsSubscene(true);
+    }
+    
+    return () => {
+      if (cameraStore && typeof cameraStore.setIsSubscene === 'function') {
+        cameraStore.setIsSubscene(false);
+      }
+    };
+  }, []);
+
+  // Frame update with error handling
+  useFrame(() => {
+    try {
+      if (!isTransitioning) {
+        // Your frame update logic here
+      }
+    } catch (error) {
+      console.error("Error in frame update:", error);
+    }
+  });
+
+  // Get file URLs safely
+  const modelUrls = useMemo(() => {
+    if (!scene.modelFiles || !Array.isArray(scene.modelFiles)) {
+      return [];
+    }
+    
+    return scene.modelFiles
+      .filter(file => file && file.fileUrl)
+      .map(file => file.fileUrl || '');
+  }, [scene.modelFiles]);
+  
   return (
     <>
-      <SubSceneCameraSystem />
-      {/* <Stars radius={400} count={20000} factor={2} saturation={0} speed={1} /> */}
-      <EffectComposer>
-        <Vignette
-          offset={0.3} // vignette offset
-          darkness={0.5} // vignette darkness
-          eskil={false} // Eskil's vignette technique
-          blendFunction={BlendFunction.NORMAL} // blend mode
-        />
-        <Bloom
-          intensity={0.02} // Adjust bloom intensity
-          threshold={0.5} // Adjust threshold for bloom
-          radius={2} // Adjust bloom radius
-        />
-        <ToneMapping
-          blendFunction={BlendFunction.NORMAL} // blend mode
-          adaptive={true} // toggle adaptive luminance map usage
-          resolution={256} // texture resolution of the luminance map
-          middleGrey={0.5} // middle grey factor
-          maxLuminance={8.0} // maximum luminance
-          averageLuminance={1.0} // average luminance
-          adaptationRate={1.0} // luminance adaptation rate
-        />
-      </EffectComposer>
-      <group ref={groupRef} position={[-5, 0, 0]}>
-        <Environment
-          preset="sunset"
-          backgroundBlurriness={0.5}
-          background
-          backgroundIntensity={1}
-        />
-        <rectAreaLight
-          position={[0, 5, 10]}
-          width={20}
-          height={20}
-          intensity={4}
-          color="pink"
-        />
-        <SubSceneMarkers
-          scene={scene}
-          onMarkerClick={onMarkerClick}
-          poiActive={useSceneStore.getState().poiActive}
-        />
-        <Suspense fallback={null}>
-          <SceneComponent
-            modelFiles={scene.modelFiles}
-            modelIndex={0}
-            onLoad={() => {
-              setIsLoaded(true);
-            }}
+      <MaterialTransitionManager group={groupRef.current} />
+      <PerspectiveCamera
+        ref={cameraRef}
+        makeDefault
+        near={0.1}
+        far={1000}
+        fov={45}
+        position={[0, 5, 30]}
+      />
+      <group ref={groupRef} rotation={[0, modelRotation, 0]}>
+        {validPointsOfInterest.length > 0 && (
+          <SubSceneMarkers
+            scene={scene}
+            onMarkerClick={onMarkerClick}
+            poiActive={poiActive}
           />
-        </Suspense>
+        )}
+        {/* Model loading would go here */}
       </group>
     </>
   );

@@ -6,6 +6,13 @@ import { useCameraStore } from "../store/cameraStore";
 import LogoMarkerContent from "./components/LogoMarkerContent";
 import { useLogoMarkerStore } from "../store/logoMarkerStore";
 
+// Style to prevent scrollbars
+const noScrollStyles = {
+  overflow: 'hidden',
+  height: '100%',
+  width: '100%',
+};
+
 export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
   const { setR3FContent } = useR3F();
   const setIsLoading = useCameraStore((state) => state.setIsLoading);
@@ -17,6 +24,9 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
     
     // Set loading state when component mounts
     setIsLoading(true);
+
+    // Prevent scrollbars from appearing
+    document.body.style.overflow = 'hidden';
 
     setR3FContent(
       <MainScene
@@ -30,12 +40,14 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
     return () => {
       setR3FContent(null);
       setIsLoading(false);
+      // Restore default overflow setting
+      document.body.style.overflow = '';
     };
   }, [setR3FContent, scene, setIsLoading, reset]);
 
   return (
-    <>
+    <div style={noScrollStyles}>
       <LogoMarkerContent />
-    </>
+    </div>
   );
 }
