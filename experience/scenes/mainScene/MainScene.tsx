@@ -19,7 +19,6 @@ import { ResortBuildings } from "@/experience/sceneCollections/resort/models/Res
 import { HomesRightBuildings } from "@/experience/sceneCollections/homesRight/models/HomesRightBuildings";
 import { EventsBuildings } from "@/experience/sceneCollections/events/models/EventsBuildings";
 import { FarmBuildings } from "@/experience/sceneCollections/farm/models/FarmBuildings";
-import MainSceneMarkers from "@/experience/scenes/mainScene/components/MainSceneMarkers";
 import { ResidentialProps } from "@/experience/sceneCollections/gatedCommunity/models/ResidentialProps";
 import { AnimatedCar } from "@/experience/sceneCollections/vehicles/AnimatedCar";
 import { MainSceneCameraSystem } from "@/experience/scenes/mainScene/MainSceneCameraSystem";
@@ -38,7 +37,6 @@ import { INITIAL_POSITIONS } from "@/experience/scenes/store/cameraStore";
 import MainSceneProps from "@/experience/sceneCollections/props/MainSceneProps";
 import NatureScene from "@/experience/sceneCollections/NatureInstances";
 import ShopsParkedCars from "@/experience/sceneCollections/vehicles/ShopsParkedCars";
-import SceneTransition from "../components/SceneTransition";
 import { useCameraStore } from "../store/cameraStore";
 import EventsParkedCars from "@/experience/sceneCollections/vehicles/EventsParkedCars";
 import { setupInstancedShadowUpdates } from "@/experience/utils/instancedShadows";
@@ -246,7 +244,6 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
       <>
         <MainSceneCameraSystem />
         <LogoMarkers scene={scene} />
-        <SceneTransition transition={false} color="#a5b4fc" />
         <fog
           attach="fog"
           args={[fogControls.color, fogControls.near, fogControls.far]}

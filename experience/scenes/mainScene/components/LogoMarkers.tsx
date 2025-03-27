@@ -168,7 +168,7 @@ function PoiMarker({
 
 export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
   const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null);
-  const router = useRouter();
+
   const { camera } = useThree();
   const { 
     fetchAndSetScene, 

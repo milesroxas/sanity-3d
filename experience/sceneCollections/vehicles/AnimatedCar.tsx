@@ -3,45 +3,41 @@ import { useMemo, useRef, useEffect } from "react";
 import type * as THREE from "three";
 import { CatmullRomCurve3, Vector3 } from "three";
 import { CarOne } from "./CarOne";
-import { folder, useControls } from "leva";
 import { Line } from "@react-three/drei";
+import { useCarControls } from "./carControls";
 
 import pathData from "@/experience/scenes/mainScene/lib/car_1_path.json";
+
+// Set this to true to enable Leva controls
+const USE_LEVA_CONTROLS = false;
 
 export function AnimatedCar() {
   const carRef = useRef<THREE.Group>(null);
   const distanceRef = useRef(0); // Replace state with ref
   const speed = 15; // Units per second
 
-  const { x, y, z, showPath } = useControls(
-    "Car One",
-    {
-      position: folder(
-        {
-          x: { value: -70.3, min: -100, max: 100, step: 0.1 },
-          y: { value: 2.5, min: -100, max: 100, step: 0.1 },
-          z: { value: 79.6, min: -100, max: 100, step: 0.1 },
-          showPath: { value: false, label: "Show Path" },
-        },
-        { collapsed: true }
-      ),
-    },
-    { collapsed: true }
-  );
+  // Use either Leva controls or hardcoded values
+  const controls = USE_LEVA_CONTROLS ? useCarControls() : {
+    x: -70.3,
+    y: 2.5,
+    z: 79.6,
+    showPath: false,
+    visible: true
+  };
 
   // Store position in a ref to avoid recalculating the curve
-  const positionRef = useRef({ x, y, z });
+  const positionRef = useRef({ x: controls.x, y: controls.y, z: controls.z });
 
   // Only recalculate when position changes significantly
   useEffect(() => {
     if (
-      Math.abs(positionRef.current.x - x) > 0.1 ||
-      Math.abs(positionRef.current.y - y) > 0.1 ||
-      Math.abs(positionRef.current.z - z) > 0.1
+      Math.abs(positionRef.current.x - controls.x) > 0.1 ||
+      Math.abs(positionRef.current.y - controls.y) > 0.1 ||
+      Math.abs(positionRef.current.z - controls.z) > 0.1
     ) {
-      positionRef.current = { x, y, z };
+      positionRef.current = { x: controls.x, y: controls.y, z: controls.z };
     }
-  }, [x, y, z]);
+  }, [controls.x, controls.y, controls.z]);
 
   const curve = useMemo(() => {
     const points = pathData.points.map(
@@ -86,10 +82,12 @@ export function AnimatedCar() {
 
   return (
     <>
-      <group ref={carRef}>
-        <CarOne />
-      </group>
-      {showPath && <PathVisualizer curve={curve.curve} />}
+      {controls.visible && (
+        <group ref={carRef}>
+          <CarOne />
+        </group>
+      )}
+      {controls.showPath && <PathVisualizer curve={curve.curve} />}
     </>
   );
 }

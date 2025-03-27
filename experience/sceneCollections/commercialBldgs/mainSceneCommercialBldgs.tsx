@@ -28,15 +28,15 @@ export function MainSceneCommercialBldgs(props: ThreeElements['group']) {
   }, [nodes]);
 
   // Add controls for positioning and debugging
-  const controls = useControls('Commercial Buildings', {
-    positionX: { value: 0, min: -200, max: 200, step: 1 },
-    positionY: { value: 4, min: -50, max: 50, step: 1 },
-    positionZ: { value: 0, min: -200, max: 200, step: 1 },
-    rotationY: { value: 0, min: -Math.PI, max: Math.PI, step: 0.01 },
-    scale: { value: 1, min: 0.1, max: 10, step: 0.1 },
-    showDebugInfo: { value: true },
-    modelStatus: { value: modelLoaded ? 'Loaded ✅' : modelError ? 'Error ❌' : 'Loading...', editable: false },
-  });
+  // const controls = useControls('Commercial Buildings', {
+  //   positionX: { value: 0, min: -200, max: 200, step: 1 },
+  //   positionY: { value: 4, min: -50, max: 50, step: 1 },
+  //   positionZ: { value: 0, min: -200, max: 200, step: 1 },
+  //   rotationY: { value: 0, min: -Math.PI, max: Math.PI, step: 0.01 },
+  //   scale: { value: 1, min: 0.1, max: 10, step: 0.1 },
+  //   showDebugInfo: { value: true },
+  //   modelStatus:{ value: modelLoaded ? 'Loaded ✅' : modelError ? 'Error ❌' : 'Loading...', editable: false },
+  // });
 
   // Define building instances
   const buildingInstances: BuildingInstanceData[] = [
@@ -57,16 +57,16 @@ export function MainSceneCommercialBldgs(props: ThreeElements['group']) {
 
   // Combine props position with Leva controls
   const combinedPosition: [number, number, number] = [
-    propsPosition[0] + controls.positionX,
-    propsPosition[1] + controls.positionY,
-    propsPosition[2] + controls.positionZ,
+    propsPosition[0] + 0,
+    propsPosition[1] + 4,
+    propsPosition[2] + 0,
   ];
 
   return (
     <group 
       position={new THREE.Vector3(...combinedPosition)} 
-      rotation={[0, controls.rotationY, 0]}
-      scale={controls.scale}
+      rotation={[0, 0, 0]}
+      scale={1}
     >
       
       {/* Render buildings if model loaded successfully */}

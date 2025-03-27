@@ -81,7 +81,6 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
         startTransitionsAfterLoad={true} // Signal that camera transitions should wait
         onLoad={() => {
           // This gets called when all 3D assets are ready
-          console.log("3D assets loaded and ready");
           setAssetsReady(true);
           
           // Signal that assets are loaded to R3F context

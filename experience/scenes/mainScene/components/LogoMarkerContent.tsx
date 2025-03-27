@@ -30,7 +30,6 @@ export default function LogoMarkerContent() {
   }, []);
 
   const handleClose = () => {
-    console.log("Close button clicked");
     
     // First fade out the content
     setContentVisible(false);
@@ -68,7 +67,7 @@ export default function LogoMarkerContent() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4, delay: 0.4 }}
-          className="fixed z-20 top-1/2 -translate-y-1/2 left-8 w-full max-w-sm px-4 flex items-center"
+          className="fixed z-20 top-1/2 -translate-y-0 md:-translate-y-1/2 md:left-8 w-full max-w-sm px-4 flex items-center"
         >
           <div className="w-full bg-white/80 backdrop-blur-sm p-6 rounded-lg min-h-[60vh]">
             <div className="flex justify-between items-start mb-4">
@@ -76,7 +75,7 @@ export default function LogoMarkerContent() {
                 variant="secondary"
                 size="icon"
                 onClick={handleClose}
-                className="absolute top-[-1rem] left-[-1rem]"
+                className="absolute md:top-[-1rem] right-[1.5rem] md:left-[-1rem]"
               >
                 <X className="h-4 w-4" />
               </Button>
