@@ -7,17 +7,17 @@ import React, { useRef, useEffect } from 'react'
 import { useGLTF } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 import { ThreeElements, useFrame } from '@react-three/fiber'
+
 type GLTFResult = GLTF & {
   nodes: {
-    Mesh007: THREE.Mesh
-    Mesh007_1: THREE.Mesh
-    Mesh007_2: THREE.Mesh
-    leaf: THREE.Mesh
+    Mesh006: THREE.Mesh
+    Mesh006_1: THREE.Mesh
+    Mesh006_2: THREE.Mesh
   }
   materials: {
-    ['Material.003']: THREE.MeshStandardMaterial
+    ['Logo.001']: THREE.MeshStandardMaterial
+    ['Material.002']: THREE.MeshStandardMaterial
     ['Material.004']: THREE.MeshStandardMaterial
-    Material: THREE.MeshStandardMaterial
   }
 }
 
@@ -38,25 +38,25 @@ export function LogoMarker(props: LogoMarkerProps) {
     if (!materials) return;
     
     // Store original opacity values if not already stored
-    if (!materials['Material.003'].userData.originalOpacity) {
-      materials['Material.003'].userData.originalOpacity = materials['Material.003'].opacity;
+    if (!materials['Logo.001'].userData.originalOpacity) {
+      materials['Logo.001'].userData.originalOpacity = materials['Logo.001'].opacity;
+      materials['Material.002'].userData.originalOpacity = materials['Material.002'].opacity;
       materials['Material.004'].userData.originalOpacity = materials['Material.004'].opacity;
-      materials.Material.userData.originalOpacity = materials.Material.opacity;
     }
     
     // Animate the opacity change
     const duration = 500; // 500ms transition
     const startTime = Date.now();
     const startOpacities = {
-      material003: materials['Material.003'].opacity,
-      material004: materials['Material.004'].opacity,
-      material: materials.Material.opacity
+      logo001: materials['Logo.001'].opacity,
+      material002: materials['Material.002'].opacity,
+      material004: materials['Material.004'].opacity
     };
     
     // Always set transparent when we want to animate opacity
-    materials['Material.003'].transparent = true;
+    materials['Logo.001'].transparent = true;
+    materials['Material.002'].transparent = true;
     materials['Material.004'].transparent = true;
-    materials.Material.transparent = true;
     
     const animateOpacity = () => {
       const elapsed = Date.now() - startTime;
@@ -67,22 +67,22 @@ export function LogoMarker(props: LogoMarkerProps) {
       const easedProgress = easeOut(progress);
       
       // Interpolate opacity values
-      materials['Material.003'].opacity = startOpacities.material003 + (opacity - startOpacities.material003) * easedProgress;
+      materials['Logo.001'].opacity = startOpacities.logo001 + (opacity - startOpacities.logo001) * easedProgress;
+      materials['Material.002'].opacity = startOpacities.material002 + (opacity - startOpacities.material002) * easedProgress;
       materials['Material.004'].opacity = startOpacities.material004 + (opacity - startOpacities.material004) * easedProgress;
-      materials.Material.opacity = startOpacities.material + (opacity - startOpacities.material) * easedProgress;
       
       if (progress < 1) {
         requestAnimationFrame(animateOpacity);
       } else {
         // Final opacity set
-        materials['Material.003'].opacity = opacity;
+        materials['Logo.001'].opacity = opacity;
+        materials['Material.002'].opacity = opacity;
         materials['Material.004'].opacity = opacity;
-        materials.Material.opacity = opacity;
         
         // Set transparent property based on final opacity
-        materials['Material.003'].transparent = opacity < 1;
+        materials['Logo.001'].transparent = opacity < 1;
+        materials['Material.002'].transparent = opacity < 1;
         materials['Material.004'].transparent = opacity < 1;
-        materials.Material.transparent = opacity < 1;
       }
     };
     
@@ -167,39 +167,24 @@ export function LogoMarker(props: LogoMarkerProps) {
   
   return (
     <group ref={groupRef} {...groupProps} dispose={null}>
-      <group name="Scene" position={[0, 1, 0]}>
-        <group name="logo" position={[0, 6.656, 0]} rotation={[Math.PI / 2, 0, 0]} scale={0.227}>
-          <mesh
-            name="Mesh007"
-            castShadow
-            receiveShadow
-            geometry={nodes.Mesh007.geometry}
-            material={materials['Material.003']}
-          />
-          <mesh
-            name="Mesh007_1"
-            castShadow
-            receiveShadow
-            geometry={nodes.Mesh007_1.geometry}
-            material={materials['Material.004']}
-          />
-          <mesh
-            name="Mesh007_2"
-            castShadow
-            receiveShadow
-            geometry={nodes.Mesh007_2.geometry}
-            material={materials['Material.004']}
-          />
-        </group>
+      <group position={[0, 5.185, 0]} rotation={[Math.PI / 2, 0, 0]} scale={[0.279, 0.088, 0.279]}>
         <mesh
-          name="leaf"
           castShadow
           receiveShadow
-          geometry={nodes.leaf.geometry}
-          material={materials.Material}
-          position={[0, 4.4, 0.817]}
-          rotation={[Math.PI / 2, 0, 0]}
-          scale={1.228}
+          geometry={nodes.Mesh006.geometry}
+          material={materials['Logo.001']}
+        />
+        <mesh
+          castShadow
+          receiveShadow
+          geometry={nodes.Mesh006_1.geometry}
+          material={materials['Material.002']}
+        />
+        <mesh
+          castShadow
+          receiveShadow
+          geometry={nodes.Mesh006_2.geometry}
+          material={materials['Material.004']}
         />
       </group>
     </group>

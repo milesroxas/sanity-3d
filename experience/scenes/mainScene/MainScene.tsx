@@ -166,7 +166,7 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
         },
         background: { value: true },
         blur: { value: 0.9, min: 0, max: 1, step: 0.1 },
-        intensity: { value: 0.7, min: 0, max: 5, step: 0.1 },
+        intensity: { value: 0.8, min: 0, max: 5, step: 0.1 },
       },
       { collapsed: true }
     );
@@ -181,7 +181,7 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
       { collapsed: true }
     );
 
-    useFrame((state, delta) => {
+    useFrame((_, delta) => {
       if (cloudsRef.current) {
         cloudsRef.current.position.x += delta * 0.8;
 

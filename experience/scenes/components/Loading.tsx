@@ -4,7 +4,7 @@ import { useSceneStore } from "../store/sceneStore";
 import { useEffect, useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useProgress } from "@react-three/drei";
-
+import Image from "next/image";
 export function Loading() {
   const [show, setShow] = useState(false);  // Start hidden by default
   const { progress, active } = useProgress();
@@ -40,7 +40,7 @@ export function Loading() {
       setShow(false);
       // Reset for next time
       hasStartedRef.current = false;
-    }, 800);
+    }, 1200); // Increased delay to match total animation duration
     
     return () => clearTimeout(hideTimer);
   }, [isLoading, isTransitioning, active, smoothProgress]);
@@ -71,7 +71,7 @@ export function Loading() {
     // Create smooth animation towards target
     const startTime = Date.now();
     const startValue = smoothProgress;
-    const duration = 500; // Slightly faster for more responsive feel
+    const duration = 1000; // Slightly faster for more responsive feel
     
     const animateProgress = () => {
       const now = Date.now();
@@ -127,21 +127,47 @@ export function Loading() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.4 }}
-          className="fixed inset-0 bg-primary/90 backdrop-blur-md flex items-center justify-center z-[100] pointer-events-none"
+          transition={{ duration: 0.8 }}
+          className="fixed inset-0 bg-background flex items-center justify-center z-[9999] pointer-events-none"
         >
-          <div className="flex flex-col items-center gap-6">
-            <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin" />
-            <p className="text-white text-xl font-medium">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col items-center gap-12 container"
+          >
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
+              <Image src="/images/logo.webp" alt="logo" width={100} height={100} />
+            </motion.div>
+
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="text-primary text-xl font-medium"
+            >
               Loading...({smoothProgress}%)
-            </p>
-            <div className="w-64 h-2 bg-gray-800 rounded-full overflow-hidden">
+            </motion.p>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, delay: 0.3 }}
+              className="w-full h-4 bg-[#216020] rounded-full overflow-hidden"
+            >
               <div 
-                className="h-full bg-white transition-all duration-300 ease-out"
+                className="h-full bg-[#80DA7E] transition-all duration-300 ease-out"
                 style={{ width: `${smoothProgress}%` }}
               />
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
