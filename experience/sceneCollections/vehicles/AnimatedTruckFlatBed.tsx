@@ -19,7 +19,7 @@ export function AnimatedTruckFlatBed() {
       position: folder(
         {
           x: { value: 0.0, min: -100, max: 100, step: 0.1 },
-          y: { value: 2.5, min: -100, max: 100, step: 0.1 },
+          y: { value: 2.8, min: -100, max: 100, step: 0.1 },
           z: { value: -16.3, min: -100, max: 100, step: 0.1 },
           showPath: { value: false, label: "Show Path" },
         },

@@ -123,7 +123,7 @@ function PoiMarker({
             <LogoMarker 
               isHovered={isHovered} 
               position={[0, 0, 0]}
-              scale={1}
+              scale={0.5}
               opacity={opacity}
             />
           </group>
