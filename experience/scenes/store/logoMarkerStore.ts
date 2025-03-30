@@ -11,6 +11,7 @@ interface LogoMarkerStore {
   initialCameraPosition: Vector3 | null;
   initialCameraTarget: Vector3 | null;
   otherMarkersVisible: boolean;
+  hoveredMarkerId: string | null;
 
   // Actions
   setSelectedScene: (scene: Sanity.Scene | null) => void;
@@ -19,6 +20,7 @@ interface LogoMarkerStore {
   setShouldAnimateBack: (should: boolean) => void;
   setInitialCameraState: (position: Vector3, target: Vector3) => void;
   setOtherMarkersVisible: (visible: boolean) => void;
+  setHoveredMarkerId: (id: string | null) => void;
   fetchAndSetScene: (slug: string) => Promise<void>;
   reset: () => void;
 }
@@ -32,6 +34,7 @@ export const useLogoMarkerStore = create<LogoMarkerStore>((set) => ({
   initialCameraPosition: null,
   initialCameraTarget: null,
   otherMarkersVisible: true,
+  hoveredMarkerId: null,
 
   // Actions
   setSelectedScene: (scene) => set({ selectedScene: scene }),
@@ -52,12 +55,16 @@ export const useLogoMarkerStore = create<LogoMarkerStore>((set) => ({
     });
   },
   setOtherMarkersVisible: (visible) => set({ otherMarkersVisible: visible }),
+  setHoveredMarkerId: (id) => set({ hoveredMarkerId: id }),
 
   fetchAndSetScene: async (slug) => {
+    console.log("Fetching scene for slug:", slug);
     set({ isLoading: true });
     try {
       const scene = await fetchSanitySceneBySlug({ slug });
+      console.log("Scene fetched successfully:", scene);
       set({ selectedScene: scene, isContentVisible: true });
+      console.log("Content visibility set to true");
     } catch (error) {
       console.error("Error fetching scene:", error);
     } finally {
@@ -72,6 +79,7 @@ export const useLogoMarkerStore = create<LogoMarkerStore>((set) => ({
     shouldAnimateBack: false,
     initialCameraPosition: null,
     initialCameraTarget: null,
-    otherMarkersVisible: true
+    otherMarkersVisible: true,
+    hoveredMarkerId: null
   }),
 })); 

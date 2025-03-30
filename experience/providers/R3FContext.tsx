@@ -46,7 +46,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
       assetsLoaded, 
       canvasOpacity 
     }}>
-      <div className="relative w-full h-full overflow-hidden">
+      <div className="relative w-full h-full">
         {/* Regular React components in a properly constrained container */}
         <div className="absolute mx-auto z-50">
           {children}

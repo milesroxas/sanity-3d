@@ -249,39 +249,201 @@ const handleClose = () => {
 };
 ```
 
+## Marker System Documentation
+
+The project implements a sophisticated marker system that handles interactive 3D markers with hover states, animations, and transitions. Here's a detailed breakdown:
+
+### Core Components
+
+1. **LogoMarker (`LogoMarker.tsx`)**
+   - Renders the 3D marker model
+   - Handles opacity and transform animations using GSAP
+   - Manages hover state animations (rotation, scale, position)
+   - Coordinates with parent components for state changes
+
+2. **PoiMarker (`PoiMarker.tsx`)**
+   - Wrapper component for individual markers
+   - Manages hitbox and interaction states
+   - Handles HTML label rendering and styling
+   - Coordinates hover effects with LogoMarker
+
+3. **LogoMarkers (`LogoMarkers.tsx`)**
+   - Parent component managing all markers
+   - Handles marker visibility and transitions
+   - Coordinates with camera system for transitions
+   - Manages global hover state through store
+
+### State Management
+
+1. **LogoMarkerStore**
+   ```typescript
+   interface LogoMarkerStore {
+     // State
+     selectedScene: Sanity.Scene | null;
+     isContentVisible: boolean;
+     isLoading: boolean;
+     shouldAnimateBack: boolean;
+     initialCameraPosition: Vector3 | null;
+     initialCameraTarget: Vector3 | null;
+     otherMarkersVisible: boolean;
+     hoveredMarkerId: string | null;  // Centralized hover state
+
+     // Actions
+     setSelectedScene: (scene: Sanity.Scene | null) => void;
+     setContentVisible: (visible: boolean) => void;
+     setIsLoading: (loading: boolean) => void;
+     setShouldAnimateBack: (should: boolean) => void;
+     setInitialCameraState: (position: Vector3, target: Vector3) => void;
+     setOtherMarkersVisible: (visible: boolean) => void;
+     setHoveredMarkerId: (id: string | null) => void;
+     fetchAndSetScene: (slug: string) => Promise<void>;
+     reset: () => void;
+   }
+   ```
+
+2. **Hover State Management**
+   - Centralized in LogoMarkerStore
+   - Reset automatically when markers visibility changes
+   - Coordinated with marker animations
+   - Handles cleanup on unmount
+
+### Animation System
+
+1. **GSAP Timeline**
+   ```typescript
+   const tl = gsap.timeline({
+     defaults: { duration: 0.6, ease: "power2.inOut" }
+   });
+
+   // Handle opacity changes
+   tl.to(opacityRef, {
+     current: opacity,
+     duration: 0.6,
+     onUpdate: () => {
+       // Update material properties
+     }
+   });
+
+   // Handle transform animations
+   if (isFadingIn) {
+     tl.to(groupRef.current.rotation, {
+       y: 0,
+       duration: 0.6
+     })
+     .to(groupRef.current.position, {
+       y: 0,
+       duration: 0.6
+     }, "<")
+     .to(groupRef.current.scale, {
+       x: baseScale,
+       y: baseScale,
+       z: baseScale,
+       duration: 0.6
+     }, "<");
+   }
+   ```
+
+2. **Hover Animations**
+   - Rotation: Full 360-degree spin
+   - Position: Slight upward movement
+   - Scale: 20% increase
+   - Light intensity: 100% increase
+   - HTML label: Scale and color changes
+
+### Interaction Flow
+
+1. **Marker Visibility**
+   - Markers fade in/out based on `otherMarkersVisible`
+   - Hover state reset when visibility changes
+   - Hitbox enabled/disabled with visibility
+   - Smooth transitions between states
+
+2. **Hover Interactions**
+   - User hovers over marker
+   - Hitbox triggers hover state
+   - GSAP animates marker transforms
+   - HTML label updates styling
+   - Light intensity increases
+
+3. **Click Interactions**
+   - User clicks marker
+   - Markers fade out
+   - Camera transitions to new position
+   - Content fades in
+   - State updates in store
+
+### Technical Implementation
+
+1. **Performance Optimizations**
+   - Direct DOM manipulation for HTML labels
+   - Efficient GSAP timeline management
+   - Proper cleanup of animations
+   - Memory leak prevention
+
+2. **Event Handling**
+   ```typescript
+   const handlePointerEnter = () => {
+     if (otherMarkersVisible) {
+       setHoveredMarkerId(poi._id);
+     }
+   };
+   
+   const handlePointerLeave = () => {
+     setHoveredMarkerId(null);
+   };
+   
+   const handleClick = () => {
+     if (otherMarkersVisible) {
+       handleMarkerClick(poi);
+     }
+   };
+   ```
+
+3. **Cleanup**
+   ```typescript
+   useEffect(() => {
+     return () => {
+       if (groupRef.current) {
+         groupRef.current.rotation.y = 0;
+         groupRef.current.position.y = 0;
+         const baseScale = typeof scale === 'number' ? scale : scale[0];
+         groupRef.current.scale.set(baseScale, baseScale, baseScale);
+       }
+     };
+   }, [scale]);
+   ```
+
+### Usage Examples
+
+```typescript
+// Creating a marker
+<LogoMarker 
+  isHovered={isHovered} 
+  position={[0, 0, 0]}
+  scale={0.5}
+  opacity={opacity}
+/>
+
+// Handling marker visibility
+useEffect(() => {
+  setHoveredMarkerId(null);
+}, [otherMarkersVisible, setHoveredMarkerId]);
+
+// Managing marker transitions
+const handleMarkerClick = (poi: any) => {
+  setOtherMarkersVisible(false);
+  // ... camera transition logic
+};
+```
+
 ## TODO: Core Features
 
-- [x] Implement a 3D experience using React Three Fiber
-- [x] Implement a headless CMS using Sanity
-- [x] Implement a basic file upload system using Supabase
-- [x] Scene navigation
-- [x] Scene blocks from Schema UI
 - [ ] Sanity CMS navigation settings
-- [x] Create a camera animation system
-- [x] Implement 3D animations
-- [ ] Add animated vehicles
-- [ ] Setup boundaries for map controls
-- [ ] Setup limits for camera controls
-- [ ] Add environment features
-- [ ] Render billboard video texture 
 - [ ] Implement baked textures
-- [ ] Dynamic scene environment and lighting
-- [ ] Implement loading screen
-- [ ] Implement intro animations
 
 ## TODO: Chores
 
-- [ ] Scene refinement
-  - [x] Scene camera refinement for model positioning
-  - [x] Scene layout design
-  - [x] Scene carousel implementation
-  - [x] Scene navigation refinement
-  - [ ] Intro sequence animation (component mount animation)
-- [ ] Review upstream updates from Schema UI
-- [ ] Clean up queries and types
 - [ ] Change /studio to /admin
-- [ ] Add testing
-- [ ] Separate Experience from Scenes as a singleton
 
 ## TODO: Brand
 
@@ -294,15 +456,15 @@ The only notes are:
 
 
 
-- The palm trees and some elements might be a bit too uniform and too many—consider breaking up the pattern.
-- The event area with uniform tents could have more variation or detail.
-- At least two moving vehicles should be black Kia Soul patrol cars, if possible.
-- Field of View & Camera Adjustment:
+- [ ] The palm trees and some elements might be a bit too uniform and too many—consider breaking up the pattern.
+- [x] The event area with uniform tents could have more variation or detail.
+- [ ] At least two moving vehicles should be black Kia Soul patrol cars, if possible.
+- [x] Field of View & Camera Adjustment:
 
 
 
-- The Prospect Park field of view feels better—we should back up the camera slightly so that HOA & residential areas aren't cut off.
-- The font and background for rear services should be larger to improve readability—they’re harder to see than the ones in the front.
+- [ ] The Prospect Park field of view feels better—we should back up the camera slightly so that HOA & residential areas aren't cut off.
+- [ ] The font and background for rear services should be larger to improve readability—they're harder to see than the ones in the front.
 
 
 
@@ -310,8 +472,8 @@ Shield Icons & Logo Adjustments:
 
 
 
-- Shield icons should be flat (not 3D) and without the clover—more understated is fine. We like the spin effect, and it should still look good with a less "heavy" icon.
-- The upper left fixed logo isn’t necessary—let’s remove it.
-- The small logo on the headquarters building might be redundant.
-Instead: Place a larger sign on the center building (similar to the one on the left, but bigger).
-- Remove the logo on the left building and the tiny one in the back.
+- [ ] Shield icons should be flat (not 3D) and without the clover—more understated is fine. We like the spin effect, and it should still look good with a less "heavy" icon.
+- [x] The upper left fixed logo isn't necessary—let's remove it.
+- [ ] The small logo on the headquarters building might be redundant.
+- [ ] Instead: Place a larger sign on the center building (similar to the one on the left, but bigger).
+- [ ] Remove the logo on the left building and the tiny one in the back.

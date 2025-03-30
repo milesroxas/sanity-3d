@@ -2,7 +2,6 @@
 import { Float, Html, useCursor } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { Vector3 } from "three";
 import * as THREE from "three";
 import { useCameraStore } from "@/experience/scenes/store/cameraStore";
@@ -33,20 +32,21 @@ function PoiMarker({
   
   // Add refs for light animation
   const lightRef = useRef<THREE.RectAreaLight>(null);
+  const hitboxRef = useRef<THREE.Mesh>(null);
   
   // Use refs to track the actual DOM elements for direct manipulation
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLHeadingElement>(null);
   
   // Apply cursor effect
-  useCursor(isHovered);
+  useCursor(isHovered && otherMarkersVisible);
   
   // Apply transitions directly when hover state changes
   useEffect(() => {
     if (!containerRef.current || !textRef.current) return;
     
     // Apply styles directly to avoid React re-renders during transition
-    if (isHovered) {
+    if (isHovered && otherMarkersVisible) {
       containerRef.current.style.backgroundColor = 'rgba(74, 222, 128, 0.8)';
       containerRef.current.style.transform = 'scale(1.25)';
       textRef.current.style.transform = 'scale(1.5)';
@@ -58,16 +58,18 @@ function PoiMarker({
     
     // Update light intensity
     if (lightRef.current) {
-      lightRef.current.intensity = isHovered ? 100 : 0;
+      lightRef.current.intensity = isHovered && otherMarkersVisible ? 100 : 0;
     }
-  }, [isHovered]);
+  }, [isHovered, otherMarkersVisible]);
 
   // Handle marker visibility
   const opacity = otherMarkersVisible ? 1 : 0;
 
   // Event handlers
   const handlePointerEnter = () => {
-    setHoveredMarkerId(poi._id);
+    if (otherMarkersVisible) {
+      setHoveredMarkerId(poi._id);
+    }
   };
   
   const handlePointerLeave = () => {
@@ -75,7 +77,9 @@ function PoiMarker({
   };
   
   const handleClick = () => {
-    handleMarkerClick(poi);
+    if (otherMarkersVisible) {
+      handleMarkerClick(poi);
+    }
   };
 
   // Get the marker position
@@ -85,12 +89,16 @@ function PoiMarker({
     <group>
       {/* Single hitbox for 3D interaction */}
       <mesh 
+        ref={hitboxRef}
         visible={otherMarkersVisible}
-        position={markerPosition}
-        scale={[10, 10, 10]}
-        onClick={handleClick}
-        onPointerEnter={handlePointerEnter}
-        onPointerLeave={handlePointerLeave}
+        position={[markerPosition[0], markerPosition[1] + 5, markerPosition[2]]}
+        scale={[5, 5, 5]}
+        onClick={otherMarkersVisible ? handleClick : undefined}
+        onPointerEnter={otherMarkersVisible ? handlePointerEnter : undefined}
+        onPointerLeave={otherMarkersVisible ? handlePointerLeave : undefined}
+        onPointerDown={otherMarkersVisible ? handlePointerEnter : undefined}
+        onPointerUp={otherMarkersVisible ? handleClick : undefined}
+        onPointerOut={otherMarkersVisible ? handlePointerLeave : undefined}
       >
         <boxGeometry args={[1, 1, 1]} />
         <meshBasicMaterial 
@@ -100,7 +108,6 @@ function PoiMarker({
       </mesh>
       
       <Float
-        key={poi._id}
         speed={10}
         rotationIntensity={0}
         floatIntensity={1}
@@ -108,7 +115,6 @@ function PoiMarker({
       >
         <group 
           position={markerPosition}
-          visible={otherMarkersVisible}
         >
           {/* Logo marker with light */}
           <group position={[0, 0, 0]}>
@@ -118,7 +124,7 @@ function PoiMarker({
               width={20}
               height={20}
               color="#36A837"
-              intensity={isHovered ? 100 : 0}
+              intensity={isHovered && otherMarkersVisible ? 100 : 0}
             />
             <LogoMarker 
               isHovered={isHovered} 
@@ -130,7 +136,18 @@ function PoiMarker({
           
           {/* HTML element positioned below the marker */}
           <group position={[0, -5, 0]}>
-            <Html transform distanceFactor={15} zIndexRange={[100, 0]}>
+            <Html 
+              transform 
+              distanceFactor={15} 
+              zIndexRange={[100, 0]}
+              style={{
+                width: 'auto',
+                minWidth: '200px',
+                pointerEvents: otherMarkersVisible ? 'auto' : 'none',
+                opacity: opacity,
+                transition: 'opacity 0.6s ease-in-out'
+              }}
+            >
               <div
                 ref={containerRef}
                 className="backdrop-blur-sm px-4 py-2 rounded-lg"
@@ -138,16 +155,22 @@ function PoiMarker({
                   backgroundColor: 'rgba(34, 197, 94, 0.8)',
                   transition: 'all 400ms cubic-bezier(0.4, 0, 0.2, 1)',
                   transformOrigin: 'center center',
-                  cursor: 'pointer', // Add pointer cursor
+                  cursor: otherMarkersVisible ? 'pointer' : 'default',
                   opacity: opacity,
+                  touchAction: 'none',
+                  minWidth: '200px',
+                  whiteSpace: 'nowrap',
                 }}
                 onMouseEnter={handlePointerEnter}
                 onMouseLeave={handlePointerLeave}
                 onClick={handleClick}
+                onTouchStart={handlePointerEnter}
+                onTouchEnd={handleClick}
+                onTouchCancel={handlePointerLeave}
               >
                 <h3 
                   ref={textRef}
-                  className="text-6xl text-white font-bold"
+                  className="text-2xl lg:text-6xl text-white font-bold text-center"
                   style={{
                     transition: 'transform 400ms cubic-bezier(0.4, 0, 0.2, 1)',
                     transformOrigin: 'center center',
@@ -167,8 +190,6 @@ function PoiMarker({
 }
 
 export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
-  const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null);
-
   const { camera } = useThree();
   const { 
     fetchAndSetScene, 
@@ -178,7 +199,9 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     initialCameraTarget,
     setInitialCameraState,
     otherMarkersVisible,
-    setOtherMarkersVisible
+    setOtherMarkersVisible,
+    hoveredMarkerId,
+    setHoveredMarkerId
   } = useLogoMarkerStore();
   const { setControlType, setIsAnimating, syncCameraPosition } = useCameraStore();
   
@@ -207,10 +230,14 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     }
   }, []);
 
-  // Reset hover state on scene changes or unmount
+  // Reset hover state when markers visibility changes
+  useEffect(() => {
+    setHoveredMarkerId(null);
+  }, [otherMarkersVisible, setHoveredMarkerId]);
+
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      setHoveredMarkerId(null);
       clearAnimationFrame();
       clearAllTimeouts();
     };
@@ -369,6 +396,9 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
         
         // Reset shouldAnimateBack after animation completes
         setShouldAnimateBack(false);
+        
+        // Show markers after camera animation is complete
+        setOtherMarkersVisible(true);
         
         // Apply our target correction one more time to ensure it sticks
         requestAnimationFrame(restoreTarget);

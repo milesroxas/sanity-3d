@@ -49,7 +49,7 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <CustomCursor />
+        
         {/* <ThemeProvider
           attribute="class"
           defaultTheme="light"

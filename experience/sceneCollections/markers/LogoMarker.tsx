@@ -6,7 +6,8 @@ import * as THREE from 'three'
 import React, { useRef, useEffect } from 'react'
 import { useGLTF } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
-import { ThreeElements, useFrame } from '@react-three/fiber'
+import { ThreeElements } from '@react-three/fiber'
+import gsap from 'gsap'
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -31,139 +32,113 @@ export function LogoMarker(props: LogoMarkerProps) {
   const { nodes, materials } = useGLTF('/models/logoMarker.glb') as GLTFResult
   const { isHovered = false, scale = 1, opacity = 1, ...groupProps } = props;
   const groupRef = useRef<THREE.Group>(null);
-  const animationRef = useRef<number | null>(null);
+  const opacityRef = useRef(opacity);
+  const previousOpacityRef = useRef(opacity);
+  const isFadingIn = previousOpacityRef.current === 0 && opacity > 0;
+  const isFadingOut = previousOpacityRef.current > 0 && opacity === 0;
   
-  // Apply opacity to all materials
-  useEffect(() => {
-    if (!materials) return;
-    
-    // Store original opacity values if not already stored
-    if (!materials['Logo.001'].userData.originalOpacity) {
-      materials['Logo.001'].userData.originalOpacity = materials['Logo.001'].opacity;
-      materials['Material.002'].userData.originalOpacity = materials['Material.002'].opacity;
-      materials['Material.004'].userData.originalOpacity = materials['Material.004'].opacity;
-    }
-    
-    // Animate the opacity change
-    const duration = 500; // 500ms transition
-    const startTime = Date.now();
-    const startOpacities = {
-      logo001: materials['Logo.001'].opacity,
-      material002: materials['Material.002'].opacity,
-      material004: materials['Material.004'].opacity
-    };
-    
-    // Always set transparent when we want to animate opacity
-    materials['Logo.001'].transparent = true;
-    materials['Material.002'].transparent = true;
-    materials['Material.004'].transparent = true;
-    
-    const animateOpacity = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Ease out cubic function for smooth transition
-      const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-      const easedProgress = easeOut(progress);
-      
-      // Interpolate opacity values
-      materials['Logo.001'].opacity = startOpacities.logo001 + (opacity - startOpacities.logo001) * easedProgress;
-      materials['Material.002'].opacity = startOpacities.material002 + (opacity - startOpacities.material002) * easedProgress;
-      materials['Material.004'].opacity = startOpacities.material004 + (opacity - startOpacities.material004) * easedProgress;
-      
-      if (progress < 1) {
-        requestAnimationFrame(animateOpacity);
-      } else {
-        // Final opacity set
-        materials['Logo.001'].opacity = opacity;
-        materials['Material.002'].opacity = opacity;
-        materials['Material.004'].opacity = opacity;
-        
-        // Set transparent property based on final opacity
-        materials['Logo.001'].transparent = opacity < 1;
-        materials['Material.002'].transparent = opacity < 1;
-        materials['Material.004'].transparent = opacity < 1;
-      }
-    };
-    
-    // Start animation
-    requestAnimationFrame(animateOpacity);
-    
-    return () => {
-      // No specific cleanup needed since we're not creating new materials
-    };
-  }, [materials, opacity]);
-  
-  // Simplified animation approach - just apply rotation and position directly
+  // GSAP animation setup for both opacity and transform animations
   useEffect(() => {
     if (!groupRef.current) return;
     
-    // Cancel any ongoing animation
-    if (animationRef.current !== null) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-    
-    // Set up the transition
-    const duration = 600; // Increased from 300ms to 800ms for a slower, more deliberate animation
-    const startTime = Date.now();
-    const startRotation = groupRef.current.rotation.y || 0;
-    const startPosition = groupRef.current.position.y || 0;
-    
-    // Get current scale
-    const currentScale = groupRef.current.scale.x;
     const baseScale = typeof scale === 'number' ? scale : scale[0];
-    
-    // Target values
-    const targetRotation = isHovered ? Math.PI * 2 : 0;
-    const targetPosition = isHovered ? 0.5 : 0;
     const targetScale = isHovered ? baseScale * 1.2 : baseScale;
     
-    // Animation function
-    const animate = () => {
-      if (!groupRef.current) return;
-      
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Ease in-out function
-      const easeInOut = (t: number) => 
-        t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-      
-      const easedProgress = easeInOut(progress);
-      
-      // Apply interpolated values
-      groupRef.current.rotation.y = startRotation + (targetRotation - startRotation) * easedProgress;
-      groupRef.current.position.y = startPosition + (targetPosition - startPosition) * easedProgress;
-      
-      // Apply scale animation
-      const newScale = currentScale + (targetScale - currentScale) * easedProgress;
-      groupRef.current.scale.set(newScale, newScale, newScale);
-      
-      // Continue animation if not complete
-      if (progress < 1) {
-        animationRef.current = requestAnimationFrame(animate);
-      } else {
-        // Reset rotation to 0 when complete if we were hovering out
-        // This prevents accumulating rotations
-        if (!isHovered && groupRef.current) {
-          groupRef.current.rotation.y = 0;
-        }
-        animationRef.current = null;
+    // Create GSAP timeline for coordinated animations
+    const tl = gsap.timeline({
+      defaults: { duration: 0.6, ease: "power2.inOut" }
+    });
+    
+    // Handle opacity changes
+    tl.to(opacityRef, {
+      current: opacity,
+      duration: 0.6,
+      onUpdate: () => {
+        if (!materials) return;
+        Object.values(materials).forEach(material => {
+          material.opacity = opacityRef.current;
+          material.transparent = opacityRef.current < 1;
+          material.depthWrite = opacityRef.current >= 1;
+          material.blending = opacityRef.current < 1 ? THREE.NormalBlending : THREE.NoBlending;
+        });
       }
-    };
+    });
+
+    // If we're fading in, force reset to default state
+    if (isFadingIn) {
+      // Reset to default state first
+      tl.to(groupRef.current.rotation, {
+        y: 0,
+        duration: 0.6
+      }, ">")
+      .to(groupRef.current.position, {
+        y: 0,
+        duration: 0.6
+      }, "<")
+      .to(groupRef.current.scale, {
+        x: baseScale,
+        y: baseScale,
+        z: baseScale,
+        duration: 0.6
+      }, "<");
+    }
+
+    // If we're fading out, reset to default state before fading
+    if (isFadingOut) {
+      tl.to(groupRef.current.rotation, {
+        y: 0,
+        duration: 0.6
+      }, "<")
+      .to(groupRef.current.position, {
+        y: 0,
+        duration: 0.6
+      }, "<")
+      .to(groupRef.current.scale, {
+        x: baseScale,
+        y: baseScale,
+        z: baseScale,
+        duration: 0.6
+      }, "<");
+    }
+
+    // Handle hover state changes only if we're not fading in or out
+    if (opacity > 0 && !isFadingIn && !isFadingOut) {
+      tl.to(groupRef.current.rotation, {
+        y: isHovered ? Math.PI * 2 : 0,
+        duration: 0.6
+      }, "<")
+      .to(groupRef.current.position, {
+        y: isHovered ? 0.5 : 0,
+        duration: 0.6
+      }, "<")
+      .to(groupRef.current.scale, {
+        x: targetScale,
+        y: targetScale,
+        z: targetScale,
+        duration: 0.6
+      }, "<");
+    }
     
-    // Start animation
-    animationRef.current = requestAnimationFrame(animate);
+    // Update previous opacity for next animation
+    previousOpacityRef.current = opacity;
     
-    // Cleanup animation on unmount or when props change
+    // Cleanup
     return () => {
-      if (animationRef.current !== null) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
+      tl.kill();
+    };
+  }, [isHovered, scale, opacity, materials, isFadingIn, isFadingOut]);
+
+  // Reset state when component unmounts
+  useEffect(() => {
+    return () => {
+      if (groupRef.current) {
+        groupRef.current.rotation.y = 0;
+        groupRef.current.position.y = 0;
+        const baseScale = typeof scale === 'number' ? scale : scale[0];
+        groupRef.current.scale.set(baseScale, baseScale, baseScale);
       }
     };
-  }, [isHovered, scale]);
+  }, [scale]);
   
   return (
     <group ref={groupRef} {...groupProps} dispose={null}>

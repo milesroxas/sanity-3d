@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import gsap from "gsap";
+import { CustomCursor } from "@/components/ui/Cursor";
 
 interface AnimationRefs {
   background: React.RefObject<HTMLDivElement | null>;
@@ -109,6 +110,7 @@ export default function LandingPage() {
 
   return (
     <div className="fixed inset-0">
+      <CustomCursor />
       {/* Background Layer */}
       <div 
         ref={refs.background}

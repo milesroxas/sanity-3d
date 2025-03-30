@@ -67,22 +67,3 @@
   }
 }
 
-/* Hide default cursor everywhere */
-html, body {
-  cursor: none !important;
-}
-
-/* Hide cursor on all elements */
-* {
-  cursor: none !important;
-}
-
-/* Ensure interactive elements don't show default cursor */
-a, button, [role="button"], input, select, textarea, [tabindex]:not([tabindex="-1"]) {
-  cursor: none !important;
-}
-
-/* Optional: Show default cursor for text selection */
-::selection {
-  cursor: text !important;
-}

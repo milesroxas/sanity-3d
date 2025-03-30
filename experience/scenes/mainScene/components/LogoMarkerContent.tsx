@@ -13,8 +13,6 @@ export default function LogoMarkerContent() {
     setContentVisible, 
     setShouldAnimateBack,
     setOtherMarkersVisible,
-    initialCameraPosition,
-    initialCameraTarget
 } = useLogoMarkerStore();
 
   // Keep track of timeouts to clean up
@@ -33,9 +31,6 @@ export default function LogoMarkerContent() {
     // First fade out the content
     setContentVisible(false);
     
-    // Start fading in the markers
-    setOtherMarkersVisible(true);
-    
     // Clear any existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -43,9 +38,16 @@ export default function LogoMarkerContent() {
     
     // Then trigger camera animation after a short delay to allow fade out
     timeoutRef.current = setTimeout(() => {
+      // Start the camera animation first
       setShouldAnimateBack(true);
+      
+      // Then hide markers after a short delay to ensure smooth transition
+      setTimeout(() => {
+        setOtherMarkersVisible(false);
+      }, 500);
+      
       timeoutRef.current = null;
-    }, 1200); // Match the fade out duration
+    }, 500);
   };
 
   if (!selectedScene) return null;

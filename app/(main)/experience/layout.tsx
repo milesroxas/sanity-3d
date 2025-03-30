@@ -32,7 +32,7 @@ export default function ExperienceLayout({
     <R3FProvider>
       {/* Non-R3F components render here */}
 
-      <main className="mt-8 overflow-hidden">{children}</main>
+      <main className="mt-8">{children}</main>
 
       {/* Hide Leva in production, show in development */}
       <Leva hidden={isProduction} />
