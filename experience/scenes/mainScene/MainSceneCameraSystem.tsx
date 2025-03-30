@@ -57,7 +57,7 @@ export function MainSceneCameraSystem() {
   const showTargetCube = useControls({
     "Debug Options": folder({
       showTargetCube: {
-        value: true,
+        value: process.env.NEXT_PUBLIC_SITE_ENV === 'development',
         label: "Show Target Cube"
       },
       logCameraPosition: button(() => {

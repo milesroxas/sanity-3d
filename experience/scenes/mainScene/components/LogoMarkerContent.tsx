@@ -30,7 +30,6 @@ export default function LogoMarkerContent() {
   }, []);
 
   const handleClose = () => {
-    
     // First fade out the content
     setContentVisible(false);
     
@@ -42,15 +41,8 @@ export default function LogoMarkerContent() {
       clearTimeout(timeoutRef.current);
     }
     
-    // Debug info to inspect the stored camera position/target
-    console.log("Current stored camera data:", {
-      initialPosition: initialCameraPosition,
-      initialTarget: initialCameraTarget
-    });
-    
     // Then trigger camera animation after a short delay to allow fade out
     timeoutRef.current = setTimeout(() => {
-      console.log("Setting shouldAnimateBack to true");
       setShouldAnimateBack(true);
       timeoutRef.current = null;
     }, 1200); // Match the fade out duration
@@ -67,23 +59,23 @@ export default function LogoMarkerContent() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4, delay: 0.4 }}
-          className="fixed z-20 top-1/2 -translate-y-0 md:-translate-y-1/2 md:left-8 w-full max-w-sm px-4 flex items-center"
+          className="fixed z-20 top-0 md:top-1/2 left-0 md:left-8 w-full md:max-w-sm px-4 flex items-center md:-translate-y-1/2"
         >
-          <div className="w-full bg-white/80 backdrop-blur-sm p-6 rounded-lg min-h-[60vh]">
+          <div className="w-full bg-white/80 backdrop-blur-sm p-4 md:p-6 rounded-lg min-h-[40vh] md:min-h-[60vh] mt-16 md:mt-0">
             <div className="flex justify-between items-start mb-4">
               <Button
                 variant="secondary"
                 size="icon"
                 onClick={handleClose}
-                className="absolute md:top-[-1rem] right-[1.5rem] md:left-[-1rem]"
+                className="absolute top-2 right-2 md:top-[-1rem] md:right-[1.5rem] md:left-[-1rem]"
               >
                 <X className="h-4 w-4" />
               </Button>
 
-              <h2 className="text-xl font-bold text-secondary">{selectedScene.title}</h2>
+              <h2 className="text-lg md:text-xl font-bold text-secondary pr-8">{selectedScene.title}</h2>
             </div>
             {selectedScene.body && (
-              <div className="text-secondary">
+              <div className="text-secondary text-sm md:text-base">
                 <PortableTextRenderer value={selectedScene.body} />
               </div>
             )}

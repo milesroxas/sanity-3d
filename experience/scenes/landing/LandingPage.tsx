@@ -6,64 +6,63 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import gsap from "gsap";
 
+interface AnimationRefs {
+  background: React.RefObject<HTMLDivElement | null>;
+  content: React.RefObject<HTMLDivElement | null>;
+  logo: React.RefObject<HTMLDivElement | null>;
+  text: React.RefObject<HTMLParagraphElement | null>;
+  button: React.RefObject<HTMLDivElement | null>;
+}
+
 export default function LandingPage() {
   const router = useRouter();
   const [isExiting, setIsExiting] = useState(false);
   
   // Refs for animation targets
-  const backgroundRef = useRef(null);
-  const contentRef = useRef(null);
-  const logoRef = useRef(null);
-  const textRef = useRef(null);
-  const buttonRef = useRef(null);
+  const refs: AnimationRefs = {
+    background: useRef<HTMLDivElement>(null),
+    content: useRef<HTMLDivElement>(null),
+    logo: useRef<HTMLDivElement>(null),
+    text: useRef<HTMLParagraphElement>(null),
+    button: useRef<HTMLDivElement>(null),
+  };
 
-  const handleClick = async () => {
-    setIsExiting(true);
-    
-    // Create timeline
+  const createExitAnimation = () => {
     const tl = gsap.timeline({
       onComplete: () => router.push("/experience")
     });
 
-    // Background animation
-    tl.to(backgroundRef.current, {
-      y: 200,
-      duration: 1.2,
-      ease: "power2.in"
-    })
-    .to(backgroundRef.current, {
+    // Fade out UI elements first
+    tl.to([refs.button.current, refs.text.current, refs.logo.current], {
       opacity: 0,
-      duration: 1.2,
-      ease: "power2.in"
-    }, "-=1.2")
-
-    // Content animations
-    .to([textRef.current, buttonRef.current], {
-      y: 30,
-      opacity: 0,
-      duration: 1.2,
-      ease: "power2.inOut"
-    }, "-=1.2")
-
-    // Logo animation - starts much earlier
-    .to(logoRef.current, {
-      y: 200,
       duration: 0.8,
       ease: "power2.inOut"
-    }, "-=0.5") // Start while content is still moving
-    .to(logoRef.current, {
-      scale: 0.9,
-      opacity: 0,
-      duration: 0.5,
+    })
+    // Start background animation before UI fade completes
+    .to(refs.background.current, {
+      y: 300,
+      duration: 1.2,
       ease: "power2.in"
-    }, "-=0.3");
+    }) // Start 0.4s before UI fade completes
+    .to(refs.background.current, {
+      opacity: 0,
+      duration: 1.2,
+      ease: "power2.inOut"
+    }, "-=0.8");
+
+    return tl;
+  };
+
+  const handleClick = async () => {
+    setIsExiting(true);
+    createExitAnimation();
   };
 
   return (
     <div className="fixed inset-0">
       {/* Background Layer */}
       <div 
-        ref={backgroundRef}
+        ref={refs.background}
         className="absolute inset-0"
         style={{
           backgroundImage: 'url("/images/fpo-home-bg.jpg")',
@@ -75,19 +74,20 @@ export default function LandingPage() {
 
       <div className="relative z-30 h-full flex top-[15vh] justify-center container">
         <div className="flex flex-col items-center gap-12">
-          <div ref={logoRef}>
+          <div ref={refs.logo}>
             <Image
               src="/images/logo.webp"
               alt="O'Linn Security Inc."
               width={100}
               height={100}
+              priority
             />
           </div>
-          <p ref={textRef} className="text-xl text-center max-w-lg">
+          <p ref={refs.text} className="text-xl text-center max-w-lg">
             With over 38 years of experience, O'Linn Security Inc. offers
             comprehensive security solutions tailored to your needs.
           </p>
-          <div ref={buttonRef}>
+          <div ref={refs.button}>
             <Button size="lg" onClick={handleClick}>
               ENTER EXPERIENCE
             </Button>

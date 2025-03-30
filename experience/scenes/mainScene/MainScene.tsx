@@ -117,8 +117,6 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
             mainIntro.target,
             main.target
           );
-        } else {
-          console.warn("Cannot start camera transition - scene not fully loaded");
         }
       }
     }));
@@ -264,7 +262,7 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
           background={environmentControls.background}
           backgroundBlurriness={environmentControls.blur}
           environmentIntensity={environmentControls.intensity}
-        ></Environment>
+        />
 
         <group position={[0, -0.2, 0]}>
           <WorldFloor  />
