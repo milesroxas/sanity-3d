@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 // import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { Loading } from "@/experience/scenes/components/Loading";
+import { CustomCursor } from "@/components/ui/Cursor";
 
 const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === "production";
 
@@ -48,6 +49,7 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
+        <CustomCursor />
         {/* <ThemeProvider
           attribute="class"
           defaultTheme="light"

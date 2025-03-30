@@ -27,27 +27,76 @@ export default function LandingPage() {
     button: useRef<HTMLDivElement>(null),
   };
 
+  // Load-in animation
+  useEffect(() => {
+    // Set initial states
+    gsap.set(refs.background.current, {
+      opacity: 0,
+      scale: 1.1
+    });
+    gsap.set([refs.logo.current, refs.text.current, refs.button.current], {
+      opacity: 0,
+      y: 30
+    });
+
+    // Create entrance animation
+    const tl = gsap.timeline({
+      defaults: { ease: "power3.out" }
+    });
+
+    tl.to(refs.background.current, {
+      opacity: 1,
+      scale: 1,
+      duration: 1.5
+    })
+    .to(refs.logo.current, {
+      opacity: 1,
+      y: 0,
+      duration: .6
+    }, "-=1.3")
+    .to(refs.text.current, {
+      opacity: 1,
+      y: 0,
+      duration: .6
+    }, "-=1.2")
+    .to(refs.button.current, {
+      opacity: 1,
+      y: 0,
+      duration: 1
+    }, "-=1.1");
+
+    return () => {
+      tl.kill();
+    };
+  }, []);
+
   const createExitAnimation = () => {
     const tl = gsap.timeline({
       onComplete: () => router.push("/experience")
     });
 
-    // Fade out UI elements first
+    // Fade out UI elements while background zooms
     tl.to([refs.button.current, refs.text.current, refs.logo.current], {
       opacity: 0,
       duration: 0.8,
       ease: "power2.inOut"
     })
-    // Start background animation before UI fade completes
+    .to(refs.background.current, {
+      scale: 1.05,
+      duration: 1.5,
+      ease: "power3.out"
+    }, "<")
+    // Start moving down
     .to(refs.background.current, {
       y: 300,
       duration: 1.2,
       ease: "power2.in"
-    }) // Start 0.4s before UI fade completes
+    }, "-=0.8")
+    // Fade out with a slight delay after movement starts
     .to(refs.background.current, {
       opacity: 0,
       duration: 1.2,
-      ease: "power2.inOut"
+      ease: "power3.inOut"
     }, "-=0.8");
 
     return tl;

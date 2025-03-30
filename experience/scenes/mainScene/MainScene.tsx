@@ -63,6 +63,7 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
     const { scene: threeScene } = useThree();
     const [isLoaded, setIsLoaded] = useState(false);
     const cloudsRef = useRef<THREE.Group>(null);
+    const cloudAnimationRef = useRef<number | null>(null);
 
     // Handle all loading in a single effect
     useEffect(() => {
@@ -121,6 +122,28 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
       }
     }));
 
+    // Cloud animation with cleanup
+    useFrame((_, delta) => {
+      if (cloudsRef.current) {
+        cloudsRef.current.position.x += delta * 0.8;
+
+        // Reset position when clouds move too far right
+        if (cloudsRef.current.position.x > 200) {
+          cloudsRef.current.position.x = -200;
+        }
+      }
+    });
+
+    // Cleanup cloud animation on unmount
+    useEffect(() => {
+      return () => {
+        if (cloudsRef.current) {
+          // Reset cloud position to initial state
+          cloudsRef.current.position.x = -40;
+        }
+      };
+    }, []);
+
     const effectsControls = useControls(
       "Post Processing",
       {
@@ -178,17 +201,6 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
       },
       { collapsed: true }
     );
-
-    useFrame((_, delta) => {
-      if (cloudsRef.current) {
-        cloudsRef.current.position.x += delta * 0.8;
-
-        // Reset position when clouds move too far right
-        if (cloudsRef.current.position.x > 200) {
-          cloudsRef.current.position.x = -200;
-        }
-      }
-    });
 
     const cloudsGroup = useMemo(
       () => (
