@@ -86,7 +86,8 @@ type GLTFResult = GLTF & {
     ['industry-storage_5']: THREE.Mesh
     ['industry-storage_6']: THREE.Mesh
     ['industry-storage_7']: THREE.Mesh
-    ['building-carwash001']: THREE.Mesh
+    ['building-carwash001_1']: THREE.Mesh
+    ['building-carwash001_2']: THREE.Mesh
     Mesh004: THREE.Mesh
     Mesh004_1: THREE.Mesh
   }
@@ -703,16 +704,26 @@ export function CompanyBuildings(props: ThreeElements['group']) {
             material={materials['17 GREY-DARKEST.009']}
           />
         </group>
-        <mesh
+        <group
           name="building-carwash001"
-          castShadow
-          receiveShadow
-          geometry={nodes['building-carwash001'].geometry}
-          material={materials['17 GREY-DARKEST.015']}
           position={[-14.626, 10.466, 47.072]}
           rotation={[-Math.PI, 0, -Math.PI]}
-          scale={1.051}
-        />
+          scale={1.051}>
+          <mesh
+            name="building-carwash001_1"
+            castShadow
+            receiveShadow
+            geometry={nodes['building-carwash001_1'].geometry}
+            material={materials['35 GREEN-MEDIUM']}
+          />
+          <mesh
+            name="building-carwash001_2"
+            castShadow
+            receiveShadow
+            geometry={nodes['building-carwash001_2'].geometry}
+            material={materials['17 GREY-DARKEST.015']}
+          />
+        </group>
         <group
           name="Logo"
           position={[-14.674, 9.896, 47.178]}

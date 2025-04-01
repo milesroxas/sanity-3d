@@ -44,7 +44,6 @@ export function MainSceneCommercialBldgs(props: ThreeElements['group']) {
     { type: 'shops', position: [-68.010910, 2.666655, 44.582481], rotation: [0.000000, 0.000000, -0.000000], scale: 1 },
     { type: 'shops', position: [-68.010910, 2.666655, 34.480766], rotation: [0.000000, 0.000000, -0.000000], scale: 1 },
     { type: 'shops', position:[-68.010910, 2.666655, 24.410721], rotation: [0.000000, 0.000000, -0.000000], scale: 1 },
-    { type: 'shops', position: [-5, 0, -5], rotation: [0, 0, 0], scale: 1 },
     { type: 'apartments', position: [-86.077484, -1, 50.358116], rotation: [0.000000, 0.000000, -0.000000], scale: 1 },
   ];
 

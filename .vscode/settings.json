@@ -1,3 +1,5 @@
 {
-    "terminal.integrated.cwd": "${workspaceFolder}"
-} 
+  "terminal.integrated.cwd": "${workspaceFolder}",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true
+}

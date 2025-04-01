@@ -46,6 +46,7 @@ import { AnimatedTruckFlatBed } from "@/experience/sceneCollections/vehicles/Ani
 import { Crane } from "@/experience/sceneCollections/construction/models/Crane";
 import { Excavator } from "@/experience/sceneCollections/construction/models/Excavator";
 import LogoMarkers from "./components/LogoMarkers";
+import { BusStops } from "@/experience/sceneCollections/BusStops";
 
 interface MainSceneProps {
   scene: Sanity.Scene;
@@ -224,21 +225,21 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
                 segments={50}
                 scale={1}
                 bounds={[8, 2, 2]}
-                position={[-80, 60, 0]}
+                position={[-110, 60, 0]}
                 volume={10}
                 color="white"
               />
               <Cloud
                 segments={50}
                 bounds={[20, 4, 2]}
-                position={[80, 60, -20]}
+                position={[-20, 60, -20]}
                 volume={10}
                 color="white"
               />
               <Cloud
                 segments={60}
                 bounds={[12, 4, 4]}
-                position={[-40, 60, -80]}
+                position={[20, 60, -80]}
                 volume={10}
                 scale={0.5}
                 color="white"
@@ -258,14 +259,14 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
           attach="fog"
           args={[fogControls.color, fogControls.near, fogControls.far]}
         />
-
+{/* 
         <EffectComposer>
           <Bloom 
             intensity={effectsControls.bloomIntensity} 
             threshold={effectsControls.bloomThreshold} 
             radius={2} 
           />
-        </EffectComposer>
+        </EffectComposer> */}
 
         {cloudsGroup}
 
@@ -300,6 +301,7 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
         <CompanyBuildings />
         <HomesOuterBuildings />
         <ShopsBuildings />
+        <BusStops />
         <ResortBuildings />
         <EventsBuildings />
         <FarmBuildings />
