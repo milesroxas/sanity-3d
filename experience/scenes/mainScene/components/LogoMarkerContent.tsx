@@ -187,9 +187,9 @@ export default function LogoMarkerContent() {
 
           {/* Content area with scrollable content */}
           {hasOverflow ? (
-            <div className="custom-scrollbar flex-1 pb-16">
+            <div className="custom-scrollbar flex-1">
               <ScrollArea className="h-full">
-                <div ref={contentRef} className="flex flex-col p-6 pt-4">
+                <div ref={contentRef} className="flex flex-col p-6 pb-20 pt-4">
                   <h3 className="mb-6 pr-8 text-lg font-bold text-secondary md:text-3xl">
                     {selectedScene.title}
                   </h3>
@@ -203,7 +203,7 @@ export default function LogoMarkerContent() {
             </div>
           ) : (
             <div className="flex-1 overflow-y-auto" ref={scrollRef}>
-              <div ref={contentRef} className="flex flex-col p-6 pt-4">
+              <div ref={contentRef} className="flex flex-col p-6 pb-20 pt-4">
                 <h3 className="mb-6 pr-8 text-lg font-bold text-secondary md:text-3xl">
                   {selectedScene.title}
                 </h3>
