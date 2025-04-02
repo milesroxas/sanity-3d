@@ -1,183 +1,310 @@
-"use client";
+'use client';
 
-import { PortableText, PortableTextProps } from "@portabletext/react";
-import Image from "next/image";
-import Link from "next/link";
-import { YouTubeEmbed } from "@next/third-parties/google";
-import { Button } from "@/components/ui/button";
-import { extractHrefFromLinkMark } from "@/lib/sanity-utils";
+import { PortableText, PortableTextProps, PortableTextBlockComponent } from '@portabletext/react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { YouTubeEmbed } from '@next/third-parties/google';
+import { Button } from '@/components/ui/button';
+import { extractHrefFromLinkMark } from '@/lib/sanity-utils';
+import { cn } from '@/lib/utils';
+import { cva, type VariantProps } from 'class-variance-authority';
 
-const portableTextComponents: PortableTextProps["components"] = {
-  types: {
-    image: ({ value }) => {
-      const { url, metadata } = value.asset;
-      const { lqip, dimensions } = metadata;
-      return (
-        <Image
-          src={url}
-          alt={value.alt || "Image"}
-          width={dimensions.width}
-          height={dimensions.height}
-          placeholder="blur"
-          blurDataURL={lqip}
-          className="w-full h-auto"
-          style={{
-            borderRadius: "0.5rem",
-          }}
-          quality={100}
-        />
-      );
-    },
-    youtube: ({ value }) => {
-      const { videoId } = value;
-      return (
-        <div className="max-w-3xl w-full mx-auto">
-          <div className="aspect-video">
-            <YouTubeEmbed videoid={videoId} params="rel=0" />
-          </div>
-        </div>
-      );
+// Define variants using class-variance-authority
+const portableTextVariants = cva('', {
+  variants: {
+    variant: {
+      default: '',
+      drawer: '',
+      compact: '',
     },
   },
-  block: {
-    normal: ({ children }) => (
-      <p className="w-full max-w-full" style={{ marginBottom: "1rem" }}>
-        {children}
-      </p>
-    ),
-    h1: ({ children }) => (
-      <h1 style={{ marginBottom: "1rem", marginTop: "1rem" }}>{children}</h1>
-    ),
-    h2: ({ children }) => (
-      <h2 style={{ marginBottom: "1rem", marginTop: "1rem" }}>{children}</h2>
-    ),
-    h3: ({ children }) => (
-      <h3 style={{ marginBottom: "1rem", marginTop: "1rem" }}>{children}</h3>
-    ),
-    h4: ({ children }) => (
-      <h4 style={{ marginBottom: "1rem", marginTop: "1rem" }}>{children}</h4>
-    ),
-    h5: ({ children }) => (
-      <h5 style={{ marginBottom: "1rem", marginTop: "1rem" }}>{children}</h5>
-    ),
+  defaultVariants: {
+    variant: 'default',
   },
-  marks: {
-    link: ({ value, children }) => {
-      // Extract href using our utility function
-      const href = extractHrefFromLinkMark(value) || '#';
-      
-      const isExternal =
-        href.startsWith("http") ||
-        href.startsWith("https") ||
-        href.startsWith("mailto");
-      const target = isExternal ? "_blank" : undefined;
-      const rel = isExternal ? "noopener noreferrer" : undefined;
-      
-      // Render as Button component if specified
-      if (value?.isButton) {
-        // External site links should open in a new window
-        if (isExternal) {
+});
+
+// Define component props interface extending VariantProps
+export interface PortableTextRendererProps extends VariantProps<typeof portableTextVariants> {
+  value: PortableTextProps['value'];
+  className?: string;
+}
+
+const PortableTextRenderer = ({ value, variant, className }: PortableTextRendererProps) => {
+  // Generate the base component styles
+  const baseStyles = cn(portableTextVariants({ variant, className }));
+
+  // Variant-specific component configurations
+  const getComponents = (): PortableTextProps['components'] => {
+    // Helper function to create a properly typed block components object
+    const createBlockComponents = (
+      components: Record<string, PortableTextBlockComponent>
+    ): Record<string, PortableTextBlockComponent> => components;
+
+    // Default component configuration
+    const defaultComponents: PortableTextProps['components'] = {
+      types: {
+        image: ({ value }) => {
+          const { url, metadata } = value.asset;
+          const { lqip, dimensions } = metadata;
           return (
-            <Button 
-              asChild 
-              variant={value?.buttonVariant || "default"}
-              size={value?.buttonSize || "default"}
-            >
-              <a href={href} target="_blank" rel="noopener noreferrer">
+            <Image
+              src={url}
+              alt={value.alt || 'Image'}
+              width={dimensions.width}
+              height={dimensions.height}
+              placeholder="blur"
+              blurDataURL={lqip}
+              className="h-auto w-full"
+              style={{
+                borderRadius: '0.2rem',
+                marginBottom: '1rem',
+              }}
+              quality={100}
+            />
+          );
+        },
+        youtube: ({ value }) => {
+          const { videoId } = value;
+          return (
+            <div className="mx-auto w-full max-w-3xl">
+              <div className="aspect-video">
+                <YouTubeEmbed videoid={videoId} params="rel=0" />
+              </div>
+            </div>
+          );
+        },
+      },
+      block: createBlockComponents({
+        normal: ({ children }) => (
+          <p className="w-full max-w-full" style={{ marginBottom: '1rem' }}>
+            {children}
+          </p>
+        ),
+        largeText: ({ children }) => <p className="mb-12 w-full max-w-full text-lg">{children}</p>,
+        h1: ({ children }) => <h1 className="mb-4 mt-4">{children}</h1>,
+        h2: ({ children }) => <h2 className="mb-4 mt-4">{children}</h2>,
+        h3: ({ children }) => <h3 className="mb-4 mt-4">{children}</h3>,
+        h4: ({ children }) => <h4 className="mb-4 mt-4">{children}</h4>,
+        h5: ({ children }) => <h5 className="mb-4 mt-4">{children}</h5>,
+      }),
+      marks: {
+        link: ({ value, children }) => {
+          // Extract href using our utility function
+          const href = extractHrefFromLinkMark(value) || '#';
+
+          const isExternal =
+            href.startsWith('http') || href.startsWith('https') || href.startsWith('mailto');
+          const target = isExternal ? '_blank' : undefined;
+          const rel = isExternal ? 'noopener noreferrer' : undefined;
+
+          // Render as Button component if specified
+          if (value?.isButton) {
+            // External site links should open in a new window
+            if (isExternal) {
+              return (
+                <Button
+                  asChild
+                  variant={value?.buttonVariant || 'default'}
+                  size={value?.buttonSize || 'default'}
+                  className="mb-8 mt-8"
+                >
+                  <a href={href} target="_blank" rel="noopener noreferrer">
+                    {children}
+                  </a>
+                </Button>
+              );
+            }
+
+            // Internal links use Next.js Link
+            return (
+              <Button
+                asChild
+                variant={value?.buttonVariant || 'default'}
+                size={value?.buttonSize || 'default'}
+              >
+                <Link href={href} target={target} rel={rel} prefetch={false}>
+                  {children}
+                </Link>
+              </Button>
+            );
+          }
+
+          // Default link rendering
+          // External site links should open in a new window
+          if (isExternal) {
+            return (
+              <a href={href} target="_blank" rel="noopener noreferrer" className="underline">
                 {children}
               </a>
-            </Button>
-          );
-        }
-        
-        // Internal links use Next.js Link
-        return (
-          <Button 
-            asChild 
-            variant={value?.buttonVariant || "default"}
-            size={value?.buttonSize || "default"}
-          >
-            <Link
-              href={href}
-              target={target}
-              rel={rel}
-              prefetch={false}
-            >
+            );
+          }
+
+          // Internal links use Next.js Link
+          return (
+            <Link href={href} className="underline" prefetch={false}>
               {children}
             </Link>
-          </Button>
-        );
-      }
-      
-      // Default link rendering
-      // External site links should open in a new window
-      if (isExternal) {
-        return (
-          <a 
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ textDecoration: "underline" }}
+          );
+        },
+      },
+      list: {
+        bullet: ({ children }) => (
+          <ul
+            className="list-disc"
+            style={{
+              paddingLeft: '1.5rem',
+              marginBottom: '1rem',
+              listStylePosition: 'inside',
+            }}
           >
             {children}
-          </a>
-        );
-      }
-      
-      // Internal links use Next.js Link
-      return (
-        <Link
-          href={href}
-          style={{ textDecoration: "underline" }}
-          prefetch={false}
-        >
-          {children}
-        </Link>
-      );
-    },
-  },
-  list: {
-    bullet: ({ children }) => (
-      <ul
-        style={{
-          paddingLeft: "1.5rem",
-          marginBottom: "1rem",
-          listStyleType: "disc",
-          listStylePosition: "inside",
-        }}
-      >
-        {children}
-      </ul>
-    ),
-    number: ({ children }) => (
-      <ol
-        style={{
-          paddingLeft: "1.5rem",
-          marginBottom: "1rem",
-          listStyleType: "decimal",
-          listStylePosition: "inside",
-        }}
-      >
-        {children}
-      </ol>
-    ),
-  },
-  listItem: {
-    bullet: ({ children }) => (
-      <li style={{ marginBottom: "0.5rem" }}>{children}</li>
-    ),
-    number: ({ children }) => (
-      <li style={{ marginBottom: "0.5rem" }}>{children}</li>
-    ),
-  },
-};
+          </ul>
+        ),
+        number: ({ children }) => (
+          <ol
+            className="list-decimal"
+            style={{
+              paddingLeft: '1.5rem',
+              marginBottom: '1rem',
+              listStylePosition: 'inside',
+            }}
+          >
+            {children}
+          </ol>
+        ),
+      },
+      listItem: {
+        bullet: ({ children }) => <li className="mb-2">{children}</li>,
+        number: ({ children }) => <li className="mb-2">{children}</li>,
+      },
+    };
 
-const PortableTextRenderer = ({
-  value,
-}: {
-  value: PortableTextProps["value"];
-}) => {
-  return <PortableText value={value} components={portableTextComponents} />;
+    // Drawer variant - optimized for smaller spaces, tighter margins, smaller text
+    const drawerComponents: PortableTextProps['components'] = {
+      ...defaultComponents,
+      block: createBlockComponents({
+        normal: ({ children }) => (
+          <p className="w-full max-w-full text-sm md:text-base" style={{ marginBottom: '0.75rem' }}>
+            {children}
+          </p>
+        ),
+        largeText: ({ children }) => (
+          <p className="mb-6 w-full max-w-full text-base font-medium md:text-lg">{children}</p>
+        ),
+        h1: ({ children }) => (
+          <h1 className="mb-3 mt-4 text-lg font-bold text-primary md:text-xl">{children}</h1>
+        ),
+        h2: ({ children }) => (
+          <h2 className="mb-3 mt-4 text-base font-bold text-primary md:text-lg">{children}</h2>
+        ),
+        h3: ({ children }) => (
+          <h3 className="mb-3 mt-3 text-sm font-semibold text-primary md:text-base">{children}</h3>
+        ),
+        h4: ({ children }) => (
+          <h4 className="mb-3 mt-3 text-sm font-semibold md:text-base">{children}</h4>
+        ),
+        h5: ({ children }) => (
+          <h5 className="mb-3 mt-3 text-xs font-semibold md:text-sm">{children}</h5>
+        ),
+      }),
+      list: {
+        bullet: ({ children }) => (
+          <ul
+            className="list-disc text-sm md:text-base"
+            style={{
+              paddingLeft: '1rem',
+              marginBottom: '0.75rem',
+              listStylePosition: 'inside',
+            }}
+          >
+            {children}
+          </ul>
+        ),
+        number: ({ children }) => (
+          <ol
+            className="list-decimal text-sm md:text-base"
+            style={{
+              paddingLeft: '1rem',
+              marginBottom: '0.75rem',
+              listStylePosition: 'inside',
+            }}
+          >
+            {children}
+          </ol>
+        ),
+      },
+      listItem: {
+        bullet: ({ children }) => <li className="mb-1.5">{children}</li>,
+        number: ({ children }) => <li className="mb-1.5">{children}</li>,
+      },
+    };
+
+    // Compact variant - very minimal spacing, smaller text
+    const compactComponents: PortableTextProps['components'] = {
+      ...defaultComponents,
+      block: createBlockComponents({
+        normal: ({ children }) => (
+          <p className="w-full max-w-full text-sm" style={{ marginBottom: '0.5rem' }}>
+            {children}
+          </p>
+        ),
+        largeText: ({ children }) => (
+          <p className="mb-4 w-full max-w-full text-base font-medium">{children}</p>
+        ),
+        h1: ({ children }) => <h1 className="mb-2 mt-3 text-base font-bold">{children}</h1>,
+        h2: ({ children }) => <h2 className="mb-2 mt-3 text-sm font-bold">{children}</h2>,
+        h3: ({ children }) => <h3 className="mb-2 mt-2 text-sm font-semibold">{children}</h3>,
+        h4: ({ children }) => <h4 className="mb-2 mt-2 text-xs font-semibold">{children}</h4>,
+        h5: ({ children }) => <h5 className="mb-2 mt-2 text-xs font-medium">{children}</h5>,
+      }),
+      list: {
+        bullet: ({ children }) => (
+          <ul
+            className="list-disc text-sm"
+            style={{
+              paddingLeft: '1rem',
+              marginBottom: '0.5rem',
+              listStylePosition: 'inside',
+            }}
+          >
+            {children}
+          </ul>
+        ),
+        number: ({ children }) => (
+          <ol
+            className="list-decimal text-sm"
+            style={{
+              paddingLeft: '1rem',
+              marginBottom: '0.5rem',
+              listStylePosition: 'inside',
+            }}
+          >
+            {children}
+          </ol>
+        ),
+      },
+      listItem: {
+        bullet: ({ children }) => <li className="mb-1">{children}</li>,
+        number: ({ children }) => <li className="mb-1">{children}</li>,
+      },
+    };
+
+    // Return component configuration based on variant
+    switch (variant) {
+      case 'drawer':
+        return drawerComponents;
+      case 'compact':
+        return compactComponents;
+      default:
+        return defaultComponents;
+    }
+  };
+
+  return (
+    <div className={baseStyles}>
+      <PortableText value={value} components={getComponents()} />
+    </div>
+  );
 };
 
 export default PortableTextRenderer;
