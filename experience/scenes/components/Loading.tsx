@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useProgress } from '@react-three/drei';
 import Image from 'next/image';
+
 export function Loading() {
   const [show, setShow] = useState(false); // Start hidden by default
   const { progress, active } = useProgress();
