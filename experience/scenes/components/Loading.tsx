@@ -18,16 +18,11 @@ export function Loading() {
   const animationRef = useRef<number | null>(null);
   const hasStartedRef = useRef(false);
   const isInitialLoadCompleteRef = useRef(false);
-  const lastActiveStateRef = useRef(active);
 
   // Reset progress when loading starts
   useEffect(() => {
-    // Track changes in active state to detect tab visibility changes
-    const isTabVisibilityChange = lastActiveStateRef.current !== active;
-    lastActiveStateRef.current = active;
-
     // Handle loading states
-    if (isLoading || isTransitioning || (active && !isTabVisibilityChange)) {
+    if (isLoading || isTransitioning || active) {
       // Only reset if this is a new loading sequence
       if (!hasStartedRef.current) {
         setSmoothProgress(0);

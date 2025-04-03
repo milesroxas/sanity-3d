@@ -27,25 +27,6 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
   const cameraTransitionStarted = useRef(false);
   const mainSceneRef = useRef<{ startCameraTransition: () => void } | null>(null);
   const isInitialMountRef = useRef(true);
-  const hasVisibilityChangedRef = useRef(false);
-
-  // Handle visibility change events
-  useEffect(() => {
-    // Function to handle visibility changes
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        hasVisibilityChangedRef.current = true;
-      }
-    };
-
-    // Add event listener for visibility changes
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // Cleanup
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
 
   // Handle canvas opacity changes
   useEffect(() => {
@@ -74,13 +55,6 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
   }, [isLoading, isTransitioning, assetsReady]);
 
   useEffect(() => {
-    // Only setup the scene once on initial mount
-    // or when something truly important changes, not on visibility events
-    if (!isInitialMountRef.current && hasVisibilityChangedRef.current) {
-      hasVisibilityChangedRef.current = false;
-      return;
-    }
-
     // Mark that we've done the initial mount
     isInitialMountRef.current = false;
 

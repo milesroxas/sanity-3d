@@ -15,28 +15,6 @@ export function R3FProvider({ children }: { children: ReactNode }) {
   const [r3fContent, setR3FContent] = useState<ReactNode>(null);
   const [canvasOpacity, setCanvasOpacity] = useState(0);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
-  const wasAssetsLoadedBeforeHiddenRef = useRef(false);
-
-  // Handle visibility changes
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        // Store the current loading state when tab becomes hidden
-        wasAssetsLoadedBeforeHiddenRef.current = assetsLoaded;
-      } else if (document.visibilityState === 'visible') {
-        // Tab is visible again - restore previous state if needed
-        if (wasAssetsLoadedBeforeHiddenRef.current && !assetsLoaded) {
-          setAssetsLoaded(true);
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [assetsLoaded]);
 
   // Control canvas visibility based on assets being loaded
   useEffect(() => {
