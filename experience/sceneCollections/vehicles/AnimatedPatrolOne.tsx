@@ -2,7 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef, useEffect } from 'react';
 import type * as THREE from 'three';
 import { CatmullRomCurve3, Vector3 } from 'three';
-import { CarOne } from './CarOne';
+import { PatrolCar } from './PatrolCar';
 import { Line } from '@react-three/drei';
 import { useCarControls } from './carControls';
 
@@ -11,10 +11,11 @@ import pathData from '@/experience/scenes/mainScene/lib/car_1_path.json';
 // Set this to true to enable Leva controls
 const USE_LEVA_CONTROLS = false;
 
-export function AnimatedCar() {
+export function AnimatedPatrolOne() {
   const carRef = useRef<THREE.Group>(null);
-  const distanceRef = useRef(0.2); // Replace state with ref
-  const speed = 12; // Units per second
+  // Change this value to start at a different point on the path (0.5 = 50% along the path)
+  const distanceRef = useRef(0.7); // Value between 0 and 1 representing position along the path
+  const speed = 15; // Units per second
 
   // Use either Leva controls or hardcoded values
   const controls = USE_LEVA_CONTROLS
@@ -84,7 +85,7 @@ export function AnimatedCar() {
     <>
       {controls.visible && (
         <group ref={carRef}>
-          <CarOne />
+          <PatrolCar />
         </group>
       )}
       {controls.showPath && <PathVisualizer curve={curve.curve} />}

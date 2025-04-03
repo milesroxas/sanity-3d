@@ -1,52 +1,45 @@
-"use client";
-import React, { useEffect, useRef, useMemo, useState, forwardRef } from "react";
-import {
-  Cloud,
-  Clouds,
-  Environment,
-  Float,
-  type EnvironmentProps,
-} from "@react-three/drei";
-import WorldFloor from "@/experience/sceneCollections/WorldFloor";
-import GatedCommunity from "@/experience/sceneCollections/gatedCommunity/GatedCommunity";
-import { Mountains } from "@/experience/sceneCollections/mountains/Mountains";
-import Lights from "@/experience/sceneCollections/lights/Lights";
-import Trees from "@/experience/sceneCollections/trees/Trees";
-import { ConstructionBuildings } from "@/experience/sceneCollections/construction/models/ConstructionBuildings";
-import { CompanyBuildings } from "@/experience/sceneCollections/company/models/CompanyBuildings";
-import { ShopsBuildings } from "@/experience/sceneCollections/shops/ShopsMainScene";
-import { ResortBuildings } from "@/experience/sceneCollections/resort/models/ResortBuildings";
-import { HomesRightBuildings } from "@/experience/sceneCollections/homesRight/models/HomesRightBuildings";
-import { EventsBuildings } from "@/experience/sceneCollections/events/models/EventsBuildings";
-import { FarmBuildings } from "@/experience/sceneCollections/farm/models/FarmBuildings";
-import { ResidentialProps } from "@/experience/sceneCollections/gatedCommunity/models/ResidentialProps";
-import { AnimatedCar } from "@/experience/sceneCollections/vehicles/AnimatedCar";
-import { MainSceneCameraSystem } from "@/experience/scenes/mainScene/MainSceneCameraSystem";
-import { HomesOuterBuildings } from "@/experience/sceneCollections/homesOuter/models/HomesOuterBuildings";
-import { AnimatedTractor } from "@/experience/sceneCollections/vehicles/AnimatedTractor";
-import { AnimatedVan } from "@/experience/sceneCollections/vehicles/AnimatedVan";
-import { AnimatedPlane } from "@/experience/sceneCollections/vehicles/AnimatedPlane";
-import * as THREE from "three";
-import { useFrame, useThree } from "@react-three/fiber";
-import {
-  EffectComposer,
-  Bloom,
-} from "@react-three/postprocessing";
-import { useControls } from "leva";
-import { INITIAL_POSITIONS } from "@/experience/scenes/store/cameraStore";
-import MainSceneProps from "@/experience/sceneCollections/props/MainSceneProps";
-import NatureScene from "@/experience/sceneCollections/NatureInstances";
-import ShopsParkedCars from "@/experience/sceneCollections/vehicles/ShopsParkedCars";
-import { useCameraStore } from "../store/cameraStore";
-import EventsParkedCars from "@/experience/sceneCollections/vehicles/EventsParkedCars";
-import { setupInstancedShadowUpdates } from "@/experience/utils/instancedShadows";
-import { MainSceneCommercialBldgs } from "@/experience/sceneCollections/commercialBldgs/mainSceneCommercialBldgs";
-import { HomesOuterLeft } from "@/experience/sceneCollections/homesOuterLeft/homesOuterLeft";
-import { AnimatedTruckFlatBed } from "@/experience/sceneCollections/vehicles/AnimatedTruckFlatBed";
-import { Crane } from "@/experience/sceneCollections/construction/models/Crane";
-import { Excavator } from "@/experience/sceneCollections/construction/models/Excavator";
-import LogoMarkers from "./components/LogoMarkers";
-import { BusStops } from "@/experience/sceneCollections/BusStops";
+'use client';
+import React, { useEffect, useRef, useMemo, useState, forwardRef } from 'react';
+import { Cloud, Clouds, Environment, Float, type EnvironmentProps } from '@react-three/drei';
+import WorldFloor from '@/experience/sceneCollections/WorldFloor';
+import GatedCommunity from '@/experience/sceneCollections/gatedCommunity/GatedCommunity';
+import { Mountains } from '@/experience/sceneCollections/mountains/Mountains';
+import Lights from '@/experience/sceneCollections/lights/Lights';
+import Trees from '@/experience/sceneCollections/trees/Trees';
+import { ConstructionBuildings } from '@/experience/sceneCollections/construction/models/ConstructionBuildings';
+import { CompanyBuildings } from '@/experience/sceneCollections/company/models/CompanyBuildings';
+import { ShopsBuildings } from '@/experience/sceneCollections/shops/ShopsMainScene';
+import { ResortBuildings } from '@/experience/sceneCollections/resort/models/ResortBuildings';
+import { HomesRightBuildings } from '@/experience/sceneCollections/homesRight/models/HomesRightBuildings';
+import { EventsBuildings } from '@/experience/sceneCollections/events/models/EventsBuildings';
+import { FarmBuildings } from '@/experience/sceneCollections/farm/models/FarmBuildings';
+import { ResidentialProps } from '@/experience/sceneCollections/gatedCommunity/models/ResidentialProps';
+import { AnimatedCar } from '@/experience/sceneCollections/vehicles/AnimatedCar';
+import { MainSceneCameraSystem } from '@/experience/scenes/mainScene/MainSceneCameraSystem';
+import { HomesOuterBuildings } from '@/experience/sceneCollections/homesOuter/models/HomesOuterBuildings';
+import { AnimatedTractor } from '@/experience/sceneCollections/vehicles/AnimatedTractor';
+import { AnimatedVan } from '@/experience/sceneCollections/vehicles/AnimatedVan';
+import { AnimatedPlane } from '@/experience/sceneCollections/vehicles/AnimatedPlane';
+import * as THREE from 'three';
+import { useFrame, useThree } from '@react-three/fiber';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
+import { useControls } from 'leva';
+import { INITIAL_POSITIONS } from '@/experience/scenes/store/cameraStore';
+import MainSceneProps from '@/experience/sceneCollections/props/MainSceneProps';
+import NatureScene from '@/experience/sceneCollections/NatureInstances';
+import ShopsParkedCars from '@/experience/sceneCollections/vehicles/ShopsParkedCars';
+import { useCameraStore } from '../store/cameraStore';
+import EventsParkedCars from '@/experience/sceneCollections/vehicles/EventsParkedCars';
+import { setupInstancedShadowUpdates } from '@/experience/utils/instancedShadows';
+import { MainSceneCommercialBldgs } from '@/experience/sceneCollections/commercialBldgs/mainSceneCommercialBldgs';
+import { HomesOuterLeft } from '@/experience/sceneCollections/homesOuterLeft/homesOuterLeft';
+import { AnimatedTruckFlatBed } from '@/experience/sceneCollections/vehicles/AnimatedTruckFlatBed';
+import { Crane } from '@/experience/sceneCollections/construction/models/Crane';
+import { Excavator } from '@/experience/sceneCollections/construction/models/Excavator';
+import LogoMarkers from './components/LogoMarkers';
+import { BusStops } from '@/experience/sceneCollections/BusStops';
+import { AnimatedPatrolOne } from '@/experience/sceneCollections/vehicles/AnimatedPatrolOne';
+import { AnimatedPatrolTwo } from '@/experience/sceneCollections/vehicles/AnimatedPatrolTwo';
 
 interface MainSceneProps {
   scene: Sanity.Scene;
@@ -70,7 +63,7 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
     useEffect(() => {
       // Signal loading start
       setIsLoading(true);
-      
+
       // Setup shadow updates for instanced meshes
       const cleanup = setupInstancedShadowUpdates(threeScene);
 
@@ -78,29 +71,24 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
       const loadingTimeout = setTimeout(() => {
         // Trigger shadow update
         window.dispatchEvent(new CustomEvent('shadow-update'));
-        
+
         // Mark the scene as loaded
         setIsLoaded(true);
-        
+
         // If we should start camera transitions automatically
         if (!startTransitionsAfterLoad) {
           const mainIntro = INITIAL_POSITIONS.mainIntro;
           const main = INITIAL_POSITIONS.main;
-          startCameraTransition(
-            mainIntro.position,
-            main.position,
-            mainIntro.target,
-            main.target
-          );
+          startCameraTransition(mainIntro.position, main.position, mainIntro.target, main.target);
         }
-        
+
         // Signal loading complete
         setIsLoading(false);
-        
+
         // Notify parent that loading is complete
         onLoad?.();
       }, 1000);
-      
+
       return () => {
         cleanup();
         clearTimeout(loadingTimeout);
@@ -113,14 +101,9 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
         if (isLoaded) {
           const mainIntro = INITIAL_POSITIONS.mainIntro;
           const main = INITIAL_POSITIONS.main;
-          startCameraTransition(
-            mainIntro.position,
-            main.position,
-            mainIntro.target,
-            main.target
-          );
+          startCameraTransition(mainIntro.position, main.position, mainIntro.target, main.target);
         }
-      }
+      },
     }));
 
     // Cloud animation with cleanup
@@ -146,44 +129,44 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
     }, []);
 
     const effectsControls = useControls(
-      "Post Processing",
+      'Post Processing',
       {
         bloomIntensity: {
           value: 0.04,
           min: 0,
           max: 1,
           step: 0.01,
-          label: "Bloom Intensity",
-          control: "slider",
+          label: 'Bloom Intensity',
+          control: 'slider',
         },
         bloomThreshold: {
           value: 0.4,
           min: 0,
           max: 1,
           step: 0.01,
-          label: "Bloom Threshold",
-          control: "slider",
+          label: 'Bloom Threshold',
+          control: 'slider',
         },
       },
       { collapsed: true }
     );
 
     const environmentControls = useControls(
-      "Environment",
+      'Environment',
       {
         preset: {
-          value: "sunset",
+          value: 'sunset',
           options: [
-            "sunset",
-            "dawn",
-            "night",
-            "warehouse",
-            "forest",
-            "apartment",
-            "studio",
-            "city",
-            "park",
-            "lobby",
+            'sunset',
+            'dawn',
+            'night',
+            'warehouse',
+            'forest',
+            'apartment',
+            'studio',
+            'city',
+            'park',
+            'lobby',
           ],
         },
         background: { value: true },
@@ -194,9 +177,9 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
     );
 
     const fogControls = useControls(
-      "Fog",
+      'Fog',
       {
-        color: { value: "#ffffff" },
+        color: { value: '#ffffff' },
         near: { value: 80, min: -100, max: 100, step: 1 },
         far: { value: 1000, min: 0, max: 2000, step: 10 },
       },
@@ -255,11 +238,8 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
       <>
         <MainSceneCameraSystem />
         <LogoMarkers scene={scene} />
-        <fog
-          attach="fog"
-          args={[fogControls.color, fogControls.near, fogControls.far]}
-        />
-{/* 
+        <fog attach="fog" args={[fogControls.color, fogControls.near, fogControls.far]} />
+        {/* 
         <EffectComposer>
           <Bloom 
             intensity={effectsControls.bloomIntensity} 
@@ -271,14 +251,14 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
         {cloudsGroup}
 
         <Environment
-          preset={environmentControls.preset as EnvironmentProps["preset"]}
+          preset={environmentControls.preset as EnvironmentProps['preset']}
           background={environmentControls.background}
           backgroundBlurriness={environmentControls.blur}
           environmentIntensity={environmentControls.intensity}
         />
 
         <group position={[0, -0.2, 0]}>
-          <WorldFloor  />
+          <WorldFloor />
         </group>
 
         <Trees />
@@ -291,6 +271,8 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
         <AnimatedTractor />
         <AnimatedPlane />
         <AnimatedTruckFlatBed />
+        <AnimatedPatrolOne />
+        <AnimatedPatrolTwo />
         <GatedCommunity />
         <ResidentialProps />
         <HomesRightBuildings />
@@ -314,6 +296,6 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
 );
 
 // Display name for React DevTools
-MainScene.displayName = "MainScene";
+MainScene.displayName = 'MainScene';
 
 export default MainScene;

@@ -6,15 +6,16 @@ import { folder, useControls } from 'leva';
 import { Line } from '@react-three/drei';
 
 import pathData from '@/experience/scenes/mainScene/lib/van_1_path.json';
-import { VanOne } from './VanOne';
+import { PatrolCar } from './PatrolCar';
 
-export function AnimatedVan() {
-  const vanRef = useRef<THREE.Group>(null);
-  const distanceRef = useRef(0.7); // Value between 0 and 1 representing position along the path
-  const speed = 20; // Units per second
+export function AnimatedPatrolTwo() {
+  const patrolRef = useRef<THREE.Group>(null);
+  // Change starting position to 0.3 = 30% along the path
+  const distanceRef = useRef(0.3); // Value between 0 and 1 representing position along the path
+  const speed = 14; // Units per second
 
   const { x, y, z, showPath } = useControls(
-    'Van One',
+    'Patrol Two',
     {
       position: folder(
         {
@@ -57,7 +58,7 @@ export function AnimatedVan() {
       curve,
       length: curve.getLength(),
     };
-  }, [x, y, z]);
+  }, [x, y, z]); // Fixed dependency array to properly track position changes
 
   // Create reusable vector objects
   const positionVec = useMemo(() => new Vector3(), []);
@@ -65,7 +66,7 @@ export function AnimatedVan() {
   const referenceVec = useMemo(() => new Vector3(0, 0, 1), []);
 
   useFrame((_, delta) => {
-    if (!vanRef.current) return;
+    if (!patrolRef.current) return;
 
     // Update distance ref directly - no state updates
     distanceRef.current = (distanceRef.current + speed * delta) % curve.length;
@@ -77,14 +78,14 @@ export function AnimatedVan() {
     curve.curve.getPointAt(progress, positionVec);
     curve.curve.getTangentAt(progress, tangentVec);
 
-    vanRef.current.position.copy(positionVec);
-    vanRef.current.quaternion.setFromUnitVectors(referenceVec, tangentVec.normalize());
+    patrolRef.current.position.copy(positionVec);
+    patrolRef.current.quaternion.setFromUnitVectors(referenceVec, tangentVec.normalize());
   });
 
   return (
     <>
-      <group ref={vanRef}>
-        <VanOne />
+      <group ref={patrolRef}>
+        <PatrolCar />
       </group>
       {showPath && <PathVisualizer curve={curve.curve} />}
     </>
@@ -92,13 +93,10 @@ export function AnimatedVan() {
 }
 
 function PathVisualizer({ curve }: { curve: CatmullRomCurve3 }) {
-  const points = useMemo(() => {
-    return curve.getPoints(500).map(p => [p.x, p.y, p.z] as [number, number, number]);
-  }, [curve]);
-
-  return (
-    <group>
-      <Line points={points} color="orange" lineWidth={2} dashed dashSize={0.5} gapSize={0.2} />
-    </group>
+  const points = useMemo(
+    () => curve.getPoints(500).map(p => [p.x, p.y, p.z] as [number, number, number]),
+    [curve]
   );
+
+  return <Line points={points} color="orange" lineWidth={2} dashed dashSize={0.5} gapSize={0.2} />;
 }
