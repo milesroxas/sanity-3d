@@ -1,40 +1,59 @@
-"use client";
-import { useR3F } from "@/experience/providers/R3FContext";
-import MainScene from "@/experience/scenes/mainScene/MainScene";
-import { useEffect, useRef, useState } from "react";
-import { useCameraStore } from "../store/cameraStore";
-import LogoMarkerContent from "./components/LogoMarkerContent";
-import { useLogoMarkerStore } from "../store/logoMarkerStore";
-import { AnimatePresence, motion } from "framer-motion";
-import { useSceneStore } from "../store/sceneStore";
-import { Loading } from "../components/Loading";
+'use client';
+import { useR3F } from '@/experience/providers/R3FContext';
+import MainScene from '@/experience/scenes/mainScene/MainScene';
+import { useEffect, useRef, useState } from 'react';
+import { useCameraStore } from '../store/cameraStore';
+import LogoMarkerContent from './components/LogoMarkerContent';
+import { useLogoMarkerStore } from '../store/logoMarkerStore';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useSceneStore } from '../store/sceneStore';
+import { Loading } from '../components/Loading';
 
 // Style to prevent scrollbars
 const noScrollStyles = {
-
   height: '100%',
   width: '100%',
 };
 
 export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
   const { setR3FContent, setAssetsLoaded, canvasOpacity } = useR3F();
-  const setIsLoading = useCameraStore((state) => state.setIsLoading);
-  const isLoading = useCameraStore((state) => state.isLoading);
-  const isTransitioning = useSceneStore((state) => state.isTransitioning);
-  const setIsTransitioning = useSceneStore((state) => state.setIsTransitioning);
-  const reset = useLogoMarkerStore((state) => state.reset);
+  const setIsLoading = useCameraStore(state => state.setIsLoading);
+  const isLoading = useCameraStore(state => state.isLoading);
+  const isTransitioning = useSceneStore(state => state.isTransitioning);
+  const setIsTransitioning = useSceneStore(state => state.setIsTransitioning);
+  const reset = useLogoMarkerStore(state => state.reset);
   const [assetsReady, setAssetsReady] = useState(false);
   const [uiVisible, setUiVisible] = useState(false);
   const cameraTransitionStarted = useRef(false);
   const mainSceneRef = useRef<{ startCameraTransition: () => void } | null>(null);
+  const isInitialMountRef = useRef(true);
+  const hasVisibilityChangedRef = useRef(false);
+
+  // Handle visibility change events
+  useEffect(() => {
+    // Function to handle visibility changes
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        hasVisibilityChangedRef.current = true;
+      }
+    };
+
+    // Add event listener for visibility changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   // Handle canvas opacity changes
   useEffect(() => {
     // When canvas is becoming visible but camera transition hasn't started yet
     if (canvasOpacity > 0.2 && assetsReady && !cameraTransitionStarted.current) {
-      console.log("Canvas visible, starting camera transition");
+      console.log('Canvas visible, starting camera transition');
       cameraTransitionStarted.current = true;
-      
+
       // Trigger camera transition in MainScene
       if (mainSceneRef.current) {
         mainSceneRef.current.startCameraTransition();
@@ -49,18 +68,28 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
       const uiTimer = setTimeout(() => {
         setUiVisible(true);
       }, 1000);
-      
+
       return () => clearTimeout(uiTimer);
     }
   }, [isLoading, isTransitioning, assetsReady]);
 
   useEffect(() => {
+    // Only setup the scene once on initial mount
+    // or when something truly important changes, not on visibility events
+    if (!isInitialMountRef.current && hasVisibilityChangedRef.current) {
+      hasVisibilityChangedRef.current = false;
+      return;
+    }
+
+    // Mark that we've done the initial mount
+    isInitialMountRef.current = false;
+
     // Reset the logo marker store when component mounts
     reset();
-    
+
     // Set loading state when component mounts
     setIsLoading(true);
-    
+
     // Make sure transition state is reset as well
     if (isTransitioning) {
       setIsTransitioning(false);
@@ -82,10 +111,10 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
         onLoad={() => {
           // This gets called when all 3D assets are ready
           setAssetsReady(true);
-          
+
           // Signal that assets are loaded to R3F context
           setAssetsLoaded(true);
-          
+
           // Explicitly set loading to false
           setIsLoading(false);
         }}
@@ -97,22 +126,30 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
       setIsLoading(false);
       setAssetsLoaded(false);
       setUiVisible(false);
-      
+
       // Make sure transition state is reset
       if (isTransitioning) {
         setIsTransitioning(false);
       }
-      
+
       // Restore default overflow setting
       document.body.style.overflow = '';
     };
-  }, [setR3FContent, scene, setIsLoading, setIsTransitioning, isTransitioning, reset, setAssetsLoaded]);
+  }, [
+    setR3FContent,
+    scene,
+    setIsLoading,
+    setIsTransitioning,
+    isTransitioning,
+    reset,
+    setAssetsLoaded,
+  ]);
 
   return (
     <div style={noScrollStyles}>
       {/* Loading component */}
       <Loading />
-      
+
       <AnimatePresence>
         {uiVisible && (
           <motion.div

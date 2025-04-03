@@ -1,13 +1,6 @@
-"use client";
-import {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  Suspense,
-  useEffect,
-} from "react";
-import { Canvas } from "@react-three/fiber";
+'use client';
+import { createContext, useContext, useState, ReactNode, Suspense, useEffect, useRef } from 'react';
+import { Canvas } from '@react-three/fiber';
 
 type R3FContextType = {
   setR3FContent: (content: ReactNode) => void;
@@ -22,16 +15,38 @@ export function R3FProvider({ children }: { children: ReactNode }) {
   const [r3fContent, setR3FContent] = useState<ReactNode>(null);
   const [canvasOpacity, setCanvasOpacity] = useState(0);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
-  
+  const wasAssetsLoadedBeforeHiddenRef = useRef(false);
+
+  // Handle visibility changes
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        // Store the current loading state when tab becomes hidden
+        wasAssetsLoadedBeforeHiddenRef.current = assetsLoaded;
+      } else if (document.visibilityState === 'visible') {
+        // Tab is visible again - restore previous state if needed
+        if (wasAssetsLoadedBeforeHiddenRef.current && !assetsLoaded) {
+          setAssetsLoaded(true);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [assetsLoaded]);
+
   // Control canvas visibility based on assets being loaded
   useEffect(() => {
     if (assetsLoaded) {
       // Start fade-in once assets are loaded with a short delay
       const timer = setTimeout(() => {
-        console.log("Starting canvas fade-in");
+        console.log('Starting canvas fade-in');
         setCanvasOpacity(1);
       }, 200);
-      
+
       return () => clearTimeout(timer);
     } else {
       // When assets aren't loaded, ensure canvas is hidden
@@ -40,24 +55,24 @@ export function R3FProvider({ children }: { children: ReactNode }) {
   }, [assetsLoaded]);
 
   return (
-    <R3FContext.Provider value={{ 
-      setR3FContent, 
-      setAssetsLoaded, 
-      assetsLoaded, 
-      canvasOpacity 
-    }}>
-      <div className="relative w-full h-full">
+    <R3FContext.Provider
+      value={{
+        setR3FContent,
+        setAssetsLoaded,
+        assetsLoaded,
+        canvasOpacity,
+      }}
+    >
+      <div className="relative h-full w-full">
         {/* Regular React components in a properly constrained container */}
-        <div className="absolute mx-auto z-50">
-          {children}
-        </div>
+        <div className="absolute z-50 mx-auto">{children}</div>
 
         {/* Canvas positioned behind the UI */}
-        <div 
+        <div
           className="fixed inset-0 overflow-hidden transition-opacity duration-1000 ease-in-out"
-          style={{ 
-            opacity: canvasOpacity, 
-            pointerEvents: canvasOpacity > 0.5 ? 'auto' : 'none'  // Increased threshold for pointer events
+          style={{
+            opacity: canvasOpacity,
+            pointerEvents: canvasOpacity > 0.5 ? 'auto' : 'none', // Increased threshold for pointer events
           }}
         >
           <Canvas shadows="soft">
@@ -72,7 +87,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
 export function useR3F() {
   const context = useContext(R3FContext);
   if (!context) {
-    throw new Error("useR3F must be used within an R3FProvider");
+    throw new Error('useR3F must be used within an R3FProvider');
   }
   return context;
 }
