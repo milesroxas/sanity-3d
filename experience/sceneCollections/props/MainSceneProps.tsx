@@ -1,6 +1,5 @@
 import React from 'react';
 import { Windmill } from './models/Windmill';
-import { Billboard } from './models/Billboard';
 
 function MainSceneProps() {
   return (
@@ -70,8 +69,6 @@ function MainSceneProps() {
         rotation={[0.0, 0.785398, 0.0]}
         speed={0.9}
       />
-
-      <Billboard position={[10, 6, 15.3]} rotation={[0, 0, 0]} />
     </>
   );
 }

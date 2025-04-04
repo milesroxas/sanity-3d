@@ -17,7 +17,6 @@ import { ResidentialProps } from '@/experience/sceneCollections/gatedCommunity/m
 import { AnimatedCar } from '@/experience/sceneCollections/vehicles/AnimatedCar';
 import { MainSceneCameraSystem } from '@/experience/scenes/mainScene/MainSceneCameraSystem';
 import { HomesOuterBuildings } from '@/experience/sceneCollections/homesOuter/models/HomesOuterBuildings';
-import { AnimatedTractor } from '@/experience/sceneCollections/vehicles/AnimatedTractor';
 import { AnimatedVan } from '@/experience/sceneCollections/vehicles/AnimatedVan';
 import { AnimatedPlane } from '@/experience/sceneCollections/vehicles/AnimatedPlane';
 import * as THREE from 'three';
@@ -40,7 +39,10 @@ import LogoMarkers from './components/LogoMarkers';
 import { BusStops } from '@/experience/sceneCollections/BusStops';
 import { AnimatedPatrolOne } from '@/experience/sceneCollections/vehicles/AnimatedPatrolOne';
 import { AnimatedPatrolTwo } from '@/experience/sceneCollections/vehicles/AnimatedPatrolTwo';
-
+import EventScene from '@/experience/sceneCollections/EventScene';
+import { Billboard } from '@/experience/sceneCollections/Billboard';
+import ParkedPatrolCars from '@/experience/sceneCollections/vehicles/ParkedPatrolCars';
+import { SmallBldgs } from '@/experience/baseModels/buildings/SmallBldgs';
 interface MainSceneProps {
   scene: Sanity.Scene;
   onLoad?: () => void;
@@ -268,7 +270,7 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
         <MainSceneCommercialBldgs position={[0, 0, 0]} />
         <AnimatedCar />
         <AnimatedVan />
-        <AnimatedTractor />
+        <Billboard />
         <AnimatedPlane />
         <AnimatedTruckFlatBed />
         <AnimatedPatrolOne />
@@ -286,10 +288,13 @@ const MainScene = forwardRef<MainSceneRef, MainSceneProps>(
         <BusStops />
         <ResortBuildings />
         <EventsBuildings />
+        <EventScene />
         <FarmBuildings />
         <Mountains />
         <MainSceneProps />
         <Lights />
+        <ParkedPatrolCars />
+        <SmallBldgs />
       </>
     );
   }

@@ -7,7 +7,6 @@ import React, { useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
 import { ThreeElements } from '@react-three/fiber';
-
 type GLTFResult = GLTF & {
   nodes: {
     ['military-headquarters_1']: THREE.Mesh;
@@ -41,13 +40,6 @@ type GLTFResult = GLTF & {
     ['building-policestation-garage_3']: THREE.Mesh;
     ['building-policestation-garage_4']: THREE.Mesh;
     ['building-policestation-garage_5']: THREE.Mesh;
-    ['building-policestation']: THREE.Mesh;
-    ['building-policestation_1']: THREE.Mesh;
-    ['building-policestation_2']: THREE.Mesh;
-    ['building-policestation_3']: THREE.Mesh;
-    ['building-policestation_4']: THREE.Mesh;
-    ['building-policestation_5']: THREE.Mesh;
-    ['building-policestation_6']: THREE.Mesh;
     ['building-policestation-garage']: THREE.Mesh;
     ['building-policestation-garage_1']: THREE.Mesh;
     ['building-policestation-garage_2']: THREE.Mesh;
@@ -88,27 +80,12 @@ type GLTFResult = GLTF & {
     ['industry-storage_7']: THREE.Mesh;
     Mesh004: THREE.Mesh;
     Mesh004_1: THREE.Mesh;
-    ['armored-truck-base_1']: THREE.Mesh;
-    ['armored-truck-base_2']: THREE.Mesh;
-    ['armored-truck-base_3']: THREE.Mesh;
-    ['armored-truck-base_4']: THREE.Mesh;
-    ['armored-truck-base_5']: THREE.Mesh;
-    ['armored-truck-base_6']: THREE.Mesh;
-    ['armored-truck-base_7']: THREE.Mesh;
-    ['armored-truck-wheel_BL_1']: THREE.Mesh;
-    ['armored-truck-wheel_BL_2']: THREE.Mesh;
-    ['armored-truck-wheel_BR_1']: THREE.Mesh;
-    ['armored-truck-wheel_BR_2']: THREE.Mesh;
-    ['armored-truck-wheel_FL_1']: THREE.Mesh;
-    ['armored-truck-wheel_FL_2']: THREE.Mesh;
-    ['armored-truck-wheel_FR_1']: THREE.Mesh;
-    ['armored-truck-wheel_FR_2']: THREE.Mesh;
   };
   materials: {
     ['15 BROWN-WHITE.006']: THREE.MeshPhysicalMaterial;
     ['Material.001']: THREE.MeshStandardMaterial;
     ['17 GREY-DARKEST.011']: THREE.MeshPhysicalMaterial;
-    ['64 GLASS.009']: THREE.MeshPhysicalMaterial;
+    Glass: THREE.MeshPhysicalMaterial;
     ['20 GREY.011']: THREE.MeshPhysicalMaterial;
     ['21 GREY LIGHT.005']: THREE.MeshPhysicalMaterial;
     Material: THREE.MeshStandardMaterial;
@@ -122,22 +99,14 @@ type GLTFResult = GLTF & {
     ['58 WHITE.003']: THREE.MeshPhysicalMaterial;
     ['20 GREY.002']: THREE.MeshPhysicalMaterial;
     ['36 GREEN']: THREE.MeshPhysicalMaterial;
-    ['14 BROWN-LIGHTEST']: THREE.MeshPhysicalMaterial;
+    GREEN: THREE.MeshPhysicalMaterial;
     ['64 GLASS.002']: THREE.MeshPhysicalMaterial;
     ['17 GREY-DARKEST.009']: THREE.MeshPhysicalMaterial;
     ['35 GREEN-MEDIUM']: THREE.MeshPhysicalMaterial;
     ['21 GREY LIGHT']: THREE.MeshPhysicalMaterial;
     ['21 GREY LIGHT.001']: THREE.MeshPhysicalMaterial;
-    ['18 GREY-DARK.001']: THREE.MeshPhysicalMaterial;
     Logo: THREE.MeshStandardMaterial;
     ['Material.001']: THREE.MeshStandardMaterial;
-    ['17 GREY-DARKEST.003']: THREE.MeshPhysicalMaterial;
-    ['20 GREY.001']: THREE.MeshPhysicalMaterial;
-    ['64 GLASS.001']: THREE.MeshPhysicalMaterial;
-    ['60 EMISSION-RED.001']: THREE.MeshStandardMaterial;
-    ['57 BLACK.002']: THREE.MeshPhysicalMaterial;
-    ['59 EMISSION-WHITE']: THREE.MeshStandardMaterial;
-    ['58 WHITE.002']: THREE.MeshPhysicalMaterial;
   };
 };
 
@@ -173,7 +142,7 @@ export function CompanyBuildings(props: ThreeElements['group']) {
             castShadow
             receiveShadow
             geometry={nodes['military-headquarters_4'].geometry}
-            material={materials['64 GLASS.009']}
+            material={materials.Glass}
           />
           <mesh
             name="military-headquarters_5"
@@ -385,61 +354,6 @@ export function CompanyBuildings(props: ThreeElements['group']) {
             material={materials['64 GLASS.002']}
           />
         </group>
-        <group
-          name="building-policestation005"
-          position={[12.768, 2.667, 37.972]}
-          rotation={[0, 1.571, 0]}
-        >
-          <mesh
-            name="building-policestation"
-            castShadow
-            receiveShadow
-            geometry={nodes['building-policestation'].geometry}
-            material={materials['58 WHITE.003']}
-          />
-          <mesh
-            name="building-policestation_1"
-            castShadow
-            receiveShadow
-            geometry={nodes['building-policestation_1'].geometry}
-            material={materials['20 GREY.002']}
-          />
-          <mesh
-            name="building-policestation_2"
-            castShadow
-            receiveShadow
-            geometry={nodes['building-policestation_2'].geometry}
-            material={materials['17 GREY-DARKEST.009']}
-          />
-          <mesh
-            name="building-policestation_3"
-            castShadow
-            receiveShadow
-            geometry={nodes['building-policestation_3'].geometry}
-            material={materials['36 GREEN']}
-          />
-          <mesh
-            name="building-policestation_4"
-            castShadow
-            receiveShadow
-            geometry={nodes['building-policestation_4'].geometry}
-            material={materials['21 GREY LIGHT.001']}
-          />
-          <mesh
-            name="building-policestation_5"
-            castShadow
-            receiveShadow
-            geometry={nodes['building-policestation_5'].geometry}
-            material={materials['26 RED-DARK']}
-          />
-          <mesh
-            name="building-policestation_6"
-            castShadow
-            receiveShadow
-            geometry={nodes['building-policestation_6'].geometry}
-            material={materials['64 GLASS.002']}
-          />
-        </group>
         <group name="building-policestation-garage006" position={[-37.613, 2.667, 20.73]}>
           <mesh
             name="building-policestation-garage"
@@ -614,7 +528,7 @@ export function CompanyBuildings(props: ThreeElements['group']) {
             castShadow
             receiveShadow
             geometry={nodes['airport-hangar_4'].geometry}
-            material={materials['14 BROWN-LIGHTEST']}
+            material={materials.GREEN}
           />
           <mesh
             name="airport-hangar_5"
@@ -706,7 +620,7 @@ export function CompanyBuildings(props: ThreeElements['group']) {
             castShadow
             receiveShadow
             geometry={nodes['industry-storage_4'].geometry}
-            material={materials['18 GREY-DARK.001']}
+            material={materials['21 GREY LIGHT']}
           />
           <mesh
             name="industry-storage_5"
@@ -750,125 +664,6 @@ export function CompanyBuildings(props: ThreeElements['group']) {
             geometry={nodes.Mesh004_1.geometry}
             material={materials['Material.001']}
           />
-        </group>
-        <group name="armored-truck001" position={[-274.033, 2.576, 121.795]}>
-          <group name="armored-truck" position={[240, 0, -70]}>
-            <group name="armored-truck-base" position={[0, -0.2, 0]}>
-              <mesh
-                name="armored-truck-base_1"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-base_1'].geometry}
-                material={materials['17 GREY-DARKEST.003']}
-              />
-              <mesh
-                name="armored-truck-base_2"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-base_2'].geometry}
-                material={materials['20 GREY.001']}
-              />
-              <mesh
-                name="armored-truck-base_3"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-base_3'].geometry}
-                material={materials['64 GLASS.001']}
-              />
-              <mesh
-                name="armored-truck-base_4"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-base_4'].geometry}
-                material={materials['60 EMISSION-RED.001']}
-              />
-              <mesh
-                name="armored-truck-base_5"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-base_5'].geometry}
-                material={materials['57 BLACK.002']}
-              />
-              <mesh
-                name="armored-truck-base_6"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-base_6'].geometry}
-                material={materials['59 EMISSION-WHITE']}
-              />
-              <mesh
-                name="armored-truck-base_7"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-base_7'].geometry}
-                material={materials['58 WHITE.002']}
-              />
-            </group>
-            <group name="armored-truck-wheel_BL" position={[0.763, 0.417, -1.366]}>
-              <mesh
-                name="armored-truck-wheel_BL_1"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-wheel_BL_1'].geometry}
-                material={materials['17 GREY-DARKEST.003']}
-              />
-              <mesh
-                name="armored-truck-wheel_BL_2"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-wheel_BL_2'].geometry}
-                material={materials['20 GREY.001']}
-              />
-            </group>
-            <group name="armored-truck-wheel_BR" position={[-0.763, 0.417, -1.366]}>
-              <mesh
-                name="armored-truck-wheel_BR_1"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-wheel_BR_1'].geometry}
-                material={materials['17 GREY-DARKEST.003']}
-              />
-              <mesh
-                name="armored-truck-wheel_BR_2"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-wheel_BR_2'].geometry}
-                material={materials['20 GREY.001']}
-              />
-            </group>
-            <group name="armored-truck-wheel_FL" position={[0.763, 0.417, 2.305]}>
-              <mesh
-                name="armored-truck-wheel_FL_1"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-wheel_FL_1'].geometry}
-                material={materials['17 GREY-DARKEST.003']}
-              />
-              <mesh
-                name="armored-truck-wheel_FL_2"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-wheel_FL_2'].geometry}
-                material={materials['20 GREY.001']}
-              />
-            </group>
-            <group name="armored-truck-wheel_FR" position={[-0.763, 0.417, 2.305]}>
-              <mesh
-                name="armored-truck-wheel_FR_1"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-wheel_FR_1'].geometry}
-                material={materials['17 GREY-DARKEST.003']}
-              />
-              <mesh
-                name="armored-truck-wheel_FR_2"
-                castShadow
-                receiveShadow
-                geometry={nodes['armored-truck-wheel_FR_2'].geometry}
-                material={materials['20 GREY.001']}
-              />
-            </group>
-          </group>
         </group>
       </group>
     </group>
