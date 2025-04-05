@@ -1,44 +1,46 @@
 'use client';
-import { createContext, useContext, useState, ReactNode, Suspense, useEffect, useRef } from 'react';
+import { Environment } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
+import { useControls } from 'leva';
+import { createContext, ReactNode, Suspense, useContext, useState } from 'react';
+import { Loading } from '../components/Loading';
 
 type R3FContextType = {
   setR3FContent: (content: ReactNode) => void;
-  setAssetsLoaded: (loaded: boolean) => void;
-  assetsLoaded: boolean;
-  canvasOpacity: number;
 };
 
 const R3FContext = createContext<R3FContextType | null>(null);
 
 export function R3FProvider({ children }: { children: ReactNode }) {
   const [r3fContent, setR3FContent] = useState<ReactNode>(null);
-  const [canvasOpacity, setCanvasOpacity] = useState(0);
-  const [assetsLoaded, setAssetsLoaded] = useState(false);
-
-  // Control canvas visibility based on assets being loaded
-  useEffect(() => {
-    if (assetsLoaded) {
-      // Start fade-in once assets are loaded with a short delay
-      const timer = setTimeout(() => {
-        console.log('Starting canvas fade-in');
-        setCanvasOpacity(1);
-      }, 200);
-
-      return () => clearTimeout(timer);
-    } else {
-      // When assets aren't loaded, ensure canvas is hidden
-      setCanvasOpacity(0);
-    }
-  }, [assetsLoaded]);
-
+  const environmentControls = useControls(
+    'Environment',
+    {
+      preset: {
+        value: 'sunset',
+        options: [
+          'sunset',
+          'dawn',
+          'night',
+          'warehouse',
+          'forest',
+          'apartment',
+          'studio',
+          'city',
+          'park',
+          'lobby',
+        ],
+      },
+      background: { value: true },
+      blur: { value: 0.9, min: 0, max: 1, step: 0.1 },
+      intensity: { value: 0.8, min: 0, max: 5, step: 0.1 },
+    },
+    { collapsed: true }
+  );
   return (
     <R3FContext.Provider
       value={{
         setR3FContent,
-        setAssetsLoaded,
-        assetsLoaded,
-        canvasOpacity,
       }}
     >
       <div className="relative h-full w-full">
@@ -46,15 +48,16 @@ export function R3FProvider({ children }: { children: ReactNode }) {
         <div className="absolute z-50 mx-auto">{children}</div>
 
         {/* Canvas positioned behind the UI */}
-        <div
-          className="fixed inset-0 overflow-hidden transition-opacity duration-1000 ease-in-out"
-          style={{
-            opacity: canvasOpacity,
-            pointerEvents: canvasOpacity > 0.5 ? 'auto' : 'none', // Increased threshold for pointer events
-          }}
-        >
+        <div className="fixed inset-0 overflow-hidden transition-opacity duration-1000 ease-in-out">
+          <Loading />
           <Canvas shadows="soft">
-            <Suspense fallback={null}>{r3fContent}</Suspense>
+            <Environment
+              preset={environmentControls.preset as any}
+              background={environmentControls.background}
+              backgroundBlurriness={environmentControls.blur}
+              environmentIntensity={environmentControls.intensity}
+            />
+            <Suspense>{r3fContent}</Suspense>
           </Canvas>
         </div>
       </div>

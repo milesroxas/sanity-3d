@@ -1,18 +1,17 @@
-import type { Metadata } from "next";
-import { Inter as FontSans } from "next/font/google";
-import "./globals.css";
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
+import type { Metadata } from 'next';
+import { Inter as FontSans } from 'next/font/google';
+import './globals.css';
 // import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
-import { Loading } from "@/experience/scenes/components/Loading";
+import { Toaster } from '@/components/ui/sonner';
 
-const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === "production";
+const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === 'production';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
   title: {
-    template: "%s | Schema UI Starter",
-    default: "Sanity Next.js Website | Schema UI Starter",
+    template: '%s | Schema UI Starter',
+    default: 'Sanity Next.js Website | Schema UI Starter',
   },
   openGraph: {
     images: [
@@ -22,33 +21,28 @@ export const metadata: Metadata = {
         height: 630,
       },
     ],
-    locale: "en_US",
-    type: "website",
+    locale: 'en_US',
+    type: 'website',
   },
-  robots: !isProduction ? "noindex, nofollow" : "index, follow",
+  robots: !isProduction ? 'noindex, nofollow' : 'index, follow',
 };
 
 const fontSans = FontSans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-sans",
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-sans',
 });
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <link rel="icon" href="/favicon.ico" />
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased overscroll-none",
+          'min-h-screen overscroll-none bg-background font-sans antialiased',
           fontSans.variable
         )}
       >
-        
         {/* <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -56,7 +50,6 @@ export default function RootLayout({
           disableTransitionOnChange
         > */}
         {children}
-        <Loading />
         {/* </ThemeProvider> */}
         <Toaster position="top-center" richColors />
       </body>

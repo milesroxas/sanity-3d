@@ -1,12 +1,9 @@
 // MainSceneCameraSystem.tsx
-import { MapControls, PerspectiveCamera, Box } from "@react-three/drei";
-import { useControls, folder, useCreateStore, button } from "leva";
-import { useRef, useEffect, useState, useMemo } from "react";
-import { PerspectiveCamera as ThreePerspectiveCamera, Vector3, MathUtils } from "three";
-import {
-  INITIAL_POSITIONS,
-  useCameraStore,
-} from "@/experience/scenes/store/cameraStore";
+import { useCameraStore } from '@/experience/scenes/store/cameraStore';
+import { Box, MapControls, PerspectiveCamera } from '@react-three/drei';
+import { button, folder, useControls, useCreateStore } from 'leva';
+import { useCallback, useEffect, useRef } from 'react';
+import { MathUtils, PerspectiveCamera as ThreePerspectiveCamera } from 'three';
 
 // Define boundary limits for camera movement
 const BOUNDARY_LIMITS = {
@@ -15,19 +12,19 @@ const BOUNDARY_LIMITS = {
   minY: -400,
   maxY: 400,
   minZ: -80,
-  maxZ: 400
+  maxZ: 400,
 };
 
 // Define angle limits
 const ANGLE_LIMITS = {
-  minPolar: 0,          // Minimum polar angle (up/down rotation) in radians
+  minPolar: 0, // Minimum polar angle (up/down rotation) in radians
   maxPolar: Math.PI / 2, // Maximum polar angle in radians
   minAzimuth: -Math.PI / 4, // Minimum azimuth angle (left/right rotation) in radians
-  maxAzimuth: Math.PI / 4   // Maximum azimuth angle in radians
+  maxAzimuth: Math.PI / 4, // Maximum azimuth angle in radians
 };
 
 interface CameraControls {
-  "Main Scene": {
+  'Main Scene': {
     position: {
       positionX: number;
       positionY: number;
@@ -49,65 +46,182 @@ export function MainSceneCameraSystem() {
   const controlsRef = useRef<any>(null);
   const isUpdatingRef = useRef(false);
   const { controlType, isAnimating, position, target, syncCameraPosition } = useCameraStore();
-  
+
   // Create a separate Leva store
   const levaStore = useCreateStore();
-  
-  // Add debug settings directly to main controls
-  const showTargetCube = useControls({
-    "Debug Options": folder({
-      showTargetCube: {
-        value: process.env.NEXT_PUBLIC_SITE_ENV === 'development',
-        label: "Show Target Cube"
-      },
-      logCameraPosition: button(() => {
-        console.log("%c --- Camera Debug Info ---", "font-weight: bold; color: #0066ff;");
-        
-        // Get the actual current camera position and target from refs
-        let currentPosition, currentTarget;
-        
-        if (cameraRef.current && controlsRef.current) {
-          currentPosition = cameraRef.current.position.clone();
-          currentTarget = controlsRef.current.target.clone();
-        } else {
-          // Fall back to store values if refs aren't available
-          currentPosition = position.clone();
-          currentTarget = target.clone();
-        }
-        
-        console.log("REAL-TIME Camera Position:", {
-          x: currentPosition.x.toFixed(2),
-          y: currentPosition.y.toFixed(2),
-          z: currentPosition.z.toFixed(2)
-        });
-        
-        console.log("REAL-TIME Camera Target:", {
-          x: currentTarget.x.toFixed(2),
-          y: currentTarget.y.toFixed(2),
-          z: currentTarget.z.toFixed(2)
-        });
-        
-        console.log("Camera JSON (for copying):", JSON.stringify({
+
+  // Define callbacks for updating camera position/target
+  // Using useCallback prevents these from being recreated on every render
+  const updatePositionX = useCallback(
+    (value: number) => {
+      if (isAnimating || isUpdatingRef.current) return;
+
+      isUpdatingRef.current = true;
+      const newPosition = position.clone();
+      newPosition.x = value;
+
+      // Schedule state update after render
+      setTimeout(() => {
+        syncCameraPosition(newPosition, target);
+        isUpdatingRef.current = false;
+      }, 0);
+    },
+    [isAnimating, position, target, syncCameraPosition]
+  );
+
+  const updatePositionY = useCallback(
+    (value: number) => {
+      if (isAnimating || isUpdatingRef.current) return;
+
+      isUpdatingRef.current = true;
+      const newPosition = position.clone();
+      newPosition.y = value;
+
+      // Schedule state update after render
+      setTimeout(() => {
+        syncCameraPosition(newPosition, target);
+        isUpdatingRef.current = false;
+      }, 0);
+    },
+    [isAnimating, position, target, syncCameraPosition]
+  );
+
+  const updatePositionZ = useCallback(
+    (value: number) => {
+      if (isAnimating || isUpdatingRef.current) return;
+
+      isUpdatingRef.current = true;
+      const newPosition = position.clone();
+      newPosition.z = value;
+
+      // Schedule state update after render
+      setTimeout(() => {
+        syncCameraPosition(newPosition, target);
+        isUpdatingRef.current = false;
+      }, 0);
+    },
+    [isAnimating, position, target, syncCameraPosition]
+  );
+
+  const updateTargetX = useCallback(
+    (value: number) => {
+      if (isAnimating || isUpdatingRef.current) return;
+
+      isUpdatingRef.current = true;
+      const newTarget = target.clone();
+      newTarget.x = value;
+
+      // Schedule state update after render
+      setTimeout(() => {
+        syncCameraPosition(position, newTarget);
+        isUpdatingRef.current = false;
+      }, 0);
+    },
+    [isAnimating, position, target, syncCameraPosition]
+  );
+
+  const updateTargetY = useCallback(
+    (value: number) => {
+      if (isAnimating || isUpdatingRef.current) return;
+
+      isUpdatingRef.current = true;
+      const newTarget = target.clone();
+      newTarget.y = value;
+
+      // Schedule state update after render
+      setTimeout(() => {
+        syncCameraPosition(position, newTarget);
+        isUpdatingRef.current = false;
+      }, 0);
+    },
+    [isAnimating, position, target, syncCameraPosition]
+  );
+
+  const updateTargetZ = useCallback(
+    (value: number) => {
+      if (isAnimating || isUpdatingRef.current) return;
+
+      isUpdatingRef.current = true;
+      const newTarget = target.clone();
+      newTarget.z = value;
+
+      // Schedule state update after render
+      setTimeout(() => {
+        syncCameraPosition(position, newTarget);
+        isUpdatingRef.current = false;
+      }, 0);
+    },
+    [isAnimating, position, target, syncCameraPosition]
+  );
+
+  // Log camera position - defined with useCallback to prevent recreation
+  const logCameraPosition = useCallback(() => {
+    console.log('%c --- Camera Debug Info ---', 'font-weight: bold; color: #0066ff;');
+
+    // Get the actual current camera position and target from refs
+    let currentPosition, currentTarget;
+
+    if (cameraRef.current && controlsRef.current) {
+      currentPosition = cameraRef.current.position.clone();
+      currentTarget = controlsRef.current.target.clone();
+    } else {
+      // Fall back to store values if refs aren't available
+      currentPosition = position.clone();
+      currentTarget = target.clone();
+    }
+
+    console.log('REAL-TIME Camera Position:', {
+      x: currentPosition.x.toFixed(2),
+      y: currentPosition.y.toFixed(2),
+      z: currentPosition.z.toFixed(2),
+    });
+
+    console.log('REAL-TIME Camera Target:', {
+      x: currentTarget.x.toFixed(2),
+      y: currentTarget.y.toFixed(2),
+      z: currentTarget.z.toFixed(2),
+    });
+
+    console.log(
+      'Camera JSON (for copying):',
+      JSON.stringify(
+        {
           position: {
             x: parseFloat(currentPosition.x.toFixed(2)),
             y: parseFloat(currentPosition.y.toFixed(2)),
-            z: parseFloat(currentPosition.z.toFixed(2))
+            z: parseFloat(currentPosition.z.toFixed(2)),
           },
           target: {
             x: parseFloat(currentTarget.x.toFixed(2)),
             y: parseFloat(currentTarget.y.toFixed(2)),
-            z: parseFloat(currentTarget.z.toFixed(2))
-          }
-        }, null, 2));
-      })
-    }, { collapsed: false })
+            z: parseFloat(currentTarget.z.toFixed(2)),
+          },
+        },
+        null,
+        2
+      )
+    );
+  }, [position, target]);
+
+  // Add debug settings directly to main controls
+  const showTargetCube = useControls({
+    'Debug Options': folder(
+      {
+        showTargetCube: {
+          value: process.env.NEXT_PUBLIC_SITE_ENV === 'development',
+          label: 'Show Target Cube',
+        },
+        logCameraPosition: button(logCameraPosition),
+      },
+      { collapsed: false }
+    ),
   });
 
   // Create Leva controls with custom onChange handlers to prevent circular updates
   const controls = useControls(
-    "Main Camera Controls",
+    'Main Camera Controls',
     {
-      "Main Scene": folder(
+      'Main Scene': folder(
         {
           position: folder({
             positionX: {
@@ -115,45 +229,21 @@ export function MainSceneCameraSystem() {
               min: -400,
               max: 400,
               step: 0.1,
-              onChange: (value) => {
-                if (isAnimating || isUpdatingRef.current) return;
-                
-                isUpdatingRef.current = true;
-                const newPosition = position.clone();
-                newPosition.x = value;
-                syncCameraPosition(newPosition, target);
-                isUpdatingRef.current = false;
-              }
+              onChange: updatePositionX,
             },
             positionY: {
               value: position.y,
               min: -400,
               max: 400,
               step: 0.1,
-              onChange: (value) => {
-                if (isAnimating || isUpdatingRef.current) return;
-                
-                isUpdatingRef.current = true;
-                const newPosition = position.clone();
-                newPosition.y = value;
-                syncCameraPosition(newPosition, target);
-                isUpdatingRef.current = false;
-              }
+              onChange: updatePositionY,
             },
             positionZ: {
               value: position.z,
               min: -400,
               max: 400,
               step: 0.1,
-              onChange: (value) => {
-                if (isAnimating || isUpdatingRef.current) return;
-                
-                isUpdatingRef.current = true;
-                const newPosition = position.clone();
-                newPosition.z = value;
-                syncCameraPosition(newPosition, target);
-                isUpdatingRef.current = false;
-              }
+              onChange: updatePositionZ,
             },
           }),
           target: folder({
@@ -162,71 +252,34 @@ export function MainSceneCameraSystem() {
               min: -400,
               max: 400,
               step: 0.1,
-              onChange: (value) => {
-                if (isAnimating || isUpdatingRef.current) return;
-                
-                isUpdatingRef.current = true;
-                const newTarget = target.clone();
-                newTarget.x = value;
-                syncCameraPosition(position, newTarget);
-                isUpdatingRef.current = false;
-              }
+              onChange: updateTargetX,
             },
             targetY: {
               value: target.y,
               min: -400,
               max: 400,
               step: 0.1,
-              onChange: (value) => {
-                if (isAnimating || isUpdatingRef.current) return;
-                
-                isUpdatingRef.current = true;
-                const newTarget = target.clone();
-                newTarget.y = value;
-                syncCameraPosition(position, newTarget);
-                isUpdatingRef.current = false;
-              }
+              onChange: updateTargetY,
             },
             targetZ: {
               value: target.z,
               min: -400,
               max: 400,
               step: 0.1,
-              onChange: (value) => {
-                if (isAnimating || isUpdatingRef.current) return;
-                
-                isUpdatingRef.current = true;
-                const newTarget = target.clone();
-                newTarget.z = value;
-                syncCameraPosition(position, newTarget);
-                isUpdatingRef.current = false;
-              }
+              onChange: updateTargetZ,
             },
           }),
         },
         { collapsed: true }
       ),
     },
-    { collapsed: true }
+    { collapsed: true, store: levaStore }
   ) as unknown as CameraControls;
-
-  // Update Leva controls when store values change
-  useEffect(() => {
-    if (isUpdatingRef.current || isAnimating) return;
-    
-    // Use Leva's set method to update the control values without triggering onChange
-    // This prevents the circular update loop
-    isUpdatingRef.current = true;
-    
-    // Handle Leva UI updates manually here if needed
-    
-    isUpdatingRef.current = false;
-  }, [position, target, isAnimating]);
 
   // Update camera position and orientation when store values change
   useEffect(() => {
     if (!cameraRef.current) return;
-    
+
     // Clone position and target to avoid potential reference issues
     const newPosition = position.clone();
     const newTarget = target.clone();
@@ -237,62 +290,45 @@ export function MainSceneCameraSystem() {
   }, [position, target]);
 
   // Handle camera movement constraints
-  const handleControlsChange = () => {
+  const handleControlsChange = useCallback(() => {
     if (!controlsRef.current || isAnimating || !cameraRef.current || isUpdatingRef.current) return;
-    
+
     isUpdatingRef.current = true;
-    
+
     const currentPosition = cameraRef.current.position;
     const currentTarget = controlsRef.current.target;
-    
+
     // Store original values before applying constraints
     const originalPosition = currentPosition.clone();
     const originalTarget = currentTarget.clone();
-    
-    // Apply boundary constraints individually
-    let needsUpdate = false;
-    
-    // Check and apply X boundary
-    if (currentPosition.x < BOUNDARY_LIMITS.minX) {
-      currentPosition.x = BOUNDARY_LIMITS.minX;
-      needsUpdate = true;
-    } else if (currentPosition.x > BOUNDARY_LIMITS.maxX) {
-      currentPosition.x = BOUNDARY_LIMITS.maxX;
-      needsUpdate = true;
+
+    // Apply constraints
+    currentPosition.x = MathUtils.clamp(
+      currentPosition.x,
+      BOUNDARY_LIMITS.minX,
+      BOUNDARY_LIMITS.maxX
+    );
+    currentPosition.y = MathUtils.clamp(
+      currentPosition.y,
+      BOUNDARY_LIMITS.minY,
+      BOUNDARY_LIMITS.maxY
+    );
+    currentPosition.z = MathUtils.clamp(
+      currentPosition.z,
+      BOUNDARY_LIMITS.minZ,
+      BOUNDARY_LIMITS.maxZ
+    );
+
+    // Only sync to store if position actually changed due to constraints
+    if (!originalPosition.equals(currentPosition) || !originalTarget.equals(currentTarget)) {
+      // Use setTimeout to schedule the state update after render is complete
+      setTimeout(() => {
+        syncCameraPosition(currentPosition.clone(), currentTarget.clone());
+      }, 0);
     }
-    
-    // Check and apply Y boundary
-    if (currentPosition.y < BOUNDARY_LIMITS.minY) {
-      currentPosition.y = BOUNDARY_LIMITS.minY;
-      needsUpdate = true;
-    } else if (currentPosition.y > BOUNDARY_LIMITS.maxY) {
-      currentPosition.y = BOUNDARY_LIMITS.maxY;
-      needsUpdate = true;
-    }
-    
-    // Check and apply Z boundary
-    if (currentPosition.z < BOUNDARY_LIMITS.minZ) {
-      currentPosition.z = BOUNDARY_LIMITS.minZ;
-      needsUpdate = true;
-    } else if (currentPosition.z > BOUNDARY_LIMITS.maxZ) {
-      currentPosition.z = BOUNDARY_LIMITS.maxZ;
-      needsUpdate = true;
-    }
-    
-    if (needsUpdate) {
-      // Calculate how much the camera position changed due to constraints
-      const positionDelta = new Vector3().subVectors(currentPosition, originalPosition);
-      
-      // If we hit a boundary, also move the target by the same amount
-      // This prevents the camera from rotating when hitting a boundary
-      currentTarget.add(positionDelta);
-      
-      // Sync the constrained position with the store
-      syncCameraPosition(currentPosition, currentTarget);
-    }
-    
+
     isUpdatingRef.current = false;
-  };
+  }, [isAnimating, syncCameraPosition]);
 
   return (
     <>
@@ -302,15 +338,15 @@ export function MainSceneCameraSystem() {
         position={[position.x, position.y, position.z]}
       />
       {showTargetCube.showTargetCube && (
-        <Box 
-          position={[target.x, target.y, target.z]} 
-          args={[2, 2, 2]} 
+        <Box
+          position={[target.x, target.y, target.z]}
+          args={[2, 2, 2]}
           material-transparent
           material-opacity={0.7}
           material-color="#ff0000"
         />
       )}
-      {controlType === "Map" && !isAnimating && (
+      {controlType === 'Map' && !isAnimating && (
         <MapControls
           ref={controlsRef}
           target={[target.x, target.y, target.z]}

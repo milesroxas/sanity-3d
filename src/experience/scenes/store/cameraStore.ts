@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { Vector3 } from 'three';
 import { useSceneStore } from '@/experience/scenes/store/sceneStore';
+import { Vector3 } from 'three';
+import { create } from 'zustand';
 
 type CameraState = 'main' | 'previous' | 'current';
 type ControlType = 'Map' | 'CameraControls' | 'Disabled';
@@ -73,6 +73,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
 
   // Camera Actions
   resetToInitial: () => {
+    // Don't do anything if we're loading - avoids race conditions
     if (get().isLoading) {
       return;
     }
@@ -132,7 +133,21 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   // State Actions
   setControlType: controlType => set({ controlType }),
   setIsAnimating: isAnimating => set({ isAnimating }),
-  setIsLoading: isLoading => set({ isLoading }),
+
+  // Add debounce to prevent rapid loading state changes
+  setIsLoading: isLoading => {
+    // Only update if the state is actually changing to prevent unnecessary re-renders
+    if (get().isLoading !== isLoading) {
+      // If we're turning loading off, do it immediately
+      if (!isLoading) {
+        set({ isLoading });
+      } else {
+        // When turning loading on, we can set it directly
+        set({ isLoading });
+      }
+    }
+  },
+
   setSelectedPoi: poi => set({ selectedPoi: poi }),
 
   // Animation
