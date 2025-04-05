@@ -1,10 +1,5 @@
-import type {
-  SanityImageObject,
-  SanityImageDimensions,
-  SanityVideoObject,
-} from "@sanity/image-url/lib/types/types";
-import type { SanityDocument } from "next-sanity";
-import type { MuxVideoAsset } from "next-sanity";
+import type { SanityImageDimensions, SanityImageObject } from '@sanity/image-url/lib/types/types';
+import type { MuxVideoAsset, SanityDocument } from 'next-sanity';
 
 declare global {
   namespace Sanity {
@@ -19,17 +14,17 @@ declare global {
     }>;
 
     type Page = PageBase & {
-      readonly _type: "page";
+      readonly _type: 'page';
       blocks?: Block[];
     };
 
     type Services = PageBase & {
-      readonly _type: "services";
+      readonly _type: 'services';
       blocks?: Block[];
     };
 
     type Scene = PageBase & {
-      readonly _type: "scenes";
+      readonly _type: 'scenes';
       body?: any[];
       mainSceneMarkerPosition?: {
         x: number;
@@ -49,7 +44,7 @@ declare global {
       pointsOfInterest?: Array<
         | {
             _key: string;
-            _type: "scenes";
+            _type: 'scenes';
             _id: string;
             title: string;
             slug: { current: string };
@@ -62,7 +57,7 @@ declare global {
           }
         | {
             _key: string;
-            _type: "pointOfInterest";
+            _type: 'pointOfInterest';
             title: string;
             body?: any[];
             markerPosition?: {
@@ -84,18 +79,18 @@ declare global {
       >;
       blocks?: Block[];
       sceneType?:
-        | "main"
-        | "shops"
-        | "company"
-        | "resort"
-        | "events"
-        | "farm"
-        | "construction"
-        | "gatedCommunity"
-        | "homes";
+        | 'main'
+        | 'shops'
+        | 'company'
+        | 'resort'
+        | 'events'
+        | 'farm'
+        | 'construction'
+        | 'gatedCommunity'
+        | 'homes';
       modelFiles?: Array<{
         _key: string;
-        _type: "modelFiles";
+        _type: 'modelFiles';
         modelName?: string;
         fileUrl?: string;
       }>;
@@ -103,7 +98,7 @@ declare global {
 
     type Post = PageBase &
       SanityDocument<{
-        readonly _type: "post";
+        readonly _type: 'post';
         excerpt?: string;
         author?: Author;
         categories?: Category[];

@@ -1,10 +1,10 @@
+import { Line } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useMemo, useRef, useState, useEffect } from 'react';
+import { folder, useControls } from 'leva';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { CatmullRomCurve3, Vector3 } from 'three';
 import { Plane } from './Plane';
-import { folder, useControls } from 'leva';
-import { Line } from '@react-three/drei';
 
 import pathData from '@/experience/scenes/mainScene/lib/plane_1_path.json';
 
