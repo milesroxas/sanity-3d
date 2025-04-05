@@ -7,8 +7,9 @@ import React from 'react';
 import { useGLTF } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
 import { ThreeElements } from '@react-three/fiber';
+import { MeshGLTFModel } from '@/experience/types/modelTypes';
 
-type GLTFResult = GLTF & {
+type GLTFResult = MeshGLTFModel & {
   nodes: {
     ['lamp-road-double_1']: THREE.Mesh;
     ['lamp-road-double_2']: THREE.Mesh;
@@ -39,7 +40,7 @@ export function DoubleStreetLight({
   scale = [1, 1, 1],
   ...props
 }: StreetLightProps) {
-  const { nodes, materials } = useGLTF('/models/StreetLights.glb') as GLTFResult;
+  const { nodes, materials } = useGLTF('/models/StreetLights.glb') as unknown as GLTFResult;
   return (
     <group position={position} rotation={rotation} scale={scale} {...props} dispose={null}>
       <mesh
@@ -73,7 +74,7 @@ export function SingleStreetLight({
   scale = [1, 1, 1],
   ...props
 }: StreetLightProps) {
-  const { nodes, materials } = useGLTF('/models/StreetLights.glb') as GLTFResult;
+  const { nodes, materials } = useGLTF('/models/StreetLights.glb') as unknown as GLTFResult;
   return (
     <group position={position} rotation={rotation} scale={scale} {...props} dispose={null}>
       <mesh
@@ -107,7 +108,7 @@ export function ClassicStreetLight({
   scale = [1, 1, 1],
   ...props
 }: StreetLightProps) {
-  const { nodes, materials } = useGLTF('/models/StreetLights.glb') as GLTFResult;
+  const { nodes, materials } = useGLTF('/models/StreetLights.glb') as unknown as GLTFResult;
   return (
     <group position={position} rotation={rotation} scale={scale} {...props} dispose={null}>
       <mesh

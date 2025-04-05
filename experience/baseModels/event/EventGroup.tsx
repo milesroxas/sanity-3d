@@ -55,7 +55,7 @@ type GLTFResult = GLTF & {
 };
 
 export function EventGroup(props: ThreeElements['group']) {
-  const { nodes, materials } = useGLTF('/models/event-parts.glb') as GLTFResult;
+  const { nodes, materials } = useGLTF('/models/event-parts.glb') as unknown as GLTFResult;
   return (
     <group {...props} dispose={null}>
       <group name="Scene">

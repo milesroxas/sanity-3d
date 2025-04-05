@@ -1,11 +1,11 @@
-import { useControls, folder } from "leva";
-import { INITIAL_POSITIONS } from "./cameraStore";
+import { useControls, folder } from 'leva';
+import { INITIAL_POSITIONS } from './cameraStore';
 
 export function useMainCameraControls() {
   return useControls(
-    "Main Camera",
+    'Main Camera',
     {
-      "Main Scene": folder(
+      'Main Scene': folder(
         {
           position: folder({
             positionX: {
@@ -13,21 +13,21 @@ export function useMainCameraControls() {
               min: -400,
               max: 400,
               step: 0.1,
-              label: "Position X",
+              label: 'Position X',
             },
             positionY: {
               value: INITIAL_POSITIONS.main.position.y,
               min: -400,
               max: 400,
               step: 0.1,
-              label: "Position Y",
+              label: 'Position Y',
             },
             positionZ: {
               value: INITIAL_POSITIONS.main.position.z,
               min: -400,
               max: 400,
               step: 0.1,
-              label: "Position Z",
+              label: 'Position Z',
             },
           }),
           target: folder({
@@ -36,21 +36,21 @@ export function useMainCameraControls() {
               min: -400,
               max: 400,
               step: 0.1,
-              label: "Target X",
+              label: 'Target X',
             },
             targetY: {
               value: INITIAL_POSITIONS.main.target.y,
               min: -400,
               max: 400,
               step: 0.1,
-              label: "Target Y",
+              label: 'Target Y',
             },
             targetZ: {
               value: INITIAL_POSITIONS.main.target.z,
               min: -400,
               max: 400,
               step: 0.1,
-              label: "Target Z",
+              label: 'Target Z',
             },
           }),
           constraints: folder({
@@ -59,42 +59,42 @@ export function useMainCameraControls() {
               min: 1,
               max: 100,
               step: 0.1,
-              label: "Min Distance",
+              label: 'Min Distance',
             },
             maxDistance: {
               value: 250,
               min: 50,
               max: 500,
               step: 1,
-              label: "Max Distance",
+              label: 'Max Distance',
             },
             minPolarAngle: {
               value: 0,
               min: 0,
               max: Math.PI,
               step: 0.1,
-              label: "Min Polar Angle",
+              label: 'Min Polar Angle',
             },
             maxPolarAngle: {
               value: Math.PI / 2,
               min: 0,
               max: Math.PI,
               step: 0.1,
-              label: "Max Polar Angle",
+              label: 'Max Polar Angle',
             },
             minAzimuthAngle: {
               value: -Math.PI / 4,
               min: -Math.PI,
               max: Math.PI,
               step: 0.1,
-              label: "Min Azimuth Angle",
+              label: 'Min Azimuth Angle',
             },
             maxAzimuthAngle: {
               value: Math.PI / 4,
               min: -Math.PI,
               max: Math.PI,
               step: 0.1,
-              label: "Max Azimuth Angle",
+              label: 'Max Azimuth Angle',
             },
           }),
           animation: folder({
@@ -103,21 +103,21 @@ export function useMainCameraControls() {
               min: 1000,
               max: 5000,
               step: 100,
-              label: "Transition Duration",
+              label: 'Transition Duration',
             },
             dampingFactor: {
               value: 0.08,
               min: 0.01,
               max: 0.2,
               step: 0.01,
-              label: "Damping Factor",
+              label: 'Damping Factor',
             },
             rotateSpeed: {
               value: 0.5,
               min: 0.1,
               max: 2,
               step: 0.1,
-              label: "Rotate Speed",
+              label: 'Rotate Speed',
             },
           }),
         },
@@ -127,79 +127,3 @@ export function useMainCameraControls() {
     { collapsed: true }
   );
 }
-
-export function useSubsceneCameraControls() {
-  return useControls(
-    "Subscene Camera",
-    {
-      "Subscene": folder(
-        {
-          position: folder({
-            positionX: {
-              value: INITIAL_POSITIONS.subscene.position.x,
-              min: -200,
-              max: 200,
-              step: 0.1,
-              label: "Position X",
-            },
-            positionY: {
-              value: INITIAL_POSITIONS.subscene.position.y,
-              min: -200,
-              max: 200,
-              step: 0.1,
-              label: "Position Y",
-            },
-            positionZ: {
-              value: INITIAL_POSITIONS.subscene.position.z,
-              min: -200,
-              max: 200,
-              step: 0.1,
-              label: "Position Z",
-            },
-          }),
-          target: folder({
-            targetX: {
-              value: INITIAL_POSITIONS.subscene.target.x,
-              min: -200,
-              max: 200,
-              step: 0.1,
-              label: "Target X",
-            },
-            targetY: {
-              value: INITIAL_POSITIONS.subscene.target.y,
-              min: -200,
-              max: 200,
-              step: 0.1,
-              label: "Target Y",
-            },
-            targetZ: {
-              value: INITIAL_POSITIONS.subscene.target.z,
-              min: -200,
-              max: 200,
-              step: 0.1,
-              label: "Target Z",
-            },
-          }),
-          constraints: folder({
-            minDistance: {
-              value: 10,
-              min: 1,
-              max: 50,
-              step: 0.1,
-              label: "Min Distance",
-            },
-            maxDistance: {
-              value: 50,
-              min: 10,
-              max: 100,
-              step: 1,
-              label: "Max Distance",
-            },
-          }),
-        },
-        { collapsed: true }
-      ),
-    },
-    { collapsed: true }
-  );
-} 

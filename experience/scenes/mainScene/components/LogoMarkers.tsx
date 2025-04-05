@@ -1,12 +1,12 @@
-"use client";
-import { Float, Html, useCursor } from "@react-three/drei";
-import { useThree } from "@react-three/fiber";
-import { useState, useRef, useEffect, useCallback } from "react";
-import { Vector3 } from "three";
-import * as THREE from "three";
-import { useCameraStore } from "@/experience/scenes/store/cameraStore";
-import { useLogoMarkerStore } from "@/experience/scenes/store/logoMarkerStore";
-import { LogoMarker } from "@/experience/sceneCollections/markers/LogoMarker";
+'use client';
+import { Float, Html, useCursor } from '@react-three/drei';
+import { useThree } from '@react-three/fiber';
+import { useRef, useEffect, useCallback } from 'react';
+import { Vector3 } from 'three';
+import * as THREE from 'three';
+import { useCameraStore } from '@/experience/scenes/store/cameraStore';
+import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import { LogoMarker } from '@/experience/components/markers/LogoMarker';
 
 type MarkerPosition = {
   x: number;
@@ -26,25 +26,25 @@ function PoiMarker({
   hoveredMarkerId,
   setHoveredMarkerId,
   handleMarkerClick,
-  otherMarkersVisible
+  otherMarkersVisible,
 }: any) {
   const isHovered = hoveredMarkerId === poi._id;
-  
+
   // Add refs for light animation
   const lightRef = useRef<THREE.RectAreaLight>(null);
   const hitboxRef = useRef<THREE.Mesh>(null);
-  
+
   // Use refs to track the actual DOM elements for direct manipulation
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLHeadingElement>(null);
-  
+
   // Apply cursor effect
   useCursor(isHovered && otherMarkersVisible);
-  
+
   // Apply transitions directly when hover state changes
   useEffect(() => {
     if (!containerRef.current || !textRef.current) return;
-    
+
     // Apply styles directly to avoid React re-renders during transition
     if (isHovered && otherMarkersVisible) {
       containerRef.current.style.backgroundColor = 'rgba(74, 222, 128, 0.8)';
@@ -55,7 +55,7 @@ function PoiMarker({
       containerRef.current.style.transform = 'scale(1)';
       textRef.current.style.transform = 'scale(1)';
     }
-    
+
     // Update light intensity
     if (lightRef.current) {
       lightRef.current.intensity = isHovered && otherMarkersVisible ? 100 : 0;
@@ -71,11 +71,11 @@ function PoiMarker({
       setHoveredMarkerId(poi._id);
     }
   };
-  
+
   const handlePointerLeave = () => {
     setHoveredMarkerId(null);
   };
-  
+
   const handleClick = () => {
     if (otherMarkersVisible) {
       handleMarkerClick(poi);
@@ -84,11 +84,11 @@ function PoiMarker({
 
   // Get the marker position
   const markerPosition = toPosition(poi.mainSceneMarkerPosition);
-  
+
   return (
     <group>
       {/* Single hitbox for 3D interaction */}
-      <mesh 
+      <mesh
         ref={hitboxRef}
         visible={otherMarkersVisible}
         position={[markerPosition[0], markerPosition[1] + 5, markerPosition[2]]}
@@ -101,21 +101,11 @@ function PoiMarker({
         onPointerOut={otherMarkersVisible ? handlePointerLeave : undefined}
       >
         <boxGeometry args={[1, 1, 1]} />
-        <meshBasicMaterial 
-          transparent 
-          opacity={0} 
-        />
+        <meshBasicMaterial transparent opacity={0} />
       </mesh>
-      
-      <Float
-        speed={10}
-        rotationIntensity={0}
-        floatIntensity={1}
-        floatingRange={[-0.1, 0.1]}
-      >
-        <group 
-          position={markerPosition}
-        >
+
+      <Float speed={10} rotationIntensity={0} floatIntensity={1} floatingRange={[-0.1, 0.1]}>
+        <group position={markerPosition}>
           {/* Logo marker with light */}
           <group position={[0, 0, 0]}>
             <rectAreaLight
@@ -126,31 +116,26 @@ function PoiMarker({
               color="#36A837"
               intensity={isHovered && otherMarkersVisible ? 100 : 0}
             />
-            <LogoMarker 
-              isHovered={isHovered} 
-              position={[0, 0, 0]}
-              scale={0.5}
-              opacity={opacity}
-            />
+            <LogoMarker isHovered={isHovered} position={[0, 0, 0]} scale={0.5} opacity={opacity} />
           </group>
-          
+
           {/* HTML element positioned below the marker */}
           <group position={[0, -5, 0]}>
-            <Html 
-              transform 
-              distanceFactor={15} 
+            <Html
+              transform
+              distanceFactor={15}
               zIndexRange={[100, 0]}
               style={{
                 width: 'auto',
                 minWidth: '200px',
                 pointerEvents: otherMarkersVisible ? 'auto' : 'none',
                 opacity: opacity,
-                transition: 'opacity 0.6s ease-in-out'
+                transition: 'opacity 0.6s ease-in-out',
               }}
             >
               <div
                 ref={containerRef}
-                className="backdrop-blur-sm px-4 py-2 rounded-lg"
+                className="rounded-lg px-4 py-2 backdrop-blur-sm"
                 style={{
                   backgroundColor: 'rgba(34, 197, 94, 0.8)',
                   transition: 'all 400ms cubic-bezier(0.4, 0, 0.2, 1)',
@@ -168,9 +153,9 @@ function PoiMarker({
                 onTouchEnd={handleClick}
                 onTouchCancel={handlePointerLeave}
               >
-                <h3 
+                <h3
                   ref={textRef}
-                  className="text-2xl lg:text-6xl text-white font-bold text-center"
+                  className="text-center text-2xl font-bold text-white lg:text-6xl"
                   style={{
                     transition: 'transform 400ms cubic-bezier(0.4, 0, 0.2, 1)',
                     transformOrigin: 'center center',
@@ -191,20 +176,20 @@ function PoiMarker({
 
 export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
   const { camera } = useThree();
-  const { 
-    fetchAndSetScene, 
-    shouldAnimateBack, 
-    setShouldAnimateBack, 
+  const {
+    fetchAndSetScene,
+    shouldAnimateBack,
+    setShouldAnimateBack,
     initialCameraPosition,
     initialCameraTarget,
     setInitialCameraState,
     otherMarkersVisible,
     setOtherMarkersVisible,
     hoveredMarkerId,
-    setHoveredMarkerId
+    setHoveredMarkerId,
   } = useLogoMarkerStore();
   const { setControlType, setIsAnimating, syncCameraPosition } = useCameraStore();
-  
+
   // Refs to track animation frames and timeouts for cleanup
   const animationFrameRef = useRef<number | null>(null);
   const timeoutRefs = useRef<Array<NodeJS.Timeout>>([]);
@@ -247,93 +232,106 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
   useEffect(() => {
     let isMounted = true;
     // Force preload of marker model
-    import("@/experience/sceneCollections/markers/LogoMarker")
-      .catch(err => {
-        console.error("Failed to preload LogoMarker:", err);
-      });
-      
+    import('@/experience/components/markers/LogoMarker').catch(err => {
+      console.error('Failed to preload LogoMarker:', err);
+    });
+
     return () => {
       isMounted = false;
     };
   }, []);
 
-  const handleMarkerClick = useCallback((poi: any) => {
-    if (!poi.mainSceneCameraPosition || !poi.mainSceneCameraTarget) {
-      return;
-    }
+  const handleMarkerClick = useCallback(
+    (poi: any) => {
+      if (!poi.mainSceneCameraPosition || !poi.mainSceneCameraTarget) {
+        return;
+      }
 
-    // Clean up any existing animations or timeouts
-    clearAnimationFrame();
-    clearAllTimeouts();
+      // Clean up any existing animations or timeouts
+      clearAnimationFrame();
+      clearAllTimeouts();
 
-    // First, fade out all markers
-    setOtherMarkersVisible(false);
+      // First, fade out all markers
+      setOtherMarkersVisible(false);
 
-    // Store the exact camera state before we do anything else
-    const currentPosition = camera.position.clone();
-    const currentTarget = new Vector3();
-    // Get exact point camera is looking at
-    camera.getWorldDirection(currentTarget);
-    currentTarget.multiplyScalar(100).add(currentPosition);
-    
-    // Store these values immediately
-    setInitialCameraState(currentPosition, currentTarget);
+      // Store the exact camera state before we do anything else
+      const currentPosition = camera.position.clone();
+      const currentTarget = new Vector3();
+      // Get exact point camera is looking at
+      camera.getWorldDirection(currentTarget);
+      currentTarget.multiplyScalar(100).add(currentPosition);
 
-    // Wait for markers to fade out before starting camera animation
-    safeSetTimeout(() => {
-      // Now we can proceed with the animation setup
-      setControlType("Disabled");
-      setIsAnimating(true);
+      // Store these values immediately
+      setInitialCameraState(currentPosition, currentTarget);
 
-      // Create target vectors for where we want to animate TO
-      const targetPos = new Vector3(
-        poi.mainSceneCameraPosition.x,
-        poi.mainSceneCameraPosition.y,
-        poi.mainSceneCameraPosition.z
-      );
+      // Wait for markers to fade out before starting camera animation
+      safeSetTimeout(() => {
+        // Now we can proceed with the animation setup
+        setControlType('Disabled');
+        setIsAnimating(true);
 
-      const targetLookAt = new Vector3(
-        poi.mainSceneCameraTarget.x,
-        poi.mainSceneCameraTarget.y,
-        poi.mainSceneCameraTarget.z
-      );
+        // Create target vectors for where we want to animate TO
+        const targetPos = new Vector3(
+          poi.mainSceneCameraPosition.x,
+          poi.mainSceneCameraPosition.y,
+          poi.mainSceneCameraPosition.z
+        );
 
-      const animate = () => {
-        const now = Date.now();
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
+        const targetLookAt = new Vector3(
+          poi.mainSceneCameraTarget.x,
+          poi.mainSceneCameraTarget.y,
+          poi.mainSceneCameraTarget.z
+        );
 
-        // Cubic easing
-        const t =
-          progress < 0.5
-            ? 4 * progress * progress * progress
-            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        const animate = () => {
+          const now = Date.now();
+          const elapsed = now - startTime;
+          const progress = Math.min(elapsed / duration, 1);
 
-        const newPosition = new Vector3().lerpVectors(currentPosition, targetPos, t);
-        const newTarget = new Vector3().lerpVectors(currentTarget, targetLookAt, t);
+          // Cubic easing
+          const t =
+            progress < 0.5
+              ? 4 * progress * progress * progress
+              : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-        syncCameraPosition(newPosition, newTarget);
+          const newPosition = new Vector3().lerpVectors(currentPosition, targetPos, t);
+          const newTarget = new Vector3().lerpVectors(currentTarget, targetLookAt, t);
 
-        if (progress >= 1) {
-          // Ensure we're exactly at the target position and target
-          syncCameraPosition(targetPos, targetLookAt);
-          
-          setIsAnimating(false);
-          if (poi.slug?.current) {
-            fetchAndSetScene(poi.slug.current);
+          syncCameraPosition(newPosition, newTarget);
+
+          if (progress >= 1) {
+            // Ensure we're exactly at the target position and target
+            syncCameraPosition(targetPos, targetLookAt);
+
+            setIsAnimating(false);
+            if (poi.slug?.current) {
+              fetchAndSetScene(poi.slug.current);
+            }
+          } else {
+            animationFrameRef.current = requestAnimationFrame(animate);
           }
-        } else {
-          animationFrameRef.current = requestAnimationFrame(animate);
-        }
-      };
+        };
 
-      const startTime = Date.now();
-      const duration = 2000;
+        const startTime = Date.now();
+        const duration = 2000;
 
-      // Start animation and store the ID for potential cleanup
-      animationFrameRef.current = requestAnimationFrame(animate);
-    }, 500); // Wait 500ms for markers to fade out
-  }, [camera, setInitialCameraState, setControlType, setIsAnimating, syncCameraPosition, fetchAndSetScene, setOtherMarkersVisible, clearAnimationFrame, clearAllTimeouts, safeSetTimeout]);
+        // Start animation and store the ID for potential cleanup
+        animationFrameRef.current = requestAnimationFrame(animate);
+      }, 500); // Wait 500ms for markers to fade out
+    },
+    [
+      camera,
+      setInitialCameraState,
+      setControlType,
+      setIsAnimating,
+      syncCameraPosition,
+      fetchAndSetScene,
+      setOtherMarkersVisible,
+      clearAnimationFrame,
+      clearAllTimeouts,
+      safeSetTimeout,
+    ]
+  );
 
   // Handle camera animation when closing
   useEffect(() => {
@@ -346,7 +344,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     clearAllTimeouts();
 
     // Disable controls during animation
-    setControlType("Disabled");
+    setControlType('Disabled');
     setIsAnimating(true);
 
     // Get the current camera state
@@ -366,9 +364,10 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
       const progress = Math.min(elapsed / duration, 1);
 
       // Use cubic easing for smooth motion
-      const t = progress < 0.5
-        ? 4 * progress * progress * progress
-        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      const t =
+        progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
       // Interpolate position and target
       const newPosition = new Vector3().lerpVectors(startPos, initialCameraPosition, t);
@@ -380,26 +379,28 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
       if (progress >= 1) {
         // Ensure we land exactly at the desired position
         syncCameraPosition(initialCameraPosition, initialCameraTarget);
-        
+
         // Create a temporary "lookAt" function to restore the camera direction
         const restoreTarget = () => {
-          const direction = new Vector3().subVectors(initialCameraTarget, camera.position).normalize();
+          const direction = new Vector3()
+            .subVectors(initialCameraTarget, camera.position)
+            .normalize();
           camera.lookAt(initialCameraTarget);
         };
-        
+
         // Apply direction correction immediately
         restoreTarget();
-        
+
         // Complete animation and immediately re-enable controls
         setIsAnimating(false);
-        setControlType("Map");
-        
+        setControlType('Map');
+
         // Reset shouldAnimateBack after animation completes
         setShouldAnimateBack(false);
-        
+
         // Show markers after camera animation is complete
         setOtherMarkersVisible(true);
-        
+
         // Apply our target correction one more time to ensure it sticks
         requestAnimationFrame(restoreTarget);
       } else {
@@ -409,25 +410,35 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
 
     // Start animation
     animationFrameRef.current = requestAnimationFrame(animateBack);
-    
+
     // Clean up function to handle component unmounting during animation
     return () => {
       clearAnimationFrame();
       clearAllTimeouts();
     };
-  }, [shouldAnimateBack, camera, initialCameraPosition, initialCameraTarget, 
-      setShouldAnimateBack, setControlType, setIsAnimating, syncCameraPosition, 
-      clearAnimationFrame, clearAllTimeouts, safeSetTimeout]);
+  }, [
+    shouldAnimateBack,
+    camera,
+    initialCameraPosition,
+    initialCameraTarget,
+    setShouldAnimateBack,
+    setControlType,
+    setIsAnimating,
+    syncCameraPosition,
+    clearAnimationFrame,
+    clearAllTimeouts,
+    safeSetTimeout,
+  ]);
 
   return (
     <group>
-      {scene.pointsOfInterest?.map((poi) => {
+      {scene.pointsOfInterest?.map(poi => {
         if (
-          "_type" in poi &&
-          poi._type === "scenes" &&
-          "mainSceneMarkerPosition" in poi &&
+          '_type' in poi &&
+          poi._type === 'scenes' &&
+          'mainSceneMarkerPosition' in poi &&
           poi.mainSceneMarkerPosition &&
-          "slug" in poi
+          'slug' in poi
         ) {
           return (
             <PoiMarker

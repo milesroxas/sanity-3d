@@ -143,7 +143,7 @@ const EventInstancing = createModelInstancing<EventInstances>(
 
 // Export the components and hook
 export const {
-  Instances: EventInstances,
+  ModelInstances: EventInstances,
   useInstances: useEventInstances,
   InstancesFromJSON: EventInstancesFromJSON,
   InstancesFromBlenderExport: EventInstancesFromBlenderExport,
