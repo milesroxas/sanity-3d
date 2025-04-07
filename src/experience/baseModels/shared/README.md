@@ -48,6 +48,7 @@ To create a new instanced model group, follow these steps:
 ### 1. Prepare Your 3D Model in Blender
 
 - Create or collect related 3D models
+- gltf-pipeline -i raw-exports/models/small-buildings.gltf -o public/models/small-buildings.glb --keep-image
 - Give each model a descriptive name (e.g., "building-restaurant-1")
 - Export as a single GLB file (e.g., "small-buildings.glb")
 - Place the GLB file in `/public/models/`
@@ -135,34 +136,42 @@ type SmallBldgsInstances = ModelInstances & {
 // Define the model path
 const MODEL_PATH = '/models/small-buildings.glb';
 
+// Create a single source of truth for model names and their node mappings
+const SMALL_BLDG_MODELS: Record<SmallBldgType, string> = {
+  BurgerJoint: 'building-burger-joint',
+  Restaurant1: 'building-restaurant-1',
+  Restaurant2: 'building-restaurant-2',
+  CornerStore: 'building-corner-store',
+  Shop: 'build-shop-1',
+  Cannabis: 'building-cannabis',
+};
+
 // Define the mapping function for building nodes
-const mapSmallBldgsNodes = (nodes: Record<string, THREE.Mesh>) => {
-  // Simply map the nodes directly - materials are already set up in the base model
-  return {
-    BurgerJoint: nodes['building-burger-joint'],
-    Restaurant1: nodes['building-restaurant-1'],
-    Restaurant2: nodes['building-restaurant-2'],
-    CornerStore: nodes['building-corner-store'],
-    Shop: nodes['build-shop-1'],
-    Cannabis: nodes['building-cannabis'],
-  };
+const mapSmallBldgsNodes = (nodes: Record<string, THREE.Object3D>) => {
+  const result: Record<string, THREE.Object3D> = {};
+
+  // Use the SMALL_BLDG_MODELS mapping to create the node mapping
+  Object.entries(SMALL_BLDG_MODELS).forEach(([key, nodeName]) => {
+    result[key] = nodes[nodeName];
+  });
+
+  return result as Record<SmallBldgType, THREE.Object3D>;
 };
 
 // Define the name mapping function for Blender exports
 const mapBlenderNamesToTypes = (name: string): SmallBldgType | null => {
   // Handle numbered variations like building-restaurant-2.004
-  const baseName = name.replace(/\.\d+$/, '');
+  // Use the utility function to normalize Blender names
+  const baseName = normalizeBlenderName(name);
 
-  const nameMap: Record<string, SmallBldgType> = {
-    'building-burger-joint': 'BurgerJoint',
-    'building-restaurant-1': 'Restaurant1',
-    'building-restaurant-2': 'Restaurant2',
-    'building-corner-store': 'CornerStore',
-    'build-shop-1': 'Shop',
-    'building-cannabis': 'Cannabis',
-  };
+  // Reverse lookup from node names to types
+  for (const [type, nodeName] of Object.entries(SMALL_BLDG_MODELS)) {
+    if (nodeName === baseName) {
+      return type as SmallBldgType;
+    }
+  }
 
-  return nameMap[baseName] || null;
+  return null;
 };
 
 // Create the building instancing system
@@ -199,7 +208,31 @@ The system uses TypeScript's mapped types for enhanced type safety and developme
    };
    ```
 
-3. **Type-Safe Exports**: Your hook returns fully typed components
+3. **Single Source of Truth**: Define a mapping between your types and the actual model names
+
+   ```tsx
+   const SMALL_BLDG_MODELS: Record<SmallBldgType, string> = {
+     BurgerJoint: 'building-burger-joint',
+     Restaurant1: 'building-restaurant-1',
+     // etc.
+   };
+   ```
+
+4. **DRY Node Mapping**: Use the single source of truth to map nodes
+
+   ```tsx
+   const mapSmallBldgsNodes = (nodes: Record<string, THREE.Object3D>) => {
+     const result: Record<string, THREE.Object3D> = {};
+
+     Object.entries(SMALL_BLDG_MODELS).forEach(([key, nodeName]) => {
+       result[key] = nodes[nodeName];
+     });
+
+     return result;
+   };
+   ```
+
+5. **Type-Safe Exports**: Your hook returns fully typed components
    ```tsx
    // This is fully typed - TypeScript knows BurgerJoint exists
    const { BurgerJoint } = useSmallBldgsInstances();
@@ -207,11 +240,12 @@ The system uses TypeScript's mapped types for enhanced type safety and developme
 
 Benefits of this approach:
 
-- Single source of truth for your model types
+- Single source of truth for your model types and node mappings
 - Automatic type completion in your IDE
 - Type errors if you try to use a non-existent model
-- Easy to add new models (just add to the union type)
+- Easy to add new models (just add to the type union and the model mapping)
 - DRY (Don't Repeat Yourself) code
+- More maintainable - when adding a new model, you only need to update in one place
 
 ### 4. Export Your Scene from Blender
 
@@ -386,29 +420,62 @@ For optimal performance:
 3. **Set appropriate limits**: Don't render more instances than necessary at once
 4. **Minimize updates**: Avoid frequently changing instance properties
 5. **Handle numbered variations**: The system handles Blender's numbered objects (e.g., building-restaurant-2.004)
+6. **Single source of truth**: Use a constant for model mappings to make maintenance easier
+
+### Handling Blender Name Variations
+
+Blender adds numeric suffixes (like `.001`, `.002`) to duplicated objects. To handle these consistently, use the `normalizeBlenderName` utility:
+
+```tsx
+import { normalizeBlenderName } from '@/experience/utils/modelUtils';
+
+// In your mapBlenderNamesToTypes function
+const mapBlenderNamesToTypes = (name: string): ModelType | null => {
+  // Use the utility to remove Blender suffixes while keeping numbers in the original name
+  const baseName = normalizeBlenderName(name);
+
+  // Continue with mapping logic...
+};
+```
+
+This utility ensures consistent handling of Blender object names across your model instances and prevents duplication of the regex pattern.
 
 ## Advanced Features
 
-### Multi-Part Models
+### Multi-Part Models with Single Source of Truth
 
-The system handles models with multiple meshes:
+The system handles models with multiple meshes and can use the same single source of truth pattern:
 
 ```tsx
+// Define the types and model prefixes
+type VehicleType = 'SportsCar' | 'Truck' | 'Motorcycle';
+
+const VEHICLE_MODELS: Record<VehicleType, string[]> = {
+  SportsCar: ['car-body', 'car-wheels', 'car-windows'],
+  Truck: ['truck-cabin', 'truck-body', 'truck-wheels'],
+  Motorcycle: ['moto-body', 'moto-wheels'],
+};
+
 // In your mapping function
 const mapVehicleNodes = (nodes: Record<string, THREE.Mesh>) => {
-  // For complex models with multiple parts
-  const createCarGroup = () => {
-    const group = new THREE.Group();
-    group.add(nodes['car-body'].clone());
-    group.add(nodes['car-wheels'].clone());
-    group.add(nodes['car-windows'].clone());
-    return group;
-  };
+  const result: Record<string, THREE.Object3D> = {};
 
-  return {
-    SportsCar: createCarGroup(),
-    // Other models...
-  };
+  // For each vehicle type, create a group with all its parts
+  Object.entries(VEHICLE_MODELS).forEach(([vehicleType, parts]) => {
+    const group = new THREE.Group();
+    group.name = vehicleType;
+
+    // Add each part to the group
+    parts.forEach(partName => {
+      if (nodes[partName]) {
+        group.add(nodes[partName].clone());
+      }
+    });
+
+    result[vehicleType] = group;
+  });
+
+  return result as Record<VehicleType, THREE.Object3D>;
 };
 ```
 

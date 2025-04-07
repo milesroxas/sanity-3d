@@ -1,5 +1,5 @@
-import * as THREE from 'three';
 import type { MaterialMap } from '@/experience/types/modelTypes';
+import * as THREE from 'three';
 
 // The key for the shared texture atlas used across the entire project
 export const SHARED_TEXTURE_KEY = 'LOWPOLY-COLORS';
@@ -11,15 +11,30 @@ export const SHARED_TEXTURE_KEY = 'LOWPOLY-COLORS';
  */
 export function createMaterialWithTextureMap(
   sourceMaterial: THREE.Material,
-  options: Partial<THREE.MeshBasicMaterialParameters> = {}
-): THREE.MeshBasicMaterial {
+  options: Partial<THREE.MeshStandardMaterialParameters> = {}
+): THREE.MeshStandardMaterial {
   // Extract the texture map from source material
   const textureMap = (sourceMaterial as any).map || null;
 
-  // Create a new material with the shared texture map
-  return new THREE.MeshBasicMaterial({
+  // Determine if source is already a PBR material to extract properties
+  let roughness = 0.7;
+  let metalness = 0.2;
+
+  if (sourceMaterial instanceof THREE.MeshStandardMaterial) {
+    roughness = sourceMaterial.roughness;
+    metalness = sourceMaterial.metalness;
+  } else if (sourceMaterial instanceof THREE.MeshPhysicalMaterial) {
+    roughness = sourceMaterial.roughness;
+    metalness = sourceMaterial.metalness;
+  }
+
+  // Create a new material with the shared texture map that responds to lighting
+  return new THREE.MeshStandardMaterial({
     color: 0xffffff, // White color will show textures as-is
     map: textureMap,
+    roughness: roughness,
+    metalness: metalness,
+    envMapIntensity: 1.0,
     ...options,
   });
 }
@@ -31,11 +46,17 @@ export function createMaterialWithTextureMap(
  */
 export function createSharedAtlasMaterial(
   materials: MaterialMap,
-  options: Partial<THREE.MeshBasicMaterialParameters> = {}
-): THREE.MeshBasicMaterial {
+  options: Partial<THREE.MeshStandardMaterialParameters> = {}
+): THREE.MeshStandardMaterial {
   if (!materials[SHARED_TEXTURE_KEY]) {
     console.warn(`Shared texture atlas "${SHARED_TEXTURE_KEY}" not found in materials`);
-    return new THREE.MeshBasicMaterial({ color: 0xff00ff, ...options }); // Fallback magenta material
+    return new THREE.MeshStandardMaterial({
+      color: 0xff00ff,
+      roughness: 0.7,
+      metalness: 0.2,
+      envMapIntensity: 1.0,
+      ...options,
+    }); // Fallback magenta material
   }
   return createMaterialWithTextureMap(materials[SHARED_TEXTURE_KEY], options);
 }

@@ -1,7 +1,7 @@
 'use client';
-import React, { useRef, useMemo } from 'react';
 import { Cloud, Clouds, Float } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
+import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
 export const AnimatedClouds = () => {

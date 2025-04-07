@@ -1,8 +1,7 @@
-import * as THREE from 'three';
-import React from 'react';
 import { createModelInstancing } from '@/experience/baseModels/shared/createModelInstances';
-import { ModelInstances, ModelInstanceComponent } from '@/experience/baseModels/shared/types';
-import { MeshGLTFModel } from '@/experience/types/modelTypes';
+import { ModelInstanceComponent, ModelInstances } from '@/experience/baseModels/shared/types';
+import { normalizeBlenderName } from '@/experience/utils/modelUtils';
+import * as THREE from 'three';
 
 // Define the building types using a string union
 type SmallBldgType =
@@ -21,34 +20,41 @@ type SmallBldgsInstances = ModelInstances & {
 // Define the model path
 const MODEL_PATH = '/models/small-buildings.glb';
 
+// Create a single source of truth for model names and their node mappings
+const SMALL_BLDG_MODELS: Record<SmallBldgType, string> = {
+  BurgerJoint: 'building-burger-joint',
+  Restaurant1: 'building-restaurant-1',
+  Restaurant2: 'building-restaurant-2',
+  CornerStore: 'building-corner-store',
+  Shop: 'build-shop-1',
+  Cannabis: 'building-cannabis',
+};
+
 // Define the mapping function for building nodes
 const mapSmallBldgsNodes = (nodes: Record<string, THREE.Object3D>) => {
-  // Simply map the nodes directly - materials are already set up in the base model
-  return {
-    BurgerJoint: nodes['building-burger-joint'],
-    Restaurant1: nodes['building-restaurant-1'],
-    Restaurant2: nodes['building-restaurant-2'],
-    CornerStore: nodes['building-corner-store'],
-    Shop: nodes['build-shop-1'],
-    Cannabis: nodes['building-cannabis'],
-  };
+  const result: Record<string, THREE.Object3D> = {};
+
+  // Use the SMALL_BLDG_MODELS mapping to create the node mapping
+  Object.entries(SMALL_BLDG_MODELS).forEach(([key, nodeName]) => {
+    result[key] = nodes[nodeName];
+  });
+
+  return result as Record<SmallBldgType, THREE.Object3D>;
 };
 
 // Define the name mapping function for Blender exports
 const mapBlenderNamesToTypes = (name: string): SmallBldgType | null => {
-  // Handle numbered variations like building-restaurant-2.004
-  const baseName = name.replace(/\.\d+$/, '');
+  // Handle numbered variations like building-restaurant-2.004 using the utility function
+  const baseName = normalizeBlenderName(name);
 
-  const nameMap: Record<string, SmallBldgType> = {
-    'building-burger-joint': 'BurgerJoint',
-    'building-restaurant-1': 'Restaurant1',
-    'building-restaurant-2': 'Restaurant2',
-    'building-corner-store': 'CornerStore',
-    'build-shop-1': 'Shop',
-    'building-cannabis': 'Cannabis',
-  };
+  // Reverse lookup from node names to types
+  for (const [type, nodeName] of Object.entries(SMALL_BLDG_MODELS)) {
+    if (nodeName === baseName) {
+      return type as SmallBldgType;
+    }
+  }
 
-  return nameMap[baseName] || null;
+  return null;
 };
 
 // Create the building instancing system

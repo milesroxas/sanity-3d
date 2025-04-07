@@ -33,7 +33,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
       },
       background: { value: true },
       blur: { value: 0.9, min: 0, max: 1, step: 0.1 },
-      intensity: { value: 0.8, min: 0, max: 5, step: 0.1 },
+      intensity: { value: 1, min: 0, max: 5, step: 0.1 },
     },
     { collapsed: true }
   );
@@ -52,7 +52,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
           <Loading />
           <Canvas shadows="soft">
             <Environment
-              preset={environmentControls.preset as any}
+              preset={'sunset'}
               background={environmentControls.background}
               backgroundBlurriness={environmentControls.blur}
               environmentIntensity={environmentControls.intensity}

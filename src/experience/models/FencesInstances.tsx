@@ -1,7 +1,7 @@
-import * as THREE from 'three';
-import React from 'react';
 import { createModelInstancing } from '@/experience/baseModels/shared/createModelInstances';
-import { ModelInstances, ModelInstanceComponent } from '@/experience/baseModels/shared/types';
+import { ModelInstanceComponent, ModelInstances } from '@/experience/baseModels/shared/types';
+import { normalizeBlenderName } from '@/experience/utils/modelUtils';
+import * as THREE from 'three';
 
 // Define the fence types using a string union
 type FenceType =
@@ -41,9 +41,8 @@ const mapFencesNodes = (nodes: Record<string, THREE.Object3D>) => {
 
 // Define the name mapping function for Blender exports
 const mapBlenderNamesToTypes = (name: string): FenceType | null => {
-  // Handle numbered variations with dot notation (e.g., fence-vineyard.001)
-  // or with 001 suffix (e.g., fence-vineyard001)
-  const baseName = name.replace(/\.\d+$/, '').replace(/\d+$/, '');
+  // Handle numbered variations with dot notation using the utility function
+  const baseName = normalizeBlenderName(name);
 
   // Map of base names to fence types
   const nameMap: Record<string, FenceType> = {

@@ -1,6 +1,16 @@
 import * as THREE from 'three';
-import { Object3D } from 'three';
-import { MeshGLTFModel } from '@/experience/types/modelTypes';
+
+/**
+ * Normalizes a Blender object name by removing the standard Blender suffix pattern
+ * like .001, .002, etc. while preserving any numbers that are part of the original name.
+ *
+ * @param name The Blender object name to normalize
+ * @returns The normalized name without the Blender numerical suffix
+ */
+export function normalizeBlenderName(name: string): string {
+  // Remove the Blender-style suffix (like .001, .002) but keep numbers that are part of the name
+  return name.replace(/\.\d+$/, '');
+}
 
 /**
  * Creates an instance of a single mesh from a GLTF model

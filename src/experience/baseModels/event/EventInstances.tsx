@@ -1,20 +1,79 @@
+import { normalizeBlenderName } from '@/experience/utils/modelUtils';
 import * as THREE from 'three';
 import { createModelInstancing } from '../shared/createModelInstances';
-import { ModelInstances, ModelInstanceComponent } from '../shared/types';
+import { ModelInstanceComponent, ModelInstances } from '../shared/types';
 
-// Define the types for event instances
-interface EventInstances extends ModelInstances {
-  PartyTent: ModelInstanceComponent;
-  IceCreamStand: ModelInstanceComponent;
-  LightString: ModelInstanceComponent;
-  BoardWirePapers: ModelInstanceComponent;
-  GardenBench: ModelInstanceComponent;
-  SouvenirStall: ModelInstanceComponent;
-  CottonCandy: ModelInstanceComponent;
-}
+// Define the event model types using a string union
+type EventType =
+  | 'PartyTent'
+  | 'IceCreamStand'
+  | 'LightString'
+  | 'BoardWirePapers'
+  | 'GardenBench'
+  | 'SouvenirStall'
+  | 'CottonCandy';
+
+// Define the types for event instances using a mapped type
+type EventInstances = ModelInstances & {
+  [K in EventType]: ModelInstanceComponent;
+};
 
 // Define the model path
 const MODEL_PATH = '/models/event-parts.glb';
+
+// Create a single source of truth for model names and their node mappings
+const EVENT_MODELS: Record<EventType, string[]> = {
+  PartyTent: ['tent-party_'],
+  IceCreamStand: ['stand-ice-cream_'],
+  LightString: ['lights-string_'],
+  BoardWirePapers: ['board-wire-papers_'],
+  GardenBench: ['bench-garden'],
+  SouvenirStall: ['souvenir-stall_'],
+  CottonCandy: ['stand-cotton-big', 'cotton-candy'],
+};
+
+// Define model transforms
+const MODEL_TRANSFORMS: Record<
+  EventType,
+  {
+    position?: [number, number, number];
+    rotation?: [number, number, number];
+    scale?: number | [number, number, number];
+  }
+> = {
+  PartyTent: {
+    rotation: [Math.PI, 0, Math.PI],
+    scale: 1.282,
+  },
+  IceCreamStand: {
+    position: [0, 0, 4.092],
+    scale: 1.31,
+  },
+  LightString: {
+    position: [0, 2.635, -4.003],
+    rotation: [0, Math.PI / 2, 0],
+    scale: 2.816,
+  },
+  BoardWirePapers: {
+    position: [0, 1.121, -13.024],
+    rotation: [0, 1.571, 0],
+    scale: 2.989,
+  },
+  GardenBench: {
+    position: [0, 0, 6.968],
+    rotation: [0, Math.PI / 2, 0],
+    scale: 1.371,
+  },
+  SouvenirStall: {
+    position: [0, 0, -17.66],
+    rotation: [0, Math.PI / 2, 0],
+    scale: 1.0,
+  },
+  CottonCandy: {
+    position: [0, 0, 0],
+    scale: 1.217,
+  },
+};
 
 // Create a more detailed mapping function for event models that includes all parts
 const mapEventNodes = (nodes: Record<string, THREE.Object3D>) => {
@@ -64,70 +123,26 @@ const mapEventNodes = (nodes: Record<string, THREE.Object3D>) => {
     return group;
   };
 
-  return {
-    // Create complete models with all their parts based on the actual GLB nodes
-    PartyTent: createGroupWithMeshes('PartyTent', ['tent-party_'], {
-      rotation: [Math.PI, 0, Math.PI],
-      scale: 1.282,
-    }),
+  // Create result object using our EVENT_MODELS mapping and MODEL_TRANSFORMS
+  const result: Record<string, THREE.Object3D> = {};
 
-    IceCreamStand: createGroupWithMeshes('IceCreamStand', ['stand-ice-cream_'], {
-      position: [0, 0, 4.092],
-      scale: 1.31,
-    }),
+  Object.entries(EVENT_MODELS).forEach(([modelType, prefixes]) => {
+    const type = modelType as EventType;
+    result[type] = createGroupWithMeshes(type, prefixes, MODEL_TRANSFORMS[type]);
+  });
 
-    LightString: createGroupWithMeshes('LightString', ['lights-string_'], {
-      position: [0, 2.635, -4.003],
-      rotation: [0, Math.PI / 2, 0],
-      scale: 2.816,
-    }),
-
-    BoardWirePapers: createGroupWithMeshes('BoardWirePapers', ['board-wire-papers_'], {
-      position: [0, 1.121, -13.024],
-      rotation: [0, 1.571, 0],
-      scale: 2.989,
-    }),
-
-    GardenBench: createGroupWithMeshes('GardenBench', ['bench-garden'], {
-      position: [0, 0, 6.968],
-      rotation: [0, Math.PI / 2, 0],
-      scale: 1.371,
-    }),
-
-    SouvenirStall: createGroupWithMeshes('SouvenirStall', ['souvenir-stall_'], {
-      position: [0, 0, -17.66],
-      rotation: [0, Math.PI / 2, 0],
-      scale: 1.0,
-    }),
-
-    CottonCandy: createGroupWithMeshes('CottonCandy', ['stand-cotton-big', 'cotton-candy'], {
-      position: [0, 0, 0],
-      scale: 1.217,
-    }),
-  };
+  return result as Record<EventType, THREE.Object3D>;
 };
 
 // Create a mapping function for Blender object names to instance types
-const mapBlenderNamesToTypes = (name: string): string | null => {
-  // Normalize the name (remove numbers and get the base name)
-  const baseName = name.replace(/\.\d+$/, ''); // Remove .001, .002 suffixes
+const mapBlenderNamesToTypes = (name: string): EventType | null => {
+  // Normalize the name using the utility function
+  const baseName = normalizeBlenderName(name);
 
-  // Map specific Blender object names to component types
-  const nameMap: Record<string, string> = {
-    'tent-party': 'PartyTent',
-    'stand-ice-cream': 'IceCreamStand',
-    'lights-string': 'LightString',
-    'board-wire-papers': 'BoardWirePapers',
-    'bench-garden': 'GardenBench',
-    'souvenir-stall': 'SouvenirStall',
-    'stand-cotton-big': 'CottonCandy',
-    'cotton-candy': 'CottonCandy',
-  };
-
-  // Find the first match in our name map
-  for (const [prefix, type] of Object.entries(nameMap)) {
-    if (baseName.startsWith(prefix)) {
-      return type;
+  // Check each model type's prefixes
+  for (const [type, prefixes] of Object.entries(EVENT_MODELS)) {
+    if (prefixes.some(prefix => baseName.startsWith(prefix))) {
+      return type as EventType;
     }
   }
 
