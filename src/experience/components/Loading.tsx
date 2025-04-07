@@ -33,15 +33,6 @@ export function Loading() {
       ease: 'power2.out',
     })
       .to(
-        logoRef.current,
-        {
-          opacity: 1,
-          duration: 0.4,
-          ease: 'power2.out',
-        },
-        '-=0.6'
-      )
-      .to(
         textRef.current,
         {
           opacity: 1,
@@ -83,6 +74,10 @@ export function Loading() {
     if (active && !isVisible) {
       setIsLoading(true);
       setIsVisible(true);
+      // Set initial opacity for logo immediately
+      if (logoRef.current) {
+        gsap.set(logoRef.current, { opacity: 1 });
+      }
       animateIn();
     }
 
@@ -110,13 +105,15 @@ export function Loading() {
       style={{ opacity: isVisible ? 1 : 0 }}
     >
       <div className="container flex flex-col items-center gap-12">
-        <div ref={logoRef} style={{ opacity: isVisible ? 1 : 0 }}>
+        <div ref={logoRef} style={{ opacity: 1 }}>
           <Image
             src="/images/logo.webp"
             alt="logo"
             width={100}
             height={100}
             style={{ width: '100px', height: '100px' }}
+            priority
+            fetchPriority="high"
           />
         </div>
 

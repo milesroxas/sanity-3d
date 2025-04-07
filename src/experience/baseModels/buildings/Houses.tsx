@@ -58,3 +58,5 @@ export function Houses(props: ThreeElements['group']) {
     </group>
   );
 }
+
+useGLTF.preload('/models/houses.glb');

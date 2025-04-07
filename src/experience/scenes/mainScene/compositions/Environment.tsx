@@ -14,13 +14,7 @@ export function Environment() {
         <MountainInstances_Blender instancesData={mountainData as BlenderExportData[]} />
       </MountainInstances>
 
-      <NatureInstances
-        useSharedMaterial={true}
-        materialOptions={{
-          metalness: 0.0,
-          roughness: 0.9,
-        }}
-      >
+      <NatureInstances useSharedMaterial={true}>
         <NatureInstances_Blender instancesData={natureData as BlenderExportData[]} />
       </NatureInstances>
     </>

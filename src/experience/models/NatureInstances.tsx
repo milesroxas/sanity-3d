@@ -24,7 +24,8 @@ type NatureType =
   | 'cactus-basic'
   | 'bush-medium-high'
   | 'bush-medium'
-  | 'bush-big';
+  | 'bush-big'
+  | 'palm';
 
 type NatureInstances = ModelInstances & {
   [K in NatureType]: ModelInstanceComponent;
@@ -55,6 +56,7 @@ const NATURE_MODELS: Record<NatureType, string> = {
   'bush-medium-high': 'bush-medium-high',
   'bush-medium': 'bush-medium',
   'bush-big': 'bush-big',
+  palm: 'palm',
 };
 
 // Define the mapping function for nature prop nodes

@@ -18,63 +18,63 @@ export function Vehicles(props: ThreeElements['group']) {
         castShadow
         receiveShadow
         geometry={nodes['city-bus'].geometry}
-        material={materials['LowpolyMaterial']}
+        material={LowpolyMaterial}
         position={[28.233, 0.003, 0]}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes['camping-van'].geometry}
-        material={materials['LowpolyMaterial']}
+        material={LowpolyMaterial}
         position={[13.17, 0.041, 0]}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.truck.geometry}
-        material={materials['LowpolyMaterial']}
+        material={LowpolyMaterial}
         position={[7.093, 0.015, 0]}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.taxi.geometry}
-        material={materials['LowpolyMaterial']}
+        material={LowpolyMaterial}
         position={[-3.997, 0.034, 0]}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes['hippie-van'].geometry}
-        material={materials['LowpolyMaterial']}
+        material={LowpolyMaterial}
         position={[-11.194, -0.008, 0]}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes['cement-truck'].geometry}
-        material={materials['LowpolyMaterial']}
+        material={LowpolyMaterial}
         position={[20.458, 0.013, 0]}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.jeep.geometry}
-        material={materials['LowpolyMaterial']}
+        material={LowpolyMaterial}
         position={[-7.309, 0.004, 0]}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes['car-sedan'].geometry}
-        material={materials['LowpolyMaterial']}
+        material={LowpolyMaterial}
         position={[-15.585, 0.034, 0]}
       />
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.camper.geometry}
-        material={materials['LowpolyMaterial']}
+        material={LowpolyMaterial}
         position={[0.061, 0.034, 0]}
       />
       <group position={[-20.532, 0, 0]} scale={1.317}>
@@ -82,7 +82,7 @@ export function Vehicles(props: ThreeElements['group']) {
           castShadow
           receiveShadow
           geometry={nodes['patrol-car_1'].geometry}
-          material={materials['LowpolyMaterial']}
+          material={LowpolyMaterial}
         />
         <mesh
           castShadow
@@ -94,9 +94,24 @@ export function Vehicles(props: ThreeElements['group']) {
       <mesh
         castShadow
         receiveShadow
-        geometry={nodes['plane-passenger-base'].geometry}
-        material={materials['LowpolyMaterial']}
+        geometry={nodes['plane-passenger'].geometry}
+        material={LowpolyMaterial}
         position={[62.69, 0, 0]}
+      />
+      <mesh
+        castShadow
+        receiveShadow
+        geometry={nodes['car-caravan-big-standing'].geometry}
+        material={LowpolyMaterial}
+        position={[-27.108, 0, 6.387]}
+      />
+      <mesh
+        name="car-camper-bus-standing"
+        castShadow
+        receiveShadow
+        geometry={nodes['car-camper-bus-standing'].geometry}
+        material={LowpolyMaterial}
+        position={[-31.448, 0, 0]}
       />
     </group>
   );

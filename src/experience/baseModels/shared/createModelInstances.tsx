@@ -1,5 +1,8 @@
 import { MeshGLTFModel } from '@/experience/types/modelTypes';
-import { createSharedAtlasMaterial } from '@/experience/utils/materialUtils';
+import {
+  configureMaterialForInstancing,
+  createSharedAtlasMaterial,
+} from '@/experience/utils/materialUtils';
 import { Instance, Instances, useGLTF } from '@react-three/drei';
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
@@ -87,14 +90,22 @@ export function createModelInstancing<T extends ModelInstances>(
 
         if (object instanceof THREE.Mesh) {
           // Handle mesh directly
-          geometry = object.geometry;
-          material = useSharedMaterial && sharedMaterial ? sharedMaterial : object.material;
+          geometry = object.geometry as THREE.BufferGeometry;
+          if (useSharedMaterial && sharedMaterial) {
+            material = configureMaterialForInstancing(sharedMaterial) as THREE.Material;
+          } else {
+            material = configureMaterialForInstancing(object.material) as THREE.Material;
+          }
         } else if (object instanceof THREE.Group) {
           // For groups, find the first mesh and use its geometry and material
           const firstMesh = object.children.find(child => child instanceof THREE.Mesh);
           if (firstMesh instanceof THREE.Mesh) {
-            geometry = firstMesh.geometry;
-            material = useSharedMaterial && sharedMaterial ? sharedMaterial : firstMesh.material;
+            geometry = firstMesh.geometry as THREE.BufferGeometry;
+            if (useSharedMaterial && sharedMaterial) {
+              material = configureMaterialForInstancing(sharedMaterial) as THREE.Material;
+            } else {
+              material = configureMaterialForInstancing(firstMesh.material) as THREE.Material;
+            }
           } else {
             console.warn(`No mesh found in group for key: ${key}`);
             return; // Skip this entry

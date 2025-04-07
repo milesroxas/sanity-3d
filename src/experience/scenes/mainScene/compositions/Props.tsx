@@ -1,3 +1,4 @@
+import { Billboard } from '@/experience/baseModels/objects/Billboard';
 import { BlenderExportData } from '@/experience/baseModels/shared/types';
 import fencesData from '@/experience/data/fences.json';
 import festivalData from '@/experience/data/festival.json';
@@ -26,6 +27,8 @@ export function Props() {
       <FestivalInstances useSharedMaterial={true}>
         <FestivalInstances_Blender instancesData={festivalData as BlenderExportData[]} />
       </FestivalInstances>
+
+      <Billboard position={[21.090677, 3.260143, -0.0]} />
     </>
   );
 }

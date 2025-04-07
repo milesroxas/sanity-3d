@@ -33,7 +33,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
       },
       background: { value: true },
       blur: { value: 0.9, min: 0, max: 1, step: 0.1 },
-      intensity: { value: 1, min: 0, max: 5, step: 0.1 },
+      intensity: { value: 1.5, min: 0, max: 5, step: 0.1 },
     },
     { collapsed: true }
   );

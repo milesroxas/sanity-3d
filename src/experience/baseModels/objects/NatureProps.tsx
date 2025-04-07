@@ -178,6 +178,15 @@ export function NatureProps(props: ThreeElements['group']) {
         material={LowpolyMaterial}
         position={[20.135, 0, 0]}
       />
+      <mesh
+        name="palm"
+        castShadow
+        receiveShadow
+        geometry={nodes.palm.geometry}
+        material={LowpolyMaterial}
+        position={[66.605, 0, 0]}
+        scale={1.2}
+      />
     </group>
   );
 }

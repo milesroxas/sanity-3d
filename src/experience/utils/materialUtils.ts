@@ -60,3 +60,38 @@ export function createSharedAtlasMaterial(
   }
   return createMaterialWithTextureMap(materials[SHARED_TEXTURE_KEY], options);
 }
+
+/**
+ * Configures a material for instancing with proper normal handling
+ * @param material The material to configure
+ * @param options Additional material options
+ */
+export function configureMaterialForInstancing(
+  material: THREE.Material,
+  options: Partial<THREE.MeshStandardMaterialParameters> = {}
+): THREE.Material {
+  if (
+    material instanceof THREE.MeshStandardMaterial ||
+    material instanceof THREE.MeshPhysicalMaterial
+  ) {
+    // Ensure proper normal handling
+    material.side = THREE.DoubleSide; // Render both sides to handle flipped normals
+    material.transparent = false; // Disable transparency by default
+    material.opacity = 1.0;
+
+    // Preserve existing normal scale if present
+    if (material.normalScale) {
+      material.normalScale = new THREE.Vector2(
+        Math.min(material.normalScale.x, 1.0),
+        Math.min(material.normalScale.y, 1.0)
+      );
+    }
+
+    // Apply any additional options
+    Object.assign(material, options);
+
+    material.needsUpdate = true;
+  }
+
+  return material;
+}
