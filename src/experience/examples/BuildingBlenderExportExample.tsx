@@ -1,13 +1,14 @@
-import * as THREE from 'three';
-import React, { useState } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Instance, OrbitControls, PerspectiveCamera, Environment, Stats } from '@react-three/drei';
+import { BlenderExportData } from '@/experience/baseModels/shared/types';
 import {
   SmallBldgsInstances,
   SmallBldgsInstances_Blender,
   useSmallBldgsInstances,
 } from '@/experience/models/SmallBldgsInstances';
-import { BlenderExportData } from '@/experience/baseModels/shared/types';
+import { useVehiclesInstances, VehiclesInstances } from '@/experience/models/VehiclesInstances';
+import { Environment, Instance, OrbitControls, PerspectiveCamera, Stats } from '@react-three/drei';
+import { Canvas } from '@react-three/fiber';
+import { useMemo, useState } from 'react';
+import { Vector3Tuple } from 'three';
 
 // Example JSON data - this is typically loaded from an external file
 // but included here for demonstration purposes
@@ -76,11 +77,48 @@ function ProgrammaticGrid() {
 }
 
 /**
+ * Component that demonstrates animated instances
+ */
+function AnimatedVehicles() {
+  const { Car } = useVehiclesInstances();
+
+  // Define a circular path
+  const pathPoints = useMemo(() => {
+    const points: [number, number, number][] = [];
+    const radius = 20;
+    const segments = 32;
+
+    for (let i = 0; i <= segments; i++) {
+      const angle = (i / segments) * Math.PI * 2;
+      points.push([Math.cos(angle) * radius, 0, Math.sin(angle) * radius]);
+    }
+
+    return points;
+  }, []);
+
+  return (
+    <Car
+      animation={{
+        path: pathPoints,
+        speed: 8,
+        loop: true,
+        onUpdate: (position: Vector3Tuple, rotation: Vector3Tuple) => {
+          // Optional: Log position updates
+          console.log('Car position:', position);
+        },
+      }}
+    />
+  );
+}
+
+/**
  * Main example that demonstrates all three approaches
  */
 export default function BuildingBlenderExportExample() {
   const [showDemoSelector, setShowDemoSelector] = useState(true);
-  const [activeDemo, setActiveDemo] = useState<'split' | 'unified' | 'programmatic'>('split');
+  const [activeDemo, setActiveDemo] = useState<'split' | 'unified' | 'programmatic' | 'animated'>(
+    'split'
+  );
 
   const styles = {
     container: {
@@ -146,6 +184,15 @@ export default function BuildingBlenderExportExample() {
             >
               Programmatic
             </button>
+            <button
+              style={{
+                ...styles.button,
+                ...(activeDemo === 'animated' ? styles.activeButton : {}),
+              }}
+              onClick={() => setActiveDemo('animated')}
+            >
+              Animated
+            </button>
           </div>
           <button style={styles.button} onClick={() => setShowDemoSelector(false)}>
             Hide Controls
@@ -205,6 +252,13 @@ export default function BuildingBlenderExportExample() {
           <SmallBldgsInstances useSharedMaterial={true}>
             <ProgrammaticGrid />
           </SmallBldgsInstances>
+        )}
+
+        {/* Demo 4: Animated instances */}
+        {activeDemo === 'animated' && (
+          <VehiclesInstances useSharedMaterial={false}>
+            <AnimatedVehicles />
+          </VehiclesInstances>
         )}
 
         {/* Environment */}

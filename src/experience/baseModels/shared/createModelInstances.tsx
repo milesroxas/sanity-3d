@@ -1,9 +1,43 @@
-import * as THREE from 'three';
-import React, { createContext, useMemo, useContext, useState, useRef } from 'react';
-import { useGLTF, Instances, Instance } from '@react-three/drei';
 import { MeshGLTFModel } from '@/experience/types/modelTypes';
-import { ModelInstances, ModelInstanceData, BlenderExportData } from './types';
 import { createSharedAtlasMaterial } from '@/experience/utils/materialUtils';
+import { Instance, Instances, useGLTF } from '@react-three/drei';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import * as THREE from 'three';
+import {
+  AnimatedInstanceProps,
+  BlenderExportData,
+  ModelInstanceData,
+  ModelInstanceProps,
+  ModelInstances,
+} from './types';
+
+// Utility to create and cache path data
+const pathCache = new Map<
+  string,
+  { points: [number, number, number][]; curve: THREE.CatmullRomCurve3 }
+>();
+
+function createPathData(points: [number, number, number][], pathOffset = 0) {
+  const cacheKey = JSON.stringify(points) + pathOffset;
+
+  if (pathCache.has(cacheKey)) {
+    return pathCache.get(cacheKey)!;
+  }
+
+  // Apply path offset if specified
+  let offsetPoints = points;
+  if (pathOffset > 0) {
+    const offsetIndex = Math.floor(pathOffset * points.length);
+    offsetPoints = [...points.slice(offsetIndex), ...points.slice(0, offsetIndex)];
+  }
+
+  const curvePoints = offsetPoints.map(p => new THREE.Vector3(...p));
+  const curve = new THREE.CatmullRomCurve3(curvePoints, false, 'centripetal', 0.1);
+
+  const result = { points: offsetPoints, curve };
+  pathCache.set(cacheKey, result);
+  return result;
+}
 
 /**
  * Creates a performant instancing system for any model group
@@ -71,7 +105,24 @@ export function createModelInstancing<T extends ModelInstances>(
         }
 
         // Create a component factory for this specific mesh
-        components[key] = ({ count = 0, children, ...props }: any) => {
+        components[key] = ({
+          count = 0,
+          children,
+          animation,
+          ...props
+        }: ModelInstanceProps & { animation?: AnimatedInstanceProps['animation'] }) => {
+          // If we have animation, create an animated instance
+          if (animation) {
+            return (
+              <AnimatedInstance
+                geometry={geometry}
+                material={material}
+                animation={animation}
+                {...props}
+              />
+            );
+          }
+
           // If we have children (predefined instances), use the Instances component
           if ((children && React.Children.count(children) > 0) || count === 0) {
             return (
@@ -119,6 +170,76 @@ export function createModelInstancing<T extends ModelInstances>(
       throw new Error('useInstances must be used within a ModelInstances component');
     }
     return instances;
+  }
+
+  // Create an animated instance component
+  function AnimatedInstance({
+    geometry,
+    material,
+    animation,
+    onUpdate,
+    ...props
+  }: {
+    geometry: THREE.BufferGeometry;
+    material: THREE.Material;
+    animation: NonNullable<AnimatedInstanceProps['animation']>;
+    onUpdate?: (position: [number, number, number], rotation: [number, number, number]) => void;
+  } & Omit<AnimatedInstanceProps, 'animation' | 'onUpdate'>) {
+    const ref = useRef<THREE.Group>(null);
+    const distanceRef = useRef(0);
+    const speed = animation.speed || 1;
+    const loop = animation.loop !== false;
+
+    // Get or create path data
+    const { curve, points } = useMemo(() => {
+      if (!animation.path) return { curve: null, points: [] };
+      return createPathData(animation.path, animation.pathOffset);
+    }, [animation.path, animation.pathOffset]);
+
+    // Create reusable vector objects
+    const positionVec = useMemo(() => new THREE.Vector3(), []);
+    const tangentVec = useMemo(() => new THREE.Vector3(), []);
+    const referenceVec = useMemo(() => new THREE.Vector3(0, 0, 1), []);
+
+    // Animation frame
+    useEffect(() => {
+      if (!ref.current || !curve) return;
+
+      const animate = () => {
+        if (!ref.current || !curve) return;
+
+        // Update distance
+        distanceRef.current = (distanceRef.current + speed * 0.016) % curve.getLength();
+
+        // Get position at current distance
+        const progress = distanceRef.current / curve.getLength();
+
+        // Update position and rotation
+        curve.getPointAt(progress, positionVec);
+        curve.getTangentAt(progress, tangentVec);
+
+        // Calculate rotation
+        const angle = Math.atan2(tangentVec.x, tangentVec.z);
+        ref.current.position.copy(positionVec);
+        ref.current.rotation.y = angle;
+
+        // Call update callback if provided
+        if (onUpdate) {
+          onUpdate([positionVec.x, positionVec.y, positionVec.z], [0, angle, 0]);
+        }
+
+        requestAnimationFrame(animate);
+      };
+
+      const animationId = requestAnimationFrame(animate);
+      return () => cancelAnimationFrame(animationId);
+    }, [curve, speed, loop, onUpdate]);
+
+    return (
+      <group ref={ref} {...props}>
+        <mesh geometry={geometry} material={material} />
+      </group>
+    );
   }
 
   // Create a component to render instances from JSON data

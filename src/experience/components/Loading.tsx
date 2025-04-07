@@ -2,6 +2,7 @@
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useProgress } from '@react-three/drei';
 import gsap from 'gsap';
+import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
@@ -110,7 +111,7 @@ export function Loading() {
     >
       <div className="container flex flex-col items-center gap-12">
         <div ref={logoRef} style={{ opacity: isVisible ? 1 : 0 }}>
-          <img
+          <Image
             src="/images/logo.webp"
             alt="logo"
             width={100}

@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
 /**
  * This configuration is used to for the Sanity Studio that’s mounted on the `/app/studio/[[...tool]]/page.tsx` route
  */
 
-import { visionTool } from "@sanity/vision";
-import { defineConfig } from "sanity";
-import { structureTool } from "sanity/structure";
-import { presentationTool } from "sanity/presentation";
-import { muxInput } from "sanity-plugin-mux-input";
+import { visionTool } from '@sanity/vision';
+import { defineConfig } from 'sanity';
+import { muxInput } from 'sanity-plugin-mux-input';
+import { presentationTool } from 'sanity/presentation';
+import { structureTool } from 'sanity/structure';
 
 // Go to https://www.sanity.io/docs/api-versioning to learn how API versioning works
-import { apiVersion, dataset, projectId } from "./sanity/env";
-import { schema } from "./sanity/schema";
-import { resolve } from "@/sanity/presentation/resolve";
-import { structure } from "./sanity/structure";
+import { resolve } from '@/sanity/presentation/resolve';
+import { apiVersion, dataset, projectId } from './sanity/env';
+import { schema } from './sanity/schema';
+import { structure } from './sanity/structure';
 
 export default defineConfig({
-  basePath: "/studio",
+  basePath: '/studio',
   projectId,
   dataset,
   // Add and edit the content schema in the './sanity/schema' folder
@@ -28,7 +28,7 @@ export default defineConfig({
     presentationTool({
       previewUrl: {
         draftMode: {
-          enable: "/api/draft-mode/enable",
+          enable: '/api/draft-mode/enable',
         },
       },
       resolve,
