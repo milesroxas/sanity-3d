@@ -12,6 +12,7 @@ interface CameraStore {
   previousPosition: Vector3 | null;
   previousTarget: Vector3 | null;
   selectedPoi: any | null;
+  firstTimeLoading: boolean;
 
   // State Properties
   controlType: ControlType;
@@ -36,6 +37,7 @@ interface CameraStore {
   setIsAnimating: (state: boolean) => void;
   setIsLoading: (state: boolean) => void;
   setSelectedPoi: (poi: any | null) => void;
+  setFirstTimeLoading: (state: boolean) => void;
 
   // New action
   syncCameraPosition: (position: Vector3, target: Vector3) => void;
@@ -60,16 +62,17 @@ export const INITIAL_POSITIONS = {
 
 export const useCameraStore = create<CameraStore>((set, get) => ({
   // Initial State
-  position: INITIAL_POSITIONS.main.position.clone(),
-  target: INITIAL_POSITIONS.main.target.clone(),
+  position: INITIAL_POSITIONS.mainIntro.position.clone(),
+  target: INITIAL_POSITIONS.mainIntro.target.clone(),
   previousPosition: null,
   previousTarget: null,
-  controlType: 'Map',
-  isAnimating: false,
+  controlType: 'Disabled',
+  isAnimating: true,
   state: 'main',
   isLoading: false,
   selectedPoi: null,
   currentPoiIndex: 0,
+  firstTimeLoading: true,
 
   // Camera Actions
   resetToInitial: () => {
@@ -78,15 +81,21 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       return;
     }
 
-    // Use 'main' as default position
-    const initial = INITIAL_POSITIONS.main;
-
+    // Always start from mainIntro and animate to main
     set({
-      position: initial.position.clone(),
-      target: initial.target.clone(),
-      isAnimating: false,
-      controlType: 'Map',
+      position: INITIAL_POSITIONS.mainIntro.position.clone(),
+      target: INITIAL_POSITIONS.mainIntro.target.clone(),
+      isAnimating: true,
+      controlType: 'Disabled',
     });
+
+    // Start the transition to main position immediately
+    get().startCameraTransition(
+      INITIAL_POSITIONS.mainIntro.position,
+      INITIAL_POSITIONS.main.position,
+      INITIAL_POSITIONS.mainIntro.target,
+      INITIAL_POSITIONS.main.target
+    );
   },
 
   setPreviousCamera: (position, target) =>
@@ -208,7 +217,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         setTimeout(() => {
           if (!get) return; // Check if component is still mounted
           set({ controlType: get().state === 'main' ? 'Map' : 'CameraControls' });
-        }, 50);
+        }, 100);
       } else {
         const t =
           progress < 0.5
@@ -277,4 +286,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       get().setSelectedPoi(previousPoi);
     }
   },
+
+  setFirstTimeLoading: state => set({ firstTimeLoading: state }),
 }));

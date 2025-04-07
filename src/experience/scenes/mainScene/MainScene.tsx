@@ -8,6 +8,7 @@ import { Buildings } from './compositions/Buildings';
 import { Environment } from './compositions/Environment';
 import { Props } from './compositions/Props';
 import { Vehicles } from './compositions/Vehicles';
+
 interface MainSceneProps {
   scene: Sanity.Scene;
 }
@@ -16,7 +17,7 @@ const MainScene = forwardRef<any, MainSceneProps>(({ scene }, ref) => {
   return (
     <>
       <MainSceneCameraSystem />
-      <TempFloor />
+      <TempFloor position={[0, -1, 0]} />
       <Environment />
       <Buildings />
       <Props />

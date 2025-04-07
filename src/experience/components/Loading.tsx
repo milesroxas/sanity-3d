@@ -18,7 +18,8 @@ export function Loading() {
   const textRef = useRef(null);
   const progressBarRef = useRef(null);
 
-  const { setIsLoading } = useCameraStore();
+  const { setIsLoading, setFirstTimeLoading, startCameraTransition, firstTimeLoading } =
+    useCameraStore();
 
   // Using useCallback for stable function references across renders
   const animateIn = useCallback(() => {
@@ -65,9 +66,11 @@ export function Loading() {
       onComplete: () => {
         setIsVisible(false);
         setIsLoading(false);
+        // Reset first time loading state after animation completes
+        setFirstTimeLoading(false);
       },
     });
-  }, []);
+  }, [setIsLoading, setIsVisible, setFirstTimeLoading]);
 
   useEffect(() => {
     // Simple implementation: show when active, hide when not

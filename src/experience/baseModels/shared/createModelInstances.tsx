@@ -198,6 +198,7 @@ export function createModelInstancing<T extends ModelInstances>(
   } & Omit<AnimatedInstanceProps, 'animation' | 'onUpdate'>) {
     const ref = useRef<THREE.Group>(null);
     const distanceRef = useRef(0);
+    const animationFrameRef = useRef<number | null>(null);
     const speed = animation.speed || 1;
     const loop = animation.loop !== false;
 
@@ -212,11 +213,19 @@ export function createModelInstancing<T extends ModelInstances>(
     const tangentVec = useMemo(() => new THREE.Vector3(), []);
     const referenceVec = useMemo(() => new THREE.Vector3(0, 0, 1), []);
 
+    // Memoize the animation callback to prevent unnecessary re-renders
+    const updateCallback = useMemo(() => {
+      if (!onUpdate) return undefined;
+      return (position: THREE.Vector3, angle: number) => {
+        onUpdate([position.x, position.y, position.z], [0, angle, 0]);
+      };
+    }, [onUpdate]);
+
     // Animation frame
     useEffect(() => {
       if (!ref.current || !curve) return;
 
-      const animate = () => {
+      const animate = (time: number) => {
         if (!ref.current || !curve) return;
 
         // Update distance
@@ -235,16 +244,24 @@ export function createModelInstancing<T extends ModelInstances>(
         ref.current.rotation.y = angle;
 
         // Call update callback if provided
-        if (onUpdate) {
-          onUpdate([positionVec.x, positionVec.y, positionVec.z], [0, angle, 0]);
+        if (updateCallback) {
+          updateCallback(positionVec, angle);
         }
 
-        requestAnimationFrame(animate);
+        animationFrameRef.current = requestAnimationFrame(animate);
       };
 
-      const animationId = requestAnimationFrame(animate);
-      return () => cancelAnimationFrame(animationId);
-    }, [curve, speed, loop, onUpdate]);
+      // Start the animation
+      animationFrameRef.current = requestAnimationFrame(animate);
+
+      // Cleanup
+      return () => {
+        if (animationFrameRef.current !== null) {
+          cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = null;
+        }
+      };
+    }, [curve, speed, loop, updateCallback]);
 
     return (
       <group ref={ref} {...props}>
