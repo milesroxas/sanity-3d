@@ -51,12 +51,12 @@ interface CameraStore {
 
 export const INITIAL_POSITIONS = {
   mainIntro: {
-    position: new Vector3(-10, 300, 160),
-    target: new Vector3(-10, 10, 50),
+    position: new Vector3(-16.4, 300, 160),
+    target: new Vector3(-20.15, 10, 50),
   },
   main: {
-    position: new Vector3(-10, 140, 200),
-    target: new Vector3(-10, 18, 20),
+    position: new Vector3(-16.4, 85.39, 239.66),
+    target: new Vector3(-20.15, 18, -1.06),
   },
 } as const;
 
@@ -193,7 +193,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
     });
 
     const startTime = Date.now();
-    const duration = 3000;
+    const duration = 6000;
 
     const animate = () => {
       // Check if component is still mounted

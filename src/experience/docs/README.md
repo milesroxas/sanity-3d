@@ -10,16 +10,17 @@
 ```
 /experience
   /baseModels          # Core model definitions
-  /models             # Model-specific instancing
-  /scenes            # Scene compositions
-  /animations        # Animation systems
-  /utils             # Shared utilities
-  /types             # TypeScript definitions
-  /docs              # Documentation
+  /models              # Model-specific instancing
+  /scenes              # Scene compositions
+  /animations          # Animation systems
+  /utils               # Shared utilities
+  /types               # TypeScript definitions
+  /docs                # Documentation
 ```
 
 ## Quick Links
 
-- [Instancing Examples](../baseModels/shared/examples)
+- [Sample Instance Implementation](../models/SampleInstances.tsx)
+- [Instancing Examples](../examples)
 - [Scene Compositions](../scenes/mainScene/compositions)
 - [Animation System](../animations)

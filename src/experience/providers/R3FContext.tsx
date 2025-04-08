@@ -25,7 +25,15 @@ export function R3FProvider({ children }: { children: ReactNode }) {
         {/* Canvas positioned behind the UI */}
         <div className="fixed inset-0 overflow-hidden transition-opacity duration-1000 ease-in-out">
           <Loading />
-          <Canvas shadows="soft">
+          <Canvas
+            shadows={false}
+            camera={{ far: 1000 }}
+            performance={{ min: 0.5 }}
+            gl={{
+              antialias: true,
+              powerPreference: 'high-performance',
+            }}
+          >
             <Suspense>{r3fContent}</Suspense>
           </Canvas>
         </div>

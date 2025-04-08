@@ -25,6 +25,20 @@ type VehiclesInstances = ModelInstances & {
 const MODEL_PATH = '/models/vehicles.glb';
 
 const mapVehiclesNodes = (nodes: Record<string, THREE.Object3D>) => {
+  // Create a group for the patrol car
+  const patrolCar = new THREE.Group();
+
+  // Check if the individual parts exist
+  if (nodes['patrol-car_1'] instanceof THREE.Mesh && nodes['patrol-car_2'] instanceof THREE.Mesh) {
+    // Add clones to preserve the original meshes
+    patrolCar.add(nodes['patrol-car_1'].clone());
+    patrolCar.add(nodes['patrol-car_2'].clone());
+
+    // Set the same transform as in the original model
+    patrolCar.position.set(-20.532, 0, 0);
+    patrolCar.scale.set(1.317, 1.317, 1.317);
+  }
+
   return {
     'city-bus': nodes['city-bus'],
     'camping-van': nodes['camping-van'],
@@ -35,7 +49,7 @@ const mapVehiclesNodes = (nodes: Record<string, THREE.Object3D>) => {
     jeep: nodes.jeep,
     'car-sedan': nodes['car-sedan'],
     camper: nodes.camper,
-    'patrol-car': nodes['patrol-car'],
+    'patrol-car': patrolCar,
     'plane-passenger': nodes['plane-passenger'],
     'car-caravan-big-standing': nodes['car-caravan-big-standing'],
     'car-camper-bus-standing': nodes['car-camper-bus-standing'],

@@ -42,6 +42,13 @@ function createPathData(points: [number, number, number][], pathOffset = 0) {
   return result;
 }
 
+// Type for storing mesh parts with their respective geometries and materials
+interface MeshPart {
+  geometry: THREE.BufferGeometry;
+  material: THREE.Material;
+  index: number;
+}
+
 /**
  * Creates a performant instancing system for any model group
  *
@@ -85,85 +92,69 @@ export function createModelInstancing<T extends ModelInstances>(
 
       // Process each object from the mapping
       Object.entries(instanceObjects).forEach(([key, object]) => {
-        let geometry;
-        let material;
-
+        // Handle both single meshes and multi-part models (groups)
         if (object instanceof THREE.Mesh) {
-          // Handle mesh directly
-          geometry = object.geometry as THREE.BufferGeometry;
-          if (useSharedMaterial && sharedMaterial) {
-            material = configureMaterialForInstancing(sharedMaterial) as THREE.Material;
-          } else {
-            material = configureMaterialForInstancing(object.material) as THREE.Material;
-          }
+          // Single mesh handling (same as before)
+          const geometry = object.geometry as THREE.BufferGeometry;
+          const material =
+            useSharedMaterial && sharedMaterial
+              ? (configureMaterialForInstancing(sharedMaterial) as THREE.Material)
+              : (configureMaterialForInstancing(object.material) as THREE.Material);
+
+          // Create standard component for single-mesh objects
+          components[key] = createInstanceComponent([{ geometry, material, index: 0 }]);
         } else if (object instanceof THREE.Group) {
-          // For groups, find the first mesh and use its geometry and material
-          const firstMesh = object.children.find(child => child instanceof THREE.Mesh);
-          if (firstMesh instanceof THREE.Mesh) {
-            geometry = firstMesh.geometry as THREE.BufferGeometry;
-            if (useSharedMaterial && sharedMaterial) {
-              material = configureMaterialForInstancing(sharedMaterial) as THREE.Material;
-            } else {
-              material = configureMaterialForInstancing(firstMesh.material) as THREE.Material;
+          // Enhanced multi-part group handling
+          const meshParts: MeshPart[] = [];
+
+          // Find all meshes in the group
+          object.traverse(child => {
+            if (child instanceof THREE.Mesh) {
+              const geometry = child.geometry as THREE.BufferGeometry;
+
+              // Determine which material to use based on useSharedMaterial flag
+              // But preserve special materials if they exist (like LogoWrap)
+              let material: THREE.Material;
+
+              // If the material name contains special keywords like "logo" or "wrap", preserve it
+              const isSpecialMaterial =
+                child.material instanceof THREE.Material &&
+                (child.material.name.toLowerCase().includes('logo') ||
+                  child.material.name.toLowerCase().includes('wrap') ||
+                  child.material.name === 'LogoWrap');
+
+              // Debug material detection
+              console.log(`Mesh in ${key}:`, child.name);
+              console.log(
+                `Material name: ${child.material instanceof THREE.Material ? child.material.name : 'unknown'}`
+              );
+              console.log(`Is special material: ${isSpecialMaterial}`);
+
+              if (useSharedMaterial && sharedMaterial && !isSpecialMaterial) {
+                material = configureMaterialForInstancing(sharedMaterial) as THREE.Material;
+                console.log(`Using shared material for ${child.name}`);
+              } else {
+                material = configureMaterialForInstancing(child.material) as THREE.Material;
+                console.log(`Using original material for ${child.name}: ${material.name}`);
+              }
+
+              meshParts.push({
+                geometry,
+                material,
+                index: meshParts.length,
+              });
             }
+          });
+
+          if (meshParts.length > 0) {
+            // Create enhanced component for multi-mesh objects
+            components[key] = createInstanceComponent(meshParts);
           } else {
-            console.warn(`No mesh found in group for key: ${key}`);
-            return; // Skip this entry
+            console.warn(`No meshes found in group for key: ${key}`);
           }
         } else {
           console.warn(`Object for key ${key} is neither a Mesh nor a Group`);
-          return; // Skip this entry
         }
-
-        // Create a component factory for this specific mesh
-        components[key] = ({
-          count = 0,
-          children,
-          animation,
-          ...props
-        }: ModelInstanceProps & { animation?: AnimatedInstanceProps['animation'] }) => {
-          // If we have animation, create an animated instance
-          if (animation) {
-            return (
-              <AnimatedInstance
-                geometry={geometry}
-                material={material}
-                animation={animation}
-                {...props}
-              />
-            );
-          }
-
-          // If we have children (predefined instances), use the Instances component
-          if ((children && React.Children.count(children) > 0) || count === 0) {
-            return (
-              <Instances
-                limit={Math.max(count, 100)} // Set reasonable default limit
-                range={Math.max(count, 100)} // Set reasonable default range
-                geometry={geometry}
-                material={material}
-                castShadow
-                receiveShadow
-                {...props}
-              >
-                {children}
-              </Instances>
-            );
-          } else {
-            // If we're just setting a count, create empty instances (for when data comes later)
-            return (
-              <Instances
-                limit={count}
-                range={count}
-                geometry={geometry}
-                material={material}
-                castShadow
-                receiveShadow
-                {...props}
-              />
-            );
-          }
-        };
       });
 
       return components as T;
@@ -172,6 +163,79 @@ export function createModelInstancing<T extends ModelInstances>(
     return (
       <ModelContext.Provider value={createInstanceComponents}>{children}</ModelContext.Provider>
     );
+  }
+
+  // Factory function to create instance components based on mesh parts
+  function createInstanceComponent(meshParts: MeshPart[]) {
+    return ({
+      count = 0,
+      children,
+      animation,
+      ...props
+    }: ModelInstanceProps & { animation?: AnimatedInstanceProps['animation'] }) => {
+      // If we have animation, create an animated instance with all mesh parts
+      if (animation) {
+        return <AnimatedMultiInstance meshParts={meshParts} animation={animation} {...props} />;
+      }
+
+      // If we have a single mesh part, use standard instancing
+      if (meshParts.length === 1) {
+        const { geometry, material } = meshParts[0];
+
+        // If we have children or no count, use the Instances component
+        if ((children && React.Children.count(children) > 0) || count === 0) {
+          return (
+            <Instances
+              limit={Math.max(count, 100)} // Set reasonable default limit
+              range={Math.max(count, 100)} // Set reasonable default range
+              geometry={geometry}
+              material={material}
+              castShadow
+              receiveShadow
+              {...props}
+            >
+              {children}
+            </Instances>
+          );
+        } else {
+          // If we're just setting a count, create empty instances (for when data comes later)
+          return (
+            <Instances
+              limit={count}
+              range={count}
+              geometry={geometry}
+              material={material}
+              castShadow
+              receiveShadow
+              {...props}
+            />
+          );
+        }
+      }
+
+      // For multi-mesh objects, handle each part separately
+      return (
+        <group {...props}>
+          {meshParts.map(({ geometry, material, index }) => (
+            <Instances
+              key={`part-${index}`}
+              limit={Math.max(count, 100)}
+              range={Math.max(count, 100)}
+              geometry={geometry}
+              material={material}
+              castShadow
+              receiveShadow
+            >
+              {children
+                ? React.Children.map(children, child =>
+                    React.isValidElement(child) ? React.cloneElement(child as any) : null
+                  )
+                : null}
+            </Instances>
+          ))}
+        </group>
+      );
+    };
   }
 
   // Create the hook to access instances
@@ -183,16 +247,14 @@ export function createModelInstancing<T extends ModelInstances>(
     return instances;
   }
 
-  // Create an animated instance component
-  function AnimatedInstance({
-    geometry,
-    material,
+  // Enhanced animated instance component that supports multiple mesh parts
+  function AnimatedMultiInstance({
+    meshParts,
     animation,
     onUpdate,
     ...props
   }: {
-    geometry: THREE.BufferGeometry;
-    material: THREE.Material;
+    meshParts: MeshPart[];
     animation: NonNullable<AnimatedInstanceProps['animation']>;
     onUpdate?: (position: [number, number, number], rotation: [number, number, number]) => void;
   } & Omit<AnimatedInstanceProps, 'animation' | 'onUpdate'>) {
@@ -265,8 +327,39 @@ export function createModelInstancing<T extends ModelInstances>(
 
     return (
       <group ref={ref} {...props}>
-        <mesh geometry={geometry} material={material} />
+        {meshParts.map(({ geometry, material, index }) => (
+          <mesh
+            key={`part-${index}`}
+            geometry={geometry}
+            material={material}
+            castShadow
+            receiveShadow
+          />
+        ))}
       </group>
+    );
+  }
+
+  // Legacy AnimatedInstance for backward compatibility
+  function AnimatedInstance({
+    geometry,
+    material,
+    animation,
+    onUpdate,
+    ...props
+  }: {
+    geometry: THREE.BufferGeometry;
+    material: THREE.Material;
+    animation: NonNullable<AnimatedInstanceProps['animation']>;
+    onUpdate?: (position: [number, number, number], rotation: [number, number, number]) => void;
+  } & Omit<AnimatedInstanceProps, 'animation' | 'onUpdate'>) {
+    return (
+      <AnimatedMultiInstance
+        meshParts={[{ geometry, material, index: 0 }]}
+        animation={animation}
+        onUpdate={onUpdate}
+        {...props}
+      />
     );
   }
 

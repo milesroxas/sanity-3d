@@ -42,18 +42,12 @@ export function Environment() {
       },
       background: { value: true },
       blur: { value: 0.9, min: 0, max: 1, step: 0.1 },
-      intensity: { value: 1.5, min: 0, max: 5, step: 0.1 },
-      shadowIntensity: { value: 1, min: 0, max: 2, step: 0.1 },
-      shadowPosition: {
-        value: { x: 10, y: 20, z: 15 },
-        step: 1,
-      },
-      lightIntensity: { value: 1, min: 0, max: 2, step: 0.1 },
+      intensity: { value: 1.2, min: 0, max: 5, step: 0.1 },
+      lightIntensity: { value: 0.8, min: 0, max: 2, step: 0.1 },
       lightPosition: {
         value: { x: 10, y: 20, z: 15 },
         step: 1,
       },
-      lightScale: { value: 10, min: 1, max: 20, step: 1 },
     },
     { collapsed: true }
   );
@@ -68,17 +62,11 @@ export function Environment() {
       />
       <directionalLight
         position={[
-          environmentControls.shadowPosition.x,
-          environmentControls.shadowPosition.y,
-          environmentControls.shadowPosition.z,
+          environmentControls.lightPosition.x,
+          environmentControls.lightPosition.y,
+          environmentControls.lightPosition.z,
         ]}
-        intensity={environmentControls.shadowIntensity}
-        castShadow
-        shadow-mapSize={[2048, 2048]}
-        shadow-camera-top={200}
-        shadow-camera-bottom={-200}
-        shadow-camera-left={-200}
-        shadow-camera-right={200}
+        intensity={environmentControls.lightIntensity}
       />
       <MountainInstances useSharedMaterial={true}>
         <MountainInstances_Blender instancesData={mountainData as BlenderExportData[]} />

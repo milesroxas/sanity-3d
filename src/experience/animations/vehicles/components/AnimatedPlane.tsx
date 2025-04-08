@@ -14,7 +14,7 @@ export function AnimatedPlane({ pathOffset = 0.3, scale = 0.4 }: AnimatedPlanePr
     <Plane
       animation={{
         path: PLANE_PATH_POINTS,
-        speed: 20,
+        speed: 15,
         loop: true,
         pathOffset,
       }}
