@@ -11,7 +11,10 @@ type VehicleType =
   | 'hippie-van'
   | 'cement-truck'
   | 'jeep'
-  | 'car-sedan'
+  | 'car-sedan-white'
+  | 'car-sedan-red'
+  | 'car-sedan-blue'
+  | 'car-sedan-gray'
   | 'camper'
   | 'patrol-car'
   | 'plane-passenger'
@@ -47,7 +50,10 @@ const mapVehiclesNodes = (nodes: Record<string, THREE.Object3D>) => {
     'hippie-van': nodes['hippie-van'],
     'cement-truck': nodes['cement-truck'],
     jeep: nodes.jeep,
-    'car-sedan': nodes['car-sedan'],
+    'car-sedan-white': nodes['car-sedan-white'],
+    'car-sedan-red': nodes['car-sedan-red'],
+    'car-sedan-blue': nodes['car-sedan-blue'],
+    'car-sedan-gray': nodes['car-sedan-gray'],
     camper: nodes.camper,
     'patrol-car': patrolCar,
     'plane-passenger': nodes['plane-passenger'],
@@ -67,7 +73,10 @@ const mapBlenderNamesToTypes = (name: string): VehicleType | null => {
     'hippie-van': 'hippie-van',
     'cement-truck': 'cement-truck',
     jeep: 'jeep',
-    'car-sedan': 'car-sedan',
+    'car-sedan-white': 'car-sedan-white',
+    'car-sedan-red': 'car-sedan-red',
+    'car-sedan-blue': 'car-sedan-blue',
+    'car-sedan-gray': 'car-sedan-gray',
     camper: 'camper',
     'patrol-car': 'patrol-car',
     'plane-passenger': 'plane-passenger',

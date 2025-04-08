@@ -13,7 +13,7 @@ export function AnimatedPatrolOne({ pathOffset = 0 }: AnimatedPatrolOneProps) {
     <PatrolCar
       animation={{
         path: SHARED_PATH_POINTS,
-        speed: 12,
+        speed: 10,
         loop: true,
         pathOffset,
       }}

@@ -8,6 +8,10 @@ type FestivalType =
   | 'tent-war'
   | 'tent-party-big'
   | 'tent-party'
+  | 'tent-party-blue'
+  | 'tent-party-cyan'
+  | 'tent-party-orange'
+  | 'tent-party-purple'
   | 'sunscreen'
   | 'stand-ice-cream'
   | 'stage-truss'
@@ -21,7 +25,10 @@ type FestivalType =
   | 'scifi-projection-d'
   | 'scifi-pot-low-palm'
   | 'lights-string'
-  | 'information-stall'
+  | 'information-stall-blue'
+  | 'information-stall-purple'
+  | 'information-stall-red'
+  | 'information-stall-green'
   | 'hot-dog-stand'
   | 'fireplace'
   | 'coffee-stall'
@@ -42,6 +49,10 @@ const FESTIVAL_MODELS: Record<FestivalType, FestivalType> = {
   'tent-war': 'tent-war',
   'tent-party-big': 'tent-party-big',
   'tent-party': 'tent-party',
+  'tent-party-blue': 'tent-party-blue',
+  'tent-party-cyan': 'tent-party-cyan',
+  'tent-party-orange': 'tent-party-orange',
+  'tent-party-purple': 'tent-party-purple',
   sunscreen: 'sunscreen',
   'stand-ice-cream': 'stand-ice-cream',
   'stage-truss': 'stage-truss',
@@ -55,7 +66,10 @@ const FESTIVAL_MODELS: Record<FestivalType, FestivalType> = {
   'scifi-projection-d': 'scifi-projection-d',
   'scifi-pot-low-palm': 'scifi-pot-low-palm',
   'lights-string': 'lights-string',
-  'information-stall': 'information-stall',
+  'information-stall-blue': 'information-stall-blue',
+  'information-stall-purple': 'information-stall-purple',
+  'information-stall-red': 'information-stall-red',
+  'information-stall-green': 'information-stall-green',
   'hot-dog-stand': 'hot-dog-stand',
   fireplace: 'fireplace',
   'coffee-stall': 'coffee-stall',

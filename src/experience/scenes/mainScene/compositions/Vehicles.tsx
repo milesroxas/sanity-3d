@@ -16,8 +16,6 @@ export function Vehicles() {
 
       {/* Animated vehicles */}
       <vehicles.AnimatedCar pathOffset={0} />
-      <vehicles.AnimatedCar pathOffset={0.66} />
-      <vehicles.AnimatedPatrolOne pathOffset={0.33} />
       <vehicles.AnimatedPlane pathOffset={0.3} scale={0.2} />
     </VehiclesInstances>
   );

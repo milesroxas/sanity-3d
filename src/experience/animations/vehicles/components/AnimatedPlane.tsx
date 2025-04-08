@@ -6,7 +6,7 @@ interface AnimatedPlaneProps {
   scale?: number; // Scale factor for the plane
 }
 
-export function AnimatedPlane({ pathOffset = 0.3, scale = 0.4 }: AnimatedPlaneProps) {
+export function AnimatedPlane({ pathOffset = 0.3, scale = 1 }: AnimatedPlaneProps) {
   const vehicles = useVehiclesInstances();
   const Plane = vehicles['plane-passenger'];
 
@@ -14,7 +14,7 @@ export function AnimatedPlane({ pathOffset = 0.3, scale = 0.4 }: AnimatedPlanePr
     <Plane
       animation={{
         path: PLANE_PATH_POINTS,
-        speed: 15,
+        speed: 10,
         loop: true,
         pathOffset,
       }}
