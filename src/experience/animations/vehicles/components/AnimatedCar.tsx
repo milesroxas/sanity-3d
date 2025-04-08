@@ -18,7 +18,7 @@ export function AnimatedCar({ pathOffset = 0 }: AnimatedCarProps) {
       <CarSedan
         animation={{
           path: SHARED_PATH_POINTS,
-          speed: 10,
+          speed: 8,
           loop: true,
           pathOffset,
         }}
@@ -26,7 +26,7 @@ export function AnimatedCar({ pathOffset = 0 }: AnimatedCarProps) {
       <CarSedanRed
         animation={{
           path: SHARED_PATH_POINTS,
-          speed: 10,
+          speed: 8,
           loop: true,
           pathOffset: (pathOffset + 0.25) % 1,
         }}
@@ -34,7 +34,7 @@ export function AnimatedCar({ pathOffset = 0 }: AnimatedCarProps) {
       <Taxi
         animation={{
           path: SHARED_PATH_POINTS,
-          speed: 10,
+          speed: 8,
           loop: true,
           pathOffset: (pathOffset + 0.5) % 1,
         }}
@@ -42,7 +42,7 @@ export function AnimatedCar({ pathOffset = 0 }: AnimatedCarProps) {
       <Truck
         animation={{
           path: SHARED_PATH_POINTS,
-          speed: 10,
+          speed: 8,
           loop: true,
           pathOffset: (pathOffset + 0.75) % 1,
         }}
@@ -50,7 +50,7 @@ export function AnimatedCar({ pathOffset = 0 }: AnimatedCarProps) {
       <PatrolCar
         animation={{
           path: SHARED_PATH_POINTS,
-          speed: 10,
+          speed: 8,
           loop: true,
           pathOffset: (pathOffset + 0.65) % 1,
         }}

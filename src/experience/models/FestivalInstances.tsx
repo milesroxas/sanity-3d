@@ -7,7 +7,6 @@ import * as THREE from 'three';
 type FestivalType =
   | 'tent-war'
   | 'tent-party-big'
-  | 'tent-party'
   | 'tent-party-blue'
   | 'tent-party-cyan'
   | 'tent-party-orange'
@@ -31,7 +30,6 @@ type FestivalType =
   | 'information-stall-green'
   | 'hot-dog-stand'
   | 'fireplace'
-  | 'coffee-stall'
   | 'celebration-wall-half-big'
   | 'cabin-beach'
   | 'bench-garden'
@@ -48,7 +46,6 @@ const MODEL_PATH = '/models/festival-models.glb';
 const FESTIVAL_MODELS: Record<FestivalType, FestivalType> = {
   'tent-war': 'tent-war',
   'tent-party-big': 'tent-party-big',
-  'tent-party': 'tent-party',
   'tent-party-blue': 'tent-party-blue',
   'tent-party-cyan': 'tent-party-cyan',
   'tent-party-orange': 'tent-party-orange',
@@ -72,7 +69,6 @@ const FESTIVAL_MODELS: Record<FestivalType, FestivalType> = {
   'information-stall-green': 'information-stall-green',
   'hot-dog-stand': 'hot-dog-stand',
   fireplace: 'fireplace',
-  'coffee-stall': 'coffee-stall',
   'celebration-wall-half-big': 'celebration-wall-half-big',
   'cabin-beach': 'cabin-beach',
   'bench-garden': 'bench-garden',

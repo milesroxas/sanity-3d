@@ -123,19 +123,10 @@ export function createModelInstancing<T extends ModelInstances>(
                   child.material.name.toLowerCase().includes('wrap') ||
                   child.material.name === 'LogoWrap');
 
-              // Debug material detection
-              console.log(`Mesh in ${key}:`, child.name);
-              console.log(
-                `Material name: ${child.material instanceof THREE.Material ? child.material.name : 'unknown'}`
-              );
-              console.log(`Is special material: ${isSpecialMaterial}`);
-
               if (useSharedMaterial && sharedMaterial && !isSpecialMaterial) {
                 material = configureMaterialForInstancing(sharedMaterial) as THREE.Material;
-                console.log(`Using shared material for ${child.name}`);
               } else {
                 material = configureMaterialForInstancing(child.material) as THREE.Material;
-                console.log(`Using original material for ${child.name}: ${material.name}`);
               }
 
               meshParts.push({

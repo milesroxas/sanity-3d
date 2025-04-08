@@ -1,13 +1,80 @@
 'use client';
 import { Cloud, Clouds, Float } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
+import { memo, useRef } from 'react';
 import * as THREE from 'three';
 
-export const AnimatedClouds = () => {
+// Define our cloud configurations - made CONSTANT outside the component entirely
+const CLOUD_CONFIGS = [
+  {
+    id: 'cloud1',
+    segments: 20,
+    scale: 0.8,
+    bounds: [12, 2, 2] as [number, number, number],
+    position: [0, 60, 50] as [number, number, number],
+    volume: 10,
+    color: 'white',
+  },
+  {
+    id: 'cloud2',
+    segments: 30,
+    scale: 1,
+    bounds: [8, 2, 2] as [number, number, number],
+    position: [-110, 60, 0] as [number, number, number],
+    volume: 10,
+    color: 'white',
+  },
+  {
+    id: 'cloud3',
+    segments: 30,
+    scale: 1,
+    bounds: [20, 4, 2] as [number, number, number],
+    position: [-20, 60, -20] as [number, number, number],
+    volume: 10,
+    color: 'white',
+  },
+  {
+    id: 'cloud4',
+    segments: 40,
+    scale: 0.5,
+    bounds: [12, 4, 4] as [number, number, number],
+    position: [20, 60, -80] as [number, number, number],
+    volume: 10,
+    color: 'white',
+  },
+];
+
+// PRE-CREATE each cloud component OUTSIDE of the main component
+// This ensures they are only created once in the entire lifecycle
+const PrebuiltClouds = CLOUD_CONFIGS.map(config => {
+  return (
+    <Cloud
+      key={config.id}
+      segments={config.segments}
+      scale={config.scale}
+      bounds={config.bounds}
+      position={config.position}
+      volume={config.volume}
+      color={config.color}
+    />
+  );
+});
+
+// All static UI elements pre-created outside the component
+const PrebuiltCloudsWrapper = (() => {
+  console.log('Creating clouds wrapper element');
+  return (
+    <Float speed={0.8} floatIntensity={0.3} rotationIntensity={0.1} floatingRange={[-0.08, 0.4]}>
+      <Clouds material={THREE.MeshBasicMaterial}>{PrebuiltClouds}</Clouds>
+    </Float>
+  );
+})();
+
+// Main component with extremely minimal render logic
+export const AnimatedClouds = memo(() => {
   const cloudsRef = useRef<THREE.Group>(null);
 
-  // Cloud animation with useFrame
+  // Animation logic - this runs every frame but doesn't cause re-renders
   useFrame((_, delta) => {
     if (cloudsRef.current) {
       cloudsRef.current.position.x += delta * 0.8;
@@ -19,53 +86,15 @@ export const AnimatedClouds = () => {
     }
   });
 
-  // Memoize the Float wrapper and all its children to prevent recreation on each render
-  const cloudsContent = useMemo(
-    () => (
-      <Float speed={0.8} floatIntensity={0.3} rotationIntensity={0.1} floatingRange={[-0.08, 0.4]}>
-        <Clouds material={THREE.MeshBasicMaterial}>
-          <Cloud
-            segments={20}
-            scale={0.8}
-            bounds={[12, 2, 2]}
-            position={[0, 60, 50]}
-            volume={10}
-            color="white"
-          />
-          <Cloud
-            segments={50}
-            scale={1}
-            bounds={[8, 2, 2]}
-            position={[-110, 60, 0]}
-            volume={10}
-            color="white"
-          />
-          <Cloud
-            segments={50}
-            bounds={[20, 4, 2]}
-            position={[-20, 60, -20]}
-            volume={10}
-            color="white"
-          />
-          <Cloud
-            segments={60}
-            bounds={[12, 4, 4]}
-            position={[20, 60, -80]}
-            volume={10}
-            scale={0.5}
-            color="white"
-          />
-        </Clouds>
-      </Float>
-    ),
-    []
-  );
-
+  // Ultra minimal render function with no calculations or object creation
   return (
     <group ref={cloudsRef} position={[-40, 0, 0]}>
-      {cloudsContent}
+      {PrebuiltCloudsWrapper}
     </group>
   );
-};
+});
+
+// Add display name for better debugging
+AnimatedClouds.displayName = 'AnimatedClouds';
 
 export default AnimatedClouds;
