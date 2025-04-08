@@ -1,12 +1,12 @@
 'use client';
-import { Float, Html, useCursor } from '@react-three/drei';
-import { useThree } from '@react-three/fiber';
-import { useRef, useEffect, useCallback } from 'react';
-import { Vector3 } from 'three';
-import * as THREE from 'three';
+import { LogoMarker } from '@/experience/components/markers/LogoMarker';
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
-import { LogoMarker } from '@/experience/components/markers/LogoMarker';
+import { Float, Html, useCursor } from '@react-three/drei';
+import { useThree } from '@react-three/fiber';
+import { useCallback, useEffect, useRef } from 'react';
+import * as THREE from 'three';
+import { Vector3 } from 'three';
 
 type MarkerPosition = {
   x: number;
@@ -432,7 +432,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
 
   return (
     <group>
-      {scene.pointsOfInterest?.map(poi => {
+      {scene.pointsOfInterest?.map((poi, index) => {
         if (
           '_type' in poi &&
           poi._type === 'scenes' &&

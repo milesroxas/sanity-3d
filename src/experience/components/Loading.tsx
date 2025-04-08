@@ -1,5 +1,6 @@
 'use client';
 import { INITIAL_POSITIONS, useCameraStore } from '@/experience/scenes/store/cameraStore';
+import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { useProgress } from '@react-three/drei';
 import gsap from 'gsap';
 import Image from 'next/image';
@@ -19,6 +20,14 @@ export function Loading() {
   const progressBarRef = useRef(null);
 
   const { setIsLoading, startCameraTransition } = useCameraStore();
+  const { setOtherMarkersVisible } = useLogoMarkerStore();
+
+  // Hide markers initially when loading
+  useEffect(() => {
+    if (active) {
+      setOtherMarkersVisible(false);
+    }
+  }, [active, setOtherMarkersVisible]);
 
   // Using useCallback for stable function references across renders
   const animateIn = useCallback(() => {
@@ -64,6 +73,8 @@ export function Loading() {
       ease: 'power2.in',
       onComplete: () => {
         setIsVisible(false);
+        // Add a slight delay before setting isLoading to false
+        // This ensures the camera transition has time to initialize in production
         setTimeout(() => {
           setIsLoading(false);
         }, 100);
@@ -118,7 +129,7 @@ export function Loading() {
         progressBarRef.current,
       ]);
     };
-  }, [active, isVisible, animateIn, animateOut]);
+  }, [active, isVisible, animateIn, animateOut, setOtherMarkersVisible]);
 
   return (
     <div

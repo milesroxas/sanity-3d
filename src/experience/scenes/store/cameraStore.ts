@@ -1,3 +1,4 @@
+import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { Vector3 } from 'three';
 import { create } from 'zustand';
 
@@ -171,7 +172,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
     });
 
     const startTime = Date.now();
-    const duration = 6000;
+    const duration = 4000;
 
     const animate = () => {
       // Check if component is still mounted
@@ -195,6 +196,10 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         setTimeout(() => {
           if (!get) return; // Check if component is still mounted
           set({ controlType: get().state === 'main' ? 'Map' : 'CameraControls' });
+
+          // Don't add animation delay - match the close button behavior
+          // by setting the markers visible immediately after controls are enabled
+          useLogoMarkerStore.getState().setOtherMarkersVisible(true);
         }, 100);
       } else {
         const t =
