@@ -15,7 +15,11 @@ type StreetPropType =
   | 'fire-hydrant'
   | 'bus-stop-sign'
   | 'bench-old'
-  | 'bus-stop';
+  | 'bus-stop'
+  | 'flag-golf_red'
+  | 'water-tower-big'
+  | 'windmill-base'
+  | 'windmill-propeller';
 
 type StreetPropsInstances = ModelInstances & {
   [K in StreetPropType]: ModelInstanceComponent;
@@ -39,6 +43,10 @@ const mapBlenderNamesToTypes = (name: string): StreetPropType | null => {
     'bus-stop-sign': 'bus-stop-sign',
     'bench-old': 'bench-old',
     'bus-stop': 'bus-stop',
+    'flag-golf_red': 'flag-golf_red',
+    'water-tower-big': 'water-tower-big',
+    'windmill-base': 'windmill-base',
+    'windmill-propeller': 'windmill-propeller',
   };
 
   return nameMap[baseName] || null;

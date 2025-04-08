@@ -16,7 +16,7 @@ export function Vehicles() {
 
       {/* Animated vehicles */}
       <vehicles.AnimatedCar pathOffset={0} />
-      <vehicles.AnimatedPlane pathOffset={0.3} scale={0.2} />
+      <vehicles.AnimatedPlane pathOffset={0.3} scale={0.8} />
     </VehiclesInstances>
   );
 }

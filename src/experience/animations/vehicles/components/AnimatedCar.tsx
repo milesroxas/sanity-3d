@@ -1,3 +1,4 @@
+import { TRAFFIC_PATH_TWO_POINTS } from '@/experience/animations/vehicles/lib/trafficPathTwo';
 import { useVehiclesInstances } from '@/experience/models/VehiclesInstances';
 import { SHARED_PATH_POINTS } from '../lib/sharedPath';
 
@@ -7,15 +8,17 @@ interface AnimatedCarProps {
 
 export function AnimatedCar({ pathOffset = 0 }: AnimatedCarProps) {
   const vehicles = useVehiclesInstances();
-  const CarSedan = vehicles['car-sedan-white'];
+  const CarSedanWhite = vehicles['car-sedan-white'];
   const CarSedanRed = vehicles['car-sedan-red'];
+  const CarSedanBlue = vehicles['car-sedan-blue'];
   const PatrolCar = vehicles['patrol-car'];
   const Taxi = vehicles['taxi'];
   const Truck = vehicles['truck'];
-
+  const Bus = vehicles['city-bus'];
+  const Jeep = vehicles['jeep'];
   return (
     <>
-      <CarSedan
+      <CarSedanWhite
         animation={{
           path: SHARED_PATH_POINTS,
           speed: 8,
@@ -53,6 +56,30 @@ export function AnimatedCar({ pathOffset = 0 }: AnimatedCarProps) {
           speed: 8,
           loop: true,
           pathOffset: (pathOffset + 0.65) % 1,
+        }}
+      />
+
+      <CarSedanBlue
+        animation={{
+          path: TRAFFIC_PATH_TWO_POINTS,
+          speed: 8,
+          loop: true,
+        }}
+      />
+      <Bus
+        animation={{
+          path: TRAFFIC_PATH_TWO_POINTS,
+          speed: 8,
+          loop: true,
+          pathOffset: (pathOffset + 0.25) % 1,
+        }}
+      />
+      <Jeep
+        animation={{
+          path: TRAFFIC_PATH_TWO_POINTS,
+          speed: 8,
+          loop: true,
+          pathOffset: (pathOffset + 0.75) % 1,
         }}
       />
     </>

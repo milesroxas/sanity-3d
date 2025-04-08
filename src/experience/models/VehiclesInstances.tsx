@@ -19,7 +19,8 @@ type VehicleType =
   | 'patrol-car'
   | 'plane-passenger'
   | 'car-caravan-big-standing'
-  | 'car-camper-bus-standing';
+  | 'car-camper-bus-standing'
+  | 'golf-cart-base';
 
 type VehiclesInstances = ModelInstances & {
   [K in VehicleType]: ModelInstanceComponent;
@@ -59,6 +60,7 @@ const mapVehiclesNodes = (nodes: Record<string, THREE.Object3D>) => {
     'plane-passenger': nodes['plane-passenger'],
     'car-caravan-big-standing': nodes['car-caravan-big-standing'],
     'car-camper-bus-standing': nodes['car-camper-bus-standing'],
+    'golf-cart-base': nodes['golf-cart-base'],
   };
 };
 
@@ -82,6 +84,7 @@ const mapBlenderNamesToTypes = (name: string): VehicleType | null => {
     'plane-passenger': 'plane-passenger',
     'car-caravan-big-standing': 'car-caravan-big-standing',
     'car-camper-bus-standing': 'car-camper-bus-standing',
+    'golf-cart-base': 'golf-cart-base',
   };
 
   return nameMap[baseName] || null;

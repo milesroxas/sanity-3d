@@ -33,7 +33,9 @@ type FestivalType =
   | 'celebration-wall-half-big'
   | 'cabin-beach'
   | 'bench-garden'
-  | 'board-wire-papers';
+  | 'board-wire-papers'
+  | 'pickleball-court'
+  | 'tile-pool-small';
 
 // Define the types for festival instances using a mapped type
 type FestivalInstances = ModelInstances & {
@@ -73,6 +75,8 @@ const FESTIVAL_MODELS: Record<FestivalType, FestivalType> = {
   'cabin-beach': 'cabin-beach',
   'bench-garden': 'bench-garden',
   'board-wire-papers': 'board-wire-papers',
+  'pickleball-court': 'pickleball-court',
+  'tile-pool-small': 'tile-pool-small',
 };
 
 const mapFestivalNodes = (nodes: Record<string, THREE.Object3D>) => {

@@ -149,6 +149,14 @@ export function Vehicles(props: ThreeElements['group']) {
         material={LowpolyMaterial}
         position={[-15.585, 0.034, -22.956]}
       />
+      <mesh
+        name="golf-cart-base"
+        castShadow
+        receiveShadow
+        geometry={nodes['golf-cart-base'].geometry}
+        material={LowpolyMaterial}
+        position={[-40.367, 0, 0]}
+      />
     </group>
   );
 }
