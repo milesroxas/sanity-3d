@@ -1,4 +1,3 @@
-import { useSceneStore } from '@/experience/scenes/store/sceneStore';
 import { Vector3 } from 'three';
 import { create } from 'zustand';
 
@@ -74,11 +73,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
 
   // Camera Actions
   resetToInitial: () => {
-    // Don't do anything if we're loading - avoids race conditions
-    if (get().isLoading) {
-      return;
-    }
-
     // Always start from mainIntro and animate to main
     set({
       position: INITIAL_POSITIONS.mainIntro.position.clone(),
@@ -145,9 +139,16 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   setIsLoading: isLoading => {
     // Only update if the state is actually changing to prevent unnecessary re-renders
     if (get().isLoading !== isLoading) {
-      // If we're turning loading off, do it immediately
+      // If we're turning loading off, do it immediately and ensure controls are re-enabled
       if (!isLoading) {
         set({ isLoading });
+        // Ensure controls are re-enabled when loading completes
+        // This is particularly important for production environments
+        setTimeout(() => {
+          if (get().state === 'main' && !get().isAnimating) {
+            set({ controlType: 'Map' });
+          }
+        }, 150);
       } else {
         // When turning loading on, we can set it directly
         set({ isLoading });
@@ -159,31 +160,10 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
 
   // Animation
   startCameraTransition: (startPos, endPos, startTarget, endTarget) => {
-    // Skip animation ONLY during subscene navigation (not POI clicks)
-    if (get().state === 'main' && useSceneStore.getState().isTransitioning && !get().selectedPoi) {
-      set({
-        position: endPos.clone(),
-        target: endTarget.clone(),
-        previousPosition: startPos.clone(),
-        previousTarget: startTarget.clone(),
-        isAnimating: false,
-        isLoading: true,
-      });
-      return;
-    }
+    // When called from the loading component, always force the animation
+    // This ensures the aerial-to-ground animation always plays after loading
 
-    // Prevent multiple animations from running simultaneously
-    if (get().isAnimating) {
-      set({
-        position: endPos.clone(),
-        target: endTarget.clone(),
-        previousPosition: startPos.clone(),
-        previousTarget: startTarget.clone(),
-        isAnimating: false,
-      });
-      return;
-    }
-
+    // Force clean state for the intro animation
     set({
       controlType: 'Disabled',
       isAnimating: true,

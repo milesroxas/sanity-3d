@@ -1,5 +1,5 @@
 'use client';
-import { useCameraStore } from '@/experience/scenes/store/cameraStore';
+import { INITIAL_POSITIONS, useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useProgress } from '@react-three/drei';
 import gsap from 'gsap';
 import Image from 'next/image';
@@ -64,7 +64,9 @@ export function Loading() {
       ease: 'power2.in',
       onComplete: () => {
         setIsVisible(false);
-        setIsLoading(false);
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 100);
       },
     });
   }, [setIsLoading, setIsVisible]);
@@ -83,6 +85,26 @@ export function Loading() {
 
     // Handle fade out when loading is complete
     if (!active && isVisible) {
+      // First trigger the camera transition, THEN start fade out
+      const cameraStore = useCameraStore.getState();
+
+      // Ensure we're at the starting position and force the transition
+      // This ensures the aerial view to ground animation always plays
+      cameraStore.setCamera(
+        INITIAL_POSITIONS.mainIntro.position.clone(),
+        INITIAL_POSITIONS.mainIntro.target.clone(),
+        'main'
+      );
+
+      // Start the transition immediately
+      cameraStore.startCameraTransition(
+        INITIAL_POSITIONS.mainIntro.position,
+        INITIAL_POSITIONS.main.position,
+        INITIAL_POSITIONS.mainIntro.target,
+        INITIAL_POSITIONS.main.target
+      );
+
+      // Now fade out the loading screen
       animateOut();
     }
 

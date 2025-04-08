@@ -62,7 +62,6 @@ const PrebuiltClouds = CLOUD_CONFIGS.map(config => {
 
 // All static UI elements pre-created outside the component
 const PrebuiltCloudsWrapper = (() => {
-  console.log('Creating clouds wrapper element');
   return (
     <Float speed={0.8} floatIntensity={0.3} rotationIntensity={0.1} floatingRange={[-0.08, 0.4]}>
       <Clouds material={THREE.MeshBasicMaterial}>{PrebuiltClouds}</Clouds>

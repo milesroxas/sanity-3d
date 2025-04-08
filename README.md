@@ -485,23 +485,23 @@ The only notes are:
 
 Shield Icons & Logo Adjustments:
 
-- [ ] Shield icons should be flat (not 3D) and without the clover—more understated is fine. We like the spin effect, and it should still look good with a less "heavy" icon.
+- [x] Shield icons should be flat (not 3D) and without the clover—more understated is fine. We like the spin effect, and it should still look good with a less "heavy" icon.
 - [x] The upper left fixed logo isn't necessary—let's remove it.
-- [ ] The small logo on the headquarters building might be redundant.
-- [ ] Instead: Place a larger sign on the center building (similar to the one on the left, but bigger).
-- [ ] Remove the logo on the left building and the tiny one in the back.
+- [x] The small logo on the headquarters building might be redundant.
+- [x] Instead: Place a larger sign on the center building (similar to the one on the left, but bigger).
+- [x] Remove the logo on the left building and the tiny one in the back.
 
 Most critical
 
 - [x] think the windmills in the palm trees in the bottom left of the scene can be removed.
 
-- [ ] I think the logo on the building still probably needs to be larger somehow.
+- [x] I think the logo on the building still probably needs to be larger somehow.
 
 - [ ] I think the initial view is too high and too close probably more at the level of prospect park.
 
-- [ ] the tabs for the content when you click on a service should slide in at take up about 1/3rd maybe a little more of the screen top to bottom so it can operate like a mini scrollable webpage. The view for this section should make sure whatever service you clicked on has that scene in an optimal spot opposite the information block so you can see it clearly.
+- [x] the tabs for the content when you click on a service should slide in at take up about 1/3rd maybe a little more of the screen top to bottom so it can operate like a mini scrollable webpage. The view for this section should make sure whatever service you clicked on has that scene in an optimal spot opposite the information block so you can see it clearly.
 
-- [ ] patrol car roaming around the city
+- [x] patrol car roaming around the city
 
 - [ ] ability to pan camera full motion like 360 etc
 
@@ -511,8 +511,8 @@ A little more picky and probably more difficult and could potentially be don’t
 
 - I think retail might be too bunched up with HOA and Construction and events
 
-….What if that big office like building was a retail mall style building with parking lot or some shops with it. So retail moves there
+-[x] What if that big office like building was a retail mall style building with parking lot or some shops with it. So retail moves there
 
-- what if events moved to the farm and it was a concert stage instead maybe a Ferris wheel? We are known for Coachella fest.
+-[x] what if events moved to the farm and it was a concert stage instead maybe a Ferris wheel? We are known for Coachella fest.
 
 - This would leave that spot just to the right of retail that is now a little condo community not sure what we could put there that makes sense for this but we could add Live Camera Monitoring as a service and somehow depict an areas that would need outdoor cameras maybe 1 tower camera and some fixed ones on a post or wall.

@@ -134,7 +134,9 @@ function CityStreet() {
 
 ## Animated Instances
 
-The system supports animated instances that follow a path:
+The system supports animated instances that follow a path. There are two ways to use animated instances:
+
+### 1. Directly using the animation prop
 
 ```typescript
 // Define a path
@@ -150,8 +152,7 @@ const pathPoints: [number, number, number][] = [
   animation={{
     path: pathPoints,
     speed: 2,
-    loop: true,
-    pathOffset: 0.5 // Optional: start halfway through the path
+    loop: true
   }}
   onUpdate={(position, rotation) => {
     // Optional: do something with the updated position/rotation
@@ -159,6 +160,34 @@ const pathPoints: [number, number, number][] = [
   }}
 />
 ```
+
+### 2. Using pre-configured animation components
+
+For commonly used animations, we create specialized components that handle path data and offsets:
+
+```typescript
+// In animations/vehicles/components/AnimatedCar.tsx
+export function AnimatedCar({ pathOffset = 0 }: { pathOffset?: number }) {
+  const vehicles = useVehiclesInstances();
+  const CarSedanRed = vehicles['car-sedan-red'];
+
+  return (
+    <CarSedanRed
+      animation={{
+        path: SHARED_PATH_POINTS,
+        speed: 8,
+        loop: true,
+        pathOffset
+      }}
+    />
+  );
+}
+
+// In a scene component:
+<vehicles.AnimatedCar pathOffset={0.5} /> // Start halfway through the path
+```
+
+Note: When using specialized animation components, pass the `pathOffset` as a prop to the component itself, not in the animation object directly.
 
 ## Multi-Material Models
 
