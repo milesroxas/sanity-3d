@@ -12,7 +12,6 @@ interface CameraStore {
   previousPosition: Vector3 | null;
   previousTarget: Vector3 | null;
   selectedPoi: any | null;
-  firstTimeLoading: boolean;
 
   // State Properties
   controlType: ControlType;
@@ -37,7 +36,6 @@ interface CameraStore {
   setIsAnimating: (state: boolean) => void;
   setIsLoading: (state: boolean) => void;
   setSelectedPoi: (poi: any | null) => void;
-  setFirstTimeLoading: (state: boolean) => void;
 
   // New action
   syncCameraPosition: (position: Vector3, target: Vector3) => void;
@@ -286,6 +284,4 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       get().setSelectedPoi(previousPoi);
     }
   },
-
-  setFirstTimeLoading: state => set({ firstTimeLoading: state }),
 }));
