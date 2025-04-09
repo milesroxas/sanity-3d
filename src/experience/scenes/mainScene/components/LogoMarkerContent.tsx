@@ -1,11 +1,11 @@
 'use client';
-import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import PortableTextRenderer from '@/components/portable-text-renderer';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import gsap from 'gsap';
 import { X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import gsap from 'gsap';
 
 export default function LogoMarkerContent() {
   const {
