@@ -17,7 +17,7 @@ const MainScene = forwardRef<any, MainSceneProps>(({ scene }, ref) => {
   return (
     <>
       <MainSceneCameraSystem />
-      <TempFloor position={[0, -1, 0]} />
+      <TempFloor position={[0, -0.05, 0]} />
       <Environment />
       <Buildings />
       <Props />

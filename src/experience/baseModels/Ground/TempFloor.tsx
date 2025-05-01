@@ -10,221 +10,181 @@ export function TempFloor(props: ThreeElements['group']) {
   const { nodes, materials } = useGLTF('/models/temp-world-floor.glb') as unknown as MeshGLTFModel;
   return (
     <group {...props} dispose={null}>
-      <group
-        name="temp-floor"
-        position={[46.89, 2.667, 13.244]}
-        rotation={[-Math.PI / 2, 0, -Math.PI / 2]}
-        scale={0.026}
-      >
+      <group name="temp-world-floor" position={[-90, 2.667, -75]}>
         <mesh
-          name="temp-floor_1"
+          name="temp-world-floor_1"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_1'].geometry}
-          material={materials['material_3.002']}
-        />
-        <mesh
-          name="temp-floor_2"
-          castShadow
-          receiveShadow
-          geometry={nodes['temp-floor_2'].geometry}
-          material={materials['18 GREY-DARK']}
-        />
-        <mesh
-          name="temp-floor_3"
-          castShadow
-          receiveShadow
-          geometry={nodes['temp-floor_3'].geometry}
+          geometry={nodes['temp-world-floor_1'].geometry}
           material={materials['21 GREY LIGHT']}
         />
         <mesh
-          name="temp-floor_4"
+          name="temp-world-floor_2"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_4'].geometry}
-          material={materials['30 YELLOW']}
+          geometry={nodes['temp-world-floor_2'].geometry}
+          material={materials['9 BROWN-DARKEST.002']}
         />
         <mesh
-          name="temp-floor_5"
+          name="temp-world-floor_3"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_5'].geometry}
-          material={materials['14 BROWN-LIGHTEST']}
-        />
-        <mesh
-          name="temp-floor_6"
-          castShadow
-          receiveShadow
-          geometry={nodes['temp-floor_6'].geometry}
-          material={materials['58 WHITE']}
-        />
-        <mesh
-          name="temp-floor_7"
-          castShadow
-          receiveShadow
-          geometry={nodes['temp-floor_7'].geometry}
-          material={materials['18 GREY-DARK']}
-        />
-        <mesh
-          name="temp-floor_8"
-          castShadow
-          receiveShadow
-          geometry={nodes['temp-floor_8'].geometry}
+          geometry={nodes['temp-world-floor_3'].geometry}
           material={materials['23 GREY-WHITE']}
         />
         <mesh
-          name="temp-floor_9"
+          name="temp-world-floor_4"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_9'].geometry}
+          geometry={nodes['temp-world-floor_4'].geometry}
+          material={materials['14 BROWN-LIGHTEST']}
+        />
+        <mesh
+          name="temp-world-floor_5"
+          castShadow
+          receiveShadow
+          geometry={nodes['temp-world-floor_5'].geometry}
+          material={materials['18 GREY-DARK.001']}
+        />
+        <mesh
+          name="temp-world-floor_6"
+          castShadow
+          receiveShadow
+          geometry={nodes['temp-world-floor_6'].geometry}
+          material={materials['21 GREY LIGHT.001']}
+        />
+        <mesh
+          name="temp-world-floor_7"
+          castShadow
+          receiveShadow
+          geometry={nodes['temp-world-floor_7'].geometry}
+          material={materials['30 YELLOW']}
+        />
+        <mesh
+          name="temp-world-floor_8"
+          castShadow
+          receiveShadow
+          geometry={nodes['temp-world-floor_8'].geometry}
+          material={materials['58 WHITE.003']}
+        />
+        <mesh
+          name="temp-world-floor_9"
+          castShadow
+          receiveShadow
+          geometry={nodes['temp-world-floor_9'].geometry}
+          material={materials['18 GREY-DARK']}
+        />
+        <mesh
+          name="temp-world-floor_10"
+          castShadow
+          receiveShadow
+          geometry={nodes['temp-world-floor_10'].geometry}
+          material={materials['23 GREY-WHITE.001']}
+        />
+        <mesh
+          name="temp-world-floor_11"
+          castShadow
+          receiveShadow
+          geometry={nodes['temp-world-floor_11'].geometry}
           material={materials['14 BROWN-LIGHTEST.002']}
         />
         <mesh
-          name="temp-floor_10"
+          name="temp-world-floor_12"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_10'].geometry}
-          material={materials['9 BROWN-DARKEST']}
-        />
-        <mesh
-          name="temp-floor_11"
-          castShadow
-          receiveShadow
-          geometry={nodes['temp-floor_11'].geometry}
+          geometry={nodes['temp-world-floor_12'].geometry}
           material={materials['36 GREEN']}
         />
         <mesh
-          name="temp-floor_12"
+          name="temp-world-floor_13"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_12'].geometry}
-          material={materials['14 BROWN-LIGHTEST']}
+          geometry={nodes['temp-world-floor_13'].geometry}
+          material={materials['14 BROWN-LIGHTEST.006']}
         />
         <mesh
-          name="temp-floor_13"
+          name="temp-world-floor_14"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_13'].geometry}
-          material={materials['21 GREY LIGHT']}
-        />
-        <mesh
-          name="temp-floor_14"
-          castShadow
-          receiveShadow
-          geometry={nodes['temp-floor_14'].geometry}
+          geometry={nodes['temp-world-floor_14'].geometry}
           material={materials['LOWPOLY-COLORS']}
         />
         <mesh
-          name="temp-floor_15"
+          name="temp-world-floor_15"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_15'].geometry}
-          material={materials['36 GREEN']}
+          geometry={nodes['temp-world-floor_15'].geometry}
+          material={materials['37 GREEN-LIGHT.002']}
         />
         <mesh
-          name="temp-floor_16"
+          name="temp-world-floor_16"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_16'].geometry}
-          material={materials['14 BROWN-LIGHTEST']}
+          geometry={nodes['temp-world-floor_16'].geometry}
+          material={materials['18 GREY-DARK.006']}
         />
         <mesh
-          name="temp-floor_17"
+          name="temp-world-floor_17"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_17'].geometry}
-          material={materials['18 GREY-DARK']}
+          geometry={nodes['temp-world-floor_17'].geometry}
+          material={materials['21 GREY LIGHT.008']}
         />
         <mesh
-          name="temp-floor_18"
+          name="temp-world-floor_18"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_18'].geometry}
-          material={materials['21 GREY LIGHT']}
+          geometry={nodes['temp-world-floor_18'].geometry}
+          material={materials['30 YELLOW.001']}
         />
         <mesh
-          name="temp-floor_19"
+          name="temp-world-floor_19"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_19'].geometry}
-          material={materials['18 GREY-DARK']}
+          geometry={nodes['temp-world-floor_19'].geometry}
+          material={materials['58 WHITE.002']}
         />
         <mesh
-          name="temp-floor_20"
+          name="temp-world-floor_20"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_20'].geometry}
-          material={materials['21 GREY LIGHT']}
+          geometry={nodes['temp-world-floor_20'].geometry}
+          material={materials['18 GREY-DARK.004']}
         />
         <mesh
-          name="temp-floor_21"
+          name="temp-world-floor_21"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_21'].geometry}
-          material={materials['14 BROWN-LIGHTEST']}
+          geometry={nodes['temp-world-floor_21'].geometry}
+          material={materials['21 GREY LIGHT.010']}
         />
         <mesh
-          name="temp-floor_22"
+          name="temp-world-floor_22"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_22'].geometry}
-          material={materials['18 GREY-DARK']}
+          geometry={nodes['temp-world-floor_22'].geometry}
+          material={materials['14 BROWN-LIGHTEST.004']}
         />
         <mesh
-          name="temp-floor_23"
+          name="temp-world-floor_23"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_23'].geometry}
-          material={materials['21 GREY LIGHT']}
-        />
-        <mesh
-          name="temp-floor_24"
-          castShadow
-          receiveShadow
-          geometry={nodes['temp-floor_24'].geometry}
-          material={materials['30 YELLOW']}
-        />
-        <mesh
-          name="temp-floor_25"
-          castShadow
-          receiveShadow
-          geometry={nodes['temp-floor_25'].geometry}
-          material={materials['58 WHITE']}
-        />
-        <mesh
-          name="temp-floor_26"
-          castShadow
-          receiveShadow
-          geometry={nodes['temp-floor_26'].geometry}
+          geometry={nodes['temp-world-floor_23'].geometry}
           material={materials['35 GREEN-MEDIUM']}
         />
         <mesh
-          name="temp-floor_27"
+          name="temp-world-floor_24"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_27'].geometry}
-          material={materials['14 BROWN-LIGHTEST']}
+          geometry={nodes['temp-world-floor_24'].geometry}
+          material={materials['14 BROWN-LIGHTEST.001']}
         />
         <mesh
-          name="temp-floor_28"
+          name="temp-world-floor_25"
           castShadow
           receiveShadow
-          geometry={nodes['temp-floor_28'].geometry}
-          material={materials['23 GREY-WHITE']}
-        />
-        <mesh
-          name="temp-floor_29"
-          castShadow
-          receiveShadow
-          geometry={nodes['temp-floor_29'].geometry}
-          material={materials['20 GREY']}
-        />
-        <mesh
-          name="temp-floor_30"
-          castShadow
-          receiveShadow
-          geometry={nodes['temp-floor_30'].geometry}
-          material={materials.Street_Lights}
+          geometry={nodes['temp-world-floor_25'].geometry}
+          material={materials['material_3.002']}
         />
       </group>
     </group>

@@ -11,7 +11,7 @@ export function CompanyBldgs(props: ThreeElements['group']) {
 
   return (
     <group {...props} dispose={null}>
-      <group name="military-headquarters" position={[-14.668, 2.717, 45.169]}>
+      <group name="military-headquarters" position={[-15.445, 2.717, 44.828]} scale={1.15}>
         <mesh
           name="military-headquarters_1"
           castShadow
@@ -452,50 +452,6 @@ export function CompanyBldgs(props: ThreeElements['group']) {
           material={materials['64 GLASS.002']}
         />
       </group>
-      <group name="airport-hangar" position={[-14.537, 2.667, 16.706]} scale={0.454}>
-        <mesh
-          name="airport-hangar_1"
-          castShadow
-          receiveShadow
-          geometry={nodes['airport-hangar_1'].geometry}
-          material={materials['58 WHITE.003']}
-        />
-        <mesh
-          name="airport-hangar_2"
-          castShadow
-          receiveShadow
-          geometry={nodes['airport-hangar_2'].geometry}
-          material={materials['20 GREY.002']}
-        />
-        <mesh
-          name="airport-hangar_3"
-          castShadow
-          receiveShadow
-          geometry={nodes['airport-hangar_3'].geometry}
-          material={materials['36 GREEN']}
-        />
-        <mesh
-          name="airport-hangar_4"
-          castShadow
-          receiveShadow
-          geometry={nodes['airport-hangar_4'].geometry}
-          material={materials.GREEN}
-        />
-        <mesh
-          name="airport-hangar_5"
-          castShadow
-          receiveShadow
-          geometry={nodes['airport-hangar_5'].geometry}
-          material={materials['64 GLASS.002']}
-        />
-        <mesh
-          name="airport-hangar_6"
-          castShadow
-          receiveShadow
-          geometry={nodes['airport-hangar_6'].geometry}
-          material={materials['17 GREY-DARKEST.009']}
-        />
-      </group>
       <group
         name="building-carwash"
         position={[-40.347, 2.667, 43.689]}
@@ -596,24 +552,136 @@ export function CompanyBldgs(props: ThreeElements['group']) {
         />
       </group>
       <group
-        name="Logo"
-        position={[-14.674, 10.877, 44.838]}
-        rotation={[Math.PI / 2, 0, 0]}
-        scale={0.128}
+        name="military-headquarters001"
+        position={[-15.445, 2.717, 30.937]}
+        rotation={[Math.PI, 0, Math.PI]}
+        scale={1.15}
       >
         <mesh
-          name="Mesh004"
+          name="military-headquarters_1"
           castShadow
           receiveShadow
-          geometry={nodes.Mesh004.geometry}
-          material={materials.Logo}
+          geometry={nodes['military-headquarters_1'].geometry}
+          material={materials['15 BROWN-WHITE.006']}
         />
         <mesh
-          name="Mesh004_1"
+          name="military-headquarters_2"
           castShadow
           receiveShadow
-          geometry={nodes.Mesh004_1.geometry}
+          geometry={nodes['military-headquarters_2'].geometry}
           material={materials['Material.001']}
+        />
+        <mesh
+          name="military-headquarters_3"
+          castShadow
+          receiveShadow
+          geometry={nodes['military-headquarters_3'].geometry}
+          material={materials['17 GREY-DARKEST.011']}
+        />
+        <mesh
+          name="military-headquarters_4"
+          castShadow
+          receiveShadow
+          geometry={nodes['military-headquarters_4'].geometry}
+          material={materials.Glass}
+        />
+        <mesh
+          name="military-headquarters_5"
+          castShadow
+          receiveShadow
+          geometry={nodes['military-headquarters_5'].geometry}
+          material={materials['20 GREY.011']}
+        />
+        <mesh
+          name="military-headquarters_6"
+          castShadow
+          receiveShadow
+          geometry={nodes['military-headquarters_6'].geometry}
+          material={materials['21 GREY LIGHT.005']}
+        />
+        <mesh
+          name="military-headquarters_7"
+          castShadow
+          receiveShadow
+          geometry={nodes['military-headquarters_7'].geometry}
+          material={materials.Material}
+        />
+      </group>
+      <group
+        name="military-headquarters002"
+        position={[-15.445, 2.717, 19.341]}
+        rotation={[Math.PI, 0, Math.PI]}
+        scale={1.15}
+      >
+        <mesh
+          name="military-headquarters001_1"
+          castShadow
+          receiveShadow
+          geometry={nodes['military-headquarters001_1'].geometry}
+          material={materials['15 BROWN-WHITE.006']}
+        />
+        <mesh
+          name="military-headquarters001_2"
+          castShadow
+          receiveShadow
+          geometry={nodes['military-headquarters001_2'].geometry}
+          material={materials['Material.001']}
+        />
+        <mesh
+          name="military-headquarters001_3"
+          castShadow
+          receiveShadow
+          geometry={nodes['military-headquarters001_3'].geometry}
+          material={materials['17 GREY-DARKEST.011']}
+        />
+        <mesh
+          name="military-headquarters001_4"
+          castShadow
+          receiveShadow
+          geometry={nodes['military-headquarters001_4'].geometry}
+          material={materials.Glass}
+        />
+        <mesh
+          name="military-headquarters001_5"
+          castShadow
+          receiveShadow
+          geometry={nodes['military-headquarters001_5'].geometry}
+          material={materials['20 GREY.011']}
+        />
+        <mesh
+          name="military-headquarters001_6"
+          castShadow
+          receiveShadow
+          geometry={nodes['military-headquarters001_6'].geometry}
+          material={materials['21 GREY LIGHT.005']}
+        />
+        <mesh
+          name="military-headquarters001_7"
+          castShadow
+          receiveShadow
+          geometry={nodes['military-headquarters001_7'].geometry}
+          material={materials.Material}
+        />
+      </group>
+      <group
+        name="military-headquarters003"
+        position={[-24.782, 11.752, 15.892]}
+        rotation={[0, 0.081, 0]}
+        scale={1.386}
+      >
+        <mesh
+          name="military-headquarters002_1"
+          castShadow
+          receiveShadow
+          geometry={nodes['military-headquarters002_1'].geometry}
+          material={materials['15 BROWN-WHITE.006']}
+        />
+        <mesh
+          name="military-headquarters002_2"
+          castShadow
+          receiveShadow
+          geometry={nodes['military-headquarters002_2'].geometry}
+          material={materials['17 GREY-DARKEST.011']}
         />
       </group>
     </group>

@@ -11,76 +11,86 @@ import { createSharedAtlasMaterial } from '@/experience/utils/materialUtils';
 import { useGLTF } from '@react-three/drei';
 import { ThreeElements } from '@react-three/fiber';
 
-export function FestivalModels(props: ThreeElements['group']) {
-  const { nodes, materials } = useGLTF('/models/festival-models.glb') as unknown as MeshGLTFModel;
+export function ScenePropsModels(props: ThreeElements['group']) {
+  const { nodes, materials } = useGLTF('/models/scene-props.glb') as unknown as MeshGLTFModel;
   const LowpolyMaterial = createSharedAtlasMaterial(materials);
 
   return (
     <group {...props} dispose={null}>
       <mesh
+        name="tent-war"
         castShadow
         receiveShadow
         geometry={nodes['tent-war'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[-26.17, 0, 0]}
       />
       <mesh
+        name="tent-party-big"
         castShadow
         receiveShadow
         geometry={nodes['tent-party-big'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[-49.18, 0, 0]}
       />
       <mesh
+        name="tent-party-blue"
         castShadow
         receiveShadow
         geometry={nodes['tent-party-blue'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[-20.776, 0, 0]}
       />
       <mesh
+        name="sunscreen"
         castShadow
         receiveShadow
         geometry={nodes.sunscreen.geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[-15.697, 0, 0]}
       />
       <mesh
+        name="stand-ice-cream"
         castShadow
         receiveShadow
         geometry={nodes['stand-ice-cream'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[-1.66, 0, 0]}
       />
       <mesh
+        name="stand-cotton-big"
         castShadow
         receiveShadow
         geometry={nodes['stand-cotton-big'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[-6.113, 0, 0]}
       />
       <mesh
+        name="stage-truss"
         castShadow
         receiveShadow
         geometry={nodes['stage-truss'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[52.735, 0, 0]}
       />
       <mesh
+        name="stage-platform-stairs-medium"
         castShadow
         receiveShadow
         geometry={nodes['stage-platform-stairs-medium'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[15.613, 0, 0]}
       />
       <mesh
+        name="stage-platform-medium"
         castShadow
         receiveShadow
         geometry={nodes['stage-platform-medium'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[56.378, 0, 0]}
       />
       <mesh
+        name="stage-platform-big"
         castShadow
         receiveShadow
         geometry={nodes['stage-platform-big'].geometry}
@@ -88,148 +98,226 @@ export function FestivalModels(props: ThreeElements['group']) {
         position={[48.092, 0, 0]}
       />
       <mesh
+        name="scifi-tree-orb-big"
         castShadow
         receiveShadow
         geometry={nodes['scifi-tree-orb-big'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[38.541, 0, 0]}
       />
       <mesh
+        name="scifi-tree-mushroom-big"
         castShadow
         receiveShadow
         geometry={nodes['scifi-tree-mushroom-big'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[42.694, 0, 0]}
       />
       <mesh
+        name="scifi-projection-g"
         castShadow
         receiveShadow
         geometry={nodes['scifi-projection-g'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[62.574, 0, 0]}
       />
       <mesh
+        name="scifi-projection-f"
         castShadow
         receiveShadow
         geometry={nodes['scifi-projection-f'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[23.783, 0, 0]}
       />
       <mesh
+        name="scifi-projection-d"
         castShadow
         receiveShadow
         geometry={nodes['scifi-projection-d'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[69.822, 0, 0]}
       />
       <mesh
+        name="scifi-pot-low-palm"
         castShadow
         receiveShadow
         geometry={nodes['scifi-pot-low-palm'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[33.827, 0, 0]}
       />
       <mesh
+        name="lights-string"
         castShadow
         receiveShadow
         geometry={nodes['lights-string'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[10.22, 0, 0]}
       />
       <mesh
+        name="information-stall-blue"
         castShadow
         receiveShadow
         geometry={nodes['information-stall-blue'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[-39.807, 0, 0]}
       />
       <mesh
+        name="hot-dog-stand"
         castShadow
         receiveShadow
         geometry={nodes['hot-dog-stand'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[-10.826, 0, 0]}
       />
       <mesh
+        name="fireplace"
         castShadow
         receiveShadow
         geometry={nodes.fireplace.geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[6.985, 0, 0]}
       />
       <mesh
+        name="celebration-wall-half-big"
         castShadow
         receiveShadow
         geometry={nodes['celebration-wall-half-big'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[28.739, 0, 0]}
       />
       <mesh
+        name="cabin-beach"
         castShadow
         receiveShadow
         geometry={nodes['cabin-beach'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[2.79, 0, 0]}
         scale={1.373}
       />
       <mesh
+        name="bench-garden"
         castShadow
         receiveShadow
         geometry={nodes['bench-garden'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[19.562, 0, 0]}
       />
       <mesh
+        name="board-wire-papers"
         castShadow
         receiveShadow
         geometry={nodes['board-wire-papers'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[21.391, 0, 0]}
       />
       <mesh
+        name="tent-party-cyan"
         castShadow
         receiveShadow
         geometry={nodes['tent-party-cyan'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[-20.776, 0, -4.246]}
       />
       <mesh
+        name="tent-party-orange"
         castShadow
         receiveShadow
         geometry={nodes['tent-party-orange'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[-20.776, 0, -9.581]}
       />
       <mesh
+        name="tent-party-purple"
         castShadow
         receiveShadow
         geometry={nodes['tent-party-purple'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[-20.776, 0, -15.411]}
       />
       <mesh
+        name="information-stall-red"
         castShadow
         receiveShadow
         geometry={nodes['information-stall-red'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[-39.807, 0, -8.318]}
       />
       <mesh
+        name="information-stall-green"
         castShadow
         receiveShadow
         geometry={nodes['information-stall-green'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[-32.592, 0, 0]}
       />
       <mesh
+        name="information-stall-purple"
         castShadow
         receiveShadow
         geometry={nodes['information-stall-purple'].geometry}
-        material={materials['LOWPOLY-COLORS']}
+        material={LowpolyMaterial}
         position={[-32.592, 0, -8.318]}
+      />
+      <mesh
+        name="pickleball-court"
+        castShadow
+        receiveShadow
+        geometry={nodes['pickleball-court'].geometry}
+        material={LowpolyMaterial}
+        position={[84.616, 0, 0]}
+        rotation={[-Math.PI / 2, 0, Math.PI / 2]}
+        scale={[0.009, 0.005, 0.009]}
+      />
+      <mesh
+        name="tile-pool-small"
+        castShadow
+        receiveShadow
+        geometry={nodes['tile-pool-small'].geometry}
+        material={LowpolyMaterial}
+        position={[101.224, -0.493, 0]}
+        scale={2.696}
+      />
+      <mesh
+        name="lounger"
+        castShadow
+        receiveShadow
+        geometry={nodes.lounger.geometry}
+        material={LowpolyMaterial}
+        position={[111.479, 0.032, -0.17]}
+      />
+      <mesh
+        name="sunscreen-closed"
+        castShadow
+        receiveShadow
+        geometry={nodes['sunscreen-closed'].geometry}
+        material={LowpolyMaterial}
+        position={[-13.392, 0, -0.205]}
+      />
+      <mesh
+        name="inflatable-swan-small"
+        castShadow
+        receiveShadow
+        geometry={nodes['inflatable-swan-small'].geometry}
+        material={LowpolyMaterial}
+        position={[114.361, 0, 0.171]}
+      />
+      <mesh
+        name="resort-pool"
+        castShadow
+        receiveShadow
+        geometry={nodes['resort-pool'].geometry}
+        material={LowpolyMaterial}
+      />
+      <mesh
+        name="fountain"
+        castShadow
+        receiveShadow
+        geometry={nodes.fountain.geometry}
+        material={LowpolyMaterial}
+        position={[153.728, 0, 0]}
       />
     </group>
   );
 }
 
-useGLTF.preload('/models/festival-models.glb');
+useGLTF.preload('/models/scene-props.glb');

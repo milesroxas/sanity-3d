@@ -4,7 +4,7 @@ import { normalizeBlenderName } from '@/experience/utils/modelUtils';
 import * as THREE from 'three';
 
 // Define the festival model types using a string union
-type FestivalType =
+type ScenePropsType =
   | 'tent-war'
   | 'tent-party-big'
   | 'tent-party-blue'
@@ -35,17 +35,23 @@ type FestivalType =
   | 'bench-garden'
   | 'board-wire-papers'
   | 'pickleball-court'
-  | 'tile-pool-small';
+  | 'tile-pool-small'
+  | 'inflatable-swan-big'
+  | 'resort-pool'
+  | 'lounger'
+  | 'fountain'
+  | 'sunscreen-big'
+  | 'sunscreen-closed';
 
 // Define the types for festival instances using a mapped type
-type FestivalInstances = ModelInstances & {
-  [K in FestivalType]: ModelInstanceComponent;
+type ScenePropsInstances = ModelInstances & {
+  [K in ScenePropsType]: ModelInstanceComponent;
 };
 
-const MODEL_PATH = '/models/festival-models.glb';
+const MODEL_PATH = '/models/scene-props.glb';
 
 // Create a single source of truth for model names
-const FESTIVAL_MODELS: Record<FestivalType, FestivalType> = {
+const SCENE_PROPS_MODELS: Record<ScenePropsType, ScenePropsType> = {
   'tent-war': 'tent-war',
   'tent-party-big': 'tent-party-big',
   'tent-party-blue': 'tent-party-blue',
@@ -77,35 +83,41 @@ const FESTIVAL_MODELS: Record<FestivalType, FestivalType> = {
   'board-wire-papers': 'board-wire-papers',
   'pickleball-court': 'pickleball-court',
   'tile-pool-small': 'tile-pool-small',
+  'resort-pool': 'resort-pool',
+  fountain: 'fountain',
+  lounger: 'lounger',
+  'sunscreen-closed': 'sunscreen-closed',
+  'inflatable-swan-big': 'inflatable-swan-big',
+  'sunscreen-big': 'sunscreen-big',
 };
 
-const mapFestivalNodes = (nodes: Record<string, THREE.Object3D>) => {
+const mapScenePropsNodes = (nodes: Record<string, THREE.Object3D>) => {
   const result: Record<string, THREE.Object3D> = {};
 
   // Use the keys from FESTIVAL_MODELS to create the mapping
-  Object.keys(FESTIVAL_MODELS).forEach(key => {
+  Object.keys(SCENE_PROPS_MODELS).forEach(key => {
     result[key] = nodes[key];
   });
 
-  return result as Record<FestivalType, THREE.Object3D>;
+  return result as Record<ScenePropsType, THREE.Object3D>;
 };
 
-const mapBlenderNamesToTypes = (name: string): FestivalType | null => {
+const mapBlenderNamesToTypes = (name: string): ScenePropsType | null => {
   // Handle numbered variations using the utility function
   const baseName = normalizeBlenderName(name);
 
-  return (FESTIVAL_MODELS as Record<string, FestivalType>)[baseName] || null;
+  return (SCENE_PROPS_MODELS as Record<string, ScenePropsType>)[baseName] || null;
 };
 
-const FestivalInstancing = createModelInstancing(
+const ScenePropsInstancing = createModelInstancing(
   MODEL_PATH,
-  mapFestivalNodes,
+  mapScenePropsNodes,
   mapBlenderNamesToTypes
 );
 
 export const {
-  ModelInstances: FestivalInstances,
-  useInstances: useFestivalInstances,
-  InstancesFromBlenderExport: FestivalInstances_Blender,
-  InstancesFromJSON: FestivalInstancesFromJSON,
-} = FestivalInstancing;
+  ModelInstances: ScenePropsInstances,
+  useInstances: useScenePropsInstances,
+  InstancesFromBlenderExport: ScenePropsInstances_Blender,
+  InstancesFromJSON: ScenePropsInstancesFromJSON,
+} = ScenePropsInstancing;

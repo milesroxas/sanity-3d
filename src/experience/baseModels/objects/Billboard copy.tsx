@@ -8,45 +8,44 @@ import { useGLTF } from '@react-three/drei';
 import { ThreeElements } from '@react-three/fiber';
 
 export function Billboard(props: ThreeElements['group']) {
-  const { nodes, materials } = useGLTF('/models/billboard2.glb') as unknown as MeshGLTFModel;
+  const { nodes, materials } = useGLTF('/models/billboard.glb') as unknown as MeshGLTFModel;
   const LowpolyMaterial = createSharedAtlasMaterial(materials);
   return (
     <group {...props} dispose={null}>
-      <group
-        name="b"
-        position={[-15.465, 14.966, 42.659]}
-        rotation={[0, Math.PI / 2, 0]}
-        scale={0.034}
-      >
+      <group rotation={[0, Math.PI / 2, 0]} scale={0.028}>
         <mesh
-          name="b_1001"
           castShadow
           receiveShadow
-          geometry={nodes.b_1001.geometry}
-          material={materials['Material.003']}
+          geometry={nodes.Main_1.geometry}
+          material={materials.lambert3SG}
         />
         <mesh
-          name="b_1001_1"
           castShadow
           receiveShadow
-          geometry={nodes.b_1001_1.geometry}
+          geometry={nodes.Main_2.geometry}
+          material={materials['billboard-graphic']}
+        />
+        <mesh
+          castShadow
+          receiveShadow
+          geometry={nodes.Main_3.geometry}
           material={materials.Light}
         />
         <mesh
-          name="b_1001_2"
           castShadow
           receiveShadow
-          geometry={nodes.b_1001_2.geometry}
-          material={materials['billboard-graphic.001']}
-        />
-        <mesh
-          name="b_1001_3"
-          castShadow
-          receiveShadow
-          geometry={nodes.b_1001_3.geometry}
-          material={materials['Material.004']}
+          geometry={nodes.Main_4.geometry}
+          material={LowpolyMaterial}
         />
       </group>
+      <mesh
+        castShadow
+        receiveShadow
+        geometry={nodes.Base.geometry}
+        material={LowpolyMaterial}
+        rotation={[0, Math.PI / 2, 0]}
+        scale={0.028}
+      />
     </group>
   );
 }

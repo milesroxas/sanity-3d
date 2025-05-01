@@ -1,6 +1,5 @@
 import { vehicles } from '@/experience/animations';
 import { BlenderExportData } from '@/experience/baseModels/shared/types';
-import festivalVehiclesData from '@/experience/data/festival-vehicles.json';
 import parkedCarsData from '@/experience/data/parked-cars.json';
 import {
   VehiclesInstances,
@@ -11,7 +10,6 @@ export function Vehicles() {
   return (
     <VehiclesInstances useSharedMaterial={false}>
       {/* Static vehicles from JSON data */}
-      <VehiclesInstances_Blender instancesData={festivalVehiclesData as BlenderExportData[]} />
       <VehiclesInstances_Blender instancesData={parkedCarsData as BlenderExportData[]} />
 
       {/* Animated vehicles */}

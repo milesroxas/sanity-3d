@@ -1,13 +1,13 @@
 import { Billboard } from '@/experience/baseModels/objects/Billboard';
 import { BlenderExportData } from '@/experience/baseModels/shared/types';
 import fencesData from '@/experience/data/fences.json';
-import festivalData from '@/experience/data/festival.json';
+import ScenePropsData from '@/experience/data/scene-props.json';
 import streetPropsData from '@/experience/data/street-props.json';
 import { FencesInstances, FencesInstances_Blender } from '@/experience/models/FencesInstances';
 import {
-  FestivalInstances,
-  FestivalInstances_Blender,
-} from '@/experience/models/FestivalInstances';
+  ScenePropsInstances,
+  ScenePropsInstances_Blender,
+} from '@/experience/models/ScenePropsInstances';
 import {
   StreetPropsInstances,
   StreetPropsInstances_Blender,
@@ -24,11 +24,11 @@ export function Props() {
         <StreetPropsInstances_Blender instancesData={streetPropsData as BlenderExportData[]} />
       </StreetPropsInstances>
 
-      <FestivalInstances useSharedMaterial={true}>
-        <FestivalInstances_Blender instancesData={festivalData as BlenderExportData[]} />
-      </FestivalInstances>
+      <ScenePropsInstances useSharedMaterial={true}>
+        <ScenePropsInstances_Blender instancesData={ScenePropsData as BlenderExportData[]} />
+      </ScenePropsInstances>
 
-      <Billboard position={[21.090677, 3.260143, -0.0]} />
+      <Billboard />
     </>
   );
 }
