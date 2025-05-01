@@ -12,6 +12,111 @@ export function FestivalBuildings(props: ThreeElements['group']) {
   ) as unknown as MeshGLTFModel;
   return (
     <group {...props} dispose={null}>
+      <group
+        name="ferris-wheel"
+        position={[-154.806, 9.773, 66.322]}
+        rotation={[0, 1.571, 0]}
+        scale={6.138}
+      >
+        <mesh
+          name="ferris-wheel_1"
+          castShadow
+          receiveShadow
+          geometry={nodes['ferris-wheel_1'].geometry}
+          material={materials.GREEN}
+        />
+        <mesh
+          name="ferris-wheel_2"
+          castShadow
+          receiveShadow
+          geometry={nodes['ferris-wheel_2'].geometry}
+          material={materials['58 WHITE']}
+        />
+        <mesh
+          name="ferris-wheel_3"
+          castShadow
+          receiveShadow
+          geometry={nodes['ferris-wheel_3'].geometry}
+          material={materials['27 RED']}
+        />
+        <mesh
+          name="ferris-wheel_4"
+          castShadow
+          receiveShadow
+          geometry={nodes['ferris-wheel_4'].geometry}
+          material={materials['30 YELLOW']}
+        />
+        <mesh
+          name="ferris-wheel_5"
+          castShadow
+          receiveShadow
+          geometry={nodes['ferris-wheel_5'].geometry}
+          material={materials['17 GREY-DARKEST']}
+        />
+        <mesh
+          name="ferris-wheel_6"
+          castShadow
+          receiveShadow
+          geometry={nodes['ferris-wheel_6'].geometry}
+          material={materials.blue}
+        />
+        <mesh
+          name="ferris-wheel_7"
+          castShadow
+          receiveShadow
+          geometry={nodes['ferris-wheel_7'].geometry}
+          material={materials['28 ORANGE']}
+        />
+        <mesh
+          name="ferris-wheel_8"
+          castShadow
+          receiveShadow
+          geometry={nodes['ferris-wheel_8'].geometry}
+          material={materials['27 RED']}
+        />
+        <mesh
+          name="ferris-wheel_9"
+          castShadow
+          receiveShadow
+          geometry={nodes['ferris-wheel_9'].geometry}
+          material={materials['44 BLUE']}
+        />
+        <mesh
+          name="ferris-wheel_10"
+          castShadow
+          receiveShadow
+          geometry={nodes['ferris-wheel_10'].geometry}
+          material={materials['28 ORANGE']}
+        />
+      </group>
+      <group
+        name="stage"
+        position={[-158.828, 4.975, 43.436]}
+        rotation={[0, Math.PI / 4, 0]}
+        scale={7.75}
+      >
+        <mesh
+          name="stage_1"
+          castShadow
+          receiveShadow
+          geometry={nodes.stage_1.geometry}
+          material={materials.Black}
+        />
+        <mesh
+          name="stage_2"
+          castShadow
+          receiveShadow
+          geometry={nodes.stage_2.geometry}
+          material={materials['55 EMISSION-PURPLE.001']}
+        />
+        <mesh
+          name="stage_3"
+          castShadow
+          receiveShadow
+          geometry={nodes.stage_3.geometry}
+          material={materials['60 EMISSION-RED']}
+        />
+      </group>
       <group name="tent-circus-big" position={[-119.088, 2.667, 92.776]} rotation={[0, 0.664, 0]}>
         <mesh
           name="tent-circus-big_1"
@@ -47,111 +152,6 @@ export function FestivalBuildings(props: ThreeElements['group']) {
           receiveShadow
           geometry={nodes['tent-circus-big_5'].geometry}
           material={materials['20 GREY.016']}
-        />
-      </group>
-      <group
-        name="Cube001"
-        position={[-158.828, 4.975, 43.436]}
-        rotation={[0, Math.PI / 4, 0]}
-        scale={7.75}
-      >
-        <mesh
-          name="Cube001_1"
-          castShadow
-          receiveShadow
-          geometry={nodes.Cube001_1.geometry}
-          material={materials.Black}
-        />
-        <mesh
-          name="Cube001_2"
-          castShadow
-          receiveShadow
-          geometry={nodes.Cube001_2.geometry}
-          material={materials['55 EMISSION-PURPLE.001']}
-        />
-        <mesh
-          name="Cube001_3"
-          castShadow
-          receiveShadow
-          geometry={nodes.Cube001_3.geometry}
-          material={materials['60 EMISSION-RED']}
-        />
-      </group>
-      <group
-        name="ferris_wheel002"
-        position={[-154.806, 9.773, 66.322]}
-        rotation={[0, 1.571, 0]}
-        scale={6.138}
-      >
-        <mesh
-          name="ferris_wheel-Mesh002"
-          castShadow
-          receiveShadow
-          geometry={nodes['ferris_wheel-Mesh002'].geometry}
-          material={materials.GREEN}
-        />
-        <mesh
-          name="ferris_wheel-Mesh002_1"
-          castShadow
-          receiveShadow
-          geometry={nodes['ferris_wheel-Mesh002_1'].geometry}
-          material={materials['58 WHITE']}
-        />
-        <mesh
-          name="ferris_wheel-Mesh002_2"
-          castShadow
-          receiveShadow
-          geometry={nodes['ferris_wheel-Mesh002_2'].geometry}
-          material={materials['27 RED']}
-        />
-        <mesh
-          name="ferris_wheel-Mesh002_3"
-          castShadow
-          receiveShadow
-          geometry={nodes['ferris_wheel-Mesh002_3'].geometry}
-          material={materials['30 YELLOW']}
-        />
-        <mesh
-          name="ferris_wheel-Mesh002_4"
-          castShadow
-          receiveShadow
-          geometry={nodes['ferris_wheel-Mesh002_4'].geometry}
-          material={materials['17 GREY-DARKEST']}
-        />
-        <mesh
-          name="ferris_wheel-Mesh002_5"
-          castShadow
-          receiveShadow
-          geometry={nodes['ferris_wheel-Mesh002_5'].geometry}
-          material={materials.blue}
-        />
-        <mesh
-          name="ferris_wheel-Mesh002_6"
-          castShadow
-          receiveShadow
-          geometry={nodes['ferris_wheel-Mesh002_6'].geometry}
-          material={materials['28 ORANGE']}
-        />
-        <mesh
-          name="ferris_wheel-Mesh002_7"
-          castShadow
-          receiveShadow
-          geometry={nodes['ferris_wheel-Mesh002_7'].geometry}
-          material={materials['27 RED']}
-        />
-        <mesh
-          name="ferris_wheel-Mesh002_8"
-          castShadow
-          receiveShadow
-          geometry={nodes['ferris_wheel-Mesh002_8'].geometry}
-          material={materials['44 BLUE']}
-        />
-        <mesh
-          name="ferris_wheel-Mesh002_9"
-          castShadow
-          receiveShadow
-          geometry={nodes['ferris_wheel-Mesh002_9'].geometry}
-          material={materials['28 ORANGE']}
         />
       </group>
     </group>

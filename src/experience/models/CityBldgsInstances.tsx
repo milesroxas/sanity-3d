@@ -16,7 +16,8 @@ type CityBldgsType =
   | 'building-casino'
   | 'building-carwash'
   | 'building-block-5floor-front'
-  | 'building-block-5floor-corner';
+  | 'building-block-5floor-corner'
+  | 'industry-warehouse';
 
 type CityBldgsInstances = ModelInstances & {
   [K in CityBldgsType]: ModelInstanceComponent;
@@ -39,6 +40,7 @@ const mapCityBldgsNodes = (nodes: Record<string, THREE.Object3D>) => {
     'building-carwash': nodes['building-carwash'],
     'building-block-5floor-front': nodes['building-block-5floor-front'],
     'building-block-5floor-corner': nodes['building-block-5floor-corner'],
+    'industry-warehouse': nodes['industry-warehouse'],
   };
 };
 
@@ -59,6 +61,7 @@ const mapBlenderNamesToTypes = (name: string): CityBldgsType | null => {
     'building-carwash': 'building-carwash',
     'building-block-5floor-front': 'building-block-5floor-front',
     'building-block-5floor-corner': 'building-block-5floor-corner',
+    'industry-warehouse': 'industry-warehouse',
   };
 
   return nameMap[baseName] || null;

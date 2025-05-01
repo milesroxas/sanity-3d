@@ -13,37 +13,37 @@ export function Billboard(props: ThreeElements['group']) {
   return (
     <group {...props} dispose={null}>
       <group
-        name="b"
-        position={[-15.465, 14.966, 42.659]}
+        name="billboard"
+        position={[-15.378, 14.784, 43.124]}
         rotation={[0, Math.PI / 2, 0]}
         scale={0.034}
       >
         <mesh
-          name="b_1001"
+          name="billboard_1"
           castShadow
           receiveShadow
-          geometry={nodes.b_1001.geometry}
+          geometry={nodes.billboard_1.geometry}
           material={materials['Material.003']}
         />
         <mesh
-          name="b_1001_1"
+          name="billboard_2"
           castShadow
           receiveShadow
-          geometry={nodes.b_1001_1.geometry}
+          geometry={nodes.billboard_2.geometry}
           material={materials.Light}
         />
         <mesh
-          name="b_1001_2"
+          name="billboard_3"
           castShadow
           receiveShadow
-          geometry={nodes.b_1001_2.geometry}
+          geometry={nodes.billboard_3.geometry}
           material={materials['billboard-graphic.001']}
         />
         <mesh
-          name="b_1001_3"
+          name="billboard_4"
           castShadow
           receiveShadow
-          geometry={nodes.b_1001_3.geometry}
+          geometry={nodes.billboard_4.geometry}
           material={materials['Material.004']}
         />
       </group>
