@@ -41,14 +41,17 @@ interface CameraControls {
   };
 }
 
-// Debounce utility function
-const debounce = (fn: Function, delay: number) => {
+// Typed debounce utility function
+function debounce<T extends (...args: any[]) => void>(
+  fn: T,
+  delay: number
+): (...args: Parameters<T>) => void {
   let timer: NodeJS.Timeout;
-  return (...args: any[]) => {
+  return (...args: Parameters<T>) => {
     clearTimeout(timer);
     timer = setTimeout(() => fn(...args), delay);
   };
-};
+}
 
 export function MainSceneCameraSystem() {
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
