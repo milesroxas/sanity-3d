@@ -1,44 +1,60 @@
-import { defineField, defineType } from "sanity";
-import { LayoutGrid } from "lucide-react";
+import { LayoutGrid } from 'lucide-react';
+import { defineField, defineType } from 'sanity';
+import link from '../shared/link';
 
 export default defineType({
-  name: "grid-card",
-  type: "object",
+  name: 'grid-card',
+  type: 'object',
   icon: LayoutGrid,
   fields: [
     defineField({
-      name: "title",
-      type: "string",
+      name: 'style',
+      title: 'Card Style',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Default', value: 'default' },
+          { title: 'Minimal', value: 'minimal' },
+          { title: 'Accent', value: 'accent' },
+        ],
+        layout: 'dropdown',
+      },
+      initialValue: 'default',
     }),
     defineField({
-      name: "excerpt",
-      type: "text",
+      name: 'title',
+      type: 'string',
     }),
     defineField({
-      name: "image",
-      type: "image",
+      name: 'excerpt',
+      type: 'text',
+    }),
+    defineField({
+      name: 'image',
+      type: 'image',
       fields: [
         {
-          name: "alt",
-          type: "string",
-          title: "Alternative Text",
+          name: 'alt',
+          type: 'string',
+          title: 'Alternative Text',
         },
       ],
     }),
     defineField({
-      name: "link",
-      type: "link",
+      name: 'link',
+      type: link.name,
     }),
   ],
   preview: {
     select: {
-      title: "title",
-      media: "image",
+      title: 'title',
+      media: 'image',
+      style: 'style',
     },
-    prepare({ title, media }) {
+    prepare({ title, media, style }) {
       return {
-        title: "Grid Card",
-        subtitle: title || "No title",
+        title: `Grid Card${style !== 'default' ? ` — ${style}` : ''}`,
+        subtitle: title || 'No title',
         media,
       };
     },

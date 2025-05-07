@@ -1,14 +1,16 @@
-import { groq } from "next-sanity";
-import { splitContentQuery } from "./split-content";
-import { splitCardsListQuery } from "./split-cards-list";
-import { splitImageQuery } from "./split-image";
-import { splitInfoListQuery } from "./split-info-list";
-import { splitVideoQuery } from "./split-video";
+import { groq } from 'next-sanity';
+import { splitCardsListQuery } from './split-cards-list';
+import { splitContentQuery } from './split-content';
+import { splitImageQuery } from './split-image';
+import { splitInfoListQuery } from './split-info-list';
+import { splitVideoQuery } from './split-video';
 export const splitRowQuery = groq`
   _type == "split-row" => {
     _type,
     padding,
     colorVariant,
+    styleVariant,
+    themeVariant,
     noGap,
     splitColumns[]{
       ${splitContentQuery}

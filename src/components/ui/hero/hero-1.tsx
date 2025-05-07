@@ -1,9 +1,9 @@
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import Image from "next/image";
-import { urlFor } from "@/sanity/lib/image";
-import { PortableTextBlock, stegaClean } from "next-sanity";
-import PortableTextRenderer from "@/components/portable-text-renderer";
+import PortableTextRenderer from '@/components/portable-text-renderer';
+import { Button } from '@/components/ui/button';
+import { urlFor } from '@/sanity/lib/image';
+import { PortableTextBlock, stegaClean } from 'next-sanity';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Hero1({
   tagLine,
@@ -21,65 +21,78 @@ export default function Hero1({
     href: string;
     target?: boolean;
     buttonVariant:
-      | "default"
-      | "secondary"
-      | "link"
-      | "destructive"
-      | "outline"
-      | "ghost"
+      | 'default'
+      | 'secondary'
+      | 'link'
+      | 'destructive'
+      | 'outline'
+      | 'ghost'
       | null
       | undefined;
   }[];
 }>) {
   return (
-    <div className="container dark:bg-background py-20 lg:pt-40">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="flex flex-col justify-center">
-          {tagLine && (
-            <h1 className="leading-[0] font-sans">
-              <span className="text-base font-semibold">{tagLine}</span>
-            </h1>
+    <div className="flex min-h-[100vh] w-full flex-col bg-accent md:flex-row">
+      {/* Left Content */}
+      <div className="flex w-full flex-col justify-center p-8 md:w-1/2 md:p-16 lg:p-24">
+        <div className="mx-auto max-w-xl">
+          {tagLine && <h1 className="mb-2 text-muted-foreground md:text-base">{tagLine}</h1>}
+
+          {title && (
+            <h2 className="mb-6 text-3xl font-bold text-foreground md:text-4xl">{title}</h2>
           )}
-          {title && <h2 className="mt-6 font-bold leading-[1.1]">{title}</h2>}
-          {body && (
-            <div className="text-lg mt-6">
-              <PortableTextRenderer value={body} />
-            </div>
-          )}
+
+          {body && <PortableTextRenderer value={body} className="mb-8 text-muted-foreground" />}
+
           {links && links.length > 0 && (
             <div className="mt-10 flex flex-wrap gap-4">
-              {links.map((link) => (
-                <Button
-                  key={link.title}
-                  variant={stegaClean(link?.buttonVariant)}
-                  asChild
-                >
-                  <Link
-                    href={link.href as string}
-                    target={link.target ? "_blank" : undefined}
-                    rel={link.target ? "noopener" : undefined}
+              {links.map(link => {
+                if (!link) return null;
+                // Reference type
+                if ((link as any)._type === 'reference' && (link as any).slug) {
+                  const ref = link as { _id?: string; title?: string; slug?: { current: string } };
+                  return (
+                    <Button key={ref._id || ref.title} variant="default" asChild>
+                      <Link href={`/${ref.slug?.current || ''}`}>{ref.title}</Link>
+                    </Button>
+                  );
+                }
+                // Custom link type
+                return (
+                  <Button
+                    key={link.title}
+                    variant={stegaClean((link as any)?.buttonVariant)}
+                    asChild
                   >
-                    {link.title}
-                  </Link>
-                </Button>
-              ))}
+                    <Link
+                      href={(link as any).href as string}
+                      target={(link as any).target ? '_blank' : undefined}
+                      rel={(link as any).target ? 'noopener' : undefined}
+                    >
+                      {link.title}
+                    </Link>
+                  </Button>
+                );
+              })}
             </div>
           )}
         </div>
-        <div className="flex flex-col justify-center">
-          {image && image.asset?._id && (
-            <Image
-              className="rounded-md"
-              src={urlFor(image.asset).url()}
-              alt={image.alt || ""}
-              width={image.asset?.metadata?.dimensions?.width || 800}
-              height={image.asset?.metadata?.dimensions?.height || 800}
-              placeholder={image?.asset?.metadata?.lqip ? "blur" : undefined}
-              blurDataURL={image?.asset?.metadata?.lqip || ""}
-              quality={100}
-            />
-          )}
-        </div>
+      </div>
+      {/* Right Image */}
+
+      <div className="relative w-full md:w-1/2">
+        {image && image.asset?._id && (
+          <Image
+            className="h-full max-h-screen w-full object-cover"
+            src={urlFor(image.asset).url()}
+            alt={image.alt || ''}
+            width={image.asset?.metadata?.dimensions?.width || 800}
+            height={image.asset?.metadata?.dimensions?.height || 800}
+            placeholder={image?.asset?.metadata?.lqip ? 'blur' : undefined}
+            blurDataURL={image?.asset?.metadata?.lqip || ''}
+            quality={100}
+          />
+        )}
       </div>
     </div>
   );

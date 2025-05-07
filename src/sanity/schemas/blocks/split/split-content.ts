@@ -1,54 +1,54 @@
-import { defineField, defineType } from "sanity";
-import { TextQuote } from "lucide-react";
+import { TextQuote } from 'lucide-react';
+import { defineField, defineType } from 'sanity';
+import link from '../shared/link';
 
 export default defineType({
-  name: "split-content",
-  type: "object",
+  name: 'split-content',
+  type: 'object',
   icon: TextQuote,
-  title: "Split Content",
-  description: "Column with tag line, title and content body.",
+  title: 'Split Content',
+  description: 'Column with tag line, title and content body.',
   fields: [
     defineField({
-      name: "sticky",
-      type: "boolean",
-      description: "Sticky column on desktop",
+      name: 'sticky',
+      type: 'boolean',
+      description: 'Sticky column on desktop',
       initialValue: false,
     }),
     defineField({
-      name: "padding",
-      type: "section-padding",
+      name: 'padding',
+      type: 'section-padding',
     }),
     defineField({
-      name: "colorVariant",
-      type: "color-variant",
-      description: "Select a background color variant",
+      name: 'colorVariant',
+      type: 'color-variant',
+      description: 'Select a background color variant',
     }),
     defineField({
-      name: "tagLine",
-      type: "string",
+      name: 'tagLine',
+      type: 'string',
     }),
     defineField({
-      name: "title",
-      type: "string",
+      name: 'title',
+      type: 'string',
     }),
     defineField({
-      name: "body",
-      type: "block-content",
+      name: 'body',
+      type: 'block-content',
     }),
     defineField({
-      name: "link",
-      type: "link",
-      description:
-        "Link to a page or external URL. Leave empty to hide the link.",
+      name: 'link',
+      type: link.name,
+      description: 'Link to a page or external URL. Leave empty to hide the link.',
     }),
   ],
   preview: {
     select: {
-      title: "title",
+      title: 'title',
     },
     prepare({ title }) {
       return {
-        title: title || "No Title",
+        title: title || 'No Title',
       };
     },
   },

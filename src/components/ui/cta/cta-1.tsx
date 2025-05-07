@@ -1,29 +1,29 @@
-import { cn } from "@/lib/utils";
-import type { PortableTextBlock } from "@portabletext/react";
+import { cn } from '@/lib/utils';
+import type { PortableTextBlock } from '@portabletext/react';
 
-import { Button } from "@/components/ui/button";
+import PortableTextRenderer from '@/components/portable-text-renderer';
+import { Button } from '@/components/ui/button';
 import SectionContainer, {
   ISectionContainer,
   ISectionPadding,
-} from "@/components/ui/section-container";
-import { stegaClean } from "next-sanity";
-import Link from "next/link";
-import PortableTextRenderer from "@/components/portable-text-renderer";
+} from '@/components/ui/section-container';
+import { stegaClean } from 'next-sanity';
+import Link from 'next/link';
 
 export default function Cta1({
   padding,
   colorVariant,
-  sectionWidth = "default",
-  stackAlign = "left",
+  sectionWidth = 'default',
+  stackAlign = 'left',
   tagLine,
   title,
   body,
   links,
 }: Partial<{
   padding: ISectionPadding;
-  colorVariant: ISectionContainer["color"];
-  stackAlign: "left" | "center";
-  sectionWidth: "default" | "narrow";
+  colorVariant: ISectionContainer['color'];
+  stackAlign: 'left' | 'center';
+  sectionWidth: 'default' | 'narrow';
   tagLine: string;
   title: string;
   body: PortableTextBlock[];
@@ -32,17 +32,17 @@ export default function Cta1({
     href: string;
     target?: boolean;
     buttonVariant:
-      | "default"
-      | "secondary"
-      | "link"
-      | "destructive"
-      | "outline"
-      | "ghost"
+      | 'default'
+      | 'secondary'
+      | 'link'
+      | 'destructive'
+      | 'outline'
+      | 'ghost'
       | null
       | undefined;
   }[];
 }>) {
-  const isNarrow = stegaClean(sectionWidth) === "narrow";
+  const isNarrow = stegaClean(sectionWidth) === 'narrow';
   const align = stegaClean(stackAlign);
   const color = stegaClean(colorVariant);
 
@@ -50,15 +50,13 @@ export default function Cta1({
     <SectionContainer color={color} padding={padding}>
       <div
         className={cn(
-          align === "center" ? "max-w-[48rem] text-center mx-auto" : undefined,
-          isNarrow ? "max-w-[48rem] mx-auto" : undefined
+          align === 'center' ? 'mx-auto max-w-[48rem] text-center' : undefined,
+          isNarrow ? 'mx-auto max-w-[48rem]' : undefined
         )}
       >
-        <div
-          className={cn(color === "primary" ? "text-background" : undefined)}
-        >
+        <div className={cn(color === 'primary' ? 'text-background' : undefined)}>
           {tagLine && (
-            <h1 className="leading-[0] mb-4">
+            <h1 className="mb-4 leading-[0]">
               <span className="text-base font-semibold">{tagLine}</span>
             </h1>
           )}
@@ -68,27 +66,38 @@ export default function Cta1({
         {links && links.length > 0 && (
           <div
             className={cn(
-              "mt-10 flex flex-wrap gap-4",
-              align === "center" ? "justify-center" : undefined
+              'mt-10 flex flex-wrap gap-4',
+              align === 'center' ? 'justify-center' : undefined
             )}
           >
             {links &&
               links.length > 0 &&
-              links.map((link) => (
-                <Button
-                  key={link.title}
-                  variant={stegaClean(link?.buttonVariant)}
-                  asChild
-                >
-                  <Link
-                    href={link.href as string}
-                    target={link.target ? "_blank" : undefined}
-                    rel={link.target ? "noopener" : undefined}
+              links.map(link => {
+                if (!link) return null;
+                if ((link as any)._type === 'reference' && (link as any).slug) {
+                  const ref = link as { _id?: string; title?: string; slug?: { current: string } };
+                  return (
+                    <Button key={ref._id || ref.title} variant="default" asChild>
+                      <Link href={`/${ref.slug?.current || ''}`}>{ref.title}</Link>
+                    </Button>
+                  );
+                }
+                return (
+                  <Button
+                    key={link.title}
+                    variant={stegaClean((link as any)?.buttonVariant)}
+                    asChild
                   >
-                    {link.title}
-                  </Link>
-                </Button>
-              ))}
+                    <Link
+                      href={(link as any).href as string}
+                      target={(link as any).target ? '_blank' : undefined}
+                      rel={(link as any).target ? 'noopener' : undefined}
+                    >
+                      {link.title}
+                    </Link>
+                  </Button>
+                );
+              })}
           </div>
         )}
       </div>

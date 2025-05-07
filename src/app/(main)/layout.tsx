@@ -1,19 +1,15 @@
-import Header from "@/components/header";
-import Footer from "@/components/footer";
-import { DisableDraftMode } from "@/components/disable-draft-mode";
-import { VisualEditing } from "next-sanity";
-import { draftMode } from "next/headers";
-import { SanityLive } from "@/sanity/lib/live";
+import { DisableDraftMode } from '@/components/disable-draft-mode';
+import Footer from '@/components/footer';
+import Header from '@/components/header';
+import { SanityLive } from '@/sanity/lib/live';
+import { VisualEditing } from 'next-sanity';
+import { draftMode } from 'next/headers';
 
-export default async function MainLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Header />
-      <main>{children}</main>
+      {children}
       <SanityLive />
       {(await draftMode()).isEnabled && (
         <>

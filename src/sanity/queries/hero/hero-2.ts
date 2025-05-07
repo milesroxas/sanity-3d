@@ -1,4 +1,4 @@
-import { groq } from "next-sanity";
+import { groq } from 'next-sanity';
 
 export const hero2Query = groq`
   _type == "hero-2" => {
@@ -23,6 +23,10 @@ export const hero2Query = groq`
         }
       }
     },
-    links,
+    links[] {
+      ...,
+      _type,
+      _type == 'reference' => @->{_id, _type, title, slug},
+    },
   },
 `;

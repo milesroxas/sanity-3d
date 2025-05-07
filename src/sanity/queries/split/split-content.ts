@@ -1,4 +1,4 @@
-import { groq } from "next-sanity";
+import { groq } from 'next-sanity';
 
 export const splitContentQuery = groq`
   _type == "split-content" => {
@@ -26,6 +26,10 @@ export const splitContentQuery = groq`
         }
       }
     },
-    link,
+    link[] {
+      ...,
+      _type,
+      _type == 'reference' => @->{_id, _type, title, slug},
+    },
   },
 `;

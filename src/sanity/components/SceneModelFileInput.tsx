@@ -1,16 +1,13 @@
-import React, { useState } from "react";
-import { Stack, Select, Card, Text } from "@sanity/ui";
-import { set, unset, StringInputProps } from "sanity";
-import { useListBucketFiles } from "@/hooks/useListBucketFiles";
+import { useListBucketFiles } from '@/hooks/useListBucketFiles';
+import { Card, Select, Stack, Text } from '@sanity/ui';
+import React, { useState } from 'react';
+import { set, StringInputProps, unset } from 'sanity';
 
-const SceneModelFileInput: React.FC<StringInputProps> = ({
-  value,
-  onChange,
-}) => {
-  const bucketName = "sanity-models"; // Bucket name for files
+const SceneModelFileInput: React.FC<StringInputProps> = ({ value, onChange }) => {
+  const bucketName = 'sanity-models'; // Bucket name for files
   const { files, error, loading } = useListBucketFiles(bucketName); // Fetch existing files
 
-  const [selectedFile, setSelectedFile] = useState<string>(value || "");
+  const [selectedFile, setSelectedFile] = useState<string>(value || '');
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -29,17 +26,17 @@ const SceneModelFileInput: React.FC<StringInputProps> = ({
     setIsUploading(true);
     try {
       const formData = new FormData();
-      formData.append("file", file);
-      formData.append("bucketName", bucketName); // Pass the bucket name
+      formData.append('file', file);
+      formData.append('bucketName', bucketName); // Pass the bucket name
 
       // Send the file to the server-side API for secure upload
-      const response = await fetch("/api/upload", {
-        method: "POST",
+      const response = await fetch('/api/upload', {
+        method: 'POST',
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error("Failed to upload file.");
+        throw new Error('Failed to upload file.');
       }
 
       const data = await response.json();
@@ -47,8 +44,8 @@ const SceneModelFileInput: React.FC<StringInputProps> = ({
       onChange(set(data.publicUrl)); // Update the value in Sanity Studio
       setUploadError(null);
     } catch (error) {
-      console.error("Upload error:", error);
-      setUploadError("An error occurred while uploading the file.");
+      console.error('Upload error:', error);
+      setUploadError('An error occurred while uploading the file.');
     } finally {
       setIsUploading(false);
     }
@@ -64,13 +61,9 @@ const SceneModelFileInput: React.FC<StringInputProps> = ({
       )}
 
       {/* Dropdown for selecting an existing file */}
-      <Select
-        value={selectedFile}
-        onChange={handleSelectChange}
-        disabled={loading}
-      >
+      <Select value={selectedFile} onChange={handleSelectChange} disabled={loading}>
         <option value="">Select an existing file</option>
-        {files.map((file) => (
+        {files.map(file => (
           <option key={file.name} value={file.url}>
             {file.name}
           </option>
@@ -80,6 +73,7 @@ const SceneModelFileInput: React.FC<StringInputProps> = ({
       {/* File input for uploading a new file */}
       <input
         type="file"
+        title="Upload a new file"
         onChange={handleUpload}
         disabled={isUploading || loading}
       />

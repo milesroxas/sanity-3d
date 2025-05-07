@@ -1,13 +1,12 @@
-import Blocks from "@/components/blocks";
-import { fetchSanityPageBySlug } from "../actions";
-import { notFound } from "next/navigation";
-import { generatePageMetadata } from "@/lib/metadata";
+import { Wrapper } from '@/app/(components)/wrapper';
+import Blocks from '@/components/blocks';
+import { generatePageMetadata } from '@/lib/metadata';
+import { notFound } from 'next/navigation';
+import { fetchSanityPageBySlug } from '../actions';
 
-export const dynamic = "force-static";
+export const dynamic = 'force-static';
 
-export async function generateMetadata(props: {
-  params: Promise<{ slug: string }>;
-}) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
   const page = await fetchSanityPageBySlug({ slug: params.slug });
 
@@ -18,9 +17,7 @@ export async function generateMetadata(props: {
   return generatePageMetadata({ page, slug: params.slug });
 }
 
-export default async function Page(props: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function Page(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
   const page = await fetchSanityPageBySlug({ slug: params.slug });
 
@@ -28,5 +25,9 @@ export default async function Page(props: {
     notFound();
   }
 
-  return <Blocks blocks={page?.blocks} />;
+  return (
+    <Wrapper>
+      <Blocks blocks={page?.blocks} />
+    </Wrapper>
+  );
 }

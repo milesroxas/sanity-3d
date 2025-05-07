@@ -50,4 +50,4 @@ export function Billboard(props: ThreeElements['group']) {
   );
 }
 
-useGLTF.preload('/models/billboard.glb');
+useGLTF.preload('/models/billboard2.glb');

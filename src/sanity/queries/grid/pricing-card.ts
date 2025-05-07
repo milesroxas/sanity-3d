@@ -1,4 +1,4 @@
-import { groq } from "next-sanity";
+import { groq } from 'next-sanity';
 
 export const pricingCardQuery = groq`
   _type == "pricing-card" => {
@@ -8,6 +8,10 @@ export const pricingCardQuery = groq`
     price,
     list[],
     excerpt,
-    link,
+    link[] {
+      ...,
+      _type,
+      _type == 'reference' => @->{_id, _type, title, slug},
+    },
   },
 `;

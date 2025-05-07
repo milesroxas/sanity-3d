@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
 export const DEFAULT_PADDING = {
   top: true,
@@ -12,30 +12,43 @@ export interface ISectionPadding {
 
 export interface ISectionContainer {
   color?:
-    | "primary"
-    | "secondary"
-    | "card"
-    | "accent"
-    | "destructive"
-    | "background"
-    | "transparent";
+    | 'primary'
+    | 'secondary'
+    | 'card'
+    | 'accent'
+    | 'destructive'
+    | 'background'
+    | 'transparent';
+  theme?: 'light' | 'dark' | 'accent';
+  style?: 'default' | 'offset';
   children: React.ReactNode;
   className?: string;
   padding?: ISectionPadding | null | undefined;
+  ref?: React.RefObject<HTMLDivElement>;
 }
 
 export default function SectionContainer({
-  color = "background",
+  color = 'background',
+  theme,
+  style,
   padding,
   children,
   className,
+  ref,
 }: ISectionContainer) {
   return (
     <div
       className={cn(
-        `bg-${color} relative`,
-        padding?.top ? "pt-16 xl:pt-20" : undefined,
-        padding?.bottom ? "pb-16 xl:pb-20" : undefined,
+        color !== 'transparent' && `bg-${color}`,
+        theme === 'light'
+          ? 'bg-background text-foreground'
+          : theme === 'dark'
+            ? 'bg-slate-950 text-white'
+            : theme === 'accent'
+              ? 'bg-primary text-primary-foreground'
+              : undefined,
+        padding?.top ? 'pt-16 xl:pt-32' : undefined,
+        padding?.bottom ? 'pb-16 xl:pb-32' : undefined,
         className
       )}
     >
