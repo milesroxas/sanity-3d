@@ -39,7 +39,7 @@ export default function Hero1({
           {tagLine && <h1 className="mb-2 text-muted-foreground md:text-base">{tagLine}</h1>}
 
           {title && (
-            <h2 className="mb-6 text-3xl font-bold text-foreground md:text-4xl">{title}</h2>
+            <h2 className="mb-6 text-3xl font-bold text-card-foreground md:text-4xl">{title}</h2>
           )}
 
           {body && <PortableTextRenderer value={body} className="mb-8 text-muted-foreground" />}

@@ -1,7 +1,7 @@
 'use client';
 
 import SectionContainer, {
-  ISectionContainer,
+  ISectionContainerProps,
   ISectionPadding,
 } from '@/components/ui/section-container';
 import { cn } from '@/lib/utils';
@@ -33,9 +33,9 @@ export default function SplitRow({
   splitColumns,
 }: Partial<{
   padding: ISectionPadding;
-  colorVariant: ISectionContainer['color'];
-  themeVariant: ISectionContainer['theme'];
-  styleVariant: ISectionContainer['style'];
+  colorVariant: ISectionContainerProps['color'];
+  themeVariant: ISectionContainerProps['theme'];
+  styleVariant: ISectionContainerProps['style'];
   noGap: boolean;
   splitColumns: Array<{
     _type: 'split-content' | 'split-cards-list' | 'split-image' | 'split-info-list' | 'split-video';

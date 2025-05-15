@@ -58,6 +58,10 @@ export const featuredContentOffsetQuery = groq`
       ...,
       _type,
       _type == 'reference' => @->{_id, _type, title, slug},
+      _type == 'customLink' => {
+        ...,
+        buttonVariant
+      }
     },
     testimonials[] {
       ...,

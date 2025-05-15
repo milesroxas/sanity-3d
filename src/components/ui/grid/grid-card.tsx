@@ -8,7 +8,7 @@ import React from 'react';
 
 interface GridCardProps {
   color: 'primary' | 'secondary' | 'card' | 'accent' | 'destructive' | 'background' | 'transparent';
-  style: 'default' | 'minimal' | 'accent';
+  style: 'default' | 'minimal' | 'accent' | 'data';
   title: string;
   excerpt: string;
   image: Sanity.Image;

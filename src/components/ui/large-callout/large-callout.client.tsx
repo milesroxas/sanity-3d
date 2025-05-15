@@ -32,9 +32,9 @@ export default function LargeCalloutClient({ body }: { body: PortableTextBlock[]
         // animate each word to fade in
         const tween = gsap.from(split.words, {
           opacity: 0,
-          duration: 0.5,
+          duration: 1,
           ease: 'power1.out',
-          stagger: 0.03,
+          stagger: 0.08,
           scrollTrigger: {
             trigger: p,
             start: 'top 75%',
@@ -66,7 +66,7 @@ export default function LargeCalloutClient({ body }: { body: PortableTextBlock[]
       {body && Array.isArray(body) && body.length > 0 ? (
         <PortableTextRenderer
           value={body}
-          className="mb-8 max-w-4xl text-2xl text-muted-foreground lg:text-5xl/snug"
+          className="mb-8 max-w-4xl py-16 text-2xl text-muted-foreground lg:py-32 lg:text-5xl/snug"
         />
       ) : (
         <p className="mb-8 max-w-4xl text-2xl text-muted-foreground lg:text-5xl/snug">

@@ -1,10 +1,10 @@
-import { cn } from "@/lib/utils";
-import SectionContainer from "@/components/ui/section-container";
-import { stegaClean } from "next-sanity";
+import SectionContainer from '@/components/ui/section-container';
+import { cn } from '@/lib/utils';
+import { stegaClean } from 'next-sanity';
 // import only the components you need
-import GridCard from "./grid-card";
-import PricingCard from "./pricing-card";
-import GridPost from "./grid-post";
+import GridCard from './grid-card';
+import GridPost from './grid-post';
+import PricingCard from './pricing-card';
 
 interface Grid1Props {
   padding: {
@@ -12,22 +12,22 @@ interface Grid1Props {
     bottom: boolean;
   };
   colorVariant:
-    | "primary"
-    | "secondary"
-    | "card"
-    | "accent"
-    | "destructive"
-    | "background"
-    | "transparent";
-  gridColumns: "grid-cols-2" | "grid-cols-3" | "grid-cols-4";
+    | 'primary'
+    | 'secondary'
+    | 'card'
+    | 'accent'
+    | 'destructive'
+    | 'background'
+    | 'transparent';
+  gridColumns: 'grid-cols-2' | 'grid-cols-3' | 'grid-cols-4';
   columns: Sanity.Block[];
 }
 
 // map all components you need
 const componentMap: { [key: string]: React.ComponentType<any> } = {
-  "grid-card": GridCard,
-  "pricing-card": PricingCard,
-  "grid-post": GridPost,
+  'grid-card': GridCard,
+  'pricing-card': PricingCard,
+  'grid-post': GridPost,
 };
 
 export default function GridRow({
@@ -41,12 +41,7 @@ export default function GridRow({
   return (
     <SectionContainer color={color} padding={padding}>
       {columns && columns?.length > 0 && (
-        <div
-          className={cn(
-            `grid grid-cols-1 gap-6`,
-            `lg:${stegaClean(gridColumns)}`
-          )}
-        >
+        <div className={cn(`grid grid-cols-1 gap-6`, `lg:${stegaClean(gridColumns)}`)}>
           {columns.map((block: Sanity.Block) => {
             const Component = componentMap[block._type];
             if (!Component) {

@@ -2,7 +2,7 @@
 
 import PortableTextRenderer from '@/components/portable-text-renderer';
 import { Button } from '@/components/ui/button';
-import { ISectionContainer } from '@/components/ui/section-container';
+import { ISectionContainerProps } from '@/components/ui/section-container';
 import TagLine from '@/components/ui/tag-line';
 import { cn } from '@/lib/utils';
 import { PortableTextBlock, stegaClean } from 'next-sanity';
@@ -11,11 +11,11 @@ import { createElement } from 'react';
 
 export interface SplitContentProps {
   sticky: boolean;
-  color: ISectionContainer['color'];
-  colorVariant: ISectionContainer['color'];
-  styleVariant: ISectionContainer['style'];
-  themeVariant: ISectionContainer['theme'];
-  padding: ISectionContainer['padding'];
+  color: ISectionContainerProps['color'];
+  colorVariant: ISectionContainerProps['color'];
+  styleVariant: ISectionContainerProps['style'];
+  themeVariant: ISectionContainerProps['theme'];
+  padding: ISectionContainerProps['padding'];
   noGap: boolean;
   tagLine: string;
   title: string;

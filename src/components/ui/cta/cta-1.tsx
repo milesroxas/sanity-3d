@@ -4,7 +4,7 @@ import type { PortableTextBlock } from '@portabletext/react';
 import PortableTextRenderer from '@/components/portable-text-renderer';
 import { Button } from '@/components/ui/button';
 import SectionContainer, {
-  ISectionContainer,
+  ISectionContainerProps,
   ISectionPadding,
 } from '@/components/ui/section-container';
 import { stegaClean } from 'next-sanity';
@@ -21,7 +21,7 @@ export default function Cta1({
   links,
 }: Partial<{
   padding: ISectionPadding;
-  colorVariant: ISectionContainer['color'];
+  colorVariant: ISectionContainerProps['color'];
   stackAlign: 'left' | 'center';
   sectionWidth: 'default' | 'narrow';
   tagLine: string;

@@ -1,9 +1,9 @@
 import SectionContainer, {
-  ISectionContainer,
+  ISectionContainerProps,
   ISectionPadding,
-} from "@/components/ui/section-container";
-import { stegaClean } from "next-sanity";
-import Timeline1, { Timeline1Props } from "@/components/ui/timeline/timeline-1";
+} from '@/components/ui/section-container';
+import Timeline1, { Timeline1Props } from '@/components/ui/timeline/timeline-1';
+import { stegaClean } from 'next-sanity';
 
 export default function TimelineRow({
   padding,
@@ -11,7 +11,7 @@ export default function TimelineRow({
   timelines,
 }: Partial<{
   padding: ISectionPadding;
-  colorVariant: ISectionContainer["color"];
+  colorVariant: ISectionContainerProps['color'];
   timelines: Timeline1Props[];
 }>) {
   const color = stegaClean(colorVariant);
@@ -19,7 +19,7 @@ export default function TimelineRow({
   return (
     <SectionContainer color={color} padding={padding}>
       {timelines && timelines?.length > 0 && (
-        <div className="max-w-[48rem] mx-auto">
+        <div className="mx-auto max-w-[48rem]">
           {timelines?.map((timeline, index) => (
             <Timeline1
               key={index}

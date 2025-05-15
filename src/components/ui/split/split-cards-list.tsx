@@ -1,9 +1,9 @@
-import { ISectionContainer } from "@/components/ui/section-container";
-import { PortableTextBlock, stegaClean } from "next-sanity";
-import SplitCardsItem from "@/components/ui/split/split-cards-item";
+import { ISectionContainerProps } from '@/components/ui/section-container';
+import SplitCardsItem from '@/components/ui/split/split-cards-item';
+import { PortableTextBlock, stegaClean } from 'next-sanity';
 
 export interface SplitCardsListProps {
-  color: ISectionContainer["color"];
+  color: ISectionContainerProps['color'];
   list: {
     tagLine: string;
     title: string;
@@ -11,10 +11,7 @@ export interface SplitCardsListProps {
   }[];
 }
 
-export default function SplitCardsList({
-  color,
-  list,
-}: Partial<SplitCardsListProps>) {
+export default function SplitCardsList({ color, list }: Partial<SplitCardsListProps>) {
   const colorParent = stegaClean(color);
 
   return (

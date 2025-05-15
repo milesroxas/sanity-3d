@@ -7,191 +7,145 @@ import TagLine from '@/components/ui/tag-line';
 import { cn } from '@/lib/utils';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollTrigger } from 'gsap/all'; // plugin registered globally
 import { stegaClean } from 'next-sanity';
 import Link from 'next/link';
 import { createElement, useRef } from 'react';
 
-gsap.registerPlugin(ScrollTrigger);
-
 export default function FeaturedContentOffset(props: any) {
   const { content, image, graphic, tagLine, title, links, testimonials, themeVariant } = props;
   const theme = stegaClean(themeVariant);
-  const isDarkTheme = theme === 'dark';
-  const isAccentTheme = theme === 'accent';
+  const isDark = theme === 'dark';
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const graphicRef = useRef<HTMLDivElement>(null);
+  const sectionContainerRef = useRef<HTMLDivElement>(null);
 
-  useGSAP(
-    () => {
+  useGSAP(() => {
+    const ctx = gsap.context(() => {
       const section = sectionRef.current;
-      const sectionEl = section?.closest('.bg-slate-950');
-      if (!section) return;
+      const sectionContainer = sectionContainerRef.current;
 
-      // — kill any old content-offset triggers —
-      ScrollTrigger.getAll()
-        .filter(t => t.vars.id?.startsWith('content-offset-'))
-        .forEach(t => t.kill());
+      if (isDark) {
+        // start light
+        gsap.set(sectionContainer, { backgroundColor: 'rgba(250, 250, 249, 1)' });
 
-      // — BACKGROUND TOGGLE (dark/light) —
-      if (sectionEl && isDarkTheme) {
-        gsap.set(sectionEl, { backgroundColor: 'rgba(255,255,255,1)' });
-
-        // go dark when top of section hits top of viewport
-        gsap.to(sectionEl, {
-          backgroundColor: 'rgba(17,24,39,1)',
-          duration: 1,
-          ease: 'power1.out',
-          scrollTrigger: {
-            id: 'content-offset-bg-dark',
-            trigger: section,
-            start: 'top 45%',
-            toggleActions: 'play none none reverse',
-            // markers: true,
-          },
-        });
-
-        // go light when bottom of section hits bottom of viewport
-        gsap.to(sectionEl, {
-          backgroundColor: 'rgba(255,255,255,1)',
-          duration: 1,
-          ease: 'power1.out',
-          scrollTrigger: {
-            id: 'content-offset-bg-light',
-            trigger: section,
-            start: 'bottom 80%',
-            toggleActions: 'play none none reverse',
-            // markers: true,
-          },
+        // hard-toggle dark ↔ light
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top 45%',
+          end: 'bottom 80%',
+          onEnter: () =>
+            gsap.to(sectionContainer, { backgroundColor: 'rgba(24, 24, 27, 1)', duration: 0.5 }),
+          onLeave: () =>
+            gsap.to(sectionContainer, { backgroundColor: 'rgba(250, 250, 249, 1)', duration: 0.5 }),
+          onEnterBack: () =>
+            gsap.to(sectionContainer, { backgroundColor: 'rgba(24, 24, 27, 1)', duration: 0.5 }),
+          onLeaveBack: () =>
+            gsap.to(sectionContainer, { backgroundColor: 'rgba(250, 250, 249, 1)', duration: 0.5 }),
+          // markers: true,
         });
       }
 
-      // — IMAGE ENTRANCE & PARALLAX & ROTATION —
-      const imgContainer = imageContainerRef.current;
-      if (imgContainer) {
+      // — IMAGE ENTRANCE & PARALLAX INSIDE MASK —
+      const imgEl = imageContainerRef.current?.querySelector('img');
+      if (imgEl) {
         // fade + slide in
         gsap.fromTo(
-          imgContainer,
-          { opacity: 0, y: 20 },
+          imageContainerRef.current!,
+          { opacity: 0, y: 80 },
           {
             opacity: 1,
             y: 0,
             duration: 1,
             ease: 'power2.out',
             scrollTrigger: {
-              id: 'content-offset-img-entrance',
               trigger: section,
               start: 'top 70%',
               toggleActions: 'play none none reverse',
-              // markers: true,
             },
           }
         );
 
-        const imgEl = imgContainer.querySelector('img');
-        if (imgEl) {
-          // parallax up/down
-          gsap.to(imgEl, {
-            y: 40,
+        // parallax: move up/down within overflow-hidden container
+        gsap.fromTo(
+          imgEl,
+          { yPercent: -20 },
+          {
+            yPercent: 20,
             ease: 'none',
             scrollTrigger: {
-              id: 'content-offset-img-parallax',
               trigger: section,
               start: 'top bottom',
-              end: 'bottom bottom',
-              scrub: true,
+              scrub: 0.5,
               // markers: true,
             },
-          });
+          }
+        );
+      }
 
-          // subtle rotation
-          gsap.to(imgEl, {
-            rotationZ: 1,
-            ease: 'none',
+      // — CONTENT PARALLAX (OPPOSITE TO IMAGE) —
+      if (contentRef.current) {
+        gsap.fromTo(
+          contentRef.current,
+          { y: 40 },
+          {
+            y: -120,
+            ease: 'power1.inOut',
             scrollTrigger: {
-              id: 'content-offset-img-rotation',
               trigger: section,
               start: 'top bottom',
-              end: 'bottom bottom',
-              scrub: true,
-              // markers: true,
+              end: 'bottom top',
+              scrub: 0.7,
             },
-          });
-        }
+          }
+        );
       }
 
       // — GRAPHIC ENTRANCE & PARALLAX & ROTATION+SCALE —
       const graphicEl = graphicRef.current;
       if (graphicEl) {
-        // slide in from right
         gsap.fromTo(
           graphicEl,
-          { x: 100, opacity: 0 },
+          { x: 200, opacity: 0 },
           {
             x: 0,
             opacity: 1,
-            duration: 1,
+            duration: 2,
             ease: 'power2.out',
             scrollTrigger: {
-              id: 'content-offset-graphic-entrance',
               trigger: section,
-              start: 'top 20%',
+              start: 'top -20%',
               toggleActions: 'play none none reverse',
-              // markers: true,
             },
           }
         );
 
-        // parallax up
-        gsap.to(graphicEl, {
-          y: -30,
-          ease: 'none',
-          scrollTrigger: {
-            id: 'content-offset-graphic-parallax',
-            trigger: section,
-            start: 'top 90%',
-            end: 'bottom top',
-            scrub: true,
-            // markers: true,
-          },
-        });
-
-        // rotate & scale
-        gsap.to(graphicEl, {
-          rotationZ: -1,
-          scale: 1.02,
-          ease: 'none',
-          scrollTrigger: {
-            id: 'content-offset-graphic-rotation',
-            trigger: section,
-            start: 'top 90%',
-            end: 'bottom top',
-            scrub: true,
-            // markers: true,
-          },
-        });
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 90%',
+              end: 'bottom top',
+              scrub: true,
+            },
+          })
+          .to(graphicEl, { y: -30, rotationZ: -1, scale: 1.05, ease: 'none' }, 0);
       }
+    }, sectionRef);
 
-      // — CLEANUP —
-      return () => {
-        ScrollTrigger.getAll()
-          .filter(t => t.vars.id?.startsWith('content-offset-'))
-          .forEach(t => t.kill());
-      };
-    },
-    { scope: sectionRef }
-  );
+    return () => ctx.revert();
+  }, [isDark]);
 
   return (
-    <SectionContainer theme={theme}>
+    <SectionContainer ref={sectionContainerRef} theme={theme} className="overflow-x-clip">
       <div
         ref={sectionRef}
-        className="relative flex min-h-[150vh] flex-col items-center justify-center overflow-visible py-32 align-middle"
+        className="relative flex min-h-[150vh] flex-col items-center justify-center overflow-visible py-32"
       >
-        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
+        <div className="flex flex-col items-center gap-8 lg:flex-row">
           {image && (
             <div ref={imageContainerRef} className="relative lg:z-0 lg:ml-0 lg:mr-[-10%]">
               <div className="overflow-hidden rounded-lg shadow-lg will-change-transform">
@@ -199,30 +153,26 @@ export default function FeaturedContentOffset(props: any) {
                   src={image.asset?.url}
                   alt={image.alt || 'Featured content'}
                   className={cn(
-                    'h-auto w-full scale-[1.15] will-change-transform',
-                    isDarkTheme ? 'border border-slate-800' : ''
+                    'h-auto w-full object-cover will-change-transform',
+                    isDark ? 'border border-slate-800' : ''
                   )}
                 />
               </div>
             </div>
           )}
-          <div className="relative overflow-x-clip lg:z-20 lg:ml-[-10%]">
+
+          <div ref={contentRef} className="relative overflow-x-clip lg:z-20 lg:ml-[-10%]">
             <div
-              ref={contentRef}
               className={cn(
                 'z-10 flex flex-col items-start will-change-transform',
-                'lg:max-w-[500px] lg:rounded-md lg:p-8',
-                isDarkTheme
-                  ? 'lg:bg-black/40 lg:backdrop-blur-sm'
+                'lg:max-w-[450px] lg:rounded-md lg:p-12',
+                isDark
+                  ? 'lg:bg-black/50 lg:backdrop-blur-md'
                   : 'lg:bg-background/10 lg:backdrop-blur-sm'
               )}
             >
               {tagLine && (
-                <TagLine
-                  title={tagLine}
-                  element="h2"
-                  className={isDarkTheme ? 'text-primary' : undefined}
-                />
+                <TagLine title={tagLine} element="h2" className={isDark ? 'text-primary' : ''} />
               )}
 
               {title &&
@@ -231,7 +181,7 @@ export default function FeaturedContentOffset(props: any) {
                   {
                     className: cn(
                       'my-4 font-semibold leading-[1.2] text-4xl',
-                      isDarkTheme ? 'text-white' : ''
+                      isDark ? 'text-white' : ''
                     ),
                   },
                   title
@@ -239,75 +189,42 @@ export default function FeaturedContentOffset(props: any) {
 
               {content && <PortableTextRenderer value={content} />}
 
-              {links && links.length > 0 && (
-                <div className="mt-6 flex flex-col space-y-2">
+              {links?.length > 0 && (
+                <div className="mt-6 flex flex-row gap-2">
                   {links.map((link: any, idx: number) => {
-                    if (!link) return null;
                     const key = link._id || link.title || idx;
                     if (link._type === 'reference' && link.slug) {
                       return (
-                        <Button key={key} className="mt-2" variant="default" size="lg" asChild>
-                          <Link href={`/${link.slug.current || ''}`}>
-                            {link.title || link.label}
-                          </Link>
+                        <Button key={key} size="lg" asChild>
+                          <Link href={`/${link.slug.current}`}>{link.title || link.label}</Link>
                         </Button>
                       );
                     }
-                    const variant = idx === 0 ? 'default' : 'outline';
                     return (
-                      <Button key={key} className="mt-2" variant={variant as any} size="lg" asChild>
+                      <Button key={key} variant={link.buttonVariant} size="lg" asChild>
                         <a
-                          href={link.url}
+                          href={link.href}
                           target={link.target ? '_blank' : undefined}
                           rel="noopener noreferrer"
                         >
-                          {link.label}
+                          {link.title || link.label}
                         </a>
                       </Button>
                     );
                   })}
                 </div>
               )}
-
-              {testimonials && testimonials.length > 0 && (
-                <div className="mt-6 flex flex-col space-y-4">
-                  {testimonials.map((t: any, i: number) => (
-                    <div key={i} className="flex items-center space-x-3">
-                      {t.image && (
-                        <img
-                          src={t.image.asset?.url}
-                          alt={t.name}
-                          className="h-10 w-10 rounded-full"
-                        />
-                      )}
-                      <div>
-                        <p className={cn('font-semibold', isDarkTheme ? 'text-white' : '')}>
-                          {t.name}
-                        </p>
-                        <p
-                          className={cn('text-sm', isDarkTheme ? 'text-gray-400' : 'text-gray-600')}
-                        >
-                          {t.title}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
-            {graphic && (
-              <div
-                ref={graphicRef}
-                className="graphic-element absolute bottom-[-25%] right-0 z-20 w-[50%] max-w-[450px]"
-              >
-                <img
-                  src={graphic.asset?.url}
-                  alt={graphic.alt || 'Decorative graphic'}
-                  className="h-auto w-full object-contain"
-                />
-              </div>
-            )}
           </div>
+          {graphic && (
+            <div ref={graphicRef} className="absolute bottom-[-10%] right-0 z-20 w-[60%]">
+              <img
+                src={graphic.asset?.url}
+                alt={graphic.alt || 'Decorative graphic'}
+                className="h-auto w-full object-contain"
+              />
+            </div>
+          )}
         </div>
       </div>
     </SectionContainer>

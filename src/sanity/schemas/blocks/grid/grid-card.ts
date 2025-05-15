@@ -16,6 +16,7 @@ export default defineType({
           { title: 'Default', value: 'default' },
           { title: 'Minimal', value: 'minimal' },
           { title: 'Accent', value: 'accent' },
+          { title: 'Data', value: 'data' },
         ],
         layout: 'dropdown',
       },

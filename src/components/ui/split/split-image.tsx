@@ -1,6 +1,6 @@
 'use client';
 
-import { ISectionContainer } from '@/components/ui/section-container';
+import { ISectionContainerProps } from '@/components/ui/section-container';
 import { cn } from '@/lib/utils';
 import { urlFor } from '@/sanity/lib/image';
 import { stegaClean } from 'next-sanity';
@@ -8,7 +8,7 @@ import Image from 'next/image';
 
 export interface SplitImageProps {
   image: Sanity.Image;
-  styleVariant: ISectionContainer['style'];
+  styleVariant: ISectionContainerProps['style'];
 }
 
 export default function SplitImage({ image, styleVariant }: Partial<SplitImageProps>) {
