@@ -1,6 +1,6 @@
-"use client";
-import MuxPlayer from "@mux/mux-player-react";
-import { useEffect, useState } from "react";
+'use client';
+import MuxPlayer from '@mux/mux-player-react';
+import { useEffect, useState } from 'react';
 
 export interface SplitVideoProps {
   video: {
@@ -26,7 +26,7 @@ export default function SplitVideo({ video }: Partial<SplitVideoProps>) {
   if (!isMounted || !video?.video?.asset?.playbackId) return null;
 
   return (
-    <div className="relative h-[25rem] sm:h-[30rem] md:h-[25rem] lg:h-full rounded-md overflow-hidden">
+    <div className="relative h-[25rem] overflow-hidden rounded-md sm:h-[30rem] md:h-[25rem] lg:h-full">
       <MuxPlayer
         playbackId={video.video.asset.playbackId}
         metadata={{ video_title: video?.title }}
