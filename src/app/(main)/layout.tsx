@@ -1,5 +1,5 @@
 import { DisableDraftMode } from '@/components/disable-draft-mode';
-import Footer from '@/components/footer';
+import Footer from '@/components/footer/footer';
 import Header from '@/components/header';
 import { SanityLive } from '@/sanity/lib/live';
 import { VisualEditing } from 'next-sanity';

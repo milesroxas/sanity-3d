@@ -32,9 +32,9 @@ export default function Hero1({
   }[];
 }>) {
   return (
-    <div className="flex min-h-[100vh] w-full flex-col bg-accent md:flex-row">
+    <div className="flex w-full flex-col bg-accent md:min-h-[100vh] md:flex-row">
       {/* Left Content */}
-      <div className="flex w-full flex-col justify-center p-8 md:w-1/2 md:p-16 lg:p-24">
+      <div className="flex w-full flex-col justify-center p-12 md:w-1/2 md:p-16 lg:p-24">
         <div className="mx-auto max-w-xl">
           {tagLine && <h1 className="mb-2 text-muted-foreground md:text-base">{tagLine}</h1>}
 
@@ -83,7 +83,7 @@ export default function Hero1({
       <div className="relative w-full md:w-1/2">
         {image && image.asset?._id && (
           <Image
-            className="h-full max-h-screen w-full object-cover"
+            className="max-h-96 w-full object-cover md:h-full md:max-h-screen"
             src={urlFor(image.asset).url()}
             alt={image.alt || ''}
             width={image.asset?.metadata?.dimensions?.width || 800}

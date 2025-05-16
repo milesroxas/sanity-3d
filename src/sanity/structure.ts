@@ -9,6 +9,7 @@ import {
   Quote,
   Settings,
   User,
+  UsersRound,
 } from 'lucide-react';
 
 export const structure = (S: any, context: any) =>
@@ -37,8 +38,14 @@ export const structure = (S: any, context: any) =>
         S,
         context,
       }),
+      orderableDocumentListDeskItem({
+        type: 'team',
+        title: 'Team',
+        icon: UsersRound,
+        S,
+        context,
+      }),
       S.divider(),
-
       S.listItem()
         .title('Scenes')
         .icon(MapPin)

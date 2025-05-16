@@ -5,7 +5,22 @@ export default defineType({
   type: 'array',
   title: 'Link',
   of: [
-    { type: 'reference', to: [{ type: 'page' }] },
+    {
+      name: 'pageLink',
+      title: 'Page Link',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'title',
+          type: 'string',
+        }),
+        defineField({
+          name: 'page',
+          type: 'reference',
+          to: [{ type: 'page' }],
+        }),
+      ],
+    },
     {
       name: 'customLink',
       type: 'object',

@@ -23,6 +23,24 @@ declare global {
       blocks?: Block[];
     };
 
+    // Updated Team to match your query
+    type Team = SanityDocument<{
+      readonly _type: 'team';
+      _id: string;
+      title: string;
+      slug: { current: string };
+      image?: Image;
+      role?: string;
+      email?: string;
+      bio?: any; // Consider using a more specific type
+      blocks?: Block[];
+      meta_title?: string;
+      meta_description?: string;
+      noindex: boolean;
+      ogImage?: Image;
+      orderRank?: number;
+    }>;
+
     type Scene = PageBase & {
       readonly _type: 'scenes';
       body?: any[];
@@ -123,11 +141,6 @@ declare global {
 
     type Category = SanityDocument<{
       title: string;
-    }>;
-
-    type Settings = SanityDocument<{
-      logo: Image;
-      largeLogo: Image;
     }>;
 
     type Image = SanityImageObject &

@@ -12,6 +12,7 @@ import LogoCloud1 from '@/components/ui/logo-cloud/logo-cloud-1';
 import SectionHeader from '@/components/ui/section-header';
 import SplitRow from '@/components/ui/split/split-row';
 import TimelineRow from '@/components/ui/timeline/timeline-row';
+import CtaTeam from './ui/cta/cta-team';
 
 const componentMap: { [key: string]: React.ComponentType<any> } = {
   'hero-1': Hero1,
@@ -23,6 +24,7 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   'carousel-2': Carousel2,
   'timeline-row': TimelineRow,
   'cta-1': Cta1,
+  'cta-team': CtaTeam,
   'logo-cloud-1': LogoCloud1,
   faqs: FAQs,
   'form-newsletter': FormNewsletter,

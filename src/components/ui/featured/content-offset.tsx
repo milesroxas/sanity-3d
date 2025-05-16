@@ -9,6 +9,7 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/all'; // plugin registered globally
 import { stegaClean } from 'next-sanity';
+import Image from 'next/image';
 import Link from 'next/link';
 import { createElement, useRef } from 'react';
 
@@ -143,7 +144,7 @@ export default function FeaturedContentOffset(props: any) {
     <SectionContainer ref={sectionContainerRef} theme={theme} className="overflow-x-clip">
       <div
         ref={sectionRef}
-        className="relative flex min-h-[150vh] flex-col items-center justify-center overflow-visible py-32"
+        className="relative flex flex-col items-center justify-center overflow-visible py-32 md:min-h-[100vh] lg:min-h-[150vh]"
       >
         <div className="flex flex-col items-center gap-8 lg:flex-row">
           {image && (
@@ -218,10 +219,12 @@ export default function FeaturedContentOffset(props: any) {
           </div>
           {graphic && (
             <div ref={graphicRef} className="absolute bottom-[-10%] right-0 z-20 w-[60%]">
-              <img
+              <Image
                 src={graphic.asset?.url}
                 alt={graphic.alt || 'Decorative graphic'}
                 className="h-auto w-full object-contain"
+                width={500}
+                height={500}
               />
             </div>
           )}

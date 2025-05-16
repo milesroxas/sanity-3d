@@ -1,6 +1,6 @@
-import { MetadataRoute } from "next";
-import { groq } from "next-sanity";
-import { sanityFetch } from "@/sanity/lib/live";
+import { sanityFetch } from '@/sanity/lib/live';
+import { MetadataRoute } from 'next';
+import { groq } from 'next-sanity';
 
 async function getPagesSitemap(): Promise<MetadataRoute.Sitemap[]> {
   const query = groq`
@@ -45,11 +45,32 @@ async function getPostsSitemap(): Promise<MetadataRoute.Sitemap[]> {
   return data;
 }
 
+async function getTeamSitemap(): Promise<MetadataRoute.Sitemap[]> {
+  const query = groq`
+    *[_type == 'team'] | order(slug.current) {
+      'url': $baseUrl + '/team/' + slug.current,
+      'lastModified': _updatedAt,
+      'changeFrequency': 'weekly',
+      'priority': 0.7
+    }
+  `;
+
+  const { data } = await sanityFetch({
+    query,
+    params: {
+      baseUrl: process.env.NEXT_PUBLIC_SITE_URL,
+    },
+  });
+
+  return data;
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap[]> {
-  const [pages, posts] = await Promise.all([
+  const [pages, posts, team] = await Promise.all([
     getPagesSitemap(),
     getPostsSitemap(),
+    getTeamSitemap(),
   ]);
 
-  return [...pages, ...posts];
+  return [...pages, ...posts, ...team];
 }

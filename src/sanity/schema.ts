@@ -7,6 +7,7 @@ import page from './schemas/documents/page';
 import post from './schemas/documents/post';
 import scenes from './schemas/documents/scenes';
 import services from './schemas/documents/services';
+import team from './schemas/documents/team';
 import testimonial from './schemas/documents/testimonial';
 
 // Schema UI shared objects
@@ -46,15 +47,16 @@ import timelineRow from './schemas/blocks/timeline/timeline-row';
 import timelinesOne from './schemas/blocks/timeline/timelines-1';
 
 // singleton
+import ctaTeam from './schemas/blocks/cta/cta-team';
 import splitVideo from './schemas/blocks/split/split-video';
 import modelFiles from './schemas/objects/modelFiles';
 import settings from './schemas/singleton/settings';
-
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
     // documents
     page,
     post,
+    team,
     author,
     category,
     faq,
@@ -97,6 +99,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     newsletter,
     largeCallout,
     featuredContentOffset,
+    ctaTeam,
     // singleton
     settings,
     // objects

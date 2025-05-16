@@ -1,21 +1,15 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import SectionContainer from "@/components/ui/section-container";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { toast } from "sonner";
-import { useCallback } from "react";
-import { Loader2 } from "lucide-react";
-import { stegaClean } from "next-sanity";
+'use client';
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import SectionContainer from '@/components/ui/section-container';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
+import { stegaClean } from 'next-sanity';
+import { useCallback, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import * as z from 'zod';
 
 interface FormNewsletterProps {
   padding: {
@@ -23,53 +17,64 @@ interface FormNewsletterProps {
     bottom: boolean;
   };
   colorVariant:
-    | "primary"
-    | "secondary"
-    | "card"
-    | "accent"
-    | "destructive"
-    | "background"
-    | "transparent";
+    | 'primary'
+    | 'secondary'
+    | 'card'
+    | 'accent'
+    | 'destructive'
+    | 'background'
+    | 'transparent';
   consentText: string;
   buttonText: string;
   successMessage: string;
+  inputClassName?: string;
+  buttonClassName?: string;
+  className?: string;
 }
+
+// Form validation schema
+const formSchema = z.object({
+  email: z
+    .string()
+    .min(1, {
+      message: 'Please enter your email',
+    })
+    .email({
+      message: 'Please enter a valid email',
+    }),
+});
 
 export default function FormNewsletter({
   padding,
-  colorVariant,
+  colorVariant = 'transparent',
   consentText,
-  buttonText,
-  successMessage,
+  buttonText = 'Subscribe',
+  successMessage = 'Thank you for subscribing!',
+  inputClassName,
+  buttonClassName,
+  className,
 }: Partial<FormNewsletterProps>) {
-  // form validation schema
-  const formSchema = z.object({
-    email: z
-      .string()
-      .min(1, {
-        message: "Please enter your email",
-      })
-      .email({
-        message: "Please enter a valid email",
-      }),
-  });
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      email: '',
     },
   });
 
   const { isSubmitting } = form.formState;
 
+  // Use useMemo for stable values to prevent hydration mismatches
+  const color = useMemo(() => {
+    return colorVariant ? stegaClean(colorVariant) : 'transparent';
+  }, [colorVariant]);
+
   const handleSend = useCallback(
     async ({ email }: { email: string }) => {
       try {
-        const response = await fetch("/api/newsletter", {
-          method: "POST",
+        const response = await fetch('/api/newsletter', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             email,
@@ -89,8 +94,8 @@ export default function FormNewsletter({
           toast.error(error.message);
           throw new Error(error.message);
         } else {
-          toast.error("An unexpected error occurred");
-          throw new Error("An unexpected error occurred");
+          toast.error('An unexpected error occurred');
+          throw new Error('An unexpected error occurred');
         }
       }
     },
@@ -101,18 +106,16 @@ export default function FormNewsletter({
     await handleSend(values);
   }
 
-  const color = stegaClean(colorVariant);
-
   return (
-    <SectionContainer color={color} padding={padding}>
+    <SectionContainer color={color} padding={padding} className={className} theme="dark">
       <Form {...form}>
-        <form className="pt-8" onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="flex gap-4">
+        <form className="w-full pt-8" onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="flex flex-row gap-4">
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="w-full">
                   <FormControl>
                     <Input
                       {...field}
@@ -121,6 +124,7 @@ export default function FormNewsletter({
                       autoComplete="off"
                       // ignore 1 Password autofill
                       data-1p-ignore
+                      className={inputClassName}
                     />
                   </FormControl>
                   <FormMessage />
@@ -128,14 +132,12 @@ export default function FormNewsletter({
               )}
             />
             <Button
-              className="h-9"
+              className={`h-9 ${buttonClassName || ''}`}
               size="sm"
               type="submit"
               disabled={isSubmitting}
             >
-              {isSubmitting && (
-                <Loader2 className="w-6 h-6 mr-2 animate-spin" />
-              )}
+              {isSubmitting && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
               {buttonText}
             </Button>
           </div>

@@ -1,15 +1,16 @@
 export const STACK_ALIGN = [
-  { title: "Left", value: "left" },
-  { title: "Center", value: "center" },
+  { title: 'Left', value: 'left' },
+  { title: 'Center', value: 'center' },
 ];
 
 export const SECTION_WIDTH = [
-  { title: "Default", value: "default" },
-  { title: "Narrow", value: "narrow" },
+  { title: 'Default', value: 'default' },
+  { title: 'Narrow', value: 'narrow' },
+  { title: 'Full', value: 'full' },
 ];
 
 export const COLS_VARIANTS = [
-  { title: "2 Columns", value: "grid-cols-2" },
-  { title: "3 Columns", value: "grid-cols-3" },
-  { title: "4 Columns", value: "grid-cols-4" },
+  { title: '2 Columns', value: 'grid-cols-2' },
+  { title: '3 Columns', value: 'grid-cols-3' },
+  { title: '4 Columns', value: 'grid-cols-4' },
 ];

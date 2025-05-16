@@ -30,24 +30,32 @@ export interface ISectionContainerProps {
 // Use forwardRef to properly handle ref forwarding
 const SectionContainer = React.forwardRef<HTMLDivElement, ISectionContainerProps>(
   ({ color = 'background', theme, style, padding, children, className }, ref) => {
+    // Generate class names in a stable way
+    const colorClass = color !== 'transparent' ? `bg-${color}` : '';
+    const themeClass =
+      theme === 'light'
+        ? 'bg-background text-foreground'
+        : theme === 'dark'
+          ? 'bg-zinc-900 text-white'
+          : theme === 'accent'
+            ? 'bg-primary text-primary-foreground'
+            : '';
+
+    const paddingTopClass = padding?.top ? 'pt-16 xl:pt-32' : '';
+    const paddingBottomClass = padding?.bottom ? 'pb-16 xl:pb-32' : '';
+
     return (
       <div
         ref={ref}
         className={cn(
-          color !== 'transparent' && `bg-${color}`,
-          theme === 'light'
-            ? 'bg-background text-foreground'
-            : theme === 'dark'
-              ? 'bg-zinc-900 text-white' // Changed from rgba to Tailwind class
-              : theme === 'accent'
-                ? 'bg-primary text-primary-foreground'
-                : undefined,
-          padding?.top ? 'pt-16 xl:pt-32' : undefined,
-          padding?.bottom ? 'pb-16 xl:pb-32' : undefined,
-          'transition-colors duration-500', // Added for smooth transitions
+          colorClass,
+          themeClass,
+          paddingTopClass,
+          paddingBottomClass,
+          'transition-colors duration-500',
           className
         )}
-        data-theme={theme} // Added for easier targeting
+        data-theme={theme || undefined}
       >
         <div className="container">{children}</div>
       </div>

@@ -1,23 +1,31 @@
-"use server";
-import { PAGE_QUERY } from "@/sanity/queries/page";
-import { sanityFetch } from "@/sanity/lib/live";
-import { settingsQuery } from "@/sanity/queries/singleton/settings";
-import { SERVICES_QUERY } from "@/sanity/queries/services";
-import { SCENES_QUERY, SCENES_SLUGS_QUERY } from "@/sanity/queries/scenes";
-import { SCENE_QUERY } from "@/sanity/queries/scene";
-import { NAVIGATION_SCENES_QUERY } from "@/sanity/queries/scene";
-import { client } from "@/sanity/lib/client";
+'use server';
+import { client } from '@/sanity/lib/client';
+import { sanityFetch } from '@/sanity/lib/live';
+import { PAGE_QUERY } from '@/sanity/queries/page';
+import { NAVIGATION_SCENES_QUERY, SCENE_QUERY } from '@/sanity/queries/scene';
+import { SCENES_QUERY, SCENES_SLUGS_QUERY } from '@/sanity/queries/scenes';
+import { SERVICES_QUERY } from '@/sanity/queries/services';
+import { settingsQuery } from '@/sanity/queries/singleton/settings';
+import { TEAM_MEMBER_QUERY } from '@/sanity/queries/team';
 
-export const fetchSanityPageBySlug = async ({
-  slug,
-}: {
-  slug: string;
-}): Promise<Sanity.Page> => {
+export const fetchSanityPageBySlug = async ({ slug }: { slug: string }): Promise<Sanity.Page> => {
   const { data } = await sanityFetch({
     query: PAGE_QUERY,
     params: { slug },
   });
 
+  return data;
+};
+
+export const fetchSanityTeamMemberBySlug = async ({
+  slug,
+}: {
+  slug: string;
+}): Promise<Sanity.Team> => {
+  const { data } = await sanityFetch({
+    query: TEAM_MEMBER_QUERY,
+    params: { slug },
+  });
   return data;
 };
 
@@ -47,22 +55,16 @@ export const fetchSanityScenes = async (): Promise<Sanity.Scene[]> => {
   return data;
 };
 
-export const fetchSanityScenesStaticParams = async (): Promise<
-  Sanity.Scene[]
-> => {
+export const fetchSanityScenesStaticParams = async (): Promise<Sanity.Scene[]> => {
   const { data } = await sanityFetch({
     query: SCENES_SLUGS_QUERY,
-    perspective: "published",
+    perspective: 'published',
     stega: false,
   });
 
   return data;
 };
-export const fetchSanitySceneBySlug = async ({
-  slug,
-}: {
-  slug: string;
-}): Promise<Sanity.Scene> => {
+export const fetchSanitySceneBySlug = async ({ slug }: { slug: string }): Promise<Sanity.Scene> => {
   const { data } = await sanityFetch({
     query: SCENE_QUERY,
     params: { slug },

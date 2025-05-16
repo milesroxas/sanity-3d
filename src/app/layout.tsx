@@ -11,8 +11,8 @@ const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === 'production';
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
   title: {
-    template: '%s | Schema UI Starter',
-    default: 'Sanity Next.js Website | Schema UI Starter',
+    template: "O'Linn Security, Inc. | %s",
+    default: "O'Linn Security, Inc.",
   },
   openGraph: {
     images: [
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 
 const fontSans = FontSans({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['300', '400', '500', '600', '700', '800'],
   variable: '--font-sans',
 });
 

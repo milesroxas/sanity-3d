@@ -2,6 +2,7 @@ import { groq } from 'next-sanity';
 import { carousel1Query } from './carousel/carousel-1';
 import { carousel2Query } from './carousel/carousel-2';
 import { cta1Query } from './cta/cta-1';
+import { ctaTeamQuery } from './cta/cta-team';
 import { faqsQuery } from './faqs';
 import { featuredContentOffsetQuery } from './featured/content-offset';
 import { formNewsletterQuery } from './forms/newsletter';
@@ -13,7 +14,6 @@ import { logoCloud1Query } from './logo-cloud/logo-cloud-1';
 import { sectionHeaderQuery } from './section-header';
 import { splitRowQuery } from './split/split-row';
 import { timelineQuery } from './timeline';
-
 export const PAGE_QUERY = groq`
   *[_type == "page" && slug.current == $slug][0]{
     blocks[]{
@@ -28,6 +28,7 @@ export const PAGE_QUERY = groq`
       ${carousel2Query}
       ${timelineQuery}
       ${cta1Query}
+      ${ctaTeamQuery}
       ${logoCloud1Query}
       ${faqsQuery}
       ${formNewsletterQuery}
