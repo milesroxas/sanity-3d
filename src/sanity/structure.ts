@@ -6,6 +6,7 @@ import {
   Image,
   ListCollapse,
   MapPin,
+  Menu,
   Quote,
   Settings,
   User,
@@ -91,6 +92,19 @@ export const structure = (S: any, context: any) =>
         context,
       }),
       S.divider(),
+      S.listItem()
+        .title('Nav')
+        .icon(Menu)
+        .child(
+          S.editor()
+            .id('nav')
+            .schemaType('nav')
+            .documentId('nav')
+            .views([
+              S.view.form().title('Content').id('content'),
+              S.view.form().title('SEO').id('seo'),
+            ])
+        ),
       S.listItem()
         .id('settings')
         .title('Site Settings')

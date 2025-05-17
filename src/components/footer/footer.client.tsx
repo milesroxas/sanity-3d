@@ -1,71 +1,64 @@
 'use client';
 
+import { urlFor } from '@/sanity/lib/image';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Newsletter from '../ui/forms/newsletter';
 import PreFooter from './pre-footer';
-// Define the logo interface
-interface Logo {
-  asset: {
-    url: string;
-    metadata: {
-      dimensions: {
-        width: number;
-        height: number;
-      };
-    };
-  };
+
+// Define the Sanity logo interface
+interface SanityLogo {
+  asset: any; // Sanity asset reference
   alt?: string;
 }
 
-interface FooterClientProps {
-  logo: Logo | null;
+// Define the Sanity nav interface
+interface SanityNav {
+  logo: SanityLogo;
+  companyLinks: Array<any>; // Array of Sanity references or objects
+  services: Array<any> | null;
+  legal: Array<any> | null;
 }
 
-const navItems = [
-  {
-    label: 'Home',
-    href: '/',
-    target: false,
-  },
-  {
-    label: 'Blog',
-    href: '/blog',
-    target: false,
-  },
-  {
-    label: 'About',
-    href: '/about',
-    target: false,
-  },
-];
+interface FooterClientProps {
+  nav: SanityNav | null;
+}
 
-const legalItems = [
-  {
-    label: 'Privacy Policy',
-    href: '/privacy',
-    target: false,
-  },
-  {
-    label: 'Terms of Service',
-    href: '/terms',
-    target: false,
-  },
-  {
-    label: 'Cookie Policy',
-    href: '/cookie',
-    target: false,
-  },
-];
-
-export default function FooterClient({ logo }: FooterClientProps) {
+export default function FooterClient({ nav }: FooterClientProps) {
   const pathname = usePathname();
 
   // Hide footer on homepage and experience pages
   if (pathname === '/' || pathname === '/experience' || pathname?.startsWith('/experience/')) {
     return null;
   }
+
+  // Helper function to get link data
+  const getLink = (link: any) => {
+    if (!link) return { label: '', href: '#', target: false };
+
+    console.log('Processing link:', link);
+
+    // For pageLink type
+    if (link._type === 'pageLink') {
+      return {
+        label: link.title || '',
+        href: link.page?.slug ? `/${link.page.slug}` : '#',
+        target: false,
+      };
+    }
+
+    // For external links
+    return {
+      label: link.title || '',
+      href: link.url || '#',
+      target: link.openInNewTab || false,
+    };
+  };
+
+  const companyLinks = (nav?.companyLinks || []).map(getLink);
+  const servicesLinks = (nav?.services || []).map(getLink);
+  const legalLinks = (nav?.legal || []).map(getLink);
 
   const getCurrentYear = () => {
     return new Date().getFullYear();
@@ -81,21 +74,32 @@ export default function FooterClient({ logo }: FooterClientProps) {
             {/* Logo on the left */}
             <div className="flex flex-col items-start gap-6 md:flex-row md:items-center">
               <Link className="block w-[6.25rem]" href="/" aria-label="Home page">
-                {logo ? (
+                {nav?.logo ? (
                   <Image
-                    src={logo.asset.url}
-                    alt={logo.alt || 'Logo'}
-                    width={logo.asset.metadata.dimensions.width}
-                    height={logo.asset.metadata.dimensions.height}
+                    src={urlFor(nav.logo.asset).url()}
+                    alt={nav.logo.alt || 'Logo'}
+                    width={nav.logo.asset.metadata.dimensions.width}
+                    height={nav.logo.asset.metadata.dimensions.height}
                     className="h-auto w-full"
                   />
                 ) : null}
               </Link>
               <div className="flex w-full flex-col items-center justify-between space-y-6 md:flex-row md:space-y-0">
-                {navItems.map(navItem => (
+                {companyLinks.map((navItem, index) => (
                   <Link
-                    key={navItem.label}
-                    href={navItem.href}
+                    key={`company-${navItem.label}-${index}`}
+                    href={navItem.href || '#'}
+                    target={navItem.target ? '_blank' : undefined}
+                    rel={navItem.target ? 'noopener noreferrer' : undefined}
+                    className="transition-colors hover:text-zinc-300"
+                  >
+                    {navItem.label}
+                  </Link>
+                ))}
+                {servicesLinks.map((navItem, index) => (
+                  <Link
+                    key={`services-${navItem.label}-${index}`}
+                    href={navItem.href || '#'}
                     target={navItem.target ? '_blank' : undefined}
                     rel={navItem.target ? 'noopener noreferrer' : undefined}
                     className="transition-colors hover:text-zinc-300"
@@ -123,10 +127,10 @@ export default function FooterClient({ logo }: FooterClientProps) {
               <p>&copy; O'Linn Security Inc. {getCurrentYear()}.</p>
             </div>
             <div className="flex w-auto flex-col items-center justify-between space-y-6 md:flex-row md:gap-4 md:space-y-0">
-              {legalItems.map(legalItem => (
+              {legalLinks.map((legalItem, index) => (
                 <Link
-                  key={legalItem.label}
-                  href={legalItem.href}
+                  key={`legal-${legalItem.label}-${index}`}
+                  href={legalItem.href || '#'}
                   target={legalItem.target ? '_blank' : undefined}
                   rel={legalItem.target ? 'noopener noreferrer' : undefined}
                   className="transition-colors hover:text-zinc-300"

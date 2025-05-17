@@ -45,6 +45,7 @@ import splitRow from './schemas/blocks/split/split-row';
 import largeCallout from './schemas/blocks/text/large-callout';
 import timelineRow from './schemas/blocks/timeline/timeline-row';
 import timelinesOne from './schemas/blocks/timeline/timelines-1';
+import nav from './schemas/singleton/nav';
 
 // singleton
 import ctaTeam from './schemas/blocks/cta/cta-team';
@@ -102,6 +103,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     ctaTeam,
     // singleton
     settings,
+    nav,
     // objects
     modelFiles,
   ],

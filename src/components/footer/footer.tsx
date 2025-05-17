@@ -1,23 +1,10 @@
-import { client } from '@/sanity/lib/client';
+import { fetchSanityNav } from '@/app/(main)/actions';
 import FooterClient from './footer.client';
 
 export default async function Footer() {
-  // Fetch the logo data from Sanity
-  const settingsData = await client.fetch(`
-    *[_type == "settings"][0] {
-      logo {
-        asset-> {
-          url,
-          metadata {
-            dimensions
-          }
-        },
-        alt
-      }
-    }
-  `);
+  // Fetch the nav data from Sanity
+  const nav = await fetchSanityNav();
 
-  const logo = settingsData?.logo || null;
-
-  return <FooterClient logo={logo} />;
+  // Pass the raw Sanity nav data to the client component
+  return <FooterClient nav={nav} />;
 }

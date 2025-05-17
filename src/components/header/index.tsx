@@ -1,6 +1,5 @@
 'use client';
 
-import { fetchSanitySettings } from '@/app/(main)/actions';
 import DesktopNav from '@/components/header/desktop-nav';
 import ExperienceNav from '@/components/header/experience-nav';
 import MobileNav from '@/components/header/mobile-nav';
@@ -11,34 +10,29 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
-const navItems = [
-  {
-    label: 'Services',
-    href: '/services',
-    target: false,
-  },
-  {
-    label: 'About Us',
-    href: '/about',
-    target: false,
-  },
-  {
-    label: 'Testimonials',
-    href: '/testimonials',
-    target: false,
-  },
-  {
-    label: 'News',
-    href: '/news',
-    target: false,
-  },
-];
+interface SanityLogo {
+  asset: any; // Sanity asset reference
+  alt?: string;
+}
+interface SanityNav {
+  logo: SanityLogo;
+  companyLinks: Array<any>; // Array of Sanity references or objects
+  services: Array<any> | null;
+  legal: Array<any> | null;
+}
 
-export default function Header() {
+interface HeaderProps {
+  nav: SanityNav;
+}
+
+export default function Header({ nav }: HeaderProps) {
   const pathname = usePathname();
-  const [logo, setLogo] = useState<any>(null);
   const [navVisible, setNavVisible] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const logo = nav.logo;
+  const companyLinks = nav.companyLinks;
+  const services = nav.services;
+  const legal = nav.legal;
 
   // Get scene state for transition tracking
   const { isTransitioning, isInitialReveal } = useSceneStore();
@@ -69,14 +63,6 @@ export default function Header() {
     }
   }, [isInitialReveal, isTransitioning, navVisible]);
 
-  useEffect(() => {
-    const fetchLogo = async () => {
-      const settings = await fetchSanitySettings();
-      setLogo(settings.logo);
-    };
-    fetchLogo();
-  }, []);
-
   const isExperiencePage =
     pathname === '/' || pathname === '/experience' || pathname?.startsWith('/experience/');
 
@@ -102,12 +88,12 @@ export default function Header() {
           )}
         </Link>
         <div className="hidden items-center justify-between gap-7 xl:flex">
-          <DesktopNav navItems={navItems} isExperiencePage={false} />
+          <DesktopNav nav={nav} isExperiencePage={false} />
           {/* <ModeToggle /> */}
         </div>
         <div className="flex items-center xl:hidden">
           {/* <ModeToggle /> */}
-          <MobileNav navItems={navItems} isExperiencePage={false} />
+          <MobileNav nav={nav} isExperiencePage={false} />
         </div>
       </div>
     </header>

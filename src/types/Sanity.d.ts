@@ -133,6 +133,13 @@ declare global {
       largeLogo: Image;
     }>;
 
+    type Nav = SanityDocument<{
+      logo: Image;
+      companyLinks: Link[];
+      services: Link[];
+      legal: Link[];
+    }>;
+
     type Author = SanityDocument<{
       name: string;
       slug: { current: string };

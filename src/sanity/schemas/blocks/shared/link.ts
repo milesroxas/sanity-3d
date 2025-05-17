@@ -47,5 +47,21 @@ export default defineType({
         }),
       ],
     },
+    {
+      name: 'servicesLink',
+      title: 'Services Link',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'title',
+          type: 'string',
+        }),
+        defineField({
+          name: 'services',
+          type: 'reference',
+          to: [{ type: 'services' }],
+        }),
+      ],
+    },
   ],
 });
