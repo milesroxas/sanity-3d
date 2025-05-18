@@ -11,24 +11,27 @@ export const NAV_QUERY = groq`
     companyLinks[] {
       _type,
       title,
-      "slug": page->slug,
-      page-> {
+      "url": url,
+      "openInNewTab": openInNewTab,
+      "page": page-> {
         "slug": slug.current
       }
     },
     services[] {
       _type,
       title,
-      "slug": services->slug,
-      services-> {
+      "url": url,
+      "openInNewTab": openInNewTab,
+      "services": services-> {
         "slug": slug.current
       }
     },
     legal[] {
       _type,
       title,
-      "slug": page->slug,
-      page-> {
+      "url": url,
+      "openInNewTab": openInNewTab,
+      "page": page-> {
         "slug": slug.current
       }
     }

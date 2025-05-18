@@ -163,13 +163,16 @@ export default function GridCard({
   // Base image props
   const baseImageProps: Partial<ImageProps> = {
     src: imgSrc,
-    alt: image?.alt || '',
+    alt: image?.alt || 'decorative image',
+    width: 500,
+    height: 500,
   };
 
   // Get image props based on variant - properly merged for type safety
   const imgProps: ImageProps = {
     ...baseImageProps,
     ...variant.image.props,
+    alt: image?.alt || 'decorative image',
   } as ImageProps;
 
   return (
@@ -177,7 +180,7 @@ export default function GridCard({
       <div className={cardClasses}>
         {image?.asset?._id && (
           <div className={variant.image.container}>
-            <Image {...imgProps} />
+            <Image {...imgProps} alt={image?.alt || 'decorative image'} />
           </div>
         )}
 

@@ -44,6 +44,7 @@ declare global {
     type Scene = PageBase & {
       readonly _type: 'scenes';
       body?: any[];
+      link?: Link[];
       mainSceneMarkerPosition?: {
         x: number;
         y: number;
@@ -72,6 +73,7 @@ declare global {
               z: number;
             };
             body?: any[];
+            link?: Link;
           }
         | {
             _key: string;
@@ -131,6 +133,29 @@ declare global {
     type Settings = SanityDocument<{
       logo: Image;
       largeLogo: Image;
+      contact: {
+        phone: string;
+        email: string;
+      };
+      address: {
+        street: string;
+        city: string;
+        state: string;
+        zip: string;
+      };
+      businessHours: {
+        hours: string;
+      };
+      social: {
+        facebook: string;
+        instagram: string;
+        twitter: string;
+        linkedin: string;
+        youtube: string;
+        yelp: string;
+        tiktok: string;
+        googleReviews: string;
+      };
     }>;
 
     type Nav = SanityDocument<{

@@ -16,16 +16,43 @@ interface SanityLogo {
 }
 interface SanityNav {
   logo: SanityLogo;
-  companyLinks: Array<any>; // Array of Sanity references or objects
+  companyLinks: Array<any>;
   services: Array<any> | null;
   legal: Array<any> | null;
 }
 
-interface HeaderProps {
-  nav: SanityNav;
+interface SanitySettings {
+  contact: {
+    phone: string;
+    email: string;
+  };
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+  businessHours: {
+    hours: string;
+  };
+  social: {
+    facebook: string;
+    instagram: string;
+    twitter: string;
+    linkedin: string;
+    youtube: string;
+    yelp: string;
+    tiktok: string;
+    googleReviews: string;
+  };
 }
 
-export default function Header({ nav }: HeaderProps) {
+interface HeaderProps {
+  nav: SanityNav;
+  settings: SanitySettings;
+}
+
+export default function Header({ nav, settings }: HeaderProps) {
   const pathname = usePathname();
   const [navVisible, setNavVisible] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -88,12 +115,12 @@ export default function Header({ nav }: HeaderProps) {
           )}
         </Link>
         <div className="hidden items-center justify-between gap-7 xl:flex">
-          <DesktopNav nav={nav} isExperiencePage={false} />
+          <DesktopNav nav={nav} isExperiencePage={false} settings={settings} />
           {/* <ModeToggle /> */}
         </div>
         <div className="flex items-center xl:hidden">
           {/* <ModeToggle /> */}
-          <MobileNav nav={nav} isExperiencePage={false} />
+          <MobileNav nav={nav} isExperiencePage={false} settings={settings} />
         </div>
       </div>
     </header>

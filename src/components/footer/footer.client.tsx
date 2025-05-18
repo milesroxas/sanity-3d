@@ -1,5 +1,6 @@
 'use client';
 
+import SocialLinks from '@/components/ui/social-links';
 import { urlFor } from '@/sanity/lib/image';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -21,11 +22,38 @@ interface SanityNav {
   legal: Array<any> | null;
 }
 
-interface FooterClientProps {
-  nav: SanityNav | null;
+interface SanitySettings {
+  contact?: {
+    phone?: string;
+    email?: string;
+  };
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+  };
+  businessHours?: {
+    hours?: string;
+  };
+  social?: {
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+    linkedin?: string;
+    youtube?: string;
+    yelp?: string;
+    tiktok?: string;
+    googleReviews?: string;
+  };
 }
 
-export default function FooterClient({ nav }: FooterClientProps) {
+interface FooterClientProps {
+  nav: SanityNav | null;
+  settings?: SanitySettings;
+}
+
+export default function FooterClient({ nav, settings }: FooterClientProps) {
   const pathname = usePathname();
 
   // Hide footer on homepage and experience pages
@@ -37,22 +65,38 @@ export default function FooterClient({ nav }: FooterClientProps) {
   const getLink = (link: any) => {
     if (!link) return { label: '', href: '#', target: false };
 
-    console.log('Processing link:', link);
-
-    // For pageLink type
-    if (link._type === 'pageLink') {
+    // For pageLink type with page reference
+    if (link._type === 'pageLink' && link.page?.slug) {
       return {
         label: link.title || '',
-        href: link.page?.slug ? `/${link.page.slug}` : '#',
+        href: `/${link.page.slug}`,
+        target: false,
+      };
+    }
+
+    // For service link type
+    if (link.services?.slug) {
+      return {
+        label: link.title || '',
+        href: `/${link.services.slug}`,
         target: false,
       };
     }
 
     // For external links
+    if (link.url) {
+      return {
+        label: link.title || '',
+        href: link.url,
+        target: link.openInNewTab || false,
+      };
+    }
+
+    // Fallback
     return {
       label: link.title || '',
-      href: link.url || '#',
-      target: link.openInNewTab || false,
+      href: '#',
+      target: false,
     };
   };
 
@@ -118,6 +162,12 @@ export default function FooterClient({ nav }: FooterClientProps) {
                 inputClassName="w-full bg-zinc-800 border-zinc-700 placeholder:text-zinc-400"
                 className="w-full"
               />
+              {settings?.social && (
+                <SocialLinks
+                  social={settings.social}
+                  className="flex w-full justify-center gap-4"
+                />
+              )}
             </div>
           </div>
 

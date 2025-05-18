@@ -6,6 +6,7 @@ import gsap from 'gsap';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
+import { useLogoMarkerStore } from '../store/logoMarkerStore';
 
 interface AnimationRefs {
   background: React.RefObject<HTMLDivElement | null>;
@@ -18,7 +19,7 @@ interface AnimationRefs {
 export default function LandingPage() {
   const router = useRouter();
   const [isExiting, setIsExiting] = useState(false);
-
+  const { fetchAndSetScene } = useLogoMarkerStore();
   // Refs for animation targets
   const refs: AnimationRefs = {
     background: useRef<HTMLDivElement>(null),
@@ -129,6 +130,7 @@ export default function LandingPage() {
 
   const handleClick = async () => {
     setIsExiting(true);
+    fetchAndSetScene('main');
     createExitAnimation();
   };
 

@@ -63,5 +63,21 @@ export default defineType({
         }),
       ],
     },
+    {
+      name: 'legalLink',
+      title: 'Legal Link',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'title',
+          type: 'string',
+        }),
+        defineField({
+          name: 'legal',
+          type: 'reference',
+          to: [{ type: 'legal' }],
+        }),
+      ],
+    },
   ],
 });

@@ -9,6 +9,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import SocialLinks from '@/components/ui/social-links';
 import { TextAlignRightIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -24,12 +25,40 @@ interface SanityNav {
   legal: Array<any> | null;
 }
 
+interface SanitySettings {
+  contact?: {
+    phone?: string;
+    email?: string;
+  };
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+  };
+  businessHours?: {
+    hours?: string;
+  };
+  social?: {
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+    linkedin?: string;
+    youtube?: string;
+    yelp?: string;
+    tiktok?: string;
+    googleReviews?: string;
+  };
+}
+
 export default function MobileNav({
   nav,
   isExperiencePage,
+  settings,
 }: {
   nav: SanityNav;
   isExperiencePage?: boolean;
+  settings?: SanitySettings;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -37,20 +66,42 @@ export default function MobileNav({
   const getLink = (link: any) => {
     if (!link) return { label: '', href: '#', target: false };
 
-    // For pageLink type
-    if (link._type === 'pageLink') {
+    // For pageLink type with page reference
+    if (link._type === 'pageLink' && link.page?.slug) {
       return {
         label: link.title || '',
-        href: link.page?.slug ? `/${link.page.slug}` : '#',
+        href: `/${link.page.slug}`,
+        target: false,
+      };
+    }
+
+    // For service link type
+    if (link._type === 'servicesLink') {
+      // More resilient handling
+      const slug =
+        link.services?.slug?.current ||
+        (typeof link.services?.slug === 'string' ? link.services.slug : '');
+      return {
+        label: link.title || '',
+        href: slug ? `/services/${slug}` : '/services',
         target: false,
       };
     }
 
     // For external links
+    if (link.url) {
+      return {
+        label: link.title || '',
+        href: link.url,
+        target: link.openInNewTab || false,
+      };
+    }
+
+    // Fallback
     return {
       label: link.title || '',
-      href: link.url || '#',
-      target: link.openInNewTab || false,
+      href: '#',
+      target: false,
     };
   };
 
@@ -95,6 +146,12 @@ export default function MobileNav({
                 );
               })}
             </ul>
+
+            {settings?.social && (
+              <div className="mt-8 flex justify-end">
+                <SocialLinks social={settings.social} iconClassName="h-5 w-5" />
+              </div>
+            )}
           </div>
         </div>
       </SheetContent>

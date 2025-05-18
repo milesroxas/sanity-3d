@@ -1,4 +1,4 @@
-import { groq } from "next-sanity";
+import { groq } from 'next-sanity';
 
 export const SCENE_QUERY = groq`
   *[_type == "scenes" && slug.current == $slug][0]{
@@ -24,6 +24,31 @@ export const SCENE_QUERY = groq`
               height
             }
           }
+        }
+      }
+    },
+    link[]{
+      ...,
+      _type,
+      _type == 'pageLink' => {
+        ...,
+        page->{
+          _id,
+          slug
+        }
+      },
+      _type == 'servicesLink' => {
+        ...,
+        services->{
+          _id,
+          slug
+        }
+      },
+      _type == 'legalLink' => {
+        ...,
+        legal->{
+          _id,
+          slug
         }
       }
     },

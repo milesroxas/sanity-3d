@@ -56,6 +56,7 @@ export const structure = (S: any, context: any) =>
             .defaultOrdering([{ field: '_createdAt', direction: 'desc' }]) // Default ordering
         ),
       S.divider(),
+
       orderableDocumentListDeskItem({
         type: 'media',
         title: 'Media',
@@ -88,6 +89,13 @@ export const structure = (S: any, context: any) =>
         type: 'testimonial',
         title: 'Testimonials',
         icon: Quote,
+        S,
+        context,
+      }),
+      orderableDocumentListDeskItem({
+        type: 'legal',
+        title: 'Legal',
+        icon: Files,
         S,
         context,
       }),

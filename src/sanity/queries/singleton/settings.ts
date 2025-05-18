@@ -1,37 +1,43 @@
-import { groq } from "next-sanity";
+import { groq } from 'next-sanity';
 
-export const settingsQuery = groq`
+export const SETTINGS_QUERY = groq`
   *[_type == "settings"][0] {
-    _type,
-    logo {
-      asset->{
-        _id,
-        url,
-        mimeType,
-        metadata {
-          lqip,
-          dimensions {
-            width,
-            height
-          }
-        }
-      },
-      alt
+  logo {
+    asset->{
+      _ref,
+      url
     },
-    largeLogo {
-      asset->{
-        _id,
-        url,
-        mimeType,
-        metadata {
-          lqip,
-          dimensions {
-            width,
-            height
-          }
-        }
-      },
-      alt
-    }
+    alt
+  },
+  largeLogo {
+    asset->{
+      _ref,
+      url
+    },
+    alt
+  },
+  contact {
+    phone,
+    email
+  },
+  address {
+    street,
+    city,
+    state,
+    zip
+  },
+  businessHours {
+    hours
+  },
+  social {
+    facebook,
+    instagram,
+    twitter,
+    linkedin,
+    youtube,
+    yelp,
+    tiktok,
+    googleReviews
+  }
   }
 `;

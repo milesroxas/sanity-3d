@@ -6,7 +6,7 @@ import { NAVIGATION_SCENES_QUERY, SCENE_QUERY } from '@/sanity/queries/scene';
 import { SCENES_QUERY, SCENES_SLUGS_QUERY } from '@/sanity/queries/scenes';
 import { SERVICES_QUERY } from '@/sanity/queries/services';
 import { NAV_QUERY } from '@/sanity/queries/singleton/nav';
-import { settingsQuery } from '@/sanity/queries/singleton/settings';
+import { SETTINGS_QUERY } from '@/sanity/queries/singleton/settings';
 import { TEAM_MEMBER_QUERY } from '@/sanity/queries/team';
 
 export const fetchSanityPageBySlug = async ({ slug }: { slug: string }): Promise<Sanity.Page> => {
@@ -32,7 +32,7 @@ export const fetchSanityTeamMemberBySlug = async ({
 
 export const fetchSanitySettings = async (): Promise<Sanity.Settings> => {
   const { data } = await sanityFetch({
-    query: settingsQuery,
+    query: SETTINGS_QUERY,
   });
   return data;
 };
@@ -82,6 +82,33 @@ export async function fetchNavigationScenes() {
 export const fetchSanityNav = async (): Promise<Sanity.Nav> => {
   const { data } = await sanityFetch({
     query: NAV_QUERY,
+  });
+  return data;
+};
+
+export const fetchAllSanityServices = async (): Promise<Sanity.Services[]> => {
+  const { data } = await sanityFetch({
+    query: `*[_type == "services"] | order(title asc){
+      _id,
+      _type,
+      title,
+      slug,
+      meta_title,
+      meta_description,
+      noindex,
+      ogImage {
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions {
+              width,
+              height
+            }
+          }
+        }
+      }
+    }`,
   });
   return data;
 };

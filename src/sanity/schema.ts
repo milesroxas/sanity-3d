@@ -45,6 +45,7 @@ import splitRow from './schemas/blocks/split/split-row';
 import largeCallout from './schemas/blocks/text/large-callout';
 import timelineRow from './schemas/blocks/timeline/timeline-row';
 import timelinesOne from './schemas/blocks/timeline/timelines-1';
+import legal from './schemas/documents/legal';
 import nav from './schemas/singleton/nav';
 
 // singleton
@@ -64,6 +65,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     testimonial,
     scenes,
     services,
+    legal,
     // shared objects
     blockContent,
     link,

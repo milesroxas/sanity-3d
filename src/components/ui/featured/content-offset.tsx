@@ -150,9 +150,11 @@ export default function FeaturedContentOffset(props: any) {
           {image && (
             <div ref={imageContainerRef} className="relative lg:z-0 lg:ml-0 lg:mr-[-10%]">
               <div className="overflow-hidden rounded-lg shadow-lg will-change-transform">
-                <img
+                <Image
                   src={image.asset?.url}
                   alt={image.alt || 'Featured content'}
+                  width={500}
+                  height={500}
                   className={cn(
                     'h-auto w-full object-cover will-change-transform',
                     isDark ? 'border border-slate-800' : ''
@@ -196,13 +198,13 @@ export default function FeaturedContentOffset(props: any) {
                     const key = link._id || link.title || idx;
                     if (link._type === 'reference' && link.slug) {
                       return (
-                        <Button key={key} size="lg" asChild>
+                        <Button key={key} asChild>
                           <Link href={`/${link.slug.current}`}>{link.title || link.label}</Link>
                         </Button>
                       );
                     }
                     return (
-                      <Button key={key} variant={link.buttonVariant} size="lg" asChild>
+                      <Button key={key} variant={link.buttonVariant} asChild>
                         <a
                           href={link.href}
                           target={link.target ? '_blank' : undefined}
