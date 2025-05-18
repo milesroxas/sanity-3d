@@ -1,17 +1,18 @@
 import Custom404 from '@/components/404';
 import Footer from '@/components/footer/footer';
 import Header from '@/components/header';
-
 import type { Metadata } from 'next';
+import { fetchSanityNav } from './(main)/actions';
 
 export const metadata: Metadata = {
   title: 'Page not found',
 };
 
-export default function NotFoundPage() {
+export default async function NotFoundPage() {
+  const nav = await fetchSanityNav();
   return (
     <>
-      <Header />
+      <Header nav={nav} />
       <Custom404 />
       <Footer />
     </>
