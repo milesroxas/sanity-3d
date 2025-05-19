@@ -146,15 +146,15 @@ export default function FeaturedContentOffset(props: any) {
         ref={sectionRef}
         className="relative flex flex-col items-center justify-center overflow-visible py-32 md:min-h-[100vh] lg:min-h-[150vh]"
       >
-        <div className="flex flex-col items-center gap-8 lg:flex-row">
+        <div className="flex flex-col items-center gap-8 lg:w-full lg:flex-row">
           {image && (
-            <div ref={imageContainerRef} className="relative lg:z-0 lg:ml-0 lg:mr-[-10%]">
+            <div ref={imageContainerRef} className="relative lg:z-0 lg:mr-[-10%] lg:w-2/3">
               <div className="overflow-hidden rounded-lg shadow-lg will-change-transform">
                 <Image
                   src={image.asset?.url}
                   alt={image.alt || 'Featured content'}
-                  width={500}
-                  height={500}
+                  width={800}
+                  height={800}
                   className={cn(
                     'h-auto w-full object-cover will-change-transform',
                     isDark ? 'border border-slate-800' : ''
@@ -164,7 +164,7 @@ export default function FeaturedContentOffset(props: any) {
             </div>
           )}
 
-          <div ref={contentRef} className="relative overflow-x-clip lg:z-20 lg:ml-[-10%]">
+          <div ref={contentRef} className="relative overflow-x-clip lg:z-20 lg:ml-[-10%] lg:w-1/2">
             <div
               className={cn(
                 'z-10 flex flex-col items-start will-change-transform',

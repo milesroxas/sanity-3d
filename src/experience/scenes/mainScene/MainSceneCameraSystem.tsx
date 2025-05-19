@@ -23,24 +23,6 @@ const ANGLE_LIMITS = {
   maxAzimuth: Math.PI / 4, // Maximum azimuth angle in radians
 };
 
-interface CameraControls {
-  'Main Scene': {
-    position: {
-      positionX: number;
-      positionY: number;
-      positionZ: number;
-    };
-    target: {
-      targetX: number;
-      targetY: number;
-      targetZ: number;
-    };
-    debug: {
-      showTargetCube: boolean;
-    };
-  };
-}
-
 // Typed debounce utility function
 function debounce<T extends (...args: any[]) => void>(
   fn: T,

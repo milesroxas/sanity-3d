@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect } from 'react';
 import LogoMarkerContent from './components/LogoMarkerContent';
 import MainScene from './MainScene';
-
 // Style to prevent scrollbars
 const noScrollStyles = {
   height: '100%',

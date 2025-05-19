@@ -18,7 +18,7 @@ interface CameraStore {
   isAnimating: boolean;
   state: CameraState;
   isLoading: boolean;
-
+  firstTimeLoading: boolean;
   // Camera Actions
   setCamera: (position: Vector3, target: Vector3, state?: CameraState) => void;
   setPreviousCamera: (position: Vector3, target: Vector3) => void;
@@ -36,6 +36,7 @@ interface CameraStore {
   setIsAnimating: (state: boolean) => void;
   setIsLoading: (state: boolean) => void;
   setSelectedPoi: (poi: any | null) => void;
+  reset: () => void;
 
   // New action
   syncCameraPosition: (position: Vector3, target: Vector3) => void;
@@ -268,5 +269,39 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       );
       get().setSelectedPoi(previousPoi);
     }
+  },
+
+  reset: () => {
+    const startPos = INITIAL_POSITIONS.mainIntro.position.clone();
+    const startTarget = INITIAL_POSITIONS.mainIntro.target.clone();
+
+    // Immediately set the camera to the starting position to prevent any flash
+    set({
+      // Set position and target immediately
+      position: startPos.clone(),
+      target: startTarget.clone(),
+
+      // Reset all other state properties
+      controlType: 'Disabled',
+      isAnimating: true,
+      state: 'main',
+      isLoading: false,
+      currentPoiIndex: 0,
+      firstTimeLoading: true,
+      selectedPoi: null,
+      previousPosition: null,
+      previousTarget: null,
+    });
+
+    // Start the animation after position has been updated
+    // Add a small delay to ensure the position update is applied first
+    setTimeout(() => {
+      get().startCameraTransition(
+        startPos,
+        INITIAL_POSITIONS.main.position,
+        startTarget,
+        INITIAL_POSITIONS.main.target
+      );
+    }, 16); // Single frame delay at 60fps
   },
 }));
