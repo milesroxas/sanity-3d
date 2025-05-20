@@ -11,7 +11,7 @@ import ScrollTrigger from 'gsap/ScrollTrigger';
 import { stegaClean } from 'next-sanity';
 import Image from 'next/image';
 import Link from 'next/link';
-import { createElement, useEffect, useLayoutEffect, useRef } from 'react';
+import { createElement, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 interface FeaturedContentOffsetProps {
   content?: any;
@@ -28,6 +28,9 @@ interface FeaturedContentOffsetProps {
 export default function FeaturedContentOffset(props: FeaturedContentOffsetProps) {
   const { content, image, graphic, tagLine, title, links, themeVariant, _key } = props;
 
+  // Debug state to track animation progress
+  const [debugProgress, setDebugProgress] = useState(0);
+
   const theme = stegaClean(themeVariant);
   const isDark = theme === 'dark';
 
@@ -41,62 +44,70 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
   const graphicRef = useRef<HTMLDivElement>(null);
   const blockOverlayRef = useRef<HTMLDivElement>(null);
 
-  // Only show markers in development
-  const showMarkers = process.env.NODE_ENV === 'development';
+  // Always show markers for debugging
+  const showMarkers = true;
 
   // Register the plugin just to be safe
   useLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
-  }, []);
+    console.log('🟢 ScrollTrigger registered for content-offset', _key);
+  }, [_key]);
 
   // Set up animations when the component mounts
   useEffect(() => {
     // Make sure refs are ready
     const container = containerRef.current;
-    if (!container || !blockRef.current) return;
+    if (!container || !blockRef.current || !blockOverlayRef.current) {
+      console.log('🔴 Missing refs for content-offset', {
+        container: !!container,
+        block: !!blockRef.current,
+        overlay: !!blockOverlayRef.current,
+      });
+      return;
+    }
+
+    console.log('🟢 Setting up animations for content-offset', _key);
 
     // Run all animations within the isolated context
     runAnimations(() => {
-      // THEME TRANSITION
-      if (isDark && blockOverlayRef.current) {
-        gsap.set(blockOverlayRef.current, { opacity: 0 });
+      // BACKGROUND ANIMATION
+      // Set initial state for the block's background overlay with bold color for debug
+      gsap.set(blockOverlayRef.current, {
+        opacity: 0,
+        backgroundColor: 'rgba(255, 0, 0, 0.5)', // Start with a red background for visibility
+      });
 
-        ScrollTrigger.create(
-          createScrollTrigger(
-            container,
-            {
-              start: 'top 45%',
-              end: 'bottom 80%',
-              markers: showMarkers,
-              onEnter: () => {
-                gsap.to(blockOverlayRef.current, {
-                  opacity: 1,
-                  duration: 0.5,
-                });
-              },
-              onLeave: () => {
-                gsap.to(blockOverlayRef.current, {
-                  opacity: 0,
-                  duration: 0.5,
-                });
-              },
-              onEnterBack: () => {
-                gsap.to(blockOverlayRef.current, {
-                  opacity: 1,
-                  duration: 0.5,
-                });
-              },
-              onLeaveBack: () => {
-                gsap.to(blockOverlayRef.current, {
-                  opacity: 0,
-                  duration: 0.5,
-                });
-              },
+      console.log('🟢 Creating ScrollTrigger for background animation');
+
+      // Create an animation that changes the background opacity based on scroll
+      ScrollTrigger.create(
+        createScrollTrigger(
+          blockRef.current!,
+          {
+            start: 'top 70%', // Start when top of the section reaches 70% down the viewport
+            end: 'top 20%', // End when top of the section reaches 20% down the viewport
+            scrub: true, // Smooth animation that follows scroll position
+            markers: showMarkers,
+            onUpdate: (self: ScrollTrigger) => {
+              // Update debug state
+              setDebugProgress(self.progress);
+
+              // Log progress
+              if (self.progress > 0) {
+                console.log(`🟡 ScrollTrigger progress: ${self.progress.toFixed(2)}`);
+              }
+
+              // Smoothly animate the background opacity based on scroll progress
+              gsap.to(blockOverlayRef.current, {
+                opacity: Math.min(1, self.progress * 1.5), // Faster fade-in (multiply by 1.5)
+                duration: 0.1,
+                overwrite: true,
+              });
             },
-            0
-          )
-        );
-      }
+          },
+          0
+        )
+      );
 
       // IMAGE ANIMATIONS - Simple initial setup and parallax
       const imgContainer = imageContainerRef.current;
@@ -211,15 +222,26 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
       className="featured-content-offset-block relative"
       id={`block-${_key}`}
     >
-      {/* Dark theme overlay - each block has its own */}
-      {isDark && (
-        <div
-          ref={blockOverlayRef}
-          className="will-change-opacity absolute inset-0 bg-zinc-900 opacity-0 transition-opacity duration-500"
-          style={{ zIndex: -1 }}
-          aria-hidden="true"
-        />
+      {/* Debug indicator */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed left-0 top-0 z-50 bg-black p-2 text-white">
+          <div>Block: {_key}</div>
+          <div>Progress: {debugProgress.toFixed(2)}</div>
+        </div>
       )}
+
+      {/* Block-specific background overlay */}
+      <div
+        ref={blockOverlayRef}
+        className={cn(
+          'will-change-opacity absolute inset-0 opacity-0 transition-opacity duration-300',
+          'bg-red-500 bg-opacity-50' // Use a very visible color for debugging
+        )}
+        style={{
+          zIndex: 0, // Increased z-index to make sure it's visible
+        }}
+        aria-hidden="true"
+      />
 
       <SectionContainer className="overflow-x-clip">
         <div
