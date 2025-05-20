@@ -61,46 +61,23 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
       // Set initial state for the background overlay (hidden)
       gsap.set(blockOverlayRef.current, { opacity: 0 });
 
-      // Create a simple animation that toggles the background
-      ScrollTrigger.create(
-        createScrollTrigger(
-          blockRef.current!,
-          {
-            start: 'top 60%', // Start when top of section reaches 60% down viewport
-            end: 'bottom 40%', // End when bottom of section reaches 40% down viewport
-            markers: showMarkers,
-            toggleActions: 'play reverse play reverse', // play on enter, reverse on leave
-            onEnter: () => {
-              gsap.to(blockOverlayRef.current, {
-                opacity: 1,
-                duration: 0.25,
-                ease: 'power2.inOut',
-              });
+      gsap.fromTo(
+        blockOverlayRef.current,
+        { opacity: 0 },
+        {
+          opacity: 1,
+          ease: 'none',
+          scrollTrigger: createScrollTrigger(
+            blockRef.current!,
+            {
+              start: 'top 10%', // Adjusted for smoother entry
+              end: 'top 0%', // Expanded trigger zone
+              scrub: 0.5, // Add smoothing with scrub - key fix!
+              markers: showMarkers,
             },
-            onLeave: () => {
-              gsap.to(blockOverlayRef.current, {
-                opacity: 0,
-                duration: 0.5,
-                ease: 'power2.in',
-              });
-            },
-            onEnterBack: () => {
-              gsap.to(blockOverlayRef.current, {
-                opacity: 1,
-                duration: 0.5,
-                ease: 'power2.out',
-              });
-            },
-            onLeaveBack: () => {
-              gsap.to(blockOverlayRef.current, {
-                opacity: 0,
-                duration: 0.5,
-                ease: 'power2.in',
-              });
-            },
-          },
-          0
-        )
+            0
+          ),
+        }
       );
 
       // IMAGE ANIMATIONS - Simple initial setup and parallax
@@ -122,7 +99,6 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
               start: 'top 80%',
               end: 'top 30%',
               scrub: true,
-              markers: showMarkers,
             },
             1
           ),
@@ -141,7 +117,6 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
                 start: 'top bottom',
                 end: 'bottom top',
                 scrub: true,
-                markers: showMarkers,
               },
               2
             ),
@@ -164,7 +139,6 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
                 start: 'top bottom',
                 end: 'bottom top',
                 scrub: true,
-                markers: showMarkers,
               },
               3
             ),
@@ -190,7 +164,6 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
             {
               start: 'center center', // Trigger at the center of the viewport
               end: 'bottom center',
-              markers: showMarkers,
             },
             4
           ),
@@ -218,7 +191,7 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
       <div
         ref={blockOverlayRef}
         className={cn(
-          'will-change-opacity absolute inset-0 opacity-0 transition-opacity duration-500',
+          'will-change-opacity absolute inset-0',
           isDark ? 'bg-zinc-900' : 'bg-zinc-900'
         )}
         style={{ zIndex: 0 }}
