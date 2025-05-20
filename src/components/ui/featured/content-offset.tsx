@@ -11,7 +11,7 @@ import ScrollTrigger from 'gsap/ScrollTrigger';
 import { stegaClean } from 'next-sanity';
 import Image from 'next/image';
 import Link from 'next/link';
-import { createElement, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createElement, useEffect, useLayoutEffect, useRef } from 'react';
 
 interface FeaturedContentOffsetProps {
   content?: any;
@@ -28,9 +28,6 @@ interface FeaturedContentOffsetProps {
 export default function FeaturedContentOffset(props: FeaturedContentOffsetProps) {
   const { content, image, graphic, tagLine, title, links, themeVariant, _key } = props;
 
-  // Debug state to track animation progress
-  const [debugProgress, setDebugProgress] = useState(0);
-
   const theme = stegaClean(themeVariant);
   const isDark = theme === 'dark';
 
@@ -44,64 +41,61 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
   const graphicRef = useRef<HTMLDivElement>(null);
   const blockOverlayRef = useRef<HTMLDivElement>(null);
 
-  // Always show markers for debugging
-  const showMarkers = true;
+  // Only show markers in development
+  const showMarkers = process.env.NODE_ENV === 'development';
 
   // Register the plugin just to be safe
   useLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
-    console.log('🟢 ScrollTrigger registered for content-offset', _key);
-  }, [_key]);
+  }, []);
 
   // Set up animations when the component mounts
   useEffect(() => {
     // Make sure refs are ready
     const container = containerRef.current;
-    if (!container || !blockRef.current || !blockOverlayRef.current) {
-      console.log('🔴 Missing refs for content-offset', {
-        container: !!container,
-        block: !!blockRef.current,
-        overlay: !!blockOverlayRef.current,
-      });
-      return;
-    }
-
-    console.log('🟢 Setting up animations for content-offset', _key);
+    if (!container || !blockRef.current || !blockOverlayRef.current) return;
 
     // Run all animations within the isolated context
     runAnimations(() => {
-      // BACKGROUND ANIMATION
-      // Set initial state for the block's background overlay with bold color for debug
-      gsap.set(blockOverlayRef.current, {
-        opacity: 0,
-        backgroundColor: 'rgba(255, 0, 0, 0.5)', // Start with a red background for visibility
-      });
+      // SIMPLIFIED BACKGROUND ANIMATION
+      // Set initial state for the background overlay (hidden)
+      gsap.set(blockOverlayRef.current, { opacity: 0 });
 
-      console.log('🟢 Creating ScrollTrigger for background animation');
-
-      // Create an animation that changes the background opacity based on scroll
+      // Create a simple animation that toggles the background
       ScrollTrigger.create(
         createScrollTrigger(
           blockRef.current!,
           {
-            start: 'top 70%', // Start when top of the section reaches 70% down the viewport
-            end: 'top 20%', // End when top of the section reaches 20% down the viewport
-            scrub: true, // Smooth animation that follows scroll position
+            start: 'top 60%', // Start when top of section reaches 60% down viewport
+            end: 'bottom 40%', // End when bottom of section reaches 40% down viewport
             markers: showMarkers,
-            onUpdate: (self: ScrollTrigger) => {
-              // Update debug state
-              setDebugProgress(self.progress);
-
-              // Log progress
-              if (self.progress > 0) {
-                console.log(`🟡 ScrollTrigger progress: ${self.progress.toFixed(2)}`);
-              }
-
-              // Smoothly animate the background opacity based on scroll progress
+            toggleActions: 'play reverse play reverse', // play on enter, reverse on leave
+            onEnter: () => {
               gsap.to(blockOverlayRef.current, {
-                opacity: Math.min(1, self.progress * 1.5), // Faster fade-in (multiply by 1.5)
-                duration: 0.1,
-                overwrite: true,
+                opacity: 1,
+                duration: 0.25,
+                ease: 'power2.inOut',
+              });
+            },
+            onLeave: () => {
+              gsap.to(blockOverlayRef.current, {
+                opacity: 0,
+                duration: 0.5,
+                ease: 'power2.in',
+              });
+            },
+            onEnterBack: () => {
+              gsap.to(blockOverlayRef.current, {
+                opacity: 1,
+                duration: 0.5,
+                ease: 'power2.out',
+              });
+            },
+            onLeaveBack: () => {
+              gsap.to(blockOverlayRef.current, {
+                opacity: 0,
+                duration: 0.5,
+                ease: 'power2.in',
               });
             },
           },
@@ -184,20 +178,18 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
         // Initial position - off-screen to the right
         gsap.set(graphicEl, {
           x: 200,
-          opacity: 0,
         });
 
         // Simple right-to-left animation
         gsap.to(graphicEl, {
           x: 0,
-          opacity: 1,
-          ease: 'none',
+          ease: 'power2.inOut',
+          duration: 1,
           scrollTrigger: createScrollTrigger(
             container,
             {
               start: 'center center', // Trigger at the center of the viewport
               end: 'bottom center',
-              scrub: true,
               markers: showMarkers,
             },
             4
@@ -222,31 +214,21 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
       className="featured-content-offset-block relative"
       id={`block-${_key}`}
     >
-      {/* Debug indicator */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed left-0 top-0 z-50 bg-black p-2 text-white">
-          <div>Block: {_key}</div>
-          <div>Progress: {debugProgress.toFixed(2)}</div>
-        </div>
-      )}
-
       {/* Block-specific background overlay */}
       <div
         ref={blockOverlayRef}
         className={cn(
-          'will-change-opacity absolute inset-0 opacity-0 transition-opacity duration-300',
-          'bg-red-500 bg-opacity-50' // Use a very visible color for debugging
+          'will-change-opacity absolute inset-0 opacity-0 transition-opacity duration-500',
+          isDark ? 'bg-zinc-900' : 'bg-zinc-900'
         )}
-        style={{
-          zIndex: 0, // Increased z-index to make sure it's visible
-        }}
+        style={{ zIndex: 0 }}
         aria-hidden="true"
       />
 
       <SectionContainer className="overflow-x-clip">
         <div
           ref={containerRef}
-          className="relative flex flex-col items-center justify-center overflow-visible py-32 md:min-h-[100vh] lg:min-h-[150vh]"
+          className="relative flex flex-col items-center justify-center overflow-visible py-32 md:min-h-[100vh] lg:min-h-[120vh]"
         >
           <div className="flex flex-col items-center gap-8 lg:w-full lg:flex-row">
             {/* IMAGE */}
@@ -297,7 +279,7 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
                     title
                   )}
 
-                {content && <PortableTextRenderer value={content} />}
+                {content && <PortableTextRenderer value={content} className="text-white" />}
 
                 {/* LINKS */}
                 {Array.isArray(links) && links.length > 0 && (
