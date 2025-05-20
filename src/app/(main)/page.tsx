@@ -1,9 +1,7 @@
-import Blocks from '@/components/blocks';
 import MissingSanityPage from '@/components/ui/missing-sanity-page';
 import LandingPage from '@/experience/scenes/landing/LandingPage';
 import { generatePageMetadata } from '@/lib/metadata';
 import { fetchSanityPageBySlug } from './actions';
-
 export const dynamic = 'force-static';
 
 export async function generateMetadata() {
@@ -31,5 +29,5 @@ export default async function Page({ searchParams }: PageProps) {
     return MissingSanityPage({ document: 'page', slug: 'index' });
   }
 
-  return <Blocks blocks={page?.blocks} />;
+  return;
 }

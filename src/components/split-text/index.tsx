@@ -43,8 +43,6 @@ export const SplitText = forwardRef<GSAPSplitText | undefined, SplitTextProps>(
 
     useImperativeHandle(ref, () => splitted, [splitted]);
 
-    // Re‑run on resize or type change
-    // biome-ignore lint/correctness/useExhaustiveDependencies: rect is intentional
     useEffect(() => {
       if (!elementRef.current) return;
 

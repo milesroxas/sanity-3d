@@ -1,21 +1,53 @@
-'use client'
+'use client';
 
-import gsap from 'gsap'
-import { useLayoutEffect } from 'react'
-import Tempus from 'tempus'
-import { ScrollTriggerConfig } from './scroll-trigger'
+import gsap from 'gsap';
+import { useLayoutEffect, useRef } from 'react';
+import Tempus from 'tempus';
+import { ScrollTriggerConfig } from './scroll-trigger';
 
 export function GSAP({ scrollTrigger = false }) {
+  // Track initialization to ensure we only run once
+  const initialized = useRef(false);
+  const tempusHandler = useRef<((time: number) => void) | null>(null);
+
   useLayoutEffect(() => {
-    gsap.defaults({ ease: 'none' })
+    if (initialized.current) return;
+    initialized.current = true;
 
-    // merge rafs
-    gsap.ticker.lagSmoothing(0)
-    gsap.ticker.remove(gsap.updateRoot)
-    Tempus?.add((time: number) => {
-      gsap.updateRoot(time / 1000)
-    })
-  }, [])
+    // Set basic defaults for all animations
+    gsap.defaults({
+      ease: 'none',
+      overwrite: 'auto',
+    });
 
-  return scrollTrigger && <ScrollTriggerConfig />
+    // Optimize GSAP ticker
+    gsap.ticker.lagSmoothing(0);
+
+    // Remove default update to use Tempus instead
+    gsap.ticker.remove(gsap.updateRoot);
+
+    // Create handler for Tempus
+    tempusHandler.current = (time: number) => {
+      gsap.updateRoot(time / 1000);
+    };
+
+    // Try to use Tempus for better performance if available
+    if (Tempus && typeof Tempus.add === 'function') {
+      Tempus.add(tempusHandler.current);
+    }
+
+    return () => {
+      // Clean up Tempus handler
+      if (tempusHandler.current && Tempus && typeof (Tempus as any).remove === 'function') {
+        (Tempus as any).remove(tempusHandler.current);
+        tempusHandler.current = null;
+      }
+
+      // Remove initialization flag when component unmounts
+      initialized.current = false;
+    };
+  }, []);
+
+  // Only include ScrollTrigger config if requested
+  return scrollTrigger ? <ScrollTriggerConfig /> : null;
 }

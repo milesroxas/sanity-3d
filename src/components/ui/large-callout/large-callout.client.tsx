@@ -1,77 +1,78 @@
 'use client';
 
+import { SplitText } from '@/components/split-text';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SplitText } from 'gsap/SplitText';
+import type { PortableTextBlock } from 'next-sanity';
 import { useRef } from 'react';
 
-import PortableTextRenderer from '@/components/portable-text-renderer';
-import type { PortableTextBlock } from 'next-sanity';
-
-export default function LargeCalloutClient({ body }: { body: PortableTextBlock[] }) {
+export default function LargeCalloutClient({
+  body,
+  _key,
+}: {
+  body: PortableTextBlock[];
+  _key?: string;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const splitRefs = useRef<Array<any | undefined>>([]);
 
   useGSAP(
     () => {
-      const el = containerRef.current;
-      if (!el) return;
+      splitRefs.current.forEach((splitInstance, index) => {
+        if (!splitInstance || !splitInstance.words) return;
 
-      const paras = el.querySelectorAll('p');
-      const splits: SplitText[] = [];
-      const triggers: ScrollTrigger[] = [];
+        const elementId = `large-callout-${_key}-${index}`;
+        const element = splitInstance.elements[0];
 
-      for (const p of paras) {
-        // split each paragraph into words
-        const split = new SplitText(p, {
-          type: 'words',
-          wordsClass: 'word',
-        });
-        splits.push(split);
-
-        // animate each word to fade in
-        const tween = gsap.from(split.words, {
+        gsap.from(splitInstance.words, {
           opacity: 0,
           duration: 1,
           ease: 'power1.out',
           stagger: 0.08,
           scrollTrigger: {
-            trigger: p,
+            id: elementId,
+            trigger: element,
             start: 'top 75%',
             toggleActions: 'play none none none',
             once: true,
+            markers: process.env.NODE_ENV === 'development',
           },
         });
-
-        if (tween.scrollTrigger) {
-          triggers.push(tween.scrollTrigger);
-        }
-      }
-
-      // cleanup on unmount
-      return () => {
-        for (const s of splits) {
-          s.revert();
-        }
-        for (const t of triggers) {
-          t.kill();
-        }
-      };
+      });
     },
-    { scope: containerRef }
+    { scope: containerRef, dependencies: [body, _key] }
   );
 
+  const paragraphClass = 'mb-8 max-w-4xl text-2xl text-muted-foreground lg:text-5xl/snug';
+
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} data-block-id={_key} className="large-callout-container">
       {body && Array.isArray(body) && body.length > 0 ? (
-        <PortableTextRenderer
-          value={body}
-          className="mb-8 max-w-4xl py-16 text-2xl text-muted-foreground lg:py-32 lg:text-5xl/snug"
-        />
+        <div className="py-16 lg:py-32">
+          {/* Custom renderer that uses SplitText for each paragraph */}
+          {body.map((block, index) => {
+            if (block._type === 'block' && block.style === 'normal') {
+              return (
+                <SplitText
+                  key={index}
+                  type="words"
+                  className={paragraphClass}
+                  ref={splitInstance => {
+                    // Store the split text instance
+                    if (splitRefs.current) {
+                      splitRefs.current[index] = splitInstance;
+                    }
+                  }}
+                >
+                  {block.children?.map((child: any) => child.text).join(' ') || ''}
+                </SplitText>
+              );
+            }
+            return null;
+          })}
+        </div>
       ) : (
-        <p className="mb-8 max-w-4xl text-2xl text-muted-foreground lg:text-5xl/snug">
-          No content available
-        </p>
+        <p className={paragraphClass}>No content available</p>
       )}
     </div>
   );

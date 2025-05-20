@@ -39,10 +39,20 @@ export default function Blocks({ blocks }: { blocks?: Sanity.Block[] }) {
         const Component = componentMap[block._type];
         if (!Component) {
           // Fallback for unknown block types to debug
-          console.log('Unknown block type:', block._type);
           return <div data-type={block._type} key={block._key} />;
         }
-        return <Component {...block} key={block._key} />;
+
+        // Create a wrapper div with a data attribute to help with debugging
+        return (
+          <div
+            key={block._key}
+            id={`block-${block._key}`}
+            className="block-wrapper"
+            data-block-type={block._type}
+          >
+            <Component {...block} _key={block._key} />
+          </div>
+        );
       })}
     </>
   );

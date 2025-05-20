@@ -112,7 +112,7 @@ export default function SplitContent({
                   asChild
                 >
                   <Link
-                    href={(l as any).href as string}
+                    href={(l as any).href || '#'}
                     target={(l as any).target ? '_blank' : undefined}
                   >
                     {l.title}
