@@ -4,6 +4,7 @@ import SectionContainer, {
   ISectionContainerProps,
   ISectionPadding,
 } from '@/components/ui/section-container';
+import { cn } from '@/lib/utils';
 import { stegaClean } from 'next-sanity';
 import SplitCardsList from './split-cards-list';
 import SplitContent from './split-content';
@@ -63,9 +64,12 @@ export default function SplitRow({
         padding={sectionPadding}
         theme={theme}
         style={style}
+        noGap={noGap}
         className={'transition-colors duration-700'}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2">
+        <div
+          className={cn('grid grid-cols-1 lg:grid-cols-2', noGap ? 'gap-0' : 'gap-10 md:gap-20')}
+        >
           {splitColumns.map((block, index) => {
             const Component = componentMap[block._type as keyof typeof componentMap];
             if (!Component) {
@@ -76,7 +80,6 @@ export default function SplitRow({
               <Component
                 {...block}
                 color={color}
-                noGap={noGap}
                 styleVariant={style}
                 themeVariant={theme}
                 key={block._key}

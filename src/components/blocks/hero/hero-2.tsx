@@ -11,7 +11,9 @@ export default function Hero2({
   title,
   body,
   links,
+  _key,
 }: Partial<{
+  _key: string;
   tagLine: string;
   title: string;
   body: PortableTextBlock[];

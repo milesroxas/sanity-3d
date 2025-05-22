@@ -25,11 +25,12 @@ export interface ISectionContainerProps {
   children: React.ReactNode;
   className?: string;
   padding?: ISectionPadding | null;
+  noGap?: boolean;
 }
 
 // Use forwardRef to properly handle ref forwarding
 const SectionContainer = React.forwardRef<HTMLDivElement, ISectionContainerProps>(
-  ({ color = 'background', theme, style, padding, children, className }, ref) => {
+  ({ color = 'background', theme, style, padding, children, className, noGap }, ref) => {
     // Use default padding if none provided
     const effectivePadding = padding || DEFAULT_PADDING;
 
@@ -84,6 +85,7 @@ const SectionContainer = React.forwardRef<HTMLDivElement, ISectionContainerProps
           paddingTopClass,
           paddingBottomClass,
           'transition-colors duration-500',
+          noGap ? 'px-10' : undefined,
           className
         )}
         data-theme={theme || undefined}

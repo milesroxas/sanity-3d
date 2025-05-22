@@ -3,7 +3,6 @@ import { createBlurUp } from '@mux/blurup';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-// Dynamic import with SSR disabled to prevent hydration errors
 const MuxPlayer = dynamic(() => import('@mux/mux-player-react'), {
   ssr: false,
   loading: () => (
@@ -12,6 +11,9 @@ const MuxPlayer = dynamic(() => import('@mux/mux-player-react'), {
     </div>
   ),
 });
+
+// Use any for the player element type until we can import the proper type
+type MuxPlayerElement = any;
 
 export interface SplitVideoProps {
   video?: {
@@ -24,51 +26,43 @@ export interface SplitVideoProps {
   };
   blurDataURL?: string;
   aspectRatio?: number;
-  previewDuration?: number; // Duration of preview loop in seconds (default: 4)
+  previewDuration?: number;
 }
 
 type PlaybackMode = 'preview' | 'full';
+
+const HOVER_DELAY = 200;
+const DEFAULT_PREVIEW_DURATION = 4;
 
 export default function SplitVideo({
   video,
   blurDataURL: preGeneratedBlur,
   aspectRatio: preGeneratedRatio,
-  previewDuration = 4,
+  previewDuration = DEFAULT_PREVIEW_DURATION,
 }: SplitVideoProps) {
-  const [placeholder, setPlaceholder] = useState<{
-    blurDataURL: string | null;
-  }>({
-    blurDataURL: preGeneratedBlur || null,
-  });
-
+  const [blurDataURL, setBlurDataURL] = useState<string | null>(preGeneratedBlur || null);
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode>('preview');
-  const [isHovered, setIsHovered] = useState(false);
   const [showPlayButton, setShowPlayButton] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const playerRef = useRef<any>(null);
 
-  // Ensure we're on the client side
+  const playerRef = useRef<MuxPlayerElement>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   useEffect(() => {
-    // Only generate client-side if not pre-generated
     if (!preGeneratedBlur && video?.asset?.playbackId && isClient) {
       createBlurUp(video.asset.playbackId, {})
-        .then(({ blurDataURL }) => {
-          setPlaceholder({ blurDataURL });
-        })
-        .catch(error => {
-          console.error('Error generating video placeholder:', error);
-        });
+        .then(({ blurDataURL }) => setBlurDataURL(blurDataURL))
+        .catch(error => console.error('Error generating video placeholder:', error));
     }
   }, [video?.asset?.playbackId, preGeneratedBlur, isClient]);
 
   const handleTimeUpdate = useCallback(() => {
     if (playbackMode === 'preview' && playerRef.current) {
       const currentTime = playerRef.current.currentTime;
-      // Loop back to start if we've reached the preview duration
       if (currentTime >= previewDuration) {
         playerRef.current.currentTime = 0;
       }
@@ -76,22 +70,20 @@ export default function SplitVideo({
   }, [playbackMode, previewDuration]);
 
   const handleMouseEnter = useCallback(() => {
-    setIsHovered(true);
     if (playbackMode === 'preview') {
-      // Show play button after a brief delay to avoid flickering
-      const timer = setTimeout(() => setShowPlayButton(true), 200);
-      return () => clearTimeout(timer);
+      hoverTimeoutRef.current = setTimeout(() => setShowPlayButton(true), HOVER_DELAY);
     }
   }, [playbackMode]);
 
   const handleMouseLeave = useCallback(() => {
-    setIsHovered(false);
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
     setShowPlayButton(false);
   }, []);
 
   const handlePlayClick = useCallback(() => {
     if (playerRef.current) {
-      // Switch to full playback mode and start from beginning
       setPlaybackMode('full');
       setShowPlayButton(false);
       playerRef.current.currentTime = 0;
@@ -100,35 +92,41 @@ export default function SplitVideo({
   }, []);
 
   const handleLoadedData = useCallback(() => {
-    // Ensure preview mode starts at beginning
     if (playbackMode === 'preview' && playerRef.current) {
       playerRef.current.currentTime = 0;
     }
   }, [playbackMode]);
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
+
   if (!video?.asset?.playbackId) {
     return null;
   }
 
-  // Show loading state until client-side rendering is ready
   if (!isClient) {
     return (
       <div
-        className="relative flex h-[25rem] items-center justify-center overflow-hidden rounded-md bg-primary sm:h-[30rem] md:h-[25rem] lg:h-full"
-        style={{ aspectRatio: '16/9' }}
+        className="relative flex max-h-[25rem] w-full items-center justify-center overflow-hidden rounded-md bg-primary sm:max-h-[30rem] md:max-h-[25rem] lg:h-full"
+        style={{ aspectRatio: preGeneratedRatio || '16/9' }}
       >
         <div className="text-gray-500">Loading video...</div>
       </div>
     );
   }
 
-  // Determine if overlay should be visible
   const shouldShowOverlay = showPlayButton && playbackMode === 'preview';
 
   return (
     <div
-      className="group relative h-[25rem] overflow-hidden rounded-md sm:h-[30rem] md:h-[25rem] lg:h-full"
-      style={{ aspectRatio: '16/9' }}
+      className="group relative max-h-[25rem] w-full overflow-hidden rounded-md sm:max-h-[30rem] md:max-h-[25rem] lg:h-full"
+      style={{ aspectRatio: preGeneratedRatio || '16/9' }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -141,16 +139,16 @@ export default function SplitVideo({
         loop={playbackMode === 'preview'}
         autoPlay={playbackMode === 'preview'}
         paused={playbackMode === 'full' ? false : undefined}
-        placeholder={placeholder.blurDataURL || undefined}
+        placeholder={blurDataURL || undefined}
         onTimeUpdate={handleTimeUpdate}
         onLoadedData={handleLoadedData}
-        playerInitTime={0} // Set consistent value to prevent hydration errors
+        playerInitTime={0}
         style={
           {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            // Hide controls in preview mode
+            objectPosition: 'center',
             ...(playbackMode === 'preview' && {
               '--controls': 'none',
               '--media-control-bar': 'none',
@@ -160,20 +158,17 @@ export default function SplitVideo({
         nohotkeys={playbackMode === 'preview'}
       />
 
-      {/* Overlay components - Background and Play Button completely separated */}
       {playbackMode === 'preview' && (
         <>
-          {/* Background overlay - separate layer */}
           <div
             className={`absolute inset-0 bg-black transition-opacity duration-300 ease-in-out ${
-              shouldShowOverlay ? 'opacity-50' : 'opacity-0'
-            } ${shouldShowOverlay ? 'pointer-events-auto' : 'pointer-events-none'}`}
+              shouldShowOverlay ? 'pointer-events-auto opacity-50' : 'pointer-events-none opacity-0'
+            }`}
             onClick={handlePlayClick}
           />
 
-          {/* Play button - completely separate from background */}
           <div
-            className={`absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 ease-in-out ${
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ease-in-out ${
               shouldShowOverlay ? 'pointer-events-auto opacity-80' : 'pointer-events-none opacity-0'
             }`}
             style={{ zIndex: 10 }}
