@@ -12,6 +12,7 @@ import Link from 'next/link';
 
 export default function Cta1({
   padding,
+  direction,
   colorVariant,
   sectionWidth = 'default',
   stackAlign = 'left',
@@ -20,7 +21,8 @@ export default function Cta1({
   body,
   links,
 }: Partial<{
-  padding: ISectionPadding;
+  padding: ISectionPadding['padding'];
+  direction: ISectionPadding['direction'];
   colorVariant: ISectionContainerProps['color'];
   stackAlign: 'left' | 'center';
   sectionWidth: 'default' | 'narrow';
@@ -46,8 +48,17 @@ export default function Cta1({
   const align = stegaClean(stackAlign);
   const color = stegaClean(colorVariant);
 
+  // Combine padding and direction into ISectionPadding object
+  const sectionPadding: ISectionPadding | undefined =
+    padding && direction
+      ? {
+          padding: stegaClean(padding),
+          direction: stegaClean(direction),
+        }
+      : undefined;
+
   return (
-    <SectionContainer color={color} padding={padding}>
+    <SectionContainer color={color} padding={sectionPadding}>
       <div
         className={cn(
           align === 'center' ? 'mx-auto max-w-[48rem] text-center' : undefined,
@@ -72,19 +83,19 @@ export default function Cta1({
           >
             {links &&
               links.length > 0 &&
-              links.map(link => {
+              links.map((link, index) => {
                 if (!link) return null;
                 if ((link as any)._type === 'reference' && (link as any).slug) {
                   const ref = link as { _id?: string; title?: string; slug?: { current: string } };
                   return (
-                    <Button key={ref._id || ref.title} variant="default" asChild>
+                    <Button key={ref._id || ref.title || index} variant="default" asChild>
                       <Link href={`/${ref.slug?.current || ''}`}>{ref.title}</Link>
                     </Button>
                   );
                 }
                 return (
                   <Button
-                    key={link.title}
+                    key={link.title || index}
                     variant={stegaClean((link as any)?.buttonVariant)}
                     asChild
                   >

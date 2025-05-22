@@ -1,5 +1,5 @@
-import SplitInfoItem from "@/components/ui/split/split-info-item";
-import { PortableTextBlock } from "next-sanity";
+import SplitInfoItem from '@/components/blocks/split/split-info-item';
+import { PortableTextBlock } from 'next-sanity';
 
 export interface SplitInfoListProps {
   list: {
@@ -13,7 +13,7 @@ export interface SplitInfoListProps {
 export default function SplitInfoList({ list }: Partial<SplitInfoListProps>) {
   return (
     <div className="flex items-center justify-center">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-8">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-1">
         {list &&
           list.length > 0 &&
           list.map((item, index) => <SplitInfoItem key={index} {...item} />)}

@@ -1,5 +1,5 @@
+import SplitCardsItem from '@/components/blocks/split/split-cards-item';
 import { ISectionContainerProps } from '@/components/ui/section-container';
-import SplitCardsItem from '@/components/ui/split/split-cards-item';
 import { PortableTextBlock, stegaClean } from 'next-sanity';
 
 export interface SplitCardsListProps {

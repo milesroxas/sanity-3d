@@ -13,6 +13,10 @@ export default defineType({
       type: 'section-padding',
     }),
     defineField({
+      name: 'direction',
+      type: 'direction',
+    }),
+    defineField({
       name: 'colorVariant',
       type: 'color-variant',
       description: 'Select a background color variant',

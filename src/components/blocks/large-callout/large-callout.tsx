@@ -3,18 +3,12 @@
 import { SplitText } from '@/components/split-text';
 import { useBlockScrollTrigger } from '@/hooks/useBlockScrollTrigger';
 import gsap from 'gsap';
-import ScrollTrigger from 'gsap/ScrollTrigger';
 import type { PortableTextBlock } from 'next-sanity';
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function LargeCallout({ body, _key }: { body: PortableTextBlock[]; _key?: string }) {
   const splitRefs = useRef<Array<any>>([]);
   const { blockRef, createScrollTrigger, runAnimations } = useBlockScrollTrigger(_key);
-
-  // Register ScrollTrigger
-  useLayoutEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-  }, []);
 
   // Wait for split text to initialize, then animate
   useEffect(() => {

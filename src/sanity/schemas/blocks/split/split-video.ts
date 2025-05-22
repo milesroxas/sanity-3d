@@ -1,27 +1,25 @@
-import { defineField, defineType } from "sanity";
-import { Video } from "lucide-react";
+import { Video } from 'lucide-react';
+import { defineField, defineType } from 'sanity';
 
 export default defineType({
-  name: "split-video",
-  type: "object",
+  name: 'split-video',
+  type: 'object',
   icon: Video,
-  description: "Column with full video.",
+  description: 'Column with full video.',
   fields: [
     defineField({
-      name: "video",
-      type: "video",
-      title: "Video",
-      description: "Add a video that will be displayed in this column",
-      validation: (Rule) => Rule.required(),
+      title: 'Video file',
+      name: 'video',
+      type: 'mux.video',
     }),
   ],
   preview: {
     select: {
-      title: "video.title",
+      title: 'video.title',
     },
     prepare({ title }) {
       return {
-        title: title || "No Title",
+        title: title || 'No Title',
       };
     },
   },

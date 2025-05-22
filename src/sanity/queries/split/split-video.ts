@@ -1,18 +1,16 @@
-import { groq } from "next-sanity";
+import { groq } from 'next-sanity';
 
 export const splitVideoQuery = groq`
   _type == "split-video" => {
+    _id,
     _type,
     video {
-      title,
-      video {
-        asset-> {
+      asset-> {
           _id,
           playbackId,
           assetId,
           filename,
         }
-      }
     }
   }
 `;

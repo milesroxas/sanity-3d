@@ -11,6 +11,12 @@ export default defineType({
     defineField({
       name: 'padding',
       type: 'section-padding',
+      initialValue: 'small',
+    }),
+    defineField({
+      name: 'direction',
+      type: 'direction',
+      initialValue: 'both',
     }),
     defineField({
       name: 'colorVariant',

@@ -16,7 +16,7 @@ import { buttonVariant } from './schemas/blocks/shared/button-variant';
 import { colorVariant } from './schemas/blocks/shared/color-variant';
 import link from './schemas/blocks/shared/link';
 import { media } from './schemas/blocks/shared/media';
-import sectionPadding from './schemas/blocks/shared/section-padding';
+import { paddingDirection, sectionPadding } from './schemas/blocks/shared/section-padding';
 import { styleVariant } from './schemas/blocks/shared/style-variant';
 import { themeVariant } from './schemas/blocks/shared/theme';
 import video from './schemas/blocks/shared/video';
@@ -74,6 +74,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     themeVariant,
     buttonVariant,
     sectionPadding,
+    paddingDirection,
     media,
     video,
     // blocks

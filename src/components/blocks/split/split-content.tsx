@@ -2,7 +2,7 @@
 
 import PortableTextRenderer from '@/components/portable-text-renderer';
 import { Button } from '@/components/ui/button';
-import { ISectionContainerProps } from '@/components/ui/section-container';
+import { ISectionContainerProps, ISectionPadding } from '@/components/ui/section-container';
 import TagLine from '@/components/ui/tag-line';
 import { cn } from '@/lib/utils';
 import { PortableTextBlock, stegaClean } from 'next-sanity';
@@ -15,7 +15,7 @@ export interface SplitContentProps {
   colorVariant: ISectionContainerProps['color'];
   styleVariant: ISectionContainerProps['style'];
   themeVariant: ISectionContainerProps['theme'];
-  padding: ISectionContainerProps['padding'];
+  padding: ISectionPadding;
   noGap: boolean;
   tagLine: string;
   title: string;
@@ -54,12 +54,43 @@ export default function SplitContent({
   const isDark = theme === 'dark';
   const bgColor = stegaClean(color) || 'background';
 
+  // Helper function to get padding classes based on size
+  const getPaddingClasses = (size: ISectionPadding['padding']) => {
+    switch (size) {
+      case 'none':
+        return { top: '', bottom: '' };
+      case 'small':
+        return { top: 'pt-8 xl:pt-16', bottom: 'pb-8 xl:pb-16' };
+      case 'medium':
+        return { top: 'pt-16 xl:pt-24', bottom: 'pb-16 xl:pb-24' };
+      case 'large':
+        return { top: 'pt-24 xl:pt-32', bottom: 'pb-24 xl:pb-32' };
+      case 'xlarge':
+        return { top: 'pt-32 xl:pt-48', bottom: 'pb-32 xl:pb-48' };
+      default:
+        return { top: '', bottom: '' };
+    }
+  };
+
+  // Apply padding based on direction if padding is provided
+  const paddingClasses = padding ? getPaddingClasses(padding.padding) : { top: '', bottom: '' };
+
+  const paddingTopClass =
+    padding && (padding.direction === 'top' || padding.direction === 'both')
+      ? paddingClasses.top
+      : '';
+
+  const paddingBottomClass =
+    padding && (padding.direction === 'bottom' || padding.direction === 'both')
+      ? paddingClasses.bottom
+      : '';
+
   return (
     <div
       className={cn(
         !sticky ? 'flex flex-col items-center justify-center' : 'flex flex-col items-center',
-        padding?.top ? 'pt-16 xl:pt-20' : undefined,
-        padding?.bottom ? 'pb-16 xl:pb-20' : undefined,
+        paddingTopClass,
+        paddingBottomClass,
         'w-full'
       )}
     >

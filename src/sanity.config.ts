@@ -10,7 +10,6 @@ import { muxInput } from 'sanity-plugin-mux-input';
 import { presentationTool } from 'sanity/presentation';
 import { structureTool } from 'sanity/structure';
 
-// Go to https://www.sanity.io/docs/api-versioning to learn how API versioning works
 import { resolve } from '@/sanity/presentation/resolve';
 import { apiVersion, dataset, projectId } from './sanity/env';
 import { schema } from './sanity/schema';
@@ -20,7 +19,6 @@ export default defineConfig({
   basePath: '/studio',
   projectId,
   dataset,
-  // Add and edit the content schema in the './sanity/schema' folder
   schema,
 
   plugins: [

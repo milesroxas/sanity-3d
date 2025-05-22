@@ -2,13 +2,13 @@ import { cn } from '@/lib/utils';
 import React from 'react';
 
 export const DEFAULT_PADDING = {
-  top: true,
-  bottom: true,
-};
+  padding: 'small',
+  direction: 'both',
+} as const;
 
 export interface ISectionPadding {
-  top: boolean;
-  bottom: boolean;
+  padding: 'none' | 'small' | 'medium' | 'large' | 'xlarge';
+  direction: 'top' | 'bottom' | 'both';
 }
 
 export interface ISectionContainerProps {
@@ -24,12 +24,15 @@ export interface ISectionContainerProps {
   style?: 'default' | 'offset';
   children: React.ReactNode;
   className?: string;
-  padding?: ISectionPadding | null | undefined;
+  padding?: ISectionPadding | null;
 }
 
 // Use forwardRef to properly handle ref forwarding
 const SectionContainer = React.forwardRef<HTMLDivElement, ISectionContainerProps>(
   ({ color = 'background', theme, style, padding, children, className }, ref) => {
+    // Use default padding if none provided
+    const effectivePadding = padding || DEFAULT_PADDING;
+
     // Generate class names in a stable way
     const colorClass = color !== 'transparent' ? `bg-${color}` : '';
     const themeClass =
@@ -41,8 +44,36 @@ const SectionContainer = React.forwardRef<HTMLDivElement, ISectionContainerProps
             ? 'bg-primary text-primary-foreground'
             : '';
 
-    const paddingTopClass = padding?.top ? 'pt-16 xl:pt-32' : '';
-    const paddingBottomClass = padding?.bottom ? 'pb-16 xl:pb-32' : '';
+    // Helper function to get padding classes based on size
+    const getPaddingClasses = (size: ISectionPadding['padding']) => {
+      switch (size) {
+        case 'none':
+          return { top: '', bottom: '' };
+        case 'small':
+          return { top: 'pt-8 xl:pt-16', bottom: 'pb-8 xl:pb-16' };
+        case 'medium':
+          return { top: 'pt-16 xl:pt-24', bottom: 'pb-16 xl:pb-24' };
+        case 'large':
+          return { top: 'pt-24 xl:pt-32', bottom: 'pb-24 xl:pb-32' };
+        case 'xlarge':
+          return { top: 'pt-32 xl:pt-48', bottom: 'pb-32 xl:pb-48' };
+        default:
+          return { top: '', bottom: '' };
+      }
+    };
+
+    const paddingClasses = getPaddingClasses(effectivePadding.padding);
+
+    // Apply padding based on direction
+    const paddingTopClass =
+      effectivePadding.direction === 'top' || effectivePadding.direction === 'both'
+        ? paddingClasses.top
+        : '';
+
+    const paddingBottomClass =
+      effectivePadding.direction === 'bottom' || effectivePadding.direction === 'both'
+        ? paddingClasses.bottom
+        : '';
 
     return (
       <div

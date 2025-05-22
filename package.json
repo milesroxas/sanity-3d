@@ -15,6 +15,7 @@
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^3.10.0",
+    "@mux/blurup": "^1.0.2",
     "@mux/mux-player-react": "^3.4.0",
     "@next/third-parties": "^15.3.1",
     "@portabletext/react": "^3.2.1",

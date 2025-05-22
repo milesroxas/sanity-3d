@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/sheet';
 import SocialLinks from '@/components/ui/social-links';
 import { TextAlignRightIcon } from '@radix-ui/react-icons';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -70,7 +71,7 @@ export default function MobileNav({
     if (link._type === 'pageLink' && link.page?.slug) {
       return {
         label: link.title || '',
-        href: `/${link.page.slug}`,
+        href: `/${link.page.slug.current || link.page.slug}`,
         target: false,
       };
     }
@@ -116,7 +117,7 @@ export default function MobileNav({
           <TextAlignRightIcon className={isExperiencePage ? 'text-white' : 'dark:text-white'} />
         </Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="overflow-y-auto">
         <SheetHeader>
           <div className="ml-auto mr-6">
             <Logo />
@@ -126,27 +127,129 @@ export default function MobileNav({
             <SheetDescription>Navigate to the website pages</SheetDescription>
           </div>
         </SheetHeader>
-        <div className="pb-20 pt-10">
+        <div className="flex flex-col gap-8 pb-20 pt-10">
           <div className="container">
-            <ul className="list-none space-y-3 text-right">
-              {nav.companyLinks.map((navItem, index) => {
-                const link = getLink(navItem);
-                return (
-                  <li key={`mobile-nav-${index}-${link.label}`}>
-                    <Link
-                      onClick={() => setOpen(false)}
-                      href={link.href}
-                      target={link.target ? '_blank' : undefined}
-                      rel={link.target ? 'noopener noreferrer' : undefined}
-                      className="hover:text-decoration-none text-lg hover:opacity-50"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+            {/* Company Links */}
+            <div className="mb-8">
+              <h3 className="mb-3 text-right text-sm font-medium uppercase text-slate-400">
+                Company
+              </h3>
+              <ul className="list-none space-y-3 text-right">
+                {nav.companyLinks.map((navItem, index) => {
+                  const link = getLink(navItem);
+                  return (
+                    <li key={`mobile-nav-${index}-${link.label}`}>
+                      <Link
+                        onClick={() => setOpen(false)}
+                        href={link.href}
+                        target={link.target ? '_blank' : undefined}
+                        rel={link.target ? 'noopener noreferrer' : undefined}
+                        className="hover:text-decoration-none text-lg hover:opacity-50"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
 
+            {/* Services Links */}
+            {nav.services && nav.services.length > 0 && (
+              <div className="mb-8">
+                <h3 className="mb-3 text-right text-sm font-medium uppercase text-slate-400">
+                  Services
+                </h3>
+                <ul className="list-none space-y-3 text-right">
+                  {nav.services.map((service, index) => {
+                    const link = getLink(service);
+                    return (
+                      <li key={`mobile-service-${index}-${link.label}`}>
+                        <Link
+                          onClick={() => setOpen(false)}
+                          href={link.href}
+                          target={link.target ? '_blank' : undefined}
+                          rel={link.target ? 'noopener noreferrer' : undefined}
+                          className="hover:text-decoration-none text-lg hover:opacity-50"
+                        >
+                          {link.label}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+
+            {/* Experience Link with Image */}
+            <div className="mb-8">
+              <Link
+                href="/experience"
+                onClick={() => setOpen(false)}
+                className="group flex flex-col items-end"
+              >
+                <h3 className="mb-3 text-right text-lg font-medium uppercase">View Experience</h3>
+                <div className="relative h-40 w-full overflow-hidden rounded-lg">
+                  <Image
+                    src="/images/fpo-nav.jpg"
+                    alt="experience preview"
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+              </Link>
+            </div>
+
+            {/* Contact Information */}
+            {settings?.contact && (
+              <div className="mb-6 text-right">
+                <h3 className="mb-2 text-sm font-medium uppercase text-slate-400">Contact Us</h3>
+                <div className="flex flex-col gap-2">
+                  {settings.contact.phone && (
+                    <Link
+                      href={`tel:${settings.contact.phone}`}
+                      className="text-sm hover:text-primary"
+                    >
+                      {settings.contact.phone}
+                    </Link>
+                  )}
+                  {settings.contact.email && (
+                    <Link
+                      href={`mailto:${settings.contact.email}`}
+                      className="text-sm hover:text-primary"
+                    >
+                      {settings.contact.email}
+                    </Link>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Address and Hours */}
+            <div className="mb-6 text-right">
+              {settings?.address && (
+                <div className="mb-4">
+                  <h3 className="mb-2 text-sm font-medium uppercase text-slate-400">Location</h3>
+                  <p className="text-sm font-light">
+                    {settings.address?.street && `${settings.address.street}, `}
+                    {settings.address?.city && `${settings.address.city}, `}
+                    {settings.address?.state && `${settings.address.state} `}
+                    {settings.address?.zip && settings.address.zip}
+                  </p>
+                </div>
+              )}
+
+              {settings?.businessHours?.hours && (
+                <div>
+                  <h3 className="mb-2 text-sm font-medium uppercase text-slate-400">
+                    Business Hours
+                  </h3>
+                  <p className="text-sm font-light">{settings.businessHours.hours}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Social Links */}
             {settings?.social && (
               <div className="mt-8 flex justify-end">
                 <SocialLinks social={settings.social} iconClassName="h-5 w-5" />

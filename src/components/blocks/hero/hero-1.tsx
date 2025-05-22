@@ -1,20 +1,23 @@
 'use client';
 import PortableTextRenderer from '@/components/portable-text-renderer';
 import { Button } from '@/components/ui/button';
+import { useBlockScrollTrigger } from '@/hooks/useBlockScrollTrigger';
 import { urlFor } from '@/sanity/lib/image';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { PortableTextBlock, stegaClean } from 'next-sanity';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRef } from 'react';
+import { useEffect } from 'react';
 export default function Hero1({
   tagLine,
   title,
   body,
   image,
   links,
+  _key,
 }: Partial<{
+  _key: string;
   tagLine: string;
   title: string;
   body: PortableTextBlock[];
@@ -34,7 +37,7 @@ export default function Hero1({
       | undefined;
   }[];
 }>) {
-  const heroRef = useRef(null);
+  const { blockRef, createScrollTrigger, runAnimations } = useBlockScrollTrigger(_key);
 
   useGSAP(
     () => {
@@ -43,11 +46,12 @@ export default function Hero1({
       gsap.set('.image-content', {
         scale: 1.1,
         transformOrigin: 'center center',
+        opacity: 0,
       });
 
       const tl = gsap.timeline({
         ease: 'power2.inOut',
-        duration: 0.8,
+        duration: 0.5,
       });
 
       tl.fromTo(
@@ -105,20 +109,51 @@ export default function Hero1({
       tl.to(
         '.image-content',
         {
+          opacity: 1,
           scale: 1,
           duration: 1.2,
           ease: 'power2.inOut',
         },
-        '-=0.8' // Start slightly after the container fades in
+        '-=0.8'
       );
     },
     {
-      scope: heroRef,
+      scope: blockRef,
     }
   );
+
+  useEffect(() => {
+    const container = blockRef.current;
+    if (!container || !blockRef.current) return;
+
+    const imageContent = container.querySelector('.image-content');
+    if (!imageContent) return;
+
+    runAnimations(() => {
+      gsap.fromTo(
+        imageContent,
+        {
+          yPercent: -15,
+        },
+        {
+          yPercent: 15,
+          ease: 'none',
+          scrollTrigger: createScrollTrigger(
+            container as HTMLElement,
+            {
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: true,
+            },
+            0
+          ),
+        }
+      );
+    });
+  }, [blockRef, createScrollTrigger, runAnimations]);
+
   return (
-    <div className="flex w-full flex-col bg-accent md:min-h-[100vh] md:flex-row" ref={heroRef}>
-      {/* Left Content */}
+    <div className="flex w-full flex-col bg-accent md:min-h-[100vh] md:flex-row" ref={blockRef}>
       <div className="flex w-full flex-col justify-center p-12 md:w-1/2 md:p-16 lg:p-24">
         <div className="mx-auto max-w-xl">
           {tagLine && (
@@ -139,7 +174,7 @@ export default function Hero1({
             <div className="links mt-10 flex flex-wrap gap-4">
               {links.map(link => {
                 if (!link) return null;
-                // Reference type
+
                 if ((link as any)._type === 'reference' && (link as any).slug) {
                   const ref = link as { _id?: string; title?: string; slug?: { current: string } };
                   return (
@@ -170,9 +205,8 @@ export default function Hero1({
           )}
         </div>
       </div>
-      {/* Right Image */}
 
-      <div className="image relative w-full overflow-hidden md:w-1/2">
+      <div className="image relative w-full overflow-hidden md:w-1/2" ref={blockRef}>
         {image && image.asset?._id && (
           <Image
             className="image-content max-h-96 w-full object-cover md:h-full md:max-h-screen"

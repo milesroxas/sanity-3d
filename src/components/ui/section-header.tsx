@@ -7,6 +7,7 @@ import { stegaClean } from 'next-sanity';
 
 export default function SectionHeader({
   padding,
+  direction,
   colorVariant,
   sectionWidth = 'default',
   stackAlign = 'left',
@@ -14,7 +15,8 @@ export default function SectionHeader({
   title,
   description,
 }: Partial<{
-  padding: ISectionPadding;
+  padding: ISectionPadding['padding'];
+  direction: ISectionPadding['direction'];
   colorVariant: ISectionContainerProps['color'];
   stackAlign: 'left' | 'center';
   sectionWidth: 'default' | 'narrow';
@@ -26,8 +28,17 @@ export default function SectionHeader({
   const align = stegaClean(stackAlign);
   const color = stegaClean(colorVariant);
 
+  // Combine padding and direction into ISectionPadding object
+  const sectionPadding: ISectionPadding | undefined =
+    padding && direction
+      ? {
+          padding: stegaClean(padding),
+          direction: stegaClean(direction),
+        }
+      : undefined;
+
   return (
-    <SectionContainer color={color} padding={padding}>
+    <SectionContainer color={color} padding={sectionPadding}>
       <div
         className={cn(
           align === 'center' ? 'mx-auto max-w-[48rem] text-center' : undefined,

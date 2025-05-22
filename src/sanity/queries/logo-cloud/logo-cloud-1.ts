@@ -1,9 +1,10 @@
-import { groq } from "next-sanity";
+import { groq } from 'next-sanity';
 
 export const logoCloud1Query = groq`
   _type == "logo-cloud-1" => {
     _type,
     padding,
+    direction,
     colorVariant,
     title,
     images[]{

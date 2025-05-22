@@ -30,8 +30,8 @@ export default async function TeamPage() {
       {posts?.length > 0 && (
         <SectionContainer
           padding={{
-            top: true,
-            bottom: true,
+            padding: 'large',
+            direction: 'both',
           }}
         >
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

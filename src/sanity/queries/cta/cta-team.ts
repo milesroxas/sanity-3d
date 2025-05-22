@@ -4,6 +4,7 @@ export const ctaTeamQuery = groq`
   _type == "cta-team" => {
     _type,
     padding,
+    direction,
     colorVariant,
     sectionWidth,
     stackAlign,

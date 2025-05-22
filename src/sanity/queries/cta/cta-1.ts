@@ -4,6 +4,7 @@ export const cta1Query = groq`
   _type == "cta-1" => {
     _type,
     padding,
+    direction,
     colorVariant,
     sectionWidth,
     stackAlign,

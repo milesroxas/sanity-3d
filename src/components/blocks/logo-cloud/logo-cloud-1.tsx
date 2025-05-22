@@ -1,5 +1,5 @@
 'use client';
-import SectionContainer from '@/components/ui/section-container';
+import SectionContainer, { ISectionPadding } from '@/components/ui/section-container';
 import { urlFor } from '@/sanity/lib/image';
 import { motion } from 'motion/react';
 import { stegaClean } from 'next-sanity';
@@ -7,10 +7,8 @@ import Image from 'next/image';
 import { Fragment } from 'react';
 
 interface LogoCloud1Props {
-  padding: {
-    top: boolean;
-    bottom: boolean;
-  };
+  padding?: ISectionPadding;
+
   colorVariant:
     | 'primary'
     | 'secondary'

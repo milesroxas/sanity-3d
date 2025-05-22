@@ -110,7 +110,7 @@ export default function FooterClient({ nav, settings }: FooterClientProps) {
 
   return (
     <footer className="bg-muted">
-      <div className="overflow-hidden rounded-tl-[50px] rounded-tr-[50px] bg-zinc-900 text-white">
+      <div className="overflow-hidden rounded-tl-[50px] rounded-tr-[50px] bg-zinc-900 text-white sm:rounded-tl-[10px] sm:rounded-tr-[10px] md:rounded-tl-[20px] md:rounded-tr-[20px] lg:rounded-tl-[50px] lg:rounded-tr-[50px]">
         <PreFooter />
         <div className="container px-4 py-6">
           {/* Main footer section with logo left and nav right */}

@@ -1,18 +1,30 @@
-import Carousel1 from '@/components/ui/carousel/carousel-1';
-import Carousel2 from '@/components/ui/carousel/carousel-2';
-import Cta1 from '@/components/ui/cta/cta-1';
+import Carousel1 from '@/components/blocks/carousel/carousel-1';
+import Carousel2 from '@/components/blocks/carousel/carousel-2';
+import Cta1 from '@/components/blocks/cta/cta-1';
+import FeaturedContentOffset from '@/components/blocks/featured/content-offset';
+import GridRow from '@/components/blocks/grid/grid-row';
+import Hero1 from '@/components/blocks/hero/hero-1';
+import Hero2 from '@/components/blocks/hero/hero-2';
+import LargeCallout from '@/components/blocks/large-callout/large-callout';
+import LogoCloud1 from '@/components/blocks/logo-cloud/logo-cloud-1';
+import SplitRow from '@/components/blocks/split/split-row';
+import TimelineRow from '@/components/blocks/timeline/timeline-row';
 import FAQs from '@/components/ui/faqs';
-import FeaturedContentOffset from '@/components/ui/featured/content-offset';
 import FormNewsletter from '@/components/ui/forms/newsletter';
-import GridRow from '@/components/ui/grid/grid-row';
-import Hero1 from '@/components/ui/hero/hero-1';
-import Hero2 from '@/components/ui/hero/hero-2';
-import LargeCallout from '@/components/ui/large-callout/large-callout';
-import LogoCloud1 from '@/components/ui/logo-cloud/logo-cloud-1';
 import SectionHeader from '@/components/ui/section-header';
-import SplitRow from '@/components/ui/split/split-row';
-import TimelineRow from '@/components/ui/timeline/timeline-row';
-import CtaTeam from './ui/cta/cta-team';
+import CtaTeam from './cta/cta-team';
+
+import { createBlurUp } from '@mux/blurup';
+
+async function getVideoWithPlaceholder(playbackId: string) {
+  try {
+    const { blurDataURL, aspectRatio } = await createBlurUp(playbackId, {});
+    return { blurDataURL, aspectRatio };
+  } catch (error) {
+    console.error('Error generating video placeholder:', error);
+    return { blurDataURL: null, aspectRatio: 16 / 9 };
+  }
+}
 
 const componentMap: { [key: string]: React.ComponentType<any> } = {
   'hero-1': Hero1,

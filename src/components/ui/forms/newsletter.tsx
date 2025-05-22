@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import SectionContainer from '@/components/ui/section-container';
+import SectionContainer, { ISectionPadding } from '@/components/ui/section-container';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { stegaClean } from 'next-sanity';
@@ -12,10 +12,8 @@ import { toast } from 'sonner';
 import * as z from 'zod';
 
 interface FormNewsletterProps {
-  padding: {
-    top: boolean;
-    bottom: boolean;
-  };
+  padding: ISectionPadding['padding'];
+  direction: ISectionPadding['direction'];
   colorVariant:
     | 'primary'
     | 'secondary'
@@ -46,6 +44,7 @@ const formSchema = z.object({
 
 export default function FormNewsletter({
   padding,
+  direction,
   colorVariant = 'transparent',
   consentText,
   buttonText = 'Subscribe',
@@ -67,6 +66,16 @@ export default function FormNewsletter({
   const color = useMemo(() => {
     return colorVariant ? stegaClean(colorVariant) : 'transparent';
   }, [colorVariant]);
+
+  // Combine padding and direction into ISectionPadding object
+  const sectionPadding: ISectionPadding | undefined = useMemo(() => {
+    return padding && direction
+      ? {
+          padding: stegaClean(padding),
+          direction: stegaClean(direction),
+        }
+      : undefined;
+  }, [padding, direction]);
 
   const handleSend = useCallback(
     async ({ email }: { email: string }) => {
@@ -107,7 +116,7 @@ export default function FormNewsletter({
   }
 
   return (
-    <SectionContainer color={color} padding={padding} className={className} theme="dark">
+    <SectionContainer color={color} padding={sectionPadding} className={className} theme="dark">
       <Form {...form}>
         <form className="w-full pt-8" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="flex flex-row gap-4">

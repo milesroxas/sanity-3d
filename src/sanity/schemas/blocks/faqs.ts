@@ -1,42 +1,50 @@
-import { defineType, defineField } from "sanity";
-import { ListCollapse } from "lucide-react";
+import { ListCollapse } from 'lucide-react';
+import { defineField, defineType } from 'sanity';
 
 export default defineType({
-  name: "faqs",
-  type: "object",
+  name: 'faqs',
+  type: 'object',
   icon: ListCollapse,
   fields: [
     defineField({
-      name: "padding",
-      type: "section-padding",
+      name: 'padding',
+      type: 'section-padding',
+      title: 'Padding',
+      description: 'Select a padding variant',
     }),
     defineField({
-      name: "colorVariant",
-      type: "color-variant",
-      title: "Color Variant",
-      description: "Select a background color variant",
+      name: 'direction',
+      type: 'direction',
+      title: 'Direction',
+      description: 'Select a direction',
     }),
     defineField({
-      name: "faqs",
-      type: "array",
-      title: "FAQs",
+      name: 'colorVariant',
+      type: 'color-variant',
+      title: 'Color Variant',
+      description: 'Select a background color variant',
+    }),
+    defineField({
+      name: 'faqs',
+      type: 'array',
+      title: 'FAQs',
       of: [
         {
-          name: "faq",
-          type: "reference",
-          to: [{ type: "faq" }],
+          name: 'faq',
+          type: 'reference',
+          to: [{ type: 'faq' }],
         },
       ],
     }),
   ],
   preview: {
     select: {
-      title: "faqs.0.title",
+      title: 'faqs.0.title',
     },
     prepare({ title }) {
       return {
-        title: "FAQs",
-        subtitle: title || "No Title",
+        title: 'FAQs',
+        subtitle: title || 'No Title',
       };
     },
   },

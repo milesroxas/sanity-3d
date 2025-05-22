@@ -15,6 +15,7 @@ import CtaTeamList from './cta-team.client';
 
 export default async function CtaTeam({
   padding,
+  direction,
   colorVariant,
   sectionWidth = 'default',
   stackAlign = 'left',
@@ -23,7 +24,8 @@ export default async function CtaTeam({
   body,
   links,
 }: Partial<{
-  padding: ISectionPadding;
+  padding: ISectionPadding['padding'];
+  direction: ISectionPadding['direction'];
   colorVariant: ISectionContainerProps['color'];
   stackAlign: 'left' | 'center';
   sectionWidth: 'default' | 'narrow';
@@ -49,20 +51,26 @@ export default async function CtaTeam({
   const align = stegaClean(stackAlign);
   const color = stegaClean(colorVariant);
 
+  // Combine padding and direction into ISectionPadding object
+  const sectionPadding: ISectionPadding | undefined =
+    padding && direction
+      ? {
+          padding: stegaClean(padding),
+          direction: stegaClean(direction),
+        }
+      : undefined;
+
   // Fetch team members
   const allTeamMembers = await fetchSanityTeamList();
 
   // Just get the first 6 team members (or fewer if less than 6 are available)
   const limitedTeamMembers = allTeamMembers.slice(0, 6);
 
-  // Split into team members for different layouts
-  // For mobile, we'll show fewer members (first 3)
-  // For desktop, we'll show up to 6 in two columns
   const leftColumnMembers = limitedTeamMembers.slice(0, 3);
   const rightColumnMembers = limitedTeamMembers.slice(3, 6);
 
   return (
-    <SectionContainer color={color} padding={padding}>
+    <SectionContainer color={color} padding={sectionPadding}>
       {/* Main container with improved responsive layout */}
       <div className="relative flex flex-col justify-between overflow-x-clip">
         {/* Mobile layout - single column with content first, then cards */}
@@ -116,7 +124,7 @@ export default async function CtaTeam({
                     align === 'center' ? 'justify-center' : undefined
                   )}
                 >
-                  {links.map(link => {
+                  {links.map((link, index) => {
                     if (!link) return null;
                     if ((link as any)._type === 'reference' && (link as any).slug) {
                       const ref = link as {
@@ -125,7 +133,7 @@ export default async function CtaTeam({
                         slug?: { current: string };
                       };
                       return (
-                        <Button key={ref._id || ref.title} variant="default" asChild>
+                        <Button key={ref._id || ref.title || index} variant="default" asChild>
                           <Link href={`/${ref.slug?.current || ''}`}>{ref.title}</Link>
                         </Button>
                       );
@@ -134,7 +142,7 @@ export default async function CtaTeam({
                     if (typeof link.href === 'string' && link.href.trim() !== '') {
                       return (
                         <Button
-                          key={link.title}
+                          key={link.title || index}
                           variant={stegaClean((link as any)?.buttonVariant)}
                           size="sm"
                           className="md:size-md"
@@ -211,7 +219,7 @@ function MobileContent({
             align === 'center' ? 'justify-center' : undefined
           )}
         >
-          {links.map(link => {
+          {links.map((link, index) => {
             if (!link) return null;
             if ((link as any)._type === 'reference' && (link as any).slug) {
               const ref = link as {
@@ -220,7 +228,7 @@ function MobileContent({
                 slug?: { current: string };
               };
               return (
-                <Button key={ref._id || ref.title} variant="default" size="sm" asChild>
+                <Button key={ref._id || ref.title || index} variant="default" size="sm" asChild>
                   <Link href={`/${ref.slug?.current || ''}`}>{ref.title}</Link>
                 </Button>
               );
@@ -229,7 +237,7 @@ function MobileContent({
             if (typeof link.href === 'string' && link.href.trim() !== '') {
               return (
                 <Button
-                  key={link.title}
+                  key={link.title || index}
                   variant={stegaClean((link as any)?.buttonVariant)}
                   size="sm"
                   asChild
