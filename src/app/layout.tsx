@@ -1,9 +1,9 @@
+import { GSAP } from '@/components/gsap';
+import { Toaster } from '@/components/ui/sonner';
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { Inter as FontSans } from 'next/font/google';
 import './globals.css';
-// import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from '@/components/ui/sonner';
 const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === 'production';
 
 export const metadata: Metadata = {
@@ -48,7 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           enableSystem
           disableTransitionOnChange
         > */}
-        {/* <GSAP scrollTrigger /> */}
+        <GSAP scrollTrigger />
         {children}
 
         {/* </ThemeProvider> */}

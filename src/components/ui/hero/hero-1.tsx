@@ -1,10 +1,13 @@
+'use client';
 import PortableTextRenderer from '@/components/portable-text-renderer';
 import { Button } from '@/components/ui/button';
 import { urlFor } from '@/sanity/lib/image';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 import { PortableTextBlock, stegaClean } from 'next-sanity';
 import Image from 'next/image';
 import Link from 'next/link';
-
+import { useRef } from 'react';
 export default function Hero1({
   tagLine,
   title,
@@ -31,21 +34,109 @@ export default function Hero1({
       | undefined;
   }[];
 }>) {
+  const heroRef = useRef(null);
+
+  useGSAP(
+    () => {
+      gsap.set(['.tagline', '.title', '.body', '.links'], { opacity: 0 });
+      gsap.set('.image', { opacity: 0 });
+      gsap.set('.image-content', {
+        scale: 1.1,
+        transformOrigin: 'center center',
+      });
+
+      const tl = gsap.timeline({
+        ease: 'power2.inOut',
+        duration: 0.8,
+      });
+
+      tl.fromTo(
+        '.tagline',
+        {
+          opacity: 0,
+        },
+        {
+          opacity: 1,
+        }
+      );
+      tl.fromTo(
+        '.title',
+        {
+          opacity: 0,
+        },
+        {
+          opacity: 1,
+        },
+        '-=0.3'
+      );
+      tl.fromTo(
+        '.body',
+        {
+          opacity: 0,
+        },
+        {
+          opacity: 1,
+        },
+        '-=0.3'
+      );
+      tl.fromTo(
+        '.links',
+        {
+          opacity: 0,
+        },
+        {
+          opacity: 1,
+        },
+        '-=0.3'
+      );
+
+      // Fade in the image container
+      tl.to(
+        '.image',
+        {
+          opacity: 1,
+          duration: 0.8,
+          ease: 'power2.inOut',
+        },
+        '-=0.3'
+      );
+
+      // Scale the image content
+      tl.to(
+        '.image-content',
+        {
+          scale: 1,
+          duration: 1.2,
+          ease: 'power2.inOut',
+        },
+        '-=0.8' // Start slightly after the container fades in
+      );
+    },
+    {
+      scope: heroRef,
+    }
+  );
   return (
-    <div className="flex w-full flex-col bg-accent md:min-h-[100vh] md:flex-row">
+    <div className="flex w-full flex-col bg-accent md:min-h-[100vh] md:flex-row" ref={heroRef}>
       {/* Left Content */}
       <div className="flex w-full flex-col justify-center p-12 md:w-1/2 md:p-16 lg:p-24">
         <div className="mx-auto max-w-xl">
-          {tagLine && <h1 className="mb-2 text-muted-foreground md:text-base">{tagLine}</h1>}
-
-          {title && (
-            <h2 className="mb-6 text-3xl font-bold text-card-foreground md:text-4xl">{title}</h2>
+          {tagLine && (
+            <h1 className="tagline mb-2 text-muted-foreground md:text-base">{tagLine}</h1>
           )}
 
-          {body && <PortableTextRenderer value={body} className="mb-8 text-muted-foreground" />}
+          {title && (
+            <h2 className="title mb-6 text-3xl font-bold text-card-foreground md:text-4xl">
+              {title}
+            </h2>
+          )}
+
+          {body && (
+            <PortableTextRenderer value={body} className="body mb-8 text-muted-foreground" />
+          )}
 
           {links && links.length > 0 && (
-            <div className="mt-10 flex flex-wrap gap-4">
+            <div className="links mt-10 flex flex-wrap gap-4">
               {links.map(link => {
                 if (!link) return null;
                 // Reference type
@@ -63,6 +154,7 @@ export default function Hero1({
                     key={link.title}
                     variant={stegaClean((link as any)?.buttonVariant)}
                     asChild
+                    className="link"
                   >
                     <Link
                       href={(link as any).href as string}
@@ -80,10 +172,10 @@ export default function Hero1({
       </div>
       {/* Right Image */}
 
-      <div className="relative w-full md:w-1/2">
+      <div className="image relative w-full overflow-hidden md:w-1/2">
         {image && image.asset?._id && (
           <Image
-            className="max-h-96 w-full object-cover md:h-full md:max-h-screen"
+            className="image-content max-h-96 w-full object-cover md:h-full md:max-h-screen"
             src={urlFor(image.asset).url()}
             alt={image.alt || ''}
             width={image.asset?.metadata?.dimensions?.width || 800}

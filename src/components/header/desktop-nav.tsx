@@ -1,4 +1,6 @@
 'use client';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 import { MenuIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -114,6 +116,17 @@ export default function DesktopNav({ nav, isExperiencePage, settings }: DesktopN
       }, 300); // Adjust timing based on your transition duration
       return () => clearTimeout(timer);
     }
+  }, [isOpen]);
+
+  useGSAP(() => {
+    gsap.set(menuRef.current, {
+      opacity: 0,
+    });
+    gsap.to(menuRef.current, {
+      opacity: 1,
+      duration: 0.3,
+      ease: 'power2.inOut',
+    });
   }, [isOpen]);
 
   return (
