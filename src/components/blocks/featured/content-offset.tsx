@@ -1,25 +1,25 @@
 'use client';
 
 import PortableTextRenderer from '@/components/portable-text-renderer';
-import { Button } from '@/components/ui/button';
+import { LinkButtons } from '@/components/shared/link-button';
 import SectionContainer from '@/components/ui/section-container';
 import TagLine from '@/components/ui/tag-line';
 import { useBlockScrollTrigger } from '@/hooks/useBlockScrollTrigger';
 import { cn } from '@/lib/utils';
+import { urlFor } from '@/sanity/lib/image';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { stegaClean } from 'next-sanity';
 import Image from 'next/image';
-import Link from 'next/link';
 import { createElement, useEffect, useLayoutEffect, useRef } from 'react';
 
 interface FeaturedContentOffsetProps {
   content?: any;
-  image?: { asset?: { url: string }; alt?: string };
-  graphic?: { asset?: { url: string }; alt?: string };
+  image?: Sanity.Image;
+  graphic?: Sanity.Image;
   tagLine?: string;
   title?: string;
-  links?: any[];
+  links?: Sanity.Link[];
   testimonials?: any[];
   themeVariant?: string;
   _key?: string;
@@ -173,8 +173,8 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
   }, [
     _key,
     isDark,
-    image?.asset?.url,
-    graphic?.asset?.url,
+    image?.asset?._id,
+    graphic?.asset?._id,
     runAnimations,
     createScrollTrigger,
     showMarkers,
@@ -205,11 +205,11 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
         >
           <div className="flex flex-col items-center gap-8 lg:w-full lg:flex-row">
             {/* IMAGE */}
-            {image?.asset?.url && (
+            {image?.asset?._id && (
               <div ref={imageContainerRef} className="relative lg:z-0 lg:mr-[-10%] lg:w-2/3">
                 <div className="overflow-hidden rounded-lg shadow-lg will-change-transform">
                   <Image
-                    src={image.asset.url}
+                    src={urlFor(image.asset).url()}
                     alt={image.alt || 'Featured content'}
                     width={800}
                     height={800}
@@ -254,40 +254,16 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
 
                 {content && <PortableTextRenderer value={content} className="text-white" />}
 
-                {/* LINKS */}
-                {Array.isArray(links) && links.length > 0 && (
-                  <div className="mt-6 flex flex-row gap-2">
-                    {links.map((link: any, idx: number) => {
-                      const key = link._id || link.title || idx;
-                      if (link._type === 'reference' && link.slug) {
-                        return (
-                          <Button key={key} asChild>
-                            <Link href={`/${link.slug.current}`}>{link.title || link.label}</Link>
-                          </Button>
-                        );
-                      }
-                      return (
-                        <Button key={key} variant={link.buttonVariant} asChild>
-                          <Link
-                            href={link.href}
-                            target={link.target ? '_blank' : undefined}
-                            rel="noopener noreferrer"
-                          >
-                            {link.title || link.label}
-                          </Link>
-                        </Button>
-                      );
-                    })}
-                  </div>
-                )}
+                {/* LINKS - Now using reusable component */}
+                <LinkButtons links={links || []} containerClassName="mt-6" direction="row" />
               </div>
             </div>
 
             {/* GRAPHIC */}
-            {graphic?.asset?.url && (
+            {graphic?.asset?._id && (
               <div ref={graphicRef} className="absolute bottom-[-10%] right-0 z-20 w-[60%]">
                 <Image
-                  src={graphic.asset.url}
+                  src={urlFor(graphic.asset).url()}
                   alt={graphic.alt || 'Decorative graphic'}
                   className="h-auto w-full object-contain"
                   width={500}

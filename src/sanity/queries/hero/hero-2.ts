@@ -25,8 +25,13 @@ export const hero2Query = groq`
     },
     links[] {
       ...,
-      _type,
-      _type == 'reference' => @->{_id, _type, title, slug},
+      _type == 'pageLink' => {
+        ...,
+        page->{_id, _type, title, slug}
+      },
+      _type == 'customLink' => {
+        ...
+      }
     },
   },
 `;

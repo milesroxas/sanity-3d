@@ -1,37 +1,20 @@
 'use client';
 
 import PortableTextRenderer from '@/components/portable-text-renderer';
-import { Button } from '@/components/ui/button';
+import { LinkButtons } from '@/components/shared/link-button';
 import { motion, useInView } from 'motion/react';
-import { PortableTextBlock, stegaClean } from 'next-sanity';
-import Link from 'next/link';
+import { PortableTextBlock } from 'next-sanity';
 import { useRef } from 'react';
-export default function Hero2({
-  tagLine,
-  title,
-  body,
-  links,
-  _key,
-}: Partial<{
-  _key: string;
-  tagLine: string;
-  title: string;
-  body: PortableTextBlock[];
-  links: {
-    title: string;
-    href: string;
-    target?: boolean;
-    buttonVariant:
-      | 'default'
-      | 'secondary'
-      | 'link'
-      | 'destructive'
-      | 'outline'
-      | 'ghost'
-      | null
-      | undefined;
-  }[];
-}>) {
+
+interface Hero2Props {
+  _key?: string;
+  tagLine?: string;
+  title?: string;
+  body?: PortableTextBlock[];
+  links?: Sanity.Link[];
+}
+
+export default function Hero2({ tagLine, title, body, links, _key }: Hero2Props) {
   const ref = useRef(null);
   const isInView = useInView(ref);
 
@@ -90,42 +73,7 @@ export default function Hero2({
           <PortableTextRenderer value={body} />
         </motion.div>
       )}
-      {links && links.length > 0 && (
-        <motion.div
-          initial={{ y: 50, opacity: 0 }}
-          animate={
-            isInView && {
-              y: 0,
-              opacity: 1,
-            }
-          }
-          transition={{ delay: 0.3, duration: 0.4 }}
-          className="mt-10 flex flex-wrap justify-center gap-4"
-        >
-          {links.map(link => {
-            if (!link) return null;
-            if ((link as any)._type === 'reference' && (link as any).slug) {
-              const ref = link as { _id?: string; title?: string; slug?: { current: string } };
-              return (
-                <Button key={ref._id || ref.title} variant="default" asChild>
-                  <Link href={`/${ref.slug?.current || ''}`}>{ref.title}</Link>
-                </Button>
-              );
-            }
-            return (
-              <Button key={link.title} variant={stegaClean((link as any)?.buttonVariant)} asChild>
-                <Link
-                  href={(link as any).href as string}
-                  target={(link as any).target ? '_blank' : undefined}
-                  rel={(link as any).target ? 'noopener' : undefined}
-                >
-                  {link.title}
-                </Link>
-              </Button>
-            );
-          })}
-        </motion.div>
-      )}
+      <LinkButtons links={links || []} containerClassName="mt-10" direction="row" />
     </div>
   );
 }

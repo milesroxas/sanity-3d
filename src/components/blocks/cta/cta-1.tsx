@@ -2,13 +2,25 @@ import { cn } from '@/lib/utils';
 import type { PortableTextBlock } from '@portabletext/react';
 
 import PortableTextRenderer from '@/components/portable-text-renderer';
-import { Button } from '@/components/ui/button';
+import { LinkButtons } from '@/components/shared/link-button';
 import SectionContainer, {
   ISectionContainerProps,
   ISectionPadding,
 } from '@/components/ui/section-container';
 import { stegaClean } from 'next-sanity';
-import Link from 'next/link';
+
+interface Cta1Props {
+  padding: ISectionPadding['padding'];
+  direction: ISectionPadding['direction'];
+  colorVariant: ISectionContainerProps['color'];
+  stackAlign: 'left' | 'center';
+  sectionWidth: 'default' | 'narrow';
+  tagLine: string;
+  title: string;
+  body: PortableTextBlock[];
+  links: Sanity.Link[];
+  _key: string;
+}
 
 export default function Cta1({
   padding,
@@ -20,30 +32,7 @@ export default function Cta1({
   title,
   body,
   links,
-}: Partial<{
-  padding: ISectionPadding['padding'];
-  direction: ISectionPadding['direction'];
-  colorVariant: ISectionContainerProps['color'];
-  stackAlign: 'left' | 'center';
-  sectionWidth: 'default' | 'narrow';
-  tagLine: string;
-  title: string;
-  body: PortableTextBlock[];
-  links: {
-    title: string;
-    href: string;
-    target?: boolean;
-    buttonVariant:
-      | 'default'
-      | 'secondary'
-      | 'link'
-      | 'destructive'
-      | 'outline'
-      | 'ghost'
-      | null
-      | undefined;
-  }[];
-}>) {
+}: Cta1Props) {
   const isNarrow = stegaClean(sectionWidth) === 'narrow';
   const align = stegaClean(stackAlign);
   const color = stegaClean(colorVariant);
@@ -74,43 +63,7 @@ export default function Cta1({
           <h2 className="mb-4">{title}</h2>
           {body && <PortableTextRenderer value={body} />}
         </div>
-        {links && links.length > 0 && (
-          <div
-            className={cn(
-              'mt-10 flex flex-wrap gap-4',
-              align === 'center' ? 'justify-center' : undefined
-            )}
-          >
-            {links &&
-              links.length > 0 &&
-              links.map((link, index) => {
-                if (!link) return null;
-                if ((link as any)._type === 'reference' && (link as any).slug) {
-                  const ref = link as { _id?: string; title?: string; slug?: { current: string } };
-                  return (
-                    <Button key={ref._id || ref.title || index} variant="default" asChild>
-                      <Link href={`/${ref.slug?.current || ''}`}>{ref.title}</Link>
-                    </Button>
-                  );
-                }
-                return (
-                  <Button
-                    key={link.title || index}
-                    variant={stegaClean((link as any)?.buttonVariant)}
-                    asChild
-                  >
-                    <Link
-                      href={(link as any).href as string}
-                      target={(link as any).target ? '_blank' : undefined}
-                      rel={(link as any).target ? 'noopener' : undefined}
-                    >
-                      {link.title}
-                    </Link>
-                  </Button>
-                );
-              })}
-          </div>
-        )}
+        <LinkButtons links={links || []} containerClassName="mt-10 links" direction="row" />
       </div>
     </SectionContainer>
   );

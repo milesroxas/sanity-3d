@@ -1,11 +1,11 @@
 'use client';
 import PortableTextRenderer from '@/components/portable-text-renderer';
+import { LinkButton } from '@/components/shared/link-button';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import gsap from 'gsap';
 import { X } from 'lucide-react';
-import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 export default function LogoMarkerContent() {
@@ -216,38 +216,17 @@ export default function LogoMarkerContent() {
               </div>
             </div>
           )}
-          <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-center pb-4 pl-6 pr-6 pt-2">
-            {selectedScene.link && selectedScene.link.length > 0 && (
-              <Link
-                className="w-full"
-                href={(() => {
-                  const link = selectedScene.link[0];
 
-                  // Handle servicesLink type - use the services reference ID
-                  if (link._type === 'servicesLink' && link.services?.slug?.current) {
-                    return `/services/${link.services.slug.current}`;
-                  }
-                  // Handle other link types
-                  else if (link._type === 'pageLink' && link.page?.slug?.current) {
-                    return `/page/${link.page.slug.current}`;
-                  } else if (link._type === 'legalLink' && link.legal?.slug?.current) {
-                    return `/legal/${link.legal.slug.current}`;
-                  }
-                  // Custom link with direct href
-                  else if (link._type === 'customLink' && link.href) {
-                    return link.href;
-                  }
-                  // Fallback
-                  else {
-                    return '#';
-                  }
-                })()}
-                target={selectedScene.link[0].target ? '_blank' : undefined}
-              >
-                <Button className="w-full">{selectedScene.link[0].title || 'Learn More'}</Button>
-              </Link>
-            )}
-          </div>
+          {/* Fixed bottom button using LinkButton component */}
+          {selectedScene.link && selectedScene.link.length > 0 && (
+            <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-center pb-4 pl-6 pr-6 pt-2">
+              <LinkButton
+                link={selectedScene.link[0] as Sanity.Link}
+                className="w-full"
+                size="default"
+              />
+            </div>
+          )}
         </div>
       )}
     </>

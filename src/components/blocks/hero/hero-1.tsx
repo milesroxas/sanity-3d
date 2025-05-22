@@ -1,42 +1,24 @@
 'use client';
 import PortableTextRenderer from '@/components/portable-text-renderer';
-import { Button } from '@/components/ui/button';
+import { LinkButtons } from '@/components/shared/link-button';
 import { useBlockScrollTrigger } from '@/hooks/useBlockScrollTrigger';
 import { urlFor } from '@/sanity/lib/image';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { PortableTextBlock, stegaClean } from 'next-sanity';
+import { PortableTextBlock } from 'next-sanity';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useEffect } from 'react';
-export default function Hero1({
-  tagLine,
-  title,
-  body,
-  image,
-  links,
-  _key,
-}: Partial<{
-  _key: string;
+
+interface Hero1Props {
   tagLine: string;
   title: string;
   body: PortableTextBlock[];
   image: Sanity.Image;
-  links: {
-    title: string;
-    href: string;
-    target?: boolean;
-    buttonVariant:
-      | 'default'
-      | 'secondary'
-      | 'link'
-      | 'destructive'
-      | 'outline'
-      | 'ghost'
-      | null
-      | undefined;
-  }[];
-}>) {
+  links: Sanity.Link[];
+  _key: string;
+}
+
+export default function Hero1({ tagLine, title, body, image, links, _key }: Hero1Props) {
   const { blockRef, createScrollTrigger, runAnimations } = useBlockScrollTrigger(_key);
 
   useGSAP(
@@ -170,39 +152,7 @@ export default function Hero1({
             <PortableTextRenderer value={body} className="body mb-8 text-muted-foreground" />
           )}
 
-          {links && links.length > 0 && (
-            <div className="links mt-10 flex flex-wrap gap-4">
-              {links.map(link => {
-                if (!link) return null;
-
-                if ((link as any)._type === 'reference' && (link as any).slug) {
-                  const ref = link as { _id?: string; title?: string; slug?: { current: string } };
-                  return (
-                    <Button key={ref._id || ref.title} variant="default" asChild>
-                      <Link href={`/${ref.slug?.current || ''}`}>{ref.title}</Link>
-                    </Button>
-                  );
-                }
-                // Custom link type
-                return (
-                  <Button
-                    key={link.title}
-                    variant={stegaClean((link as any)?.buttonVariant)}
-                    asChild
-                    className="link"
-                  >
-                    <Link
-                      href={(link as any).href as string}
-                      target={(link as any).target ? '_blank' : undefined}
-                      rel={(link as any).target ? 'noopener' : undefined}
-                    >
-                      {link.title}
-                    </Link>
-                  </Button>
-                );
-              })}
-            </div>
-          )}
+          <LinkButtons links={links || []} containerClassName="mt-10 links" direction="row" />
         </div>
       </div>
 

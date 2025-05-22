@@ -1,12 +1,11 @@
 'use client';
 
 import PortableTextRenderer from '@/components/portable-text-renderer';
-import { Button } from '@/components/ui/button';
+import { LinkButtons } from '@/components/shared/link-button';
 import { ISectionContainerProps, ISectionPadding } from '@/components/ui/section-container';
 import TagLine from '@/components/ui/tag-line';
 import { cn } from '@/lib/utils';
 import { PortableTextBlock, stegaClean } from 'next-sanity';
-import Link from 'next/link';
 import { createElement } from 'react';
 
 export interface SplitContentProps {
@@ -20,20 +19,7 @@ export interface SplitContentProps {
   tagLine: string;
   title: string;
   body: PortableTextBlock[];
-  link: {
-    title: string;
-    href: string;
-    target?: boolean;
-    buttonVariant:
-      | 'default'
-      | 'secondary'
-      | 'link'
-      | 'destructive'
-      | 'outline'
-      | 'ghost'
-      | null
-      | undefined;
-  };
+  links: Sanity.Link[];
 }
 
 export default function SplitContent({
@@ -43,7 +29,7 @@ export default function SplitContent({
   tagLine,
   title,
   body,
-  link,
+  links,
   styleVariant,
   themeVariant,
   color,
@@ -116,43 +102,7 @@ export default function SplitContent({
             title
           )}
         {body && <PortableTextRenderer value={body} />}
-        {Array.isArray(link) && link.length > 0 && (
-          <div className="flex flex-col">
-            {link.map((l, idx) => {
-              if (!l) return null;
-              if ((l as any)._type === 'reference' && (l as any).slug) {
-                const ref = l as { _id?: string; title?: string; slug?: { current: string } };
-                return (
-                  <Button
-                    key={ref._id || ref.title || idx}
-                    className="mt-2"
-                    variant="default"
-                    size="lg"
-                    asChild
-                  >
-                    <Link href={`/${ref.slug?.current || ''}`}>{ref.title}</Link>
-                  </Button>
-                );
-              }
-              return (
-                <Button
-                  key={l.title || idx}
-                  className="mt-2"
-                  variant={stegaClean((l as any)?.buttonVariant)}
-                  size="lg"
-                  asChild
-                >
-                  <Link
-                    href={(l as any).href || '#'}
-                    target={(l as any).target ? '_blank' : undefined}
-                  >
-                    {l.title}
-                  </Link>
-                </Button>
-              );
-            })}
-          </div>
-        )}
+        <LinkButtons links={links || []} size="lg" direction="column" className="mt-2" />
       </div>
     </div>
   );

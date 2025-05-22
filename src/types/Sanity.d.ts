@@ -3,6 +3,42 @@ import type { MuxVideoAsset, SanityDocument } from 'next-sanity';
 
 declare global {
   namespace Sanity {
+    // Link types - reusable across all blocks
+    type ButtonVariant =
+      | 'default'
+      | 'secondary'
+      | 'link'
+      | 'destructive'
+      | 'outline'
+      | 'ghost'
+      | null
+      | undefined;
+
+    type PageLink = {
+      _type: 'pageLink';
+      _key: string;
+      title: string;
+      page: {
+        _id: string;
+        _type: string;
+        title: string;
+        slug: {
+          current: string;
+        };
+      };
+    };
+
+    type CustomLink = {
+      _type: 'customLink';
+      _key: string;
+      title: string;
+      href: string;
+      target?: boolean;
+      buttonVariant: ButtonVariant;
+    };
+
+    type Link = PageLink | CustomLink;
+
     // pages
     type PageBase = SanityDocument<{
       title?: string;

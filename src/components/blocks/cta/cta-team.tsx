@@ -3,15 +3,26 @@ import type { PortableTextBlock } from '@portabletext/react';
 
 import { fetchSanityTeamList } from '@/app/(main)/team/actions';
 import PortableTextRenderer from '@/components/portable-text-renderer';
-import { Button } from '@/components/ui/button';
+import { LinkButtons } from '@/components/shared/link-button';
 import SectionContainer, {
   ISectionContainerProps,
   ISectionPadding,
 } from '@/components/ui/section-container';
 import { stegaClean } from 'next-sanity';
 import Image from 'next/image';
-import Link from 'next/link';
 import CtaTeamList from './cta-team.client';
+
+interface CtaTeamProps {
+  padding: ISectionPadding['padding'];
+  direction: ISectionPadding['direction'];
+  colorVariant: ISectionContainerProps['color'];
+  sectionWidth: 'default' | 'narrow';
+  stackAlign: 'left' | 'center';
+  tagLine: string;
+  title: string;
+  body: PortableTextBlock[];
+  links: Sanity.Link[];
+}
 
 export default async function CtaTeam({
   padding,
@@ -23,30 +34,7 @@ export default async function CtaTeam({
   title,
   body,
   links,
-}: Partial<{
-  padding: ISectionPadding['padding'];
-  direction: ISectionPadding['direction'];
-  colorVariant: ISectionContainerProps['color'];
-  stackAlign: 'left' | 'center';
-  sectionWidth: 'default' | 'narrow';
-  tagLine: string;
-  title: string;
-  body: PortableTextBlock[];
-  links: {
-    title: string;
-    href: string;
-    target?: boolean;
-    buttonVariant:
-      | 'default'
-      | 'secondary'
-      | 'link'
-      | 'destructive'
-      | 'outline'
-      | 'ghost'
-      | null
-      | undefined;
-  }[];
-}>) {
+}: Partial<CtaTeamProps>) {
   const isNarrow = stegaClean(sectionWidth) === 'narrow';
   const align = stegaClean(stackAlign);
   const color = stegaClean(colorVariant);
@@ -117,52 +105,17 @@ export default async function CtaTeam({
                 {title}
               </h2>
               {body && <PortableTextRenderer value={body} />}
-              {links && links.length > 0 && (
-                <div
-                  className={cn(
-                    'mt-6 flex flex-wrap gap-3 md:mt-10 md:gap-4',
-                    align === 'center' ? 'justify-center' : undefined
-                  )}
-                >
-                  {links.map((link, index) => {
-                    if (!link) return null;
-                    if ((link as any)._type === 'reference' && (link as any).slug) {
-                      const ref = link as {
-                        _id?: string;
-                        title?: string;
-                        slug?: { current: string };
-                      };
-                      return (
-                        <Button key={ref._id || ref.title || index} variant="default" asChild>
-                          <Link href={`/${ref.slug?.current || ''}`}>{ref.title}</Link>
-                        </Button>
-                      );
-                    }
-                    // Only render if href is a non-empty string
-                    if (typeof link.href === 'string' && link.href.trim() !== '') {
-                      return (
-                        <Button
-                          key={link.title || index}
-                          variant={stegaClean((link as any)?.buttonVariant)}
-                          size="sm"
-                          className="md:size-md"
-                          asChild
-                        >
-                          <Link
-                            href={link.href}
-                            target={link.target ? '_blank' : undefined}
-                            rel="noopener noreferrer"
-                          >
-                            {link.title}
-                          </Link>
-                        </Button>
-                      );
-                    }
-                    // Otherwise, skip rendering
-                    return null;
-                  })}
-                </div>
-              )}
+
+              <LinkButtons
+                links={links || []}
+                size="default"
+                containerClassName={cn(
+                  'mt-6 md:mt-10',
+                  align === 'center' ? 'justify-center' : undefined
+                )}
+                className="md:size-md"
+              />
+
               <div className="pointer-events-none absolute bottom-[-100px] left-[-100px] md:bottom-[-150px] md:left-[-160px]">
                 <Image
                   src="/images/security-officer.png"
@@ -197,7 +150,7 @@ function MobileContent({
   tagLine?: string;
   title?: string;
   body?: PortableTextBlock[];
-  links?: any[];
+  links?: Sanity.Link[];
   align?: string;
   color?: string;
 }) {
@@ -212,51 +165,13 @@ function MobileContent({
       )}
       <h2 className="mb-3 text-xl font-bold text-card-foreground">{title}</h2>
       {body && <PortableTextRenderer value={body} />}
-      {links && links.length > 0 && (
-        <div
-          className={cn(
-            'mt-6 flex flex-wrap gap-2',
-            align === 'center' ? 'justify-center' : undefined
-          )}
-        >
-          {links.map((link, index) => {
-            if (!link) return null;
-            if ((link as any)._type === 'reference' && (link as any).slug) {
-              const ref = link as {
-                _id?: string;
-                title?: string;
-                slug?: { current: string };
-              };
-              return (
-                <Button key={ref._id || ref.title || index} variant="default" size="sm" asChild>
-                  <Link href={`/${ref.slug?.current || ''}`}>{ref.title}</Link>
-                </Button>
-              );
-            }
-            // Only render if href is a non-empty string
-            if (typeof link.href === 'string' && link.href.trim() !== '') {
-              return (
-                <Button
-                  key={link.title || index}
-                  variant={stegaClean((link as any)?.buttonVariant)}
-                  size="sm"
-                  asChild
-                >
-                  <Link
-                    href={link.href}
-                    target={link.target ? '_blank' : undefined}
-                    rel="noopener noreferrer"
-                  >
-                    {link.title}
-                  </Link>
-                </Button>
-              );
-            }
-            // Otherwise, skip rendering
-            return null;
-          })}
-        </div>
-      )}
+
+      <LinkButtons
+        links={links || []}
+        size="sm"
+        containerClassName={cn('mt-6', align === 'center' ? 'justify-center' : undefined)}
+      />
+
       <div className="pointer-events-none absolute bottom-[-100px] right-[40px] md:bottom-[-80px] md:right-[-40px] lg:bottom-[-80px] lg:right-[-40px]">
         <Image
           src="/images/security-officer.png"
