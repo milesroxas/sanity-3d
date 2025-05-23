@@ -1,5 +1,4 @@
 'use client';
-import Logo from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -10,7 +9,8 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import SocialLinks from '@/components/ui/social-links';
-import { TextAlignRightIcon } from '@radix-ui/react-icons';
+import { urlFor } from '@/sanity/lib/image';
+import { AlignRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -109,18 +109,22 @@ export default function MobileNav({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button
-          aria-label="Open Menu"
-          variant="ghost"
-          className="w-[1.75rem] p-5 focus-visible:ring-1 focus-visible:ring-offset-1"
-        >
-          <TextAlignRightIcon className={isExperiencePage ? 'text-white' : 'dark:text-white'} />
+        <Button aria-label="Open Menu" variant="ghost" size="lg" className="p-4">
+          <AlignRight />
         </Button>
       </SheetTrigger>
-      <SheetContent className="overflow-y-auto">
+      <SheetContent className="overflow-y-auto border-none bg-black/50 text-white backdrop-blur-sm">
         <SheetHeader>
           <div className="ml-auto mr-6">
-            <Logo />
+            {nav.logo?.asset?._id && (
+              <Image
+                src={urlFor(nav.logo.asset).url()}
+                alt={nav.logo.alt || ''}
+                width={80}
+                height={80}
+                className="w-[80%]"
+              />
+            )}
           </div>
           <div className="sr-only">
             <SheetTitle>Main Navigation</SheetTitle>

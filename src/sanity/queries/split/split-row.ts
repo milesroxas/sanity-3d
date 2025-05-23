@@ -6,6 +6,7 @@ import { splitInfoListQuery } from './split-info-list';
 import { splitVideoQuery } from './split-video';
 export const splitRowQuery = groq`
   _type == "split-row" => {
+    _key,
     _type,
     padding,
     direction,

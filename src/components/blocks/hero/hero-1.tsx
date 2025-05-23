@@ -127,7 +127,7 @@ export default function Hero1({
 
   useGSAP(
     () => {
-      gsap.set(['.tagline', '.title', '.body', '.links'], { opacity: 0 });
+      gsap.set(['.links'], { opacity: 0 });
       gsap.set('.media-container', { opacity: 0 });
       gsap.set('.media-content', {
         scale: 1.1,
@@ -137,38 +137,9 @@ export default function Hero1({
 
       const tl = gsap.timeline({
         ease: 'power2.inOut',
-        duration: 0.5,
+        duration: 0.25,
       });
 
-      tl.fromTo(
-        '.tagline',
-        {
-          opacity: 0,
-        },
-        {
-          opacity: 1,
-        }
-      );
-      tl.fromTo(
-        '.title',
-        {
-          opacity: 0,
-        },
-        {
-          opacity: 1,
-        },
-        '-=0.3'
-      );
-      tl.fromTo(
-        '.body',
-        {
-          opacity: 0,
-        },
-        {
-          opacity: 1,
-        },
-        '-=0.3'
-      );
       tl.fromTo(
         '.links',
         {

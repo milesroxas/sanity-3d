@@ -1,7 +1,8 @@
-import { groq } from "next-sanity";
+import { groq } from 'next-sanity';
 
 export const splitInfoListQuery = groq`
   _type == "split-info-list" => {
+    _key,
     _type,
     list[]{
       image{
