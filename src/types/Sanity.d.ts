@@ -37,7 +37,21 @@ declare global {
       buttonVariant: ButtonVariant;
     };
 
-    type Link = PageLink | CustomLink;
+    type ServicesLink = {
+      _type: 'servicesLink';
+      _key: string;
+      title: string;
+      services: {
+        _id: string;
+        _type: string;
+        title: string;
+        slug: {
+          current: string;
+        };
+      };
+    };
+
+    type Link = PageLink | CustomLink | ServicesLink;
 
     // pages
     type PageBase = SanityDocument<{
@@ -80,7 +94,7 @@ declare global {
     type Scene = PageBase & {
       readonly _type: 'scenes';
       body?: any[];
-      link?: Link[];
+      links?: Link[];
       mainSceneMarkerPosition?: {
         x: number;
         y: number;

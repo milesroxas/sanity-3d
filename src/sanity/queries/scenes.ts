@@ -7,8 +7,17 @@ export const SCENES_QUERY = groq`*[_type == "scenes" && defined(slug.current)] {
   slug,
   links[] {
       ...,
-      _type,
-      _type == 'reference' => @->{_id, _type, title, slug},
+      _type == 'pageLink' => {
+        ...,
+        page->{_id, _type, title, slug}
+      },
+      _type == 'customLink' => {
+        ...
+      },
+      _type == 'servicesLink' => {
+        ...,
+        services->{_id, _type, title, slug}
+      }
     },
   mainSceneMarkerPosition {
     x,

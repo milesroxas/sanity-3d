@@ -33,6 +33,17 @@ export function LinkButton({
     );
   }
 
+  if (link._type === 'servicesLink') {
+    const servicesLink = link as Sanity.ServicesLink;
+    if (!servicesLink.services?.slug?.current) return null;
+
+    return (
+      <Button variant={variant || 'default'} size={size} className={className} asChild>
+        <Link href={`/services/${servicesLink.services.slug.current}`}>{servicesLink.title}</Link>
+      </Button>
+    );
+  }
+
   // Handle custom links
   if (link._type === 'customLink') {
     const customLink = link as Sanity.CustomLink;

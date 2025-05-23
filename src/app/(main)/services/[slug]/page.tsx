@@ -26,7 +26,7 @@ export default async function ServicePage(props: { params: Promise<{ slug: strin
   }
 
   return (
-    <Wrapper>
+    <Wrapper lenis={{}}>
       <Blocks blocks={service?.blocks} />
     </Wrapper>
   );

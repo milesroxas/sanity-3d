@@ -101,8 +101,31 @@ export default function SplitContent({
             },
             title
           )}
-        {body && <PortableTextRenderer value={body} />}
-        <LinkButtons links={links || []} size="lg" direction="column" className="mt-2" />
+
+        {body && (
+          <div
+            className={cn(
+              'prose prose-lg prose-p:my-4 prose-p:leading-relaxed prose-p:text-muted-foreground',
+              links && 'mb-12'
+            )}
+          >
+            <PortableTextRenderer value={body} />
+          </div>
+        )}
+
+        {links && (
+          <div className="flex w-full max-w-md gap-3">
+            {links.slice(0, 2).map((link, index) => (
+              <LinkButtons
+                key={index}
+                links={[link]}
+                size="sm"
+                direction="column"
+                variant={index === 0 ? 'default' : 'ghost'}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

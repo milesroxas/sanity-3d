@@ -1,6 +1,7 @@
 import { orderRankField } from '@sanity/orderable-document-list';
 import { Files } from 'lucide-react';
 import { defineField, defineType } from 'sanity';
+import link from '../blocks/shared/link';
 
 export default defineType({
   name: 'scenes',
@@ -49,9 +50,9 @@ export default defineType({
       group: 'content',
     }),
     defineField({
-      name: 'link',
-      title: 'Link',
-      type: 'link',
+      name: 'links',
+      type: link.name,
+      validation: (rule: any) => rule.max(2),
       group: 'content',
     }),
     defineField({

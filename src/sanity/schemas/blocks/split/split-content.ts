@@ -37,7 +37,7 @@ export default defineType({
       type: 'block-content',
     }),
     defineField({
-      name: 'link',
+      name: 'links',
       type: link.name,
       description: 'Link to a page or external URL. Leave empty to hide the link.',
     }),

@@ -40,13 +40,7 @@ export default defineType({
     defineField({
       name: 'splitColumns',
       type: 'array',
-      of: [
-        { type: 'split-content' },
-        { type: 'split-cards-list' },
-        { type: 'split-image' },
-        { type: 'split-info-list' },
-        { type: 'split-video' },
-      ],
+      of: [{ type: 'split-content' }, { type: 'split-image' }, { type: 'split-video' }],
       validation: rule => rule.max(2),
     }),
   ],

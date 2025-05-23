@@ -30,6 +30,21 @@ export default function LogoMarkerContent() {
   const [previousTitle, setPreviousTitle] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
 
+  useEffect(() => {
+    if (selectedScene) {
+      console.log('=== SELECTED SCENE DEBUG ===');
+      console.log('Full selectedScene:', selectedScene);
+      console.log('selectedScene.links:', selectedScene.links);
+      console.log('links length:', selectedScene.links?.length);
+      console.log('first link:', selectedScene.links?.[0]);
+      console.log('links exists?', !!selectedScene.links);
+      console.log('links is array?', Array.isArray(selectedScene.links));
+      console.log('=== END DEBUG ===');
+    } else {
+      console.log('No selectedScene available');
+    }
+  }, [selectedScene]);
+
   // GSAP animation for entry
   useEffect(() => {
     if (!drawerRef.current) return;
@@ -218,13 +233,9 @@ export default function LogoMarkerContent() {
           )}
 
           {/* Fixed bottom button using LinkButton component */}
-          {selectedScene.link && selectedScene.link.length > 0 && (
+          {selectedScene.links && selectedScene.links.length > 0 && (
             <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-center pb-4 pl-6 pr-6 pt-2">
-              <LinkButton
-                link={selectedScene.link[0] as Sanity.Link}
-                className="w-full"
-                size="default"
-              />
+              <LinkButton link={selectedScene.links[0]} className="w-full" size="default" />
             </div>
           )}
         </div>

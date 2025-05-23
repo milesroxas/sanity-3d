@@ -42,7 +42,7 @@ export default defineType({
     defineField({
       name: 'columns',
       type: 'array',
-      of: [{ type: 'grid-card' }, { type: 'grid-post' }, { type: 'pricing-card' }],
+      of: [{ type: 'grid-card' }, { type: 'grid-post' }],
     }),
   ],
   preview: {

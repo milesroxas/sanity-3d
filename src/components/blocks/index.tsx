@@ -7,11 +7,11 @@ import Hero1 from '@/components/blocks/hero/hero-1';
 import Hero2 from '@/components/blocks/hero/hero-2';
 import LargeCallout from '@/components/blocks/large-callout/large-callout';
 import LogoCloud1 from '@/components/blocks/logo-cloud/logo-cloud-1';
+import SectionHeader from '@/components/blocks/section-header/section-header';
 import SplitRow from '@/components/blocks/split/split-row';
 import TimelineRow from '@/components/blocks/timeline/timeline-row';
 import FAQs from '@/components/ui/faqs';
 import FormNewsletter from '@/components/ui/forms/newsletter';
-import SectionHeader from '@/components/ui/section-header';
 import CtaTeam from './cta/cta-team';
 
 import { createBlurUp } from '@mux/blurup';

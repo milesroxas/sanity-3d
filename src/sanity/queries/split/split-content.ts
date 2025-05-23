@@ -26,10 +26,19 @@ export const splitContentQuery = groq`
         }
       }
     },
-    link[] {
+    links[] {
       ...,
-      _type,
-      _type == 'reference' => @->{_id, _type, title, slug},
+      _type == 'pageLink' => {
+        ...,
+        page->{_id, _type, title, slug}
+      },
+      _type == 'customLink' => {
+        ...
+      },
+      _type == 'servicesLink' => {
+        ...,
+        services->{_id, _type, title, slug}
+      },
     },
   },
 `;

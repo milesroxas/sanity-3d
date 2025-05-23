@@ -174,7 +174,7 @@ export default function SplitVideo({
             style={{ zIndex: 10 }}
           >
             <button
-              className={`flex h-16 w-16 items-center justify-center rounded-full bg-primary shadow-lg transition-all duration-200 ease-in-out ${
+              className={`flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg transition-all duration-200 ease-in-out ${
                 shouldShowOverlay
                   ? 'scale-100 bg-opacity-80 hover:scale-110 hover:bg-opacity-100 hover:shadow-xl'
                   : 'scale-75 bg-opacity-0'

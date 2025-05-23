@@ -46,7 +46,11 @@ export const hero1Query = groq`
       },
       _type == 'customLink' => {
         ...
-      }
+      },
+      _type == 'servicesLink' => {
+        ...,
+        services->{_id, _type, title, slug}
+      },
     },
   },
 `;

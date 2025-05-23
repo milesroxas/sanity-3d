@@ -53,9 +53,18 @@ export default function SectionHeader({
               </span>
             </h1>
           )}
-          <h2 className="mb-4 text-3xl text-card-foreground md:text-4xl">{title}</h2>
+          {title && (
+            <h2
+              className={cn(
+                'mb-4 text-3xl text-card-foreground md:text-4xl',
+                !description && 'mb-0'
+              )}
+            >
+              {title}
+            </h2>
+          )}
         </div>
-        <p className="text-muted-foreground">{description}</p>
+        {description && <p className="text-muted-foreground">{description}</p>}
       </div>
     </SectionContainer>
   );

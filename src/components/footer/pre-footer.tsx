@@ -93,11 +93,11 @@ export default function PreFooter() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full whitespace-normal bg-white text-black hover:bg-gray-100"
+                className="w-full whitespace-normal bg-white py-6 text-black hover:bg-gray-100"
               >
                 Contact Us
               </Button>
-              <Button size="lg" className="w-full whitespace-normal text-white">
+              <Button size="lg" className="w-full whitespace-normal py-6 text-white">
                 Request a Proposal
               </Button>
             </div>

@@ -27,29 +27,18 @@ export const SCENE_QUERY = groq`
         }
       }
     },
-    link[]{
+    links[] {
       ...,
-      _type,
       _type == 'pageLink' => {
         ...,
-        page->{
-          _id,
-          slug
-        }
+        page->{_id, _type, title, slug}
+      },
+      _type == 'customLink' => {
+        ...
       },
       _type == 'servicesLink' => {
         ...,
-        services->{
-          _id,
-          slug
-        }
-      },
-      _type == 'legalLink' => {
-        ...,
-        legal->{
-          _id,
-          slug
-        }
+        services->{_id, _type, title, slug}
       }
     },
     pointsOfInterest[]{
@@ -95,6 +84,20 @@ export const SCENE_QUERY = groq`
             }
           }
         },
+        links[] {
+      ...,
+      _type == 'pageLink' => {
+        ...,
+        page->{_id, _type, title, slug}
+      },
+      _type == 'customLink' => {
+        ...
+      },
+      _type == 'servicesLink' => {
+        ...,
+        services->{_id, _type, title, slug}
+      }
+    },
         markerPosition {
           x,
           y,

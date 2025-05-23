@@ -21,38 +21,45 @@ import { styleVariant } from './schemas/blocks/shared/style-variant';
 import { themeVariant } from './schemas/blocks/shared/theme';
 import video from './schemas/blocks/shared/video';
 // Schema UI objects
-import carousel1 from './schemas/blocks/carousel/carousel-1';
-import carousel2 from './schemas/blocks/carousel/carousel-2';
-import cta1 from './schemas/blocks/cta/cta-1';
+
 import faqs from './schemas/blocks/faqs';
 import featuredContentOffset from './schemas/blocks/featured/content-offset';
 import newsletter from './schemas/blocks/forms/newsletter';
 import gridCard from './schemas/blocks/grid/grid-card';
 import gridPost from './schemas/blocks/grid/grid-post';
 import gridRow from './schemas/blocks/grid/grid-row';
-import pricingCard from './schemas/blocks/grid/pricing-card';
+
+// Hero blocks
 import hero1 from './schemas/blocks/hero/hero-1';
 import hero2 from './schemas/blocks/hero/hero-2';
-import logoCloud1 from './schemas/blocks/logo-cloud/logo-cloud-1';
-import sectionHeader from './schemas/blocks/section-header';
-import splitCard from './schemas/blocks/split/split-card';
-import splitCardsList from './schemas/blocks/split/split-cards-list';
+
+// Split blocks
 import splitContent from './schemas/blocks/split/split-content';
 import splitImage from './schemas/blocks/split/split-image';
-import splitInfo from './schemas/blocks/split/split-info';
-import splitInfoList from './schemas/blocks/split/split-info-list';
 import splitRow from './schemas/blocks/split/split-row';
+import splitVideo from './schemas/blocks/split/split-video';
+
+import logoCloud1 from './schemas/blocks/logo-cloud/logo-cloud-1';
+import sectionHeader from './schemas/blocks/section-header';
+
+// Carousel
+import carousel1 from './schemas/blocks/carousel/carousel-1';
+import carousel2 from './schemas/blocks/carousel/carousel-2';
+
 import largeCallout from './schemas/blocks/text/large-callout';
 import timelineRow from './schemas/blocks/timeline/timeline-row';
 import timelinesOne from './schemas/blocks/timeline/timelines-1';
 import legal from './schemas/documents/legal';
 import nav from './schemas/singleton/nav';
 
-// singleton
+// CTA
+import cta1 from './schemas/blocks/cta/cta-1';
 import ctaTeam from './schemas/blocks/cta/cta-team';
-import splitVideo from './schemas/blocks/split/split-video';
+
+// singleton
 import modelFiles from './schemas/objects/modelFiles';
 import settings from './schemas/singleton/settings';
+
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
     // documents
@@ -83,14 +90,9 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     sectionHeader,
     splitRow,
     splitContent,
-    splitCardsList,
-    splitCard,
     splitImage,
     splitVideo,
-    splitInfoList,
-    splitInfo,
     gridCard,
-    pricingCard,
     gridPost,
     gridRow,
     carousel1,
