@@ -39,7 +39,7 @@ export default defineType({
       type: 'array',
       group: 'content',
       of: [
-        { type: 'hero-1' },
+        { type: 'heroOne' },
         { type: 'hero-2' },
         { type: 'section-header' },
         { type: 'split-row' },

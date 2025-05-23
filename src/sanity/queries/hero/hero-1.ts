@@ -1,29 +1,21 @@
 import { groq } from 'next-sanity';
 
 export const hero1Query = groq`
-  _type == "hero-1" => {
+  _type == "heroOne" => {
     _key,
     _type,
     tagLine,
     title,
     body[]{
       ...,
-      _type == "image" => {
+      markDefs[]{
         ...,
-        asset->{
-          _id,
-          url,
-          mimeType,
-          metadata {
-            lqip,
-            dimensions {
-              width,
-              height
-            }
-          }
+        _type == "link" => {
+          "href": @.href
         }
       }
     },
+    mediaType,
     image{
       asset->{
         _id,
@@ -39,10 +31,22 @@ export const hero1Query = groq`
       },
       alt
     },
+    video{
+      asset->{
+        _id,
+        playbackId,
+        status
+      }
+    },
     links[] {
       ...,
-      _type,
-      _type == 'reference' => @->{_id, _type, title, slug},
+      _type == 'pageLink' => {
+        ...,
+        page->{_id, _type, title, slug}
+      },
+      _type == 'customLink' => {
+        ...
+      }
     },
   },
 `;

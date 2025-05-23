@@ -30,16 +30,13 @@ export const ctaTeamQuery = groq`
     },
     links[] {
       ...,
-      _type,
-      _type == 'reference' => @->{_id, _type, title, slug},
       _type == 'pageLink' => {
         ...,
-        "href": select(
-          defined(page->slug.current) => "/" + page->slug.current,
-          null
-        ),
-        "title": coalesce(title, page->title)
+        page->{_id, _type, title, slug}
       },
+      _type == 'customLink' => {
+        ...
+      }
     },
   },
 `;
