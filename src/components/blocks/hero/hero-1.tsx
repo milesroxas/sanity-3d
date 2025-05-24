@@ -350,7 +350,19 @@ export default function Hero1({
             <PortableTextRenderer value={body} className="body mb-8 text-muted-foreground" />
           )}
 
-          <LinkButtons links={links || []} containerClassName="mt-10 links" direction="row" />
+          {links && (
+            <div className="flex w-full max-w-md gap-3">
+              {links.slice(0, 2).map((link, index) => (
+                <LinkButtons
+                  key={index}
+                  links={[link]}
+                  size="sm"
+                  direction="column"
+                  variant={index === 0 ? 'default' : 'ghost'}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

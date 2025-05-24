@@ -19,6 +19,7 @@ interface Grid1Props {
     | 'transparent';
   gridColumns?: 'grid-cols-2' | 'grid-cols-3' | 'grid-cols-4';
   columns?: Sanity.Block[];
+  _key?: string;
 }
 
 // map all components you need
@@ -34,6 +35,7 @@ export default function GridRow({
   colorVariant = 'background',
   gridColumns = 'grid-cols-3',
   columns,
+  _key,
 }: Grid1Props) {
   const color = stegaClean(colorVariant);
 
@@ -47,7 +49,7 @@ export default function GridRow({
       : undefined;
 
   return (
-    <SectionContainer color={color} padding={sectionPadding}>
+    <SectionContainer color={color} padding={sectionPadding} key={_key}>
       {columns && columns?.length > 0 && (
         <div className={cn(`grid grid-cols-1 gap-6`, `lg:${stegaClean(gridColumns)}`)}>
           {columns.map((block: Sanity.Block) => {

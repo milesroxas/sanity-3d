@@ -44,7 +44,7 @@ export default function LargeCallout({ body, _key }: { body: PortableTextBlock[]
     }, 100);
 
     return () => clearTimeout(timeout);
-  }, [body, _key, runAnimations, createScrollTrigger]);
+  }, [body, _key, runAnimations, createScrollTrigger, blockRef]);
 
   const paragraphClass = 'mb-8 max-w-4xl text-2xl text-muted-foreground lg:text-5xl/snug';
 

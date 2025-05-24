@@ -7,8 +7,8 @@ import Image from 'next/image';
 import { Fragment } from 'react';
 
 interface LogoCloud1Props {
-  padding?: ISectionPadding;
-
+  padding: ISectionPadding['padding'];
+  direction: ISectionPadding['direction'];
   colorVariant:
     | 'primary'
     | 'secondary'
@@ -23,14 +23,24 @@ interface LogoCloud1Props {
 
 export default function LogoCloud1({
   padding,
+  direction,
   colorVariant,
   title,
   images,
 }: Partial<LogoCloud1Props>) {
   const color = stegaClean(colorVariant);
 
+  // Combine padding and direction into ISectionPadding object
+  const sectionPadding: ISectionPadding | undefined =
+    padding && direction
+      ? {
+          padding: stegaClean(padding),
+          direction: stegaClean(direction),
+        }
+      : undefined;
+
   return (
-    <SectionContainer color={color} padding={padding} className="overflow-hidden">
+    <SectionContainer color={color} padding={sectionPadding} className="overflow-hidden">
       {title && (
         <h2 className="mb-4 text-center text-lg font-semibold uppercase tracking-tighter text-card-foreground">
           {title}

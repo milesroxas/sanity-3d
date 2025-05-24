@@ -24,6 +24,7 @@ export default function SplitRow({
   styleVariant,
   noGap,
   splitColumns,
+  _key,
 }: Partial<{
   padding: ISectionPadding['padding'];
   direction: ISectionPadding['direction'];
@@ -35,6 +36,7 @@ export default function SplitRow({
     _type: 'split-content' | 'split-image' | 'split-video';
     _key: string;
   }>;
+  _key?: string;
 }>) {
   const color = stegaClean(colorVariant);
   const theme = stegaClean(themeVariant);
@@ -54,7 +56,7 @@ export default function SplitRow({
   }
 
   return (
-    <>
+    <div>
       <SectionContainer
         color={color}
         padding={sectionPadding}
@@ -64,6 +66,7 @@ export default function SplitRow({
         className={'transition-colors duration-700'}
       >
         <div
+          key={_key}
           className={cn('grid grid-cols-1 lg:grid-cols-2', noGap ? 'gap-0' : 'gap-10 md:gap-20')}
         >
           {splitColumns.map((block, index) => {
@@ -84,6 +87,6 @@ export default function SplitRow({
           })}
         </div>
       </SectionContainer>
-    </>
+    </div>
   );
 }
