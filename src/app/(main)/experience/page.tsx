@@ -13,5 +13,9 @@ export async function generateMetadata() {
 
 export default async function ExperiencePage() {
   const scene = await fetchSanitySceneBySlug({ slug: 'experience' });
-  return <MainSceneClient scene={scene} />;
+  return (
+    <>
+      <MainSceneClient scene={scene} />
+    </>
+  );
 }

@@ -1,8 +1,9 @@
 'use client';
 
 import DesktopNav from '@/components/header/desktop-nav';
-import ExperienceNav from '@/components/header/experience-nav';
 import MobileNav from '@/components/header/mobile-nav';
+import { useCameraStore } from '@/experience/scenes/store/cameraStore';
+import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { useSceneStore } from '@/experience/scenes/store/sceneStore';
 import { urlFor } from '@/sanity/lib/image';
 import { useGSAP } from '@gsap/react';
@@ -10,23 +11,20 @@ import gsap from 'gsap';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
-// Register the useGSAP hook
 gsap.registerPlugin(useGSAP);
 
 interface SanityLogo {
   asset: any;
   alt?: string;
 }
-
 interface SanityNav {
   logo: SanityLogo;
-  companyLinks: Array<any>;
-  services: Array<any> | null;
-  legal: Array<any> | null;
+  companyLinks: any[];
+  services: any[] | null;
+  legal: any[] | null;
 }
-
 interface SanitySettings {
   contact: {
     phone: string;
@@ -52,7 +50,6 @@ interface SanitySettings {
     googleReviews: string;
   };
 }
-
 interface HeaderProps {
   nav: SanityNav;
   settings: SanitySettings;
@@ -62,223 +59,206 @@ export default function Header({ nav, settings }: HeaderProps) {
   const pathname = usePathname();
   const logo = nav.logo;
 
-  // Refs
   const headerRef = useRef<HTMLDivElement>(null);
+  const navContainerRef = useRef<HTMLDivElement>(null);
   const lastScrollYRef = useRef(0);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const experienceNavTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Scene store and state
-  const { isTransitioning, isInitialReveal } = useSceneStore();
-  const [experienceNavVisible, setExperienceNavVisible] = useState(false);
+  const { isTransitioning } = useSceneStore();
+  const { isAnimating, isLoading } = useCameraStore();
+  const { isContentVisible, otherMarkersVisible } = useLogoMarkerStore();
 
-  const isExperiencePage =
-    pathname === '/' || pathname === '/experience' || pathname?.startsWith('/experience/');
+  // only animate nav on /experience routes
+  const isExperiencePage = pathname === '/experience' || pathname.startsWith('/experience/');
+  const isLandingPage = pathname === '/';
 
-  // Main GSAP setup with automatic cleanup
+  // GSAP header scroll-hide/show (unchanged)
   const { contextSafe } = useGSAP(
     () => {
       if (!headerRef.current) return;
-
-      // Initial setup based on page type and scroll position
-      if (isExperiencePage) {
-        // Hide header for experience pages
+      const y = window.scrollY;
+      if (y <= 50) {
+        gsap.set(headerRef.current, { opacity: 1 });
+        headerRef.current.style.pointerEvents = 'auto';
+      } else {
         gsap.set(headerRef.current, { opacity: 0 });
         headerRef.current.style.pointerEvents = 'none';
-      } else {
-        // Setup for regular pages
-        const initialScrollY = window.scrollY;
-
-        if (initialScrollY <= 50) {
-          gsap.set(headerRef.current, { opacity: 1 });
-          headerRef.current.style.pointerEvents = 'auto';
-        } else {
-          gsap.set(headerRef.current, { opacity: 0 });
-          headerRef.current.style.pointerEvents = 'none';
-
-          // Show after brief delay when loaded scrolled down
-          gsap.to(headerRef.current, {
-            opacity: 1,
-            duration: 0.3,
-            delay: 0.5,
-            ease: 'power2.out',
-            onComplete: () => {
-              if (headerRef.current) {
-                headerRef.current.style.pointerEvents = 'auto';
-              }
-            },
-          });
-        }
-
-        lastScrollYRef.current = Math.max(0, initialScrollY);
+        gsap.to(headerRef.current, {
+          opacity: 1,
+          duration: 0.3,
+          delay: 0.5,
+          ease: 'power2.out',
+          onComplete: () => {
+            headerRef.current!.style.pointerEvents = 'auto';
+          },
+        });
       }
+      lastScrollYRef.current = Math.max(0, y);
     },
-    {
-      scope: headerRef,
-      dependencies: [isExperiencePage],
-    }
+    { scope: headerRef, dependencies: [pathname] }
   );
 
-  // Context-safe animation functions for scroll interactions
-  const showHeader = contextSafe((duration = 0.3) => {
+  const showHeader = contextSafe(() => {
     if (!headerRef.current) return;
-
     gsap.to(headerRef.current, {
       opacity: 1,
-      duration,
+      duration: 0.3,
       ease: 'power2.out',
-      overwrite: true,
       onComplete: () => {
-        if (headerRef.current) {
-          headerRef.current.style.pointerEvents = 'auto';
-        }
+        headerRef.current!.style.pointerEvents = 'auto';
       },
     });
   });
-
-  const hideHeader = contextSafe((duration = 0.3) => {
+  const hideHeader = contextSafe(() => {
     if (!headerRef.current) return;
-
     gsap.to(headerRef.current, {
       opacity: 0,
-      duration,
+      duration: 0.3,
       ease: 'power2.out',
-      overwrite: true,
       onComplete: () => {
-        if (headerRef.current) {
-          headerRef.current.style.pointerEvents = 'none';
-        }
+        headerRef.current!.style.pointerEvents = 'none';
       },
     });
   });
 
-  // Context-safe scroll handler
-  const handleScroll = contextSafe(() => {
+  const onScroll = contextSafe(() => {
     if (isExperiencePage) return;
+    const y = window.scrollY;
+    const TH = 50;
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
 
-    const currentScrollY = window.scrollY;
-    const scrollThreshold = 50;
+    if (y > lastScrollYRef.current && y > TH) hideHeader();
+    else showHeader();
 
-    // Clear existing timeout
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
+    lastScrollYRef.current = Math.max(0, y);
 
-    // Handle scroll direction
-    if (currentScrollY > lastScrollYRef.current && currentScrollY > scrollThreshold) {
-      hideHeader();
-    } else if (currentScrollY < lastScrollYRef.current || currentScrollY <= scrollThreshold) {
-      showHeader();
-    }
-
-    lastScrollYRef.current = Math.max(0, currentScrollY);
-
-    // Show header after scroll stops
     scrollTimeoutRef.current = setTimeout(() => {
       if (!headerRef.current) return;
-
-      const currentOpacity = gsap.getProperty(headerRef.current, 'opacity') as number;
-      if (currentScrollY > 0 && currentOpacity < 0.1) {
-        showHeader();
-      } else if (currentScrollY <= scrollThreshold) {
-        showHeader();
-      }
+      const o = gsap.getProperty(headerRef.current, 'opacity') as number;
+      if ((y > 0 && o < 0.1) || y <= TH) showHeader();
     }, 2000);
   });
 
-  // Experience nav visibility logic
   useEffect(() => {
     if (!isExperiencePage) {
-      setExperienceNavVisible(false);
-      return;
+      window.addEventListener('scroll', onScroll, { passive: true });
+      return () => {
+        window.removeEventListener('scroll', onScroll);
+        if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+      };
     }
+  }, [onScroll, isExperiencePage]);
 
-    if (!isInitialReveal && !isTransitioning && !experienceNavVisible) {
-      experienceNavTimerRef.current = setTimeout(() => {
-        setExperienceNavVisible(true);
-      }, 500);
-    }
+  // GSAP nav fade (experience only)
+  const showNav = contextSafe(() => {
+    if (!navContainerRef.current) return;
+    gsap.to(navContainerRef.current, {
+      opacity: 1,
+      duration: 0.3,
+      ease: 'power2.out',
+      onStart: () => {
+        navContainerRef.current!.style.pointerEvents = 'auto';
+      },
+    });
+  });
+  const hideNav = contextSafe(() => {
+    if (!navContainerRef.current) return;
+    gsap.to(navContainerRef.current, {
+      opacity: 0,
+      duration: 0.3,
+      ease: 'power2.out',
+      onComplete: () => {
+        navContainerRef.current!.style.pointerEvents = 'none';
+      },
+    });
+  });
 
-    if (isInitialReveal || isTransitioning) {
-      setExperienceNavVisible(false);
-      if (experienceNavTimerRef.current) {
-        clearTimeout(experienceNavTimerRef.current);
-        experienceNavTimerRef.current = null;
-      }
-    }
-
-    return () => {
-      if (experienceNavTimerRef.current) {
-        clearTimeout(experienceNavTimerRef.current);
-        experienceNavTimerRef.current = null;
-      }
-    };
-  }, [isInitialReveal, isTransitioning, experienceNavVisible, isExperiencePage]);
-
-  // Scroll event listener setup for non-experience pages
+  // Set initial states on mount
   useEffect(() => {
-    if (isExperiencePage) return;
+    if (headerRef.current) {
+      gsap.set(headerRef.current, { opacity: 0 });
+      headerRef.current.style.pointerEvents = 'none';
+    }
+    if (navContainerRef.current) {
+      gsap.set(navContainerRef.current, { opacity: 0 });
+      navContainerRef.current.style.pointerEvents = 'none';
+    }
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-        scrollTimeoutRef.current = null;
-      }
-    };
-  }, [isExperiencePage, handleScroll]);
-
-  // Cleanup timers on unmount
-  useEffect(() => {
-    return () => {
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-      if (experienceNavTimerRef.current) {
-        clearTimeout(experienceNavTimerRef.current);
-      }
-    };
+    // Show header immediately on non-experience pages
+    if (!isExperiencePage) {
+      showHeader();
+      showNav();
+    }
   }, []);
 
-  // Render experience nav for experience pages
-  if (isExperiencePage) {
-    return <ExperienceNav visible={experienceNavVisible} />;
-  }
+  // whenever route enters /experience hide immediately
+  useEffect(() => {
+    if (isExperiencePage) {
+      hideNav();
+    } else {
+      showNav();
+      showHeader();
+    }
+  }, [isExperiencePage]);
 
-  // Render main header for other pages
+  // Match the logo markers visibility - when they're visible, show the header
+  // when they're hidden (during transitions or content drawer), hide the header
+  useEffect(() => {
+    if (!isExperiencePage) return;
+
+    if (
+      otherMarkersVisible &&
+      !isContentVisible &&
+      !isAnimating &&
+      !isLoading &&
+      !isTransitioning
+    ) {
+      showHeader();
+      showNav();
+    } else {
+      hideHeader();
+      hideNav();
+    }
+  }, [
+    otherMarkersVisible,
+    isContentVisible,
+    isAnimating,
+    isLoading,
+    isTransitioning,
+    isExperiencePage,
+  ]);
+
   return (
-    <header
-      ref={headerRef}
-      className="fixed top-0 z-50 w-full border-border/40 py-2"
-      style={{ opacity: 0, pointerEvents: 'none' }}
-    >
+    <header ref={headerRef} className="fixed top-0 z-50 w-full border-border/40 py-2">
       <div className="container relative flex h-14 items-center">
-        <Link
-          href="/"
-          aria-label="Home page"
-          className="absolute left-1/2 top-1/2 w-12 -translate-x-1/2 -translate-y-1/2"
-        >
-          {logo?.asset?._id && (
-            <Image
-              src={urlFor(logo.asset).url()}
-              alt={logo.alt || ''}
-              width={logo.asset?.metadata?.dimensions?.width || 800}
-              height={logo.asset?.metadata?.dimensions?.height || 800}
-              placeholder={logo?.asset?.metadata?.lqip ? 'blur' : undefined}
-              blurDataURL={logo?.asset?.metadata?.lqip || ''}
-              quality={100}
-            />
-          )}
-        </Link>
+        {!isLandingPage && !isExperiencePage && (
+          <Link
+            href="/"
+            aria-label="Home page"
+            className="absolute left-1/2 top-1/2 w-12 -translate-x-1/2 -translate-y-1/2"
+          >
+            {logo?.asset?._id && (
+              <Image
+                src={urlFor(logo.asset).url()}
+                alt={logo.alt || ''}
+                width={logo.asset.metadata.dimensions.width}
+                height={logo.asset.metadata.dimensions.height}
+                placeholder={logo.asset.metadata.lqip ? 'blur' : undefined}
+                blurDataURL={logo.asset.metadata.lqip}
+                quality={100}
+              />
+            )}
+          </Link>
+        )}
 
         <div className="ml-auto flex items-center">
-          <div className="hidden items-center justify-between gap-7 xl:flex">
-            <DesktopNav nav={nav} isExperiencePage={false} settings={settings} />
-          </div>
-          <div className="flex items-center xl:hidden">
-            <MobileNav nav={nav} isExperiencePage={false} settings={settings} />
+          <div ref={navContainerRef} className="flex items-center gap-7">
+            <div className="hidden xl:flex">
+              <DesktopNav nav={nav} isExperiencePage={isExperiencePage} settings={settings} />
+            </div>
+            <div className="xl:hidden">
+              <MobileNav nav={nav} isExperiencePage={isExperiencePage} settings={settings} />
+            </div>
           </div>
         </div>
       </div>

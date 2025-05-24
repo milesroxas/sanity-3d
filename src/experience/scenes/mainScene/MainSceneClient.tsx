@@ -1,5 +1,7 @@
 'use client';
 import { useR3F } from '@/experience/providers/R3FContext';
+import { useCameraStore } from '@/experience/scenes/store/cameraStore';
+import { useSceneStore } from '@/experience/scenes/store/sceneStore';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect } from 'react';
 import LogoMarkerContent from './components/LogoMarkerContent';
@@ -9,6 +11,20 @@ const noScrollStyles = {
   height: '100%',
   width: '100%',
 };
+
+// Component to handle the initial reveal animation
+function InitialRevealHandler() {
+  const { startInitialReveal } = useSceneStore();
+  const { isAnimating, isLoading } = useCameraStore();
+
+  useEffect(() => {
+    if (!isAnimating && !isLoading) {
+      startInitialReveal();
+    }
+  }, [startInitialReveal, isAnimating, isLoading]);
+
+  return null;
+}
 
 export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
   const { setR3FContent } = useR3F();
@@ -24,6 +40,9 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
 
   return (
     <div style={noScrollStyles}>
+      {/* Add the handler component */}
+      <InitialRevealHandler />
+
       <AnimatePresence>
         {
           <motion.div

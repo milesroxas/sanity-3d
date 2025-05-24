@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 interface SceneStore {
   modelRotation: number;
@@ -12,10 +12,12 @@ interface SceneStore {
   startTransitionIn: () => Promise<void>;
   setPOIActive: (poiActive: boolean) => void;
   startInitialReveal: () => Promise<void>;
+  completeInitialReveal: () => void;
+  resetInitialReveal: () => void;
   setIsTransitioning: (isTransitioning: boolean) => void;
 }
 
-export const useSceneStore = create<SceneStore>((set) => ({
+export const useSceneStore = create<SceneStore>(set => ({
   modelRotation: 0,
   isTransitioning: false,
   opacity: 1,
@@ -23,25 +25,33 @@ export const useSceneStore = create<SceneStore>((set) => ({
   initialRevealComplete: false,
   isInitialReveal: true,
 
-  setModelRotation: (rotation) => {
+  setModelRotation: rotation => {
     set({ modelRotation: rotation });
   },
 
-  setPOIActive: (active) => {
+  setPOIActive: active => {
     set({ poiActive: active });
   },
-  
-  setIsTransitioning: (isTransitioning) => {
+
+  setIsTransitioning: isTransitioning => {
     set({ isTransitioning });
+  },
+
+  completeInitialReveal: () => {
+    set({ isInitialReveal: false, initialRevealComplete: true });
+  },
+
+  resetInitialReveal: () => {
+    set({ isInitialReveal: true, initialRevealComplete: false });
   },
 
   startTransitionOut: () => {
     if (useSceneStore.getState().isTransitioning) {
       return Promise.resolve();
     }
-    
+
     set({ isTransitioning: true });
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const startTime = Date.now();
       const duration = 300;
       let animationFrameId: number;
@@ -62,7 +72,7 @@ export const useSceneStore = create<SceneStore>((set) => ({
       };
 
       animate();
-      
+
       return () => {
         if (animationFrameId) {
           cancelAnimationFrame(animationFrameId);
@@ -77,9 +87,9 @@ export const useSceneStore = create<SceneStore>((set) => ({
     if (useSceneStore.getState().isTransitioning) {
       return Promise.resolve();
     }
-    
+
     set({ isTransitioning: true });
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const startTime = Date.now();
       const duration = 800;
       let animationFrameId: number;
@@ -100,7 +110,7 @@ export const useSceneStore = create<SceneStore>((set) => ({
       };
 
       animate();
-      
+
       return () => {
         if (animationFrameId) {
           cancelAnimationFrame(animationFrameId);
@@ -113,7 +123,7 @@ export const useSceneStore = create<SceneStore>((set) => ({
 
   startInitialReveal: () => {
     set({ isInitialReveal: true, opacity: 1 });
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const startTime = Date.now();
       const duration = 2000;
       let animationFrameId: number;
@@ -129,18 +139,19 @@ export const useSceneStore = create<SceneStore>((set) => ({
           set({
             opacity: 0,
             isInitialReveal: false,
+            initialRevealComplete: true,
           });
           resolve();
         }
       };
 
       animate();
-      
+
       return () => {
         if (animationFrameId) {
           cancelAnimationFrame(animationFrameId);
         }
-        set({ isInitialReveal: false });
+        set({ isInitialReveal: false, initialRevealComplete: true });
         resolve();
       };
     });

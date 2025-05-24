@@ -30,21 +30,6 @@ export default function LogoMarkerContent() {
   const [previousTitle, setPreviousTitle] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
 
-  useEffect(() => {
-    if (selectedScene) {
-      console.log('=== SELECTED SCENE DEBUG ===');
-      console.log('Full selectedScene:', selectedScene);
-      console.log('selectedScene.links:', selectedScene.links);
-      console.log('links length:', selectedScene.links?.length);
-      console.log('first link:', selectedScene.links?.[0]);
-      console.log('links exists?', !!selectedScene.links);
-      console.log('links is array?', Array.isArray(selectedScene.links));
-      console.log('=== END DEBUG ===');
-    } else {
-      console.log('No selectedScene available');
-    }
-  }, [selectedScene]);
-
   // GSAP animation for entry
   useEffect(() => {
     if (!drawerRef.current) return;
