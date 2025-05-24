@@ -2,7 +2,6 @@
 
 import DesktopNav from '@/components/header/desktop-nav';
 import MobileNav from '@/components/header/mobile-nav';
-import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { urlFor } from '@/sanity/lib/image';
 import { useNavigationStore, type SanityNav, type SanitySettings } from '@/store/navStore';
@@ -29,11 +28,10 @@ export default function Header({ nav, settings }: HeaderProps) {
   const navContainerRef = useRef<HTMLDivElement>(null);
 
   // External stores
-  const { isAnimating } = useCameraStore();
-  const { isContentVisible, otherMarkersVisible, setSelectedScene } = useLogoMarkerStore();
+  const { otherMarkersVisible, setSelectedScene } = useLogoMarkerStore();
 
   // Navigation store
-  const { setHeaderVisible, setNavVisible, setExperiencePage, reset } = useNavigationStore();
+  const { setHeaderVisible, setNavVisible, setExperiencePage, closeMenu } = useNavigationStore();
 
   const isExperiencePage = pathname === '/experience' || pathname.startsWith('/experience/');
   const isLandingPage = pathname === '/';
@@ -41,6 +39,7 @@ export default function Header({ nav, settings }: HeaderProps) {
   // Update experience page state when pathname changes
   useEffect(() => {
     setExperiencePage(isExperiencePage);
+    closeMenu();
 
     // Reset selected scene when navigating to the main experience page
     if (pathname === '/experience') {
@@ -52,24 +51,13 @@ export default function Header({ nav, settings }: HeaderProps) {
   const { contextSafe } = useGSAP(() => {
     if (!headerRef.current || !navContainerRef.current) return;
 
-    // Set initial states based on page type
-    if (isExperiencePage) {
-      // Experience pages start hidden
-      gsap.set([headerRef.current, navContainerRef.current], {
-        opacity: 0,
-        pointerEvents: 'none',
-      });
-      setHeaderVisible(false);
-      setNavVisible(false);
-    } else {
-      // Non-experience pages start visible
+    if (!isExperiencePage) {
       gsap.killTweensOf([headerRef.current, navContainerRef.current]);
       gsap.set([headerRef.current, navContainerRef.current], {
         opacity: 1,
         pointerEvents: 'auto',
       });
-      headerRef.current.style.pointerEvents = 'auto';
-      navContainerRef.current.style.pointerEvents = 'auto';
+
       setHeaderVisible(true);
       setNavVisible(true);
     }
@@ -136,7 +124,7 @@ export default function Header({ nav, settings }: HeaderProps) {
 
       gsap.to(navContainerRef.current, {
         opacity: 0,
-        duration: 0.3,
+        duration: 0.1,
         ease: 'power2.out',
         onComplete: () => {
           navContainerRef.current!.style.pointerEvents = 'none';

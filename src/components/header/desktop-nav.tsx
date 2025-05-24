@@ -12,7 +12,6 @@ import gsap from 'gsap';
 import { MenuIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef } from 'react';
 
 interface DesktopNavProps {
@@ -404,23 +403,10 @@ const useMenuState = () => {
 };
 
 export default function DesktopNav({ nav, settings }: DesktopNavProps) {
-  const { isExperiencePage } = useNavigationStore();
   const { contact, address, businessHours, social } = settings || {};
   const { isOpen, shouldRender, openMenu, closeMenu, onCloseComplete } = useMenuState();
+
   const { refs } = useMenuAnimations(isOpen, shouldRender, onCloseComplete);
-  const router = useRouter();
-
-  const handleNavClick = useCallback(() => {
-    gsap.to('main', {
-      opacity: 1,
-      pointerEvents: 'auto',
-      duration: 0.3,
-      ease: ANIMATION_CONFIG.easing.easeIn,
-      delay: 0.2,
-    });
-
-    closeMenu();
-  }, [closeMenu, isExperiencePage, router]);
 
   return (
     <>
@@ -444,7 +430,7 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
           <div className="flex h-screen w-full flex-row justify-between gap-12 overflow-clip md:items-center">
             {/* Experience Panel */}
             <div ref={refs.leftPanelRef} className="relative h-full w-1/2">
-              <Link href="/experience" onClick={handleNavClick} className="block h-full w-full">
+              <Link href="/experience" className="block h-full w-full">
                 <div
                   ref={refs.experienceTextRef}
                   className="relative z-50 flex w-full flex-col items-center py-32 text-4xl font-light uppercase" // text-center might be useful
@@ -491,7 +477,6 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
                             target={linkData.target ? '_blank' : undefined}
                             rel={linkData.target ? 'noopener noreferrer' : undefined}
                             className="text-2xl font-light transition-colors duration-300 hover:text-primary"
-                            onClick={handleNavClick}
                           >
                             {linkData.label}
                           </Link>
@@ -510,7 +495,6 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
                             target={linkData.target ? '_blank' : undefined}
                             rel={linkData.target ? 'noopener noreferrer' : undefined}
                             className="text-2xl font-light transition-colors duration-300 hover:text-primary"
-                            onClick={handleNavClick}
                           >
                             {linkData.label}
                           </Link>
