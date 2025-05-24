@@ -6,11 +6,6 @@ import gsap from 'gsap';
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-/**
- * A simple loading component for React Three Fiber
- * Uses GSAP for smooth animations and useProgress from drei
- * to track loading progress
- */
 export function Loading() {
   const { progress, active } = useProgress();
   const [isVisible, setIsVisible] = useState(false);
@@ -19,10 +14,9 @@ export function Loading() {
   const textRef = useRef(null);
   const progressBarRef = useRef(null);
 
-  const { setIsLoading, startCameraTransition } = useCameraStore();
+  const { setIsLoading } = useCameraStore();
   const { setOtherMarkersVisible } = useLogoMarkerStore();
 
-  // Hide markers initially when loading
   useEffect(() => {
     if (active) {
       setOtherMarkersVisible(false);
@@ -99,8 +93,6 @@ export function Loading() {
       // First trigger the camera transition, THEN start fade out
       const cameraStore = useCameraStore.getState();
 
-      // Ensure we're at the starting position and force the transition
-      // This ensures the aerial view to ground animation always plays
       cameraStore.setCamera(
         INITIAL_POSITIONS.mainIntro.position.clone(),
         INITIAL_POSITIONS.mainIntro.target.clone(),

@@ -1,81 +1,26 @@
 'use client';
 import SocialLinks from '@/components/ui/social-links';
+import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import {
+  ANIMATION_CONFIG,
+  getLinkData,
+  useNavigationStore,
+  type SanityNav,
+  type SanitySettings,
+} from '@/store/navStore';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { MenuIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useEffect, useRef, useState } from 'react';
-
-// Animation constants
-const ANIMATION_CONFIG = {
-  durations: {
-    pageTransition: 0.3,
-    menuContainer: 0.5,
-    panelFade: 0.8,
-    elementStagger: 0.05,
-    elementFade: 0.4,
-    imageScale: 0.7,
-    closeButton: 0.4,
-  },
-  easing: {
-    smooth: 'power2.inOut',
-    easeOut: 'power2.out',
-    easeIn: 'power2.in',
-    elastic: 'expo.out',
-  },
-  stagger: {
-    links: 0.05,
-    linksReverse: 0.03,
-  },
-} as const;
-
-// Types (keeping your existing interfaces)
-interface SanityLogo {
-  asset: any;
-  alt?: string;
-}
-
-interface SanityNav {
-  logo: SanityLogo;
-  companyLinks: Array<any>;
-  services: Array<any> | null;
-  legal: Array<any> | null;
-}
-
-interface SanitySettings {
-  contact: {
-    phone: string;
-    email: string;
-  };
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zip: string;
-  };
-  businessHours: {
-    hours: string;
-  };
-  social: {
-    facebook: string;
-    instagram: string;
-    twitter: string;
-    linkedin: string;
-    youtube: string;
-    yelp: string;
-    tiktok: string;
-    googleReviews: string;
-  };
-}
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef } from 'react';
 
 interface DesktopNavProps {
   nav: SanityNav;
-  isExperiencePage?: boolean;
   settings: SanitySettings;
 }
 
-// Custom hook for menu animations
 const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComplete: () => void) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const leftPanelRef = useRef<HTMLDivElement>(null);
@@ -103,8 +48,11 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
 
     if (!elements.container) return elements;
 
-    // Set initial states with null checks
-    gsap.set(elements.container, { display: 'block', opacity: 0 });
+    gsap.set(elements.container, {
+      display: 'block',
+      opacity: 0,
+      visibility: 'hidden',
+    });
 
     if (elements.leftPanel && elements.rightPanel) {
       gsap.set([elements.leftPanel, elements.rightPanel], { opacity: 0 });
@@ -114,7 +62,6 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
       gsap.set(elements.closeButton, { scale: 0.7, opacity: 0 });
     }
 
-    // Set states for elements that can be arrays or single elements
     const animatableElements = [
       elements.mainLinks,
       elements.experienceText,
@@ -138,8 +85,8 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
 
     const tl = gsap.timeline();
 
-    // 1. Fade in container
-    tl.to(elements.container, {
+    // 1. Make visible and fade in container
+    tl.set(elements.container, { visibility: 'visible' }).to(elements.container, {
       opacity: 1,
       duration: ANIMATION_CONFIG.durations.menuContainer,
       ease: ANIMATION_CONFIG.easing.smooth,
@@ -173,7 +120,6 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
       );
     }
 
-    // 3. Animate experience section
     if (elements.leftPanel) {
       tl.to(
         elements.leftPanel,
@@ -213,7 +159,6 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
       );
     }
 
-    // 5. Animate contact section and close button
     if (elements.contactSection) {
       tl.to(
         elements.contactSection,
@@ -260,12 +205,13 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
 
     const tl = gsap.timeline({
       onComplete: () => {
-        // Call the cleanup function when animation is actually complete
+        if (elements.container) {
+          gsap.set(elements.container, { visibility: 'hidden' });
+        }
         onCloseComplete();
       },
     });
 
-    // 1. Fade out contact section
     if (elements.contactSection) {
       tl.to(elements.contactSection, {
         opacity: 0,
@@ -275,7 +221,6 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
       });
     }
 
-    // Fade out close button (with scale)
     if (elements.closeButton) {
       tl.to(
         elements.closeButton,
@@ -287,10 +232,9 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
           ease: ANIMATION_CONFIG.easing.easeIn,
         },
         '<'
-      ); // Start at the same time as contact section
+      );
     }
 
-    // 2. Stagger out main links
     if (elements.mainLinks && elements.mainLinks.length > 0) {
       tl.to(
         elements.mainLinks,
@@ -308,7 +252,6 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
       );
     }
 
-    // 3. Fade out experience section
     if (elements.experienceImage) {
       tl.to(
         elements.experienceImage,
@@ -336,7 +279,6 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
       );
     }
 
-    // 4. Fade out panels and container
     if (elements.rightPanel) {
       tl.to(
         elements.rightPanel,
@@ -362,11 +304,9 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
     return tl;
   }, [onCloseComplete]);
 
-  // Main animation effect
   useGSAP(() => {
     if (!shouldRender) return;
 
-    // Kill any existing timeline
     if (timelineRef.current) {
       timelineRef.current.kill();
     }
@@ -398,95 +338,99 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
   };
 };
 
-// Custom hook for menu state management
 const useMenuState = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [shouldRender, setShouldRender] = useState(false);
+  const {
+    isMenuOpen,
+    shouldRenderMenu,
+    isMenuAnimating,
+    openMenu: storeOpenMenu,
+    closeMenu: storeCloseMenu,
+    setMenuRenderState,
+    setMenuAnimating,
+    navigationAction,
+    setNavigationAction,
+  } = useNavigationStore();
 
   const openMenu = useCallback(() => {
+    if (isMenuAnimating || isMenuOpen) return;
+
     gsap.to('main', {
       opacity: 0,
+      pointerEvents: 'none', // Added pointerEvents: 'none' here for consistency
       duration: ANIMATION_CONFIG.durations.pageTransition,
       ease: ANIMATION_CONFIG.easing.easeOut,
-      onComplete: () => setIsOpen(true),
+      onComplete: () => {
+        storeOpenMenu();
+      },
     });
-  }, []);
+  }, [isMenuAnimating, isMenuOpen, storeOpenMenu]);
 
   const closeMenu = useCallback(() => {
-    setIsOpen(false);
-  }, []);
+    if (isMenuAnimating) return;
+    storeCloseMenu();
+  }, [isMenuAnimating, storeCloseMenu]);
 
-  // Callback for when close animation completes
   const onCloseComplete = useCallback(() => {
-    setShouldRender(false);
+    setMenuRenderState(false);
+    setMenuAnimating(false);
     gsap.to('main', {
       opacity: 1,
       duration: 0.5,
       ease: ANIMATION_CONFIG.easing.easeIn,
+      pointerEvents: 'auto',
+      onComplete: () => {
+        if (navigationAction) {
+          navigationAction();
+          setNavigationAction(null);
+        }
+      },
     });
     document.body.style.overflow = '';
-  }, []);
+  }, [setMenuRenderState, setMenuAnimating, navigationAction]);
 
-  // Handle side effects
   useEffect(() => {
-    if (isOpen) {
+    if (isMenuOpen) {
       document.body.style.overflow = 'hidden';
-      gsap.set('main', { opacity: 0 });
-      setShouldRender(true);
+      gsap.set('main', { opacity: 0, pointerEvents: 'none' });
     }
-    // No else block needed - cleanup happens via animation callback
-  }, [isOpen]);
+  }, [isMenuOpen]);
 
   return {
-    isOpen,
-    shouldRender,
+    isOpen: isMenuOpen,
+    shouldRender: shouldRenderMenu,
     openMenu,
     closeMenu,
     onCloseComplete,
   };
 };
 
-// Link utility function
-const getLinkData = (link: any) => {
-  if (!link) return { label: '', href: '#', target: false };
-
-  if (link._type === 'pageLink' && link.page?.slug) {
-    return {
-      label: link.title || '',
-      href: `/${link.page.slug.current || link.page.slug}`,
-      target: false,
-    };
-  }
-
-  if (link._type === 'servicesLink') {
-    const slug =
-      link.services?.slug?.current ||
-      (typeof link.services?.slug === 'string' ? link.services.slug : '');
-    return {
-      label: link.title || '',
-      href: slug ? `/services/${slug}` : '/services',
-      target: false,
-    };
-  }
-
-  if (link.url) {
-    return {
-      label: link.title || '',
-      href: link.url,
-      target: link.openInNewTab || false,
-    };
-  }
-
-  return { label: link.title || '', href: '#', target: false };
-};
-
-// Main component
-export default function DesktopNav({ nav, isExperiencePage, settings }: DesktopNavProps) {
+export default function DesktopNav({ nav, settings }: DesktopNavProps) {
+  const { setSelectedScene, setIsLoading } = useLogoMarkerStore();
+  const { isExperiencePage } = useNavigationStore();
   const { contact, address, businessHours, social } = settings || {};
   const { isOpen, shouldRender, openMenu, closeMenu, onCloseComplete } = useMenuState();
   const { refs } = useMenuAnimations(isOpen, shouldRender, onCloseComplete);
+  const router = useRouter();
 
-  const handleNavClick = useCallback(() => closeMenu(), [closeMenu]);
+  const handleNavClick = useCallback(() => {
+    setSelectedScene(null);
+
+    if (isExperiencePage) {
+      const tl = gsap.timeline({
+        onComplete: () => router.push('/experience'),
+      });
+    }
+
+    gsap.to('main', {
+      opacity: 1,
+      pointerEvents: 'auto',
+      duration: 0.3,
+      ease: ANIMATION_CONFIG.easing.easeIn,
+      delay: 0.2, // Short delay to allow menu close animation to start
+    });
+
+    closeMenu();
+  }, [closeMenu, isExperiencePage, router, setSelectedScene]);
 
   return (
     <>
@@ -500,8 +444,12 @@ export default function DesktopNav({ nav, isExperiencePage, settings }: DesktopN
       {shouldRender && (
         <div
           ref={refs.containerRef}
-          style={{ pointerEvents: isOpen ? 'auto' : 'none' }}
-          className="fixed inset-0 z-50 h-screen w-full bg-black p-0 text-white"
+          style={{
+            pointerEvents: isOpen ? 'auto' : 'none',
+            visibility: 'hidden',
+            opacity: 0,
+          }}
+          className="fixed inset-0 z-50 h-screen w-full bg-black p-0 text-white" // Ensure z-index is high enough
         >
           <div className="flex h-screen w-full flex-row justify-between gap-12 overflow-clip md:items-center">
             {/* Experience Panel */}
@@ -509,7 +457,7 @@ export default function DesktopNav({ nav, isExperiencePage, settings }: DesktopN
               <Link href="/experience" onClick={handleNavClick} className="block h-full w-full">
                 <div
                   ref={refs.experienceTextRef}
-                  className="relative z-50 flex w-full flex-col items-center py-32 text-4xl font-light uppercase"
+                  className="relative z-50 flex w-full flex-col items-center py-32 text-4xl font-light uppercase" // text-center might be useful
                 >
                   View Experience
                 </div>
@@ -534,17 +482,17 @@ export default function DesktopNav({ nav, isExperiencePage, settings }: DesktopN
             {/* Navigation Panel */}
             <div
               ref={refs.rightPanelRef}
-              className="flex h-full w-1/2 flex-col justify-between py-12 pr-12"
+              className="flex h-full w-1/2 flex-col justify-between py-12 pr-12" // Consider pl-12 or similar for symmetry if needed
             >
               <div className="flex flex-grow flex-col">
                 <div
                   ref={refs.mainLinksRef}
-                  className="flex flex-grow flex-row items-center gap-12"
+                  className="flex flex-grow flex-row items-center gap-12" // 'items-center' might be 'items-start' if content is tall
                 >
                   <div className="flex flex-grow flex-row items-start">
                     {/* Company Links */}
                     <div className="flex w-1/2 flex-col gap-6">
-                      {nav.companyLinks.map((link, index) => {
+                      {nav.companyLinks?.map((link, index) => {
                         const linkData = getLinkData(link);
                         return (
                           <Link
@@ -585,7 +533,7 @@ export default function DesktopNav({ nav, isExperiencePage, settings }: DesktopN
                 {/* Contact Section */}
                 <div
                   ref={refs.contactSectionRef}
-                  className="mt-auto flex flex-col gap-8 text-gray-200"
+                  className="mt-auto flex flex-col gap-8 text-gray-200" // Consider text-sm or text-base for readability
                 >
                   <div className="flex flex-col gap-2">
                     <h3 className="text-xl font-light text-slate-400">Contact Us</h3>
@@ -634,9 +582,10 @@ export default function DesktopNav({ nav, isExperiencePage, settings }: DesktopN
                           </div>
                         )}
                       </div>
-                      {address && businessHours?.hours && (
-                        <div className="mx-2 h-5 w-[1px] bg-slate-400"></div>
-                      )}
+                      {address &&
+                        businessHours?.hours && ( // This condition means divider only shows if both exist
+                          <div className="mx-2 h-5 w-[1px] bg-slate-400"></div> // h-5 is 20px, adjust if needed
+                        )}
                       <div className="flex flex-col gap-2">
                         {businessHours?.hours && (
                           <p className="text-sm font-light">{businessHours.hours}</p>
@@ -651,7 +600,11 @@ export default function DesktopNav({ nav, isExperiencePage, settings }: DesktopN
 
           {/* Close Button */}
           <div ref={refs.closeButtonRef} className="absolute right-24 top-24 md:right-12 md:top-12">
-            <button onClick={closeMenu} aria-label="Close menu">
+            <button
+              onClick={closeMenu}
+              aria-label="Close menu"
+              disabled={shouldRender && isOpen && false}
+            >
               <span className="flex h-auto items-center justify-center rounded-md bg-background px-5 py-2 align-middle text-xs font-medium uppercase tracking-[0.25em] text-slate-800 backdrop-blur-sm transition-all duration-300 ease-in-out hover:bg-primary hover:text-white hover:shadow-lg">
                 Close
               </span>

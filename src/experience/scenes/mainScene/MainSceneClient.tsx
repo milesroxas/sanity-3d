@@ -1,9 +1,9 @@
 'use client';
 import { useR3F } from '@/experience/providers/R3FContext';
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
-import { useSceneStore } from '@/experience/scenes/store/sceneStore';
+import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import LogoMarkerContent from './components/LogoMarkerContent';
 import MainScene from './MainScene';
 // Style to prevent scrollbars
@@ -12,39 +12,57 @@ const noScrollStyles = {
   width: '100%',
 };
 
-// Component to handle the initial reveal animation
-function InitialRevealHandler() {
-  const { startInitialReveal } = useSceneStore();
-  const { isAnimating, isLoading } = useCameraStore();
-
-  useEffect(() => {
-    if (!isAnimating && !isLoading) {
-      startInitialReveal();
-    }
-  }, [startInitialReveal, isAnimating, isLoading]);
-
-  return null;
-}
-
 export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
+  const { selectedScene, setSelectedScene } = useLogoMarkerStore();
   const { setR3FContent } = useR3F();
+  const [isReady, setIsReady] = useState(false);
+  const { resetToInitial } = useCameraStore();
 
   useEffect(() => {
-    setR3FContent(<MainScene scene={scene} />);
+    setIsReady(false);
+    setSelectedScene(null);
+
+    const timer = setTimeout(
+      () => {
+        setR3FContent(<MainScene scene={scene} />);
+        setIsReady(true);
+      },
+      100 // Consistent delay for state propagation
+    );
 
     // Cleanup when unmounting
     return () => {
+      clearTimeout(timer);
       setR3FContent(null);
+      setSelectedScene(null);
+      resetToInitial();
     };
-  }, [scene, setR3FContent]);
+  }, [setR3FContent, setSelectedScene, resetToInitial]);
 
   return (
     <div style={noScrollStyles}>
-      {/* Add the handler component */}
-      <InitialRevealHandler />
-
       <AnimatePresence>
-        {
+        {!isReady && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'black',
+              zIndex: 1000,
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Logo marker content: Render only when ready and a scene is selected */}
+      <AnimatePresence>
+        {isReady && selectedScene && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -53,7 +71,7 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
           >
             <LogoMarkerContent />
           </motion.div>
-        }
+        )}
       </AnimatePresence>
     </div>
   );

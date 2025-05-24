@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { CustomCursor } from '@/components/ui/Cursor';
+import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import gsap from 'gsap';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -17,6 +18,7 @@ interface AnimationRefs {
 
 export default function LandingPage() {
   const router = useRouter();
+  const { setSelectedScene } = useLogoMarkerStore();
   const [isExiting, setIsExiting] = useState(false);
   // Refs for animation targets
   const refs: AnimationRefs = {
@@ -83,6 +85,9 @@ export default function LandingPage() {
   }, []);
 
   const createExitAnimation = () => {
+    // Reset selected scene before navigation
+    setSelectedScene(null);
+
     const tl = gsap.timeline({
       onComplete: () => router.push('/experience'),
     });

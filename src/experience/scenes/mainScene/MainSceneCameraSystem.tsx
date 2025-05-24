@@ -1,4 +1,3 @@
-// MainSceneCameraSystem.tsx
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { Box, MapControls, PerspectiveCamera } from '@react-three/drei';
 import { button, folder, useControls, useCreateStore } from 'leva';

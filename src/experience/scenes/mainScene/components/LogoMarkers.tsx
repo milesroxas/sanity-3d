@@ -2,6 +2,7 @@
 import { LogoMarker } from '@/experience/components/markers/LogoMarker';
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import { animateCameraMovement } from '@/experience/utils/animationUtils';
 import { Float, Html, useCursor } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { useCallback, useEffect, useRef } from 'react';
@@ -191,7 +192,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
   const { setControlType, setIsAnimating, syncCameraPosition } = useCameraStore();
 
   // Refs to track animation frames and timeouts for cleanup
-  const animationFrameRef = useRef<number | null>(null);
+  const animationFrameRef = useRef<number | (() => void) | null>(null);
   const timeoutRefs = useRef<Array<NodeJS.Timeout>>([]);
 
   // Helper to safely set timeouts that we can clean up
@@ -209,7 +210,10 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
 
   // Clear animation frame
   const clearAnimationFrame = useCallback(() => {
-    if (animationFrameRef.current !== null) {
+    if (typeof animationFrameRef.current === 'function') {
+      animationFrameRef.current();
+      animationFrameRef.current = null;
+    } else if (animationFrameRef.current !== null) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
     }
@@ -283,40 +287,24 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
           poi.mainSceneCameraTarget.z
         );
 
-        const animate = () => {
-          const now = Date.now();
-          const elapsed = now - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-
-          // Cubic easing
-          const t =
-            progress < 0.5
-              ? 4 * progress * progress * progress
-              : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-
-          const newPosition = new Vector3().lerpVectors(currentPosition, targetPos, t);
-          const newTarget = new Vector3().lerpVectors(currentTarget, targetLookAt, t);
-
-          syncCameraPosition(newPosition, newTarget);
-
-          if (progress >= 1) {
-            // Ensure we're exactly at the target position and target
-            syncCameraPosition(targetPos, targetLookAt);
-
-            setIsAnimating(false);
-            if (poi.slug?.current) {
-              fetchAndSetScene(poi.slug.current);
-            }
-          } else {
-            animationFrameRef.current = requestAnimationFrame(animate);
+        animationFrameRef.current = animateCameraMovement(
+          currentPosition,
+          targetPos,
+          currentTarget,
+          targetLookAt,
+          (position, target) => {
+            syncCameraPosition(position, target);
+          },
+          {
+            duration: 2000,
+            onComplete: () => {
+              setIsAnimating(false);
+              if (poi.slug?.current) {
+                fetchAndSetScene(poi.slug.current);
+              }
+            },
           }
-        };
-
-        const startTime = Date.now();
-        const duration = 2000;
-
-        // Start animation and store the ID for potential cleanup
-        animationFrameRef.current = requestAnimationFrame(animate);
+        );
       }, 500); // Wait 500ms for markers to fade out
     },
     [
@@ -353,63 +341,33 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     camera.getWorldDirection(startTarget);
     startTarget.multiplyScalar(100).add(camera.position);
 
-    // Define animation parameters
-    const duration = 2500;
-    const startTime = Date.now();
-
     // Create our own animation loop for full control
-    const animateBack = () => {
-      const now = Date.now();
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
+    animationFrameRef.current = animateCameraMovement(
+      startPos,
+      initialCameraPosition,
+      startTarget,
+      initialCameraTarget,
+      (position, target) => {
+        syncCameraPosition(position, target);
+      },
+      {
+        duration: 2500,
+        onComplete: () => {
+          syncCameraPosition(initialCameraPosition, initialCameraTarget);
 
-      // Use cubic easing for smooth motion
-      const t =
-        progress < 0.5
-          ? 4 * progress * progress * progress
-          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+          const restoreTarget = () => {
+            camera.lookAt(initialCameraTarget);
+          };
 
-      // Interpolate position and target
-      const newPosition = new Vector3().lerpVectors(startPos, initialCameraPosition, t);
-      const newTarget = new Vector3().lerpVectors(startTarget, initialCameraTarget, t);
-
-      // Update camera directly
-      syncCameraPosition(newPosition, newTarget);
-
-      if (progress >= 1) {
-        // Ensure we land exactly at the desired position
-        syncCameraPosition(initialCameraPosition, initialCameraTarget);
-
-        // Create a temporary "lookAt" function to restore the camera direction
-        const restoreTarget = () => {
-          const direction = new Vector3()
-            .subVectors(initialCameraTarget, camera.position)
-            .normalize();
-          camera.lookAt(initialCameraTarget);
-        };
-
-        // Apply direction correction immediately
-        restoreTarget();
-
-        // Complete animation and immediately re-enable controls
-        setIsAnimating(false);
-        setControlType('Map');
-
-        // Reset shouldAnimateBack after animation completes
-        setShouldAnimateBack(false);
-
-        // Show markers after camera animation is complete
-        setOtherMarkersVisible(true);
-
-        // Apply our target correction one more time to ensure it sticks
-        requestAnimationFrame(restoreTarget);
-      } else {
-        animationFrameRef.current = requestAnimationFrame(animateBack);
+          restoreTarget();
+          setIsAnimating(false);
+          setControlType('Map');
+          setShouldAnimateBack(false);
+          setOtherMarkersVisible(true);
+          requestAnimationFrame(restoreTarget);
+        },
       }
-    };
-
-    // Start animation
-    animationFrameRef.current = requestAnimationFrame(animateBack);
+    );
 
     // Clean up function to handle component unmounting during animation
     return () => {

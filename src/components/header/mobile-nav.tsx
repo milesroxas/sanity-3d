@@ -9,11 +9,13 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import SocialLinks from '@/components/ui/social-links';
+import { useCameraStore } from '@/experience/scenes/store/cameraStore';
+import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { urlFor } from '@/sanity/lib/image';
 import { AlignRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 interface SanityLogo {
   asset: any; // Sanity asset reference
@@ -62,6 +64,19 @@ export default function MobileNav({
   settings?: SanitySettings;
 }) {
   const [open, setOpen] = useState(false);
+
+  // Reset experience stores
+  const resetCameraStore = useCameraStore(state => state.reset);
+  const resetLogoMarkerStore = useLogoMarkerStore(state => state.reset);
+
+  // Handle experience link click
+  const handleExperienceClick = useCallback(() => {
+    // Reset all experience-related states
+
+    resetCameraStore();
+    resetLogoMarkerStore();
+    setOpen(false);
+  }, [resetCameraStore, resetLogoMarkerStore]);
 
   // Helper function to get link data
   const getLink = (link: any) => {
@@ -189,7 +204,7 @@ export default function MobileNav({
             <div className="mb-8">
               <Link
                 href="/experience"
-                onClick={() => setOpen(false)}
+                onClick={handleExperienceClick}
                 className="group flex flex-col items-end"
               >
                 <h3 className="mb-3 text-right text-lg font-medium uppercase">View Experience</h3>

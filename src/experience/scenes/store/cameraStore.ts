@@ -1,4 +1,5 @@
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import { animateCameraMovement } from '@/experience/utils/animationUtils';
 import { Vector3 } from 'three';
 import { create } from 'zustand';
 
@@ -144,8 +145,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       // If we're turning loading off, do it immediately and ensure controls are re-enabled
       if (!isLoading) {
         set({ isLoading });
-        // Ensure controls are re-enabled when loading completes
-        // This is particularly important for production environments
         setTimeout(() => {
           if (get().state === 'main' && !get().isAnimating) {
             set({ controlType: 'Map' });
@@ -162,9 +161,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
 
   // Animation
   startCameraTransition: (startPos, endPos, startTarget, endTarget) => {
-    // When called from the loading component, always force the animation
-    // This ensures the aerial-to-ground animation always plays after loading
-
     // Force clean state for the intro animation
     set({
       controlType: 'Disabled',
@@ -172,51 +168,34 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       isLoading: false,
     });
 
-    const startTime = Date.now();
-    const duration = 4000;
+    animateCameraMovement(
+      startPos,
+      endPos,
+      startTarget,
+      endTarget,
+      (position, target) => {
+        // Update the store with the new position and target
+        set({ position, target });
+      },
+      {
+        duration: 4000,
+        onComplete: () => {
+          set({
+            isAnimating: false,
+            position: endPos.clone(),
+            target: endTarget.clone(),
+            previousPosition: startPos.clone(),
+            previousTarget: startTarget.clone(),
+          });
 
-    const animate = () => {
-      // Check if component is still mounted
-      if (!get) return;
-
-      const now = Date.now();
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-
-      if (progress >= 1) {
-        // First update state with our desired end position
-        set({
-          isAnimating: false,
-          position: endPos.clone(),
-          target: endTarget.clone(),
-          previousPosition: startPos.clone(),
-          previousTarget: startTarget.clone(),
-        });
-
-        // Re-enable controls with a slight delay to ensure state has settled
-        setTimeout(() => {
-          if (!get) return; // Check if component is still mounted
-          set({ controlType: get().state === 'main' ? 'Map' : 'CameraControls' });
-
-          // Don't add animation delay - match the close button behavior
-          // by setting the markers visible immediately after controls are enabled
-          useLogoMarkerStore.getState().setOtherMarkersVisible(true);
-        }, 100);
-      } else {
-        const t =
-          progress < 0.5
-            ? 4 * progress * progress * progress
-            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-
-        const newPosition = new Vector3().lerpVectors(startPos, endPos, t);
-        const newTarget = new Vector3().lerpVectors(startTarget, endTarget, t);
-
-        set({ position: newPosition, target: newTarget });
-        requestAnimationFrame(animate);
+          setTimeout(() => {
+            if (!get) return;
+            set({ controlType: get().state === 'main' ? 'Map' : 'CameraControls' });
+            useLogoMarkerStore.getState().setOtherMarkersVisible(true);
+          }, 100);
+        },
       }
-    };
-
-    animate();
+    );
   },
 
   // New action

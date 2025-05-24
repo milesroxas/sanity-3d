@@ -4,52 +4,18 @@ import DesktopNav from '@/components/header/desktop-nav';
 import MobileNav from '@/components/header/mobile-nav';
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
-import { useSceneStore } from '@/experience/scenes/store/sceneStore';
 import { urlFor } from '@/sanity/lib/image';
+import { useNavigationStore, type SanityNav, type SanitySettings } from '@/store/navStore';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
-gsap.registerPlugin(useGSAP);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-interface SanityLogo {
-  asset: any;
-  alt?: string;
-}
-interface SanityNav {
-  logo: SanityLogo;
-  companyLinks: any[];
-  services: any[] | null;
-  legal: any[] | null;
-}
-interface SanitySettings {
-  contact: {
-    phone: string;
-    email: string;
-  };
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zip: string;
-  };
-  businessHours: {
-    hours: string;
-  };
-  social: {
-    facebook: string;
-    instagram: string;
-    twitter: string;
-    linkedin: string;
-    youtube: string;
-    yelp: string;
-    tiktok: string;
-    googleReviews: string;
-  };
-}
 interface HeaderProps {
   nav: SanityNav;
   settings: SanitySettings;
@@ -61,158 +27,189 @@ export default function Header({ nav, settings }: HeaderProps) {
 
   const headerRef = useRef<HTMLDivElement>(null);
   const navContainerRef = useRef<HTMLDivElement>(null);
-  const lastScrollYRef = useRef(0);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { isTransitioning } = useSceneStore();
-  const { isAnimating, isLoading } = useCameraStore();
-  const { isContentVisible, otherMarkersVisible } = useLogoMarkerStore();
+  // External stores
+  const { isAnimating } = useCameraStore();
+  const { isContentVisible, otherMarkersVisible, setSelectedScene } = useLogoMarkerStore();
 
-  // only animate nav on /experience routes
+  // Navigation store
+  const { setHeaderVisible, setNavVisible, setExperiencePage, reset } = useNavigationStore();
+
   const isExperiencePage = pathname === '/experience' || pathname.startsWith('/experience/');
   const isLandingPage = pathname === '/';
 
-  // GSAP header scroll-hide/show (unchanged)
-  const { contextSafe } = useGSAP(
-    () => {
-      if (!headerRef.current) return;
-      const y = window.scrollY;
-      if (y <= 50) {
-        gsap.set(headerRef.current, { opacity: 1 });
+  // Update experience page state when pathname changes
+  useEffect(() => {
+    setExperiencePage(isExperiencePage);
+
+    // Reset selected scene when navigating to the main experience page
+    if (pathname === '/experience') {
+      setSelectedScene(null);
+    }
+  }, [isExperiencePage, pathname, setExperiencePage, setSelectedScene]);
+
+  useEffect(() => {
+    const forceNavVisibleHandler = () => {
+      // Force header to be visible in non-experience pages
+      if (headerRef.current && navContainerRef.current) {
+        gsap.killTweensOf([headerRef.current, navContainerRef.current]); // Kill existing tweens
+
+        headerRef.current.style.opacity = '1';
+        navContainerRef.current.style.opacity = '1';
         headerRef.current.style.pointerEvents = 'auto';
-      } else {
-        gsap.set(headerRef.current, { opacity: 0 });
-        headerRef.current.style.pointerEvents = 'none';
-        gsap.to(headerRef.current, {
+        navContainerRef.current.style.pointerEvents = 'auto';
+
+        setHeaderVisible(true);
+        setNavVisible(true);
+      }
+    };
+
+    window.addEventListener('forceNavVisible', forceNavVisibleHandler);
+
+    return () => {
+      window.removeEventListener('forceNavVisible', forceNavVisibleHandler);
+    };
+  }, [setHeaderVisible, setNavVisible]);
+
+  // Reset navigation state on route change and clean up ScrollTrigger
+  useEffect(() => {
+    // For non-experience pages, make sure header and nav are visible
+    if (!isExperiencePage) {
+      // Set header and nav to visible in store
+      gsap.killTweensOf([headerRef.current, navContainerRef.current]);
+
+      setHeaderVisible(true);
+      setNavVisible(true);
+
+      // Directly ensure elements are visible too
+      if (headerRef.current && navContainerRef.current) {
+        gsap.to([headerRef.current, navContainerRef.current], {
           opacity: 1,
           duration: 0.3,
-          delay: 0.5,
           ease: 'power2.out',
-          onComplete: () => {
+          onStart: () => {
             headerRef.current!.style.pointerEvents = 'auto';
+            navContainerRef.current!.style.pointerEvents = 'auto';
           },
         });
       }
-      lastScrollYRef.current = Math.max(0, y);
-    },
-    { scope: headerRef, dependencies: [pathname] }
-  );
-
-  const showHeader = contextSafe(() => {
-    if (!headerRef.current) return;
-    gsap.to(headerRef.current, {
-      opacity: 1,
-      duration: 0.3,
-      ease: 'power2.out',
-      onComplete: () => {
-        headerRef.current!.style.pointerEvents = 'auto';
-      },
-    });
-  });
-  const hideHeader = contextSafe(() => {
-    if (!headerRef.current) return;
-    gsap.to(headerRef.current, {
-      opacity: 0,
-      duration: 0.3,
-      ease: 'power2.out',
-      onComplete: () => {
-        headerRef.current!.style.pointerEvents = 'none';
-      },
-    });
-  });
-
-  const onScroll = contextSafe(() => {
-    if (isExperiencePage) return;
-    const y = window.scrollY;
-    const TH = 50;
-    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-
-    if (y > lastScrollYRef.current && y > TH) hideHeader();
-    else showHeader();
-
-    lastScrollYRef.current = Math.max(0, y);
-
-    scrollTimeoutRef.current = setTimeout(() => {
-      if (!headerRef.current) return;
-      const o = gsap.getProperty(headerRef.current, 'opacity') as number;
-      if ((y > 0 && o < 0.1) || y <= TH) showHeader();
-    }, 2000);
-  });
-
-  useEffect(() => {
-    if (!isExperiencePage) {
-      window.addEventListener('scroll', onScroll, { passive: true });
-      return () => {
-        window.removeEventListener('scroll', onScroll);
-        if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-      };
-    }
-  }, [onScroll, isExperiencePage]);
-
-  // GSAP nav fade (experience only)
-  const showNav = contextSafe(() => {
-    if (!navContainerRef.current) return;
-    gsap.to(navContainerRef.current, {
-      opacity: 1,
-      duration: 0.3,
-      ease: 'power2.out',
-      onStart: () => {
-        navContainerRef.current!.style.pointerEvents = 'auto';
-      },
-    });
-  });
-  const hideNav = contextSafe(() => {
-    if (!navContainerRef.current) return;
-    gsap.to(navContainerRef.current, {
-      opacity: 0,
-      duration: 0.3,
-      ease: 'power2.out',
-      onComplete: () => {
-        navContainerRef.current!.style.pointerEvents = 'none';
-      },
-    });
-  });
-
-  // Set initial states on mount
-  useEffect(() => {
-    if (headerRef.current) {
-      gsap.set(headerRef.current, { opacity: 0 });
-      headerRef.current.style.pointerEvents = 'none';
-    }
-    if (navContainerRef.current) {
-      gsap.set(navContainerRef.current, { opacity: 0 });
-      navContainerRef.current.style.pointerEvents = 'none';
-    }
-
-    // Show header immediately on non-experience pages
-    if (!isExperiencePage) {
-      showHeader();
-      showNav();
-    }
-  }, []);
-
-  // whenever route enters /experience hide immediately
-  useEffect(() => {
-    if (isExperiencePage) {
-      hideNav();
     } else {
-      showNav();
-      showHeader();
+      // Only reset menu state when on experience page
+      reset();
+    }
+
+    // Ensure main content is always visible and clickable after navigation
+    gsap.to('main', {
+      opacity: 1,
+      pointerEvents: 'auto',
+      duration: 0.3,
+      ease: 'power2.out',
+    });
+  }, [pathname, reset, isExperiencePage, setHeaderVisible, setNavVisible]);
+
+  // GSAP animation functions
+  const { contextSafe } = useGSAP(() => {
+    if (!headerRef.current || !navContainerRef.current) return;
+    gsap.killTweensOf([headerRef.current, navContainerRef.current]);
+
+    // Set initial states based on page type
+    if (isExperiencePage) {
+      // Experience pages start hidden
+      gsap.set([headerRef.current, navContainerRef.current], {
+        opacity: 0,
+        pointerEvents: 'none',
+      });
+      setHeaderVisible(false);
+      setNavVisible(false);
+    } else {
+      // Non-experience pages start visible
+      gsap.set([headerRef.current, navContainerRef.current], {
+        opacity: 1,
+        pointerEvents: 'auto',
+      });
+      headerRef.current.style.pointerEvents = 'auto';
+      navContainerRef.current.style.pointerEvents = 'auto';
+      setHeaderVisible(true);
+      setNavVisible(true);
     }
   }, [isExperiencePage]);
 
-  // Match the logo markers visibility - when they're visible, show the header
-  // when they're hidden (during transitions or content drawer), hide the header
+  const showHeader = contextSafe(
+    useCallback(() => {
+      if (!headerRef.current) return;
+
+      gsap.to(headerRef.current, {
+        opacity: 1,
+        duration: 0.3,
+        ease: 'power2.out',
+        onStart: () => {
+          headerRef.current!.style.pointerEvents = 'auto';
+        },
+        onComplete: () => {
+          setHeaderVisible(true);
+        },
+      });
+    }, [setHeaderVisible])
+  );
+
+  const hideHeader = contextSafe(
+    useCallback(() => {
+      if (!headerRef.current) return;
+
+      gsap.to(headerRef.current, {
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.out',
+        onComplete: () => {
+          headerRef.current!.style.pointerEvents = 'none';
+          setHeaderVisible(false);
+        },
+      });
+    }, [setHeaderVisible])
+  );
+
+  const showNav = contextSafe(
+    useCallback(() => {
+      if (!navContainerRef.current) return;
+
+      gsap.to(navContainerRef.current, {
+        opacity: 1,
+        duration: 0.3,
+        ease: 'power2.out',
+        onStart: () => {
+          navContainerRef.current!.style.pointerEvents = 'auto';
+        },
+        onComplete: () => {
+          setNavVisible(true);
+        },
+      });
+
+      // Ensure main content is also clickable
+      gsap.set('main', { pointerEvents: 'auto' });
+    }, [setNavVisible])
+  );
+
+  const hideNav = contextSafe(
+    useCallback(() => {
+      if (!navContainerRef.current) return;
+
+      gsap.to(navContainerRef.current, {
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.out',
+        onComplete: () => {
+          navContainerRef.current!.style.pointerEvents = 'none';
+          setNavVisible(false);
+        },
+      });
+    }, [setNavVisible])
+  );
+
+  // Experience page visibility logic
   useEffect(() => {
     if (!isExperiencePage) return;
 
-    if (
-      otherMarkersVisible &&
-      !isContentVisible &&
-      !isAnimating &&
-      !isLoading &&
-      !isTransitioning
-    ) {
+    if (otherMarkersVisible && !isContentVisible && !isAnimating) {
       showHeader();
       showNav();
     } else {
@@ -223,9 +220,11 @@ export default function Header({ nav, settings }: HeaderProps) {
     otherMarkersVisible,
     isContentVisible,
     isAnimating,
-    isLoading,
-    isTransitioning,
     isExperiencePage,
+    showHeader,
+    showNav,
+    hideHeader,
+    hideNav,
   ]);
 
   return (
@@ -254,10 +253,10 @@ export default function Header({ nav, settings }: HeaderProps) {
         <div className="ml-auto flex items-center">
           <div ref={navContainerRef} className="flex items-center gap-7">
             <div className="hidden xl:flex">
-              <DesktopNav nav={nav} isExperiencePage={isExperiencePage} settings={settings} />
+              <DesktopNav nav={nav} settings={settings} />
             </div>
             <div className="xl:hidden">
-              <MobileNav nav={nav} isExperiencePage={isExperiencePage} settings={settings} />
+              <MobileNav nav={nav} settings={settings} />
             </div>
           </div>
         </div>

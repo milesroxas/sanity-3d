@@ -2,22 +2,19 @@
 'use client';
 import { R3FProvider } from '@/experience/providers/R3FContext';
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
-import { useSceneStore } from '@/experience/scenes/store/sceneStore';
 import { Leva } from 'leva';
 import { ReactNode, useEffect } from 'react';
 
 export default function ExperienceLayout({ children }: { children: ReactNode }) {
   const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === 'production';
   const resetCameraStore = useCameraStore(state => state.reset);
-  const resetInitialReveal = useSceneStore(state => state.resetInitialReveal);
 
   // Reset stores on mount
   useEffect(() => {
     resetCameraStore();
-    resetInitialReveal();
 
     // No cleanup needed for the resets
-  }, [resetCameraStore, resetInitialReveal]);
+  }, [resetCameraStore]);
 
   // Prevent scrolling on experience pages
   useEffect(() => {
