@@ -9,6 +9,20 @@ export default defineType({
   icon: LayoutTemplate,
   fields: [
     defineField({
+      name: 'padding',
+      type: 'section-padding',
+      title: 'Padding',
+      description: 'Select a padding variant',
+      initialValue: 'small',
+    }),
+    defineField({
+      name: 'direction',
+      type: 'direction',
+      title: 'Direction',
+      description: 'Select a direction',
+      initialValue: 'none',
+    }),
+    defineField({
       name: 'tagLine',
       type: 'string',
     }),

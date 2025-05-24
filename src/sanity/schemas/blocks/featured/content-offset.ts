@@ -14,6 +14,20 @@ export default defineType({
       description: 'Select a theme variant',
     }),
     defineField({
+      name: 'padding',
+      type: 'section-padding',
+      title: 'Padding',
+      description: 'Select a padding variant',
+      initialValue: 'small',
+    }),
+    defineField({
+      name: 'direction',
+      type: 'direction',
+      title: 'Direction',
+      description: 'Select a direction',
+      initialValue: 'both',
+    }),
+    defineField({
       name: 'image',
       title: 'Main Image',
       type: 'image',

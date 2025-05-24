@@ -2,7 +2,7 @@
 
 import PortableTextRenderer from '@/components/portable-text-renderer';
 import { LinkButtons } from '@/components/shared/link-button';
-import SectionContainer from '@/components/ui/section-container';
+import SectionContainer, { ISectionPadding } from '@/components/ui/section-container';
 import TagLine from '@/components/ui/tag-line';
 import { useBlockScrollTrigger } from '@/hooks/useBlockScrollTrigger';
 import { cn } from '@/lib/utils';
@@ -22,12 +22,21 @@ interface FeaturedContentOffsetProps {
   links?: Sanity.Link[];
   testimonials?: any[];
   themeVariant?: string;
+  padding?: ISectionPadding['padding'];
+  direction?: ISectionPadding['direction'];
   _key?: string;
 }
 
 export default function FeaturedContentOffset(props: FeaturedContentOffsetProps) {
-  const { content, image, graphic, tagLine, title, links, themeVariant, _key } = props;
-
+  const { content, image, graphic, tagLine, title, links, themeVariant, padding, direction, _key } =
+    props;
+  const sectionPadding: ISectionPadding | undefined =
+    padding && direction
+      ? {
+          padding: stegaClean(padding),
+          direction: stegaClean(direction),
+        }
+      : undefined;
   const theme = stegaClean(themeVariant);
   const isDark = theme === 'dark';
 
@@ -198,7 +207,7 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
         aria-hidden="true"
       />
 
-      <SectionContainer className="overflow-x-clip">
+      <SectionContainer className="overflow-x-clip" padding={sectionPadding}>
         <div
           ref={containerRef}
           className="relative flex flex-col items-center justify-center overflow-visible py-32 md:min-h-[100vh] lg:min-h-[120vh]"

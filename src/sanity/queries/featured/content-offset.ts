@@ -6,6 +6,8 @@ export const featuredContentOffsetQuery = groq`
     _key,
     tagLine,
     title,
+    padding,
+    direction,
     content[]{
       ...,
       _type == "image" => {
