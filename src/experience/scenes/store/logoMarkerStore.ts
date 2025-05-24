@@ -70,8 +70,6 @@ export const useLogoMarkerStore = create<LogoMarkerStore>(set => ({
       isContentVisible: false,
       isLoading: false,
       shouldAnimateBack: false,
-      initialCameraPosition: null,
-      initialCameraTarget: null,
       otherMarkersVisible: true,
       hoveredMarkerId: null,
     }),

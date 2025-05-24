@@ -1,6 +1,5 @@
 'use client';
 import SocialLinks from '@/components/ui/social-links';
-import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import {
   ANIMATION_CONFIG,
   getLinkData,
@@ -405,7 +404,6 @@ const useMenuState = () => {
 };
 
 export default function DesktopNav({ nav, settings }: DesktopNavProps) {
-  const { setSelectedScene, setIsLoading } = useLogoMarkerStore();
   const { isExperiencePage } = useNavigationStore();
   const { contact, address, businessHours, social } = settings || {};
   const { isOpen, shouldRender, openMenu, closeMenu, onCloseComplete } = useMenuState();
@@ -413,24 +411,16 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
   const router = useRouter();
 
   const handleNavClick = useCallback(() => {
-    setSelectedScene(null);
-
-    if (isExperiencePage) {
-      const tl = gsap.timeline({
-        onComplete: () => router.push('/experience'),
-      });
-    }
-
     gsap.to('main', {
       opacity: 1,
       pointerEvents: 'auto',
       duration: 0.3,
       ease: ANIMATION_CONFIG.easing.easeIn,
-      delay: 0.2, // Short delay to allow menu close animation to start
+      delay: 0.2,
     });
 
     closeMenu();
-  }, [closeMenu, isExperiencePage, router, setSelectedScene]);
+  }, [closeMenu, isExperiencePage, router]);
 
   return (
     <>

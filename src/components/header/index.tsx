@@ -48,69 +48,9 @@ export default function Header({ nav, settings }: HeaderProps) {
     }
   }, [isExperiencePage, pathname, setExperiencePage, setSelectedScene]);
 
-  useEffect(() => {
-    const forceNavVisibleHandler = () => {
-      // Force header to be visible in non-experience pages
-      if (headerRef.current && navContainerRef.current) {
-        gsap.killTweensOf([headerRef.current, navContainerRef.current]); // Kill existing tweens
-
-        headerRef.current.style.opacity = '1';
-        navContainerRef.current.style.opacity = '1';
-        headerRef.current.style.pointerEvents = 'auto';
-        navContainerRef.current.style.pointerEvents = 'auto';
-
-        setHeaderVisible(true);
-        setNavVisible(true);
-      }
-    };
-
-    window.addEventListener('forceNavVisible', forceNavVisibleHandler);
-
-    return () => {
-      window.removeEventListener('forceNavVisible', forceNavVisibleHandler);
-    };
-  }, [setHeaderVisible, setNavVisible]);
-
-  // Reset navigation state on route change and clean up ScrollTrigger
-  useEffect(() => {
-    // For non-experience pages, make sure header and nav are visible
-    if (!isExperiencePage) {
-      // Set header and nav to visible in store
-      gsap.killTweensOf([headerRef.current, navContainerRef.current]);
-
-      setHeaderVisible(true);
-      setNavVisible(true);
-
-      // Directly ensure elements are visible too
-      if (headerRef.current && navContainerRef.current) {
-        gsap.to([headerRef.current, navContainerRef.current], {
-          opacity: 1,
-          duration: 0.3,
-          ease: 'power2.out',
-          onStart: () => {
-            headerRef.current!.style.pointerEvents = 'auto';
-            navContainerRef.current!.style.pointerEvents = 'auto';
-          },
-        });
-      }
-    } else {
-      // Only reset menu state when on experience page
-      reset();
-    }
-
-    // Ensure main content is always visible and clickable after navigation
-    gsap.to('main', {
-      opacity: 1,
-      pointerEvents: 'auto',
-      duration: 0.3,
-      ease: 'power2.out',
-    });
-  }, [pathname, reset, isExperiencePage, setHeaderVisible, setNavVisible]);
-
   // GSAP animation functions
   const { contextSafe } = useGSAP(() => {
     if (!headerRef.current || !navContainerRef.current) return;
-    gsap.killTweensOf([headerRef.current, navContainerRef.current]);
 
     // Set initial states based on page type
     if (isExperiencePage) {
@@ -123,6 +63,7 @@ export default function Header({ nav, settings }: HeaderProps) {
       setNavVisible(false);
     } else {
       // Non-experience pages start visible
+      gsap.killTweensOf([headerRef.current, navContainerRef.current]);
       gsap.set([headerRef.current, navContainerRef.current], {
         opacity: 1,
         pointerEvents: 'auto',
@@ -132,7 +73,7 @@ export default function Header({ nav, settings }: HeaderProps) {
       setHeaderVisible(true);
       setNavVisible(true);
     }
-  }, [isExperiencePage]);
+  }, [isExperiencePage, setHeaderVisible, setNavVisible]);
 
   const showHeader = contextSafe(
     useCallback(() => {
@@ -205,27 +146,17 @@ export default function Header({ nav, settings }: HeaderProps) {
     }, [setNavVisible])
   );
 
-  // Experience page visibility logic
   useEffect(() => {
     if (!isExperiencePage) return;
 
-    if (otherMarkersVisible && !isContentVisible && !isAnimating) {
+    if (otherMarkersVisible) {
       showHeader();
       showNav();
     } else {
       hideHeader();
       hideNav();
     }
-  }, [
-    otherMarkersVisible,
-    isContentVisible,
-    isAnimating,
-    isExperiencePage,
-    showHeader,
-    showNav,
-    hideHeader,
-    hideNav,
-  ]);
+  }, [otherMarkersVisible, isExperiencePage, showHeader, showNav, hideHeader, hideNav]);
 
   return (
     <header ref={headerRef} className="fixed top-0 z-50 w-full border-border/40 py-2">

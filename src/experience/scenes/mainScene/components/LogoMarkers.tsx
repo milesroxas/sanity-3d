@@ -261,6 +261,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
       // Store the exact camera state before we do anything else
       const currentPosition = camera.position.clone();
       const currentTarget = new Vector3();
+
       // Get exact point camera is looking at
       camera.getWorldDirection(currentTarget);
       currentTarget.multiplyScalar(100).add(currentPosition);
@@ -271,8 +272,6 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
       // Wait for markers to fade out before starting camera animation
       safeSetTimeout(() => {
         // Now we can proceed with the animation setup
-        setControlType('Disabled');
-        setIsAnimating(true);
 
         // Create target vectors for where we want to animate TO
         const targetPos = new Vector3(
@@ -286,6 +285,9 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
           poi.mainSceneCameraTarget.y,
           poi.mainSceneCameraTarget.z
         );
+
+        setControlType('Disabled');
+        setIsAnimating(true);
 
         animationFrameRef.current = animateCameraMovement(
           currentPosition,
@@ -305,7 +307,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
             },
           }
         );
-      }, 500); // Wait 500ms for markers to fade out
+      }, 600);
     },
     [
       camera,
