@@ -6,17 +6,13 @@ import SectionContainer, {
 } from '@/components/ui/section-container';
 import { cn } from '@/lib/utils';
 import { stegaClean } from 'next-sanity';
-import SplitCardsList from './split-cards-list';
 import SplitContent from './split-content';
 import SplitImage from './split-image';
-import SplitInfoList from './split-info-list';
 import SplitVideo from './split-video';
 
 const componentMap = {
   'split-content': SplitContent,
-  'split-cards-list': SplitCardsList,
   'split-image': SplitImage,
-  'split-info-list': SplitInfoList,
   'split-video': SplitVideo,
 } as const;
 
@@ -36,7 +32,7 @@ export default function SplitRow({
   styleVariant: ISectionContainerProps['style'];
   noGap: boolean;
   splitColumns: Array<{
-    _type: 'split-content' | 'split-cards-list' | 'split-image' | 'split-info-list' | 'split-video';
+    _type: 'split-content' | 'split-image' | 'split-video';
     _key: string;
   }>;
 }>) {
