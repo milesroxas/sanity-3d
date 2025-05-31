@@ -35,7 +35,7 @@ export default async function TeamPage() {
               direction: 'bottom',
             }}
           >
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <div className="grid grid-cols-1 items-start gap-12 md:grid-cols-3 lg:grid-cols-4">
               {posts.map(post => (
                 <Link
                   key={post.slug.current}

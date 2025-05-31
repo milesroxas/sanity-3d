@@ -1,4 +1,5 @@
 'use client';
+import Blocks from '@/components/blocks';
 import PortableTextRenderer from '@/components/portable-text-renderer';
 import { LinkButton } from '@/components/shared/link-button';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ export default function LogoMarkerContent() {
     setShouldAnimateBack,
     setOtherMarkersVisible,
   } = useLogoMarkerStore();
-
+  console.log(selectedScene);
   // Refs
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -199,6 +200,7 @@ export default function LogoMarkerContent() {
                       <PortableTextRenderer value={selectedScene.body} variant="drawer" />
                     </div>
                   )}
+                  <Blocks blocks={selectedScene.blocks} />
                 </div>
               </ScrollArea>
             </div>

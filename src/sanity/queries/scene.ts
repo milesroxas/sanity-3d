@@ -27,6 +27,7 @@ export const SCENE_QUERY = groq`
         }
       }
     },
+    blocks,
     links[] {
       ...,
       _type == 'pageLink' => {
