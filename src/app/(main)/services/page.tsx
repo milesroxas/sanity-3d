@@ -2,6 +2,7 @@ import { Wrapper } from '@/app/(components)/wrapper';
 import { generatePageMetadata } from '@/lib/metadata';
 import Link from 'next/link';
 import { fetchAllSanityServices } from '../actions';
+import ServicesPageClient from './page.client';
 
 export const dynamic = 'force-static';
 
@@ -28,6 +29,7 @@ export default async function ServicesPage() {
 
   return (
     <Wrapper>
+      <ServicesPageClient />
       <div className="container my-16">
         <h1 className="mb-8 text-4xl font-bold">Our Services</h1>
         <p className="mb-12 text-lg">Explore the range of services we offer to meet your needs.</p>

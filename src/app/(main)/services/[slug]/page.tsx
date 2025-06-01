@@ -3,7 +3,7 @@ import Blocks from '@/components/blocks';
 import { generatePageMetadata } from '@/lib/metadata';
 import { notFound } from 'next/navigation';
 import { fetchSanityServicesBySlug } from '../../actions';
-
+import ServicePageClient from './page.client';
 export const dynamic = 'force-static';
 
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
@@ -27,6 +27,7 @@ export default async function ServicePage(props: { params: Promise<{ slug: strin
 
   return (
     <Wrapper lenis={{}}>
+      <ServicePageClient />
       <Blocks blocks={service?.blocks} />
     </Wrapper>
   );

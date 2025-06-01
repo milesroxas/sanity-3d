@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { CustomCursor } from '@/components/ui/Cursor';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import gsap from 'gsap';
+import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
@@ -20,6 +21,10 @@ export default function LandingPage() {
   const router = useRouter();
   const { setSelectedScene } = useLogoMarkerStore();
   const [isExiting, setIsExiting] = useState(false);
+  const { setTheme } = useTheme();
+  useEffect(() => {
+    setTheme('light');
+  }, [setTheme]);
   // Refs for animation targets
   const refs: AnimationRefs = {
     background: useRef<HTMLDivElement>(null),

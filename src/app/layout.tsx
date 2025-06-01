@@ -1,4 +1,5 @@
 import { GSAP } from '@/components/gsap';
+import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
@@ -42,16 +43,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           fontSans.variable
         )}
       >
-        {/* <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        > */}
-        <GSAP scrollTrigger />
-        {children}
-
-        {/* </ThemeProvider> */}
+        <ThemeProvider attribute="class" defaultTheme="light">
+          <GSAP scrollTrigger />
+          {children}
+        </ThemeProvider>
         <Toaster position="top-center" richColors />
       </body>
     </html>

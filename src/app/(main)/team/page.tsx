@@ -6,6 +6,7 @@ import TeamCard from '@/components/ui/TeamCard';
 import { generatePageMetadata } from '@/lib/metadata';
 import { fetchSanityPageBySlug } from '../actions';
 import { fetchSanityTeamList } from './actions';
+import TeamPageClient from './page.client';
 export const dynamic = 'force-static';
 
 export async function generateMetadata() {
@@ -24,6 +25,7 @@ export default async function TeamPage() {
 
   return (
     <>
+      <TeamPageClient />
       <Blocks blocks={page.blocks} />
       {/* dynamic posts */}
       {posts?.length > 0 && (

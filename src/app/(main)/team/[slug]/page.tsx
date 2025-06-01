@@ -4,6 +4,7 @@ import PostHero from '@/components/ui/post/hero';
 import { generatePageMetadata } from '@/lib/metadata';
 import { notFound } from 'next/navigation';
 import { fetchSanityTeamMemberBySlug, fetchSanityTeamStaticParams } from '../actions';
+import TeamMemberPageClient from './page.client';
 
 export const dynamic = 'force-static';
 
@@ -35,14 +36,17 @@ export default async function TeamMemberPage(props: { params: Promise<{ slug: st
   }
 
   return (
-    <section>
-      <div className="container py-16 xl:py-20">
-        <article className="mx-auto max-w-3xl">
-          <Blocks blocks={post?.blocks} />
-          <PostHero {...post} />
-          {post.bio && <PortableTextRenderer value={post.bio} />}
-        </article>
-      </div>
-    </section>
+    <>
+      <TeamMemberPageClient />
+      <section>
+        <div className="container py-16 xl:py-20">
+          <article className="mx-auto max-w-3xl">
+            <Blocks blocks={post?.blocks} />
+            <PostHero {...post} />
+            {post.bio && <PortableTextRenderer value={post.bio} />}
+          </article>
+        </div>
+      </section>
+    </>
   );
 }

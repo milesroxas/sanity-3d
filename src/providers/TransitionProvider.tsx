@@ -71,7 +71,6 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
 
   //
   // EXIT ANIMATION (on link click):
-  //   • Imperatively fade-out old content, cover with overlay, then navigate.
   //
   const triggerTransition = (href: string) => {
     const overlayEl = overlayRef.current;
