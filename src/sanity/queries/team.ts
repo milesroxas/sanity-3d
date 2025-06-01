@@ -66,7 +66,7 @@ export const TEAM_SLUGS_QUERY = groq`
 export const TEAM_MEMBER_QUERY = groq`
   *[_type == "team" && slug.current == $slug][0]{
     _id,
-    name,
+    title,
     slug,
     image{
       asset->{
