@@ -53,6 +53,25 @@ export const TEAM_LIST_QUERY = groq`
       alt
     },
     role,
+    email,
+    bio[]{
+      ...,
+      _type == "image" => {
+        ...,
+        asset->{
+          _id,
+          url,
+          mimeType,
+          metadata {
+            lqip,
+            dimensions {
+              width,
+              height
+            }
+          }
+        }
+      }
+    },
   }
 `;
 

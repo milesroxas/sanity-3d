@@ -1,25 +1,34 @@
 'use client';
+import PortableTextRenderer from '@/components/portable-text-renderer';
 import { cn } from '@/lib/utils';
 import { urlFor } from '@/sanity/lib/image';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import Image from 'next/image';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 export default function TeamCard({
   className,
   title,
   excerpt,
   image,
+  bio,
+  email,
+  onClick,
 }: Partial<{
   className: string;
   title: string;
   excerpt: string;
   image: any;
+  bio: any;
+  email: string;
+  onClick?: () => void;
 }>) {
   const cardRef = useRef<HTMLDivElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+
   useGSAP(
     () => {
       const cardElement = cardRef.current;
@@ -44,9 +53,11 @@ export default function TeamCard({
 
       const handleMouseEnter = () => {
         tl.play();
+        setIsHovered(true);
       };
       const handleMouseLeave = () => {
         tl.reverse();
+        setIsHovered(false);
       };
 
       cardElement.addEventListener('mouseenter', handleMouseEnter);
@@ -67,8 +78,16 @@ export default function TeamCard({
   );
 
   return (
-    <div className={cn('flex w-full flex-col justify-between', className)} ref={cardRef}>
-      <div className="mb-2 rounded-md bg-muted">
+    <div
+      className={cn(
+        'flex w-full cursor-pointer flex-col justify-between rounded-lg transition-all duration-300',
+        isHovered ? 'translate-y-[-5px] transform shadow-lg' : 'shadow',
+        className
+      )}
+      ref={cardRef}
+      onClick={onClick}
+    >
+      <div className="overflow-hidden rounded-t-lg bg-muted">
         {image && image.asset?._id && (
           <div ref={imageContainerRef} className="image-container relative aspect-square">
             <Image
@@ -80,7 +99,7 @@ export default function TeamCard({
               fill
               style={{
                 objectFit: 'cover',
-                transformOrigin: 'bottom left',
+                transformOrigin: 'center center',
                 scale: 1.1,
               }}
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
@@ -89,13 +108,32 @@ export default function TeamCard({
           </div>
         )}
       </div>
-      <div>
+      <div className="flex-grow p-4">
         {title && (
-          <div className="flex items-center justify-between">
+          <div className="mb-1 flex items-center justify-between">
             <h3 className="text-xl font-medium text-card-foreground">{title}</h3>
           </div>
         )}
-        {excerpt && <p className="text-sm text-muted-foreground">{excerpt}</p>}
+        {excerpt && <p className="mb-2 text-sm text-muted-foreground">{excerpt}</p>}
+        {email && (
+          <p className="mb-3 text-sm text-primary">
+            <a href={`mailto:${email}`} onClick={e => e.stopPropagation()}>
+              {email}
+            </a>
+          </p>
+        )}
+        {bio && (
+          <div className="max-h-24 overflow-hidden">
+            {typeof bio === 'string' ? (
+              <p className="line-clamp-3 text-sm text-muted-foreground">{bio}</p>
+            ) : (
+              <div className="line-clamp-3 text-sm text-muted-foreground">
+                <PortableTextRenderer value={bio} variant="compact" />
+              </div>
+            )}
+          </div>
+        )}
+        <div className="mt-3 text-sm font-medium text-primary">Click to view full profile</div>
       </div>
     </div>
   );
