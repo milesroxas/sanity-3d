@@ -18,7 +18,6 @@ type TeamMember = {
 type SelectedMember = TeamMember | null;
 
 export default function TeamPageClient({
-  member,
   teamMembers,
 }: {
   member: TeamMember | null;

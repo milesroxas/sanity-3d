@@ -1,5 +1,4 @@
 'use client';
-import PortableTextRenderer from '@/components/portable-text-renderer';
 import { cn } from '@/lib/utils';
 import { urlFor } from '@/sanity/lib/image';
 import { useGSAP } from '@gsap/react';
@@ -80,16 +79,18 @@ export default function TeamCard({
   return (
     <div
       className={cn(
-        'flex w-full cursor-pointer flex-col justify-between rounded-lg transition-all duration-300',
-        isHovered ? 'translate-y-[-5px] transform shadow-lg' : 'shadow',
+        'flex w-full cursor-pointer flex-col justify-between transition-all duration-300',
         className
       )}
       ref={cardRef}
       onClick={onClick}
     >
-      <div className="overflow-hidden rounded-t-lg bg-muted">
+      <div className="mb-2 rounded-md bg-muted">
         {image && image.asset?._id && (
-          <div ref={imageContainerRef} className="image-container relative aspect-square">
+          <div
+            ref={imageContainerRef}
+            className="image-container relative aspect-square bg-slate-100"
+          >
             <Image
               ref={imageRef}
               src={urlFor(image.asset).url()}
@@ -99,7 +100,7 @@ export default function TeamCard({
               fill
               style={{
                 objectFit: 'cover',
-                transformOrigin: 'center center',
+                transformOrigin: 'bottom left',
                 scale: 1.1,
               }}
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
@@ -108,32 +109,13 @@ export default function TeamCard({
           </div>
         )}
       </div>
-      <div className="flex-grow p-4">
+      <div>
         {title && (
-          <div className="mb-1 flex items-center justify-between">
+          <div className="flex items-center justify-between">
             <h3 className="text-xl font-medium text-card-foreground">{title}</h3>
           </div>
         )}
-        {excerpt && <p className="mb-2 text-sm text-muted-foreground">{excerpt}</p>}
-        {email && (
-          <p className="mb-3 text-sm text-primary">
-            <a href={`mailto:${email}`} onClick={e => e.stopPropagation()}>
-              {email}
-            </a>
-          </p>
-        )}
-        {bio && (
-          <div className="max-h-24 overflow-hidden">
-            {typeof bio === 'string' ? (
-              <p className="line-clamp-3 text-sm text-muted-foreground">{bio}</p>
-            ) : (
-              <div className="line-clamp-3 text-sm text-muted-foreground">
-                <PortableTextRenderer value={bio} variant="compact" />
-              </div>
-            )}
-          </div>
-        )}
-        <div className="mt-3 text-sm font-medium text-primary">Click to view full profile</div>
+        {excerpt && <p className="mb-2 text-sm">{excerpt}</p>}
       </div>
     </div>
   );

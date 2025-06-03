@@ -24,6 +24,7 @@ export default async function TeamPage() {
 
   return (
     <>
+      <Blocks blocks={page.blocks} />
       <TeamPageClient
         member={
           member
@@ -46,7 +47,6 @@ export default async function TeamPage() {
           slug: post.slug,
         }))}
       />
-      <Blocks blocks={page.blocks} />
     </>
   );
 }
