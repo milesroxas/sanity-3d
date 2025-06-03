@@ -67,10 +67,12 @@ const dialogVariants = cva(
           'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] ' +
           'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
         full:
-          'inset-0 w-screen h-screen duration-1000 ' +
+          'inset-0 w-full h-full max-h-[90vh]  max-w-[80%]  left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]  duration-1000' +
           'data-[state=open]:zoom-in-95 ' +
           'data-[state=closed]:duration-1000 ' +
           'data-[state=closed]:zoom-out-95 ' +
+          'data-[state=closed]:slide-out-to-left-1/2  ' +
+          'data-[state=open]:slide-in-from-left-1/2 ' +
           'data-[state=open]: animate-in data-[state=closed]:animate-out ' +
           'data-[state=closed]:duration-1000 ' +
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 ',

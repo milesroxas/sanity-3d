@@ -119,38 +119,19 @@ export default function TeamModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogOverlay className="bg-black" />
+      <DialogOverlay className="bg-black/50" />
       <DialogContent
         size="full"
-        className="overflow-hidden bg-black p-0 text-white"
+        className="bg-black p-0 text-white"
         ref={modalRef}
         onWheel={handleWheel}
       >
         <div className="grid h-full grid-cols-1 md:grid-cols-2">
-          {/* ── IMAGE COLUMN ── */}
-          <div className="flex flex-col justify-end pr-8">
-            {image && image.asset?._id && (
-              <div className="relative mx-auto aspect-square max-h-[80vh] w-11/12 max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
-                <Image
-                  ref={imageRef}
-                  src={urlFor(image.asset).url()}
-                  alt={image.alt || title}
-                  placeholder={image?.asset?.metadata?.lqip ? 'blur' : undefined}
-                  blurDataURL={image?.asset?.metadata?.lqip || ''}
-                  fill
-                  style={{ objectFit: 'cover' }}
-                  quality={100}
-                />
-              </div>
-            )}
-          </div>
-
           {/* ── CONTENT COLUMN ── */}
           <div ref={contentRef} className="flex flex-col justify-center p-8">
             <ScrollArea
               ref={scrollAreaRef}
               className="max-h-[80vh] overflow-y-auto pb-8"
-              // We still stopPropagation here so the ScrollArea's own wheel logic takes precedence.
               onWheel={e => e.stopPropagation()}
             >
               <DialogHeader className="mb-6">
@@ -169,6 +150,24 @@ export default function TeamModal({
                 </div>
               )}
             </ScrollArea>
+          </div>
+
+          {/* ── IMAGE COLUMN ── */}
+          <div className="flex flex-col justify-end pl-12">
+            {image && image.asset?._id && (
+              <div className="relative bottom-[1px] right-[-100px] aspect-square w-11/12 max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
+                <Image
+                  ref={imageRef}
+                  src={urlFor(image.asset).url()}
+                  alt={image.alt || title}
+                  placeholder={image?.asset?.metadata?.lqip ? 'blur' : undefined}
+                  blurDataURL={image?.asset?.metadata?.lqip || ''}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  quality={100}
+                />
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>
