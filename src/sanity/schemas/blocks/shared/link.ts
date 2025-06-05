@@ -19,6 +19,11 @@ export default defineType({
           type: 'reference',
           to: [{ type: 'page' }],
         }),
+        defineField({
+          name: 'buttonVariant',
+          type: 'button-variant',
+          title: 'Button Variant',
+        }),
       ],
     },
     {
@@ -60,6 +65,11 @@ export default defineType({
           name: 'services',
           type: 'reference',
           to: [{ type: 'services' }],
+        }),
+        defineField({
+          name: 'buttonVariant',
+          type: 'button-variant',
+          title: 'Button Variant',
         }),
       ],
     },

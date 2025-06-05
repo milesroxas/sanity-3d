@@ -56,14 +56,23 @@ export const featuredContentOffsetQuery = groq`
         }
       }
     },
+    
     links[] {
       ...,
-      _type,
-      _type == 'reference' => @->{_id, _type, title, slug},
+      _type == 'pageLink' => {
+        ...,
+        page->{_id, _type, title, slug},
+        buttonVariant
+      },
       _type == 'customLink' => {
         ...,
         buttonVariant
-      }
+      },
+      _type == 'servicesLink' => {
+        ...,
+        services->{_id, _type, title, slug},
+        buttonVariant
+      },
     },
     testimonials[] {
       ...,

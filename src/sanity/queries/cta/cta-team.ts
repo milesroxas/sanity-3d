@@ -36,7 +36,11 @@ export const ctaTeamQuery = groq`
       },
       _type == 'customLink' => {
         ...
-      }
+      },
+      _type == 'servicesLink' => {
+        ...,
+        services->{_id, _type, title, slug}
+      },
     },
   },
 `;

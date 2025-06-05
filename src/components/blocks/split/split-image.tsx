@@ -20,7 +20,7 @@ export default function SplitImage({ image, styleVariant }: Partial<SplitImagePr
       className={cn(
         'relative overflow-hidden rounded-sm will-change-transform',
         isOffset
-          ? 'h-[25rem] w-full max-w-full sm:h-[30rem] md:h-[25rem] lg:h-[calc(100%+8rem)]'
+          ? 'h-[25rem] w-full max-w-full rounded-md sm:h-[30rem] md:h-[30rem] lg:h-[calc(100%)] lg:shadow-lg'
           : 'h-[25rem] w-full sm:h-[30rem] md:h-[35rem] lg:h-[40rem]'
       )}
     >

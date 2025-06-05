@@ -11,25 +11,30 @@ export default defineType({
     defineField({
       name: 'padding',
       type: 'section-padding',
+      initialValue: 'small',
     }),
     defineField({
       name: 'direction',
       type: 'direction',
+      initialValue: 'both',
     }),
     defineField({
       name: 'colorVariant',
       type: 'color-variant',
       description: 'Select a background color variant',
+      initialValue: 'background',
     }),
     defineField({
       name: 'styleVariant',
       type: 'style-variant',
       description: 'Select a style variant',
+      initialValue: 'default',
     }),
     defineField({
       name: 'themeVariant',
       type: 'theme-variant',
       description: 'Select a theme variant',
+      initialValue: 'light',
     }),
     defineField({
       name: 'noGap',

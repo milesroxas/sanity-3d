@@ -11,7 +11,6 @@ import { createElement } from 'react';
 export interface SplitContentProps {
   sticky: boolean;
   color: ISectionContainerProps['color'];
-  colorVariant: ISectionContainerProps['color'];
   styleVariant: ISectionContainerProps['style'];
   themeVariant: ISectionContainerProps['theme'];
   padding: ISectionPadding;
@@ -38,56 +37,14 @@ export default function SplitContent({
   const theme = stegaClean(themeVariant);
   const isOffset = style === 'offset';
   const isDark = theme === 'dark';
-  const bgColor = stegaClean(color) || 'background';
-
-  // Helper function to get padding classes based on size
-  const getPaddingClasses = (size: ISectionPadding['padding']) => {
-    switch (size) {
-      case 'none':
-        return { top: '', bottom: '' };
-      case 'small':
-        return { top: 'pt-8 xl:pt-16', bottom: 'pb-8 xl:pb-16' };
-      case 'medium':
-        return { top: 'pt-16 xl:pt-24', bottom: 'pb-16 xl:pb-24' };
-      case 'large':
-        return { top: 'pt-24 xl:pt-32', bottom: 'pb-24 xl:pb-32' };
-      case 'xlarge':
-        return { top: 'pt-32 xl:pt-48', bottom: 'pb-32 xl:pb-48' };
-      default:
-        return { top: '', bottom: '' };
-    }
-  };
-
-  // Apply padding based on direction if padding is provided
-  const paddingClasses = padding ? getPaddingClasses(padding.padding) : { top: '', bottom: '' };
-
-  const paddingTopClass =
-    padding && (padding.direction === 'top' || padding.direction === 'both')
-      ? paddingClasses.top
-      : '';
-
-  const paddingBottomClass =
-    padding && (padding.direction === 'bottom' || padding.direction === 'both')
-      ? paddingClasses.bottom
-      : '';
 
   return (
-    <div
-      className={cn(
-        !sticky ? 'flex flex-col items-center justify-center' : 'flex flex-col items-center',
-        paddingTopClass,
-        paddingBottomClass,
-        'w-full'
-      )}
-    >
+    <div className={cn('w-full', isOffset && 'lg:w-full')}>
       <div
         className={cn(
-          'flex flex-col items-start will-change-transform',
-          sticky ? 'lg:sticky lg:top-56' : undefined,
-          noGap ? 'px-10' : undefined,
-          isOffset ? 'lg:max-w-[500px] lg:rounded-md lg:p-16' : 'lg:max-w-[550px]',
-          isOffset ? `lg:bg-${bgColor}/10 lg:shadow-lg lg:backdrop-blur-sm` : undefined,
-          isOffset && isDark ? 'lg:bg-black/70' : undefined
+          'flex flex-col items-start',
+          !isOffset && 'lg:max-w-[550px]',
+          !isOffset && sticky ? 'lg:sticky lg:top-56' : undefined
         )}
       >
         {tagLine && (
@@ -97,7 +54,7 @@ export default function SplitContent({
           createElement(
             tagLine ? 'h3' : 'h2',
             {
-              className: cn('my-4 font-semibold leading-[1.2] text-4xl'),
+              className: cn('my-4 font-bold leading-[1.2] text-4xl text-card-foreground'),
             },
             title
           )}

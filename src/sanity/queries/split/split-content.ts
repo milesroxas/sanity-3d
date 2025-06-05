@@ -5,7 +5,7 @@ export const splitContentQuery = groq`
     _type,
     sticky,
     padding,
-    colorVariant,
+    themeVariant,
     tagLine,
     title,
     body[]{

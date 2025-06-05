@@ -14,5 +14,5 @@ export const themeVariant = defineType({
     list: THEME_VARIANTS.map(({ title, value }) => ({ title, value })),
     layout: 'dropdown',
   },
-  initialValue: 'background',
+  initialValue: 'light',
 });

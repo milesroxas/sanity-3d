@@ -20,9 +20,9 @@ export default defineType({
       type: 'section-padding',
     }),
     defineField({
-      name: 'colorVariant',
-      type: 'color-variant',
-      description: 'Select a background color variant',
+      name: 'themeVariant',
+      type: 'theme-variant',
+      description: 'Select a theme variant',
     }),
     defineField({
       name: 'tagLine',
