@@ -1,184 +1,75 @@
 'use client';
-
 import { Button } from '@/components/ui/button';
-import { CustomCursor } from '@/components/ui/Cursor';
-import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import { R3FProvider } from '@/experience/providers/R3FContext';
 import gsap from 'gsap';
-import { useTheme } from 'next-themes';
-import Image from 'next/image';
+import { Leva } from 'leva';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useRef, useState } from 'react';
-
-interface AnimationRefs {
-  background: React.RefObject<HTMLDivElement | null>;
-  content: React.RefObject<HTMLDivElement | null>;
-  logo: React.RefObject<HTMLDivElement | null>;
-  text: React.RefObject<HTMLParagraphElement | null>;
-  button: React.RefObject<HTMLDivElement | null>;
-}
+import { useEffect, useRef, useState } from 'react';
+import LandingWrapper from './LandingWrapper';
+const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === 'development';
 
 export default function LandingPage() {
   const router = useRouter();
-  const { setSelectedScene } = useLogoMarkerStore();
-  const [isExiting, setIsExiting] = useState(false);
-  const { setTheme } = useTheme();
-  useEffect(() => {
-    setTheme('light');
-  }, [setTheme]);
+
   // Refs for animation targets
-  const refs: AnimationRefs = {
-    background: useRef<HTMLDivElement>(null),
-    content: useRef<HTMLDivElement>(null),
-    logo: useRef<HTMLDivElement>(null),
-    text: useRef<HTMLParagraphElement>(null),
-    button: useRef<HTMLDivElement>(null),
-  };
+  const logoRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLParagraphElement>(null);
+  const buttonRef = useRef<HTMLDivElement>(null);
 
-  // Load-in animation
+  const [isExiting, setIsExiting] = useState(false);
+
+  // Prevent scrolling on landing page
   useEffect(() => {
-    // Set initial states
-    gsap.set(refs.background.current, {
-      opacity: 0,
-      scale: 1.1,
-    });
-    gsap.set([refs.logo.current, refs.text.current, refs.button.current], {
-      opacity: 0,
-      y: 30,
-    });
+    // Save original styles
+    const originalOverflow = document.body.style.overflow;
+    const originalHeight = document.body.style.height;
 
-    // Create entrance animation
-    const tl = gsap.timeline({
-      defaults: { ease: 'power3.out' },
-    });
+    // Apply no-scroll styles
+    document.body.style.overflow = 'hidden';
+    document.body.style.height = '100vh';
 
-    tl.to(refs.background.current, {
-      opacity: 1,
-      scale: 1,
-      duration: 1.5,
-    })
-      .to(
-        refs.logo.current,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-        },
-        '-=1.3'
-      )
-      .to(
-        refs.text.current,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-        },
-        '-=1.2'
-      )
-      .to(
-        refs.button.current,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-        },
-        '-=1.1'
-      );
-
+    // Cleanup on unmount
     return () => {
-      tl.kill();
+      document.body.style.overflow = originalOverflow;
+      document.body.style.height = originalHeight;
     };
   }, []);
 
-  const createExitAnimation = () => {
-    // Reset selected scene before navigation
-    setSelectedScene(null);
+  const handleClick = () => {
+    setIsExiting(true);
 
+    // Create exit animation
     const tl = gsap.timeline({
       onComplete: () => router.push('/experience'),
     });
 
-    // Fade out UI elements while background zooms
-    tl.to([refs.button.current, refs.text.current, refs.logo.current], {
+    // Fade out UI elements
+    tl.to([buttonRef.current, textRef.current, logoRef.current], {
       opacity: 0,
+      y: -20,
       duration: 0.8,
       ease: 'power2.inOut',
-    })
-      .to(
-        refs.background.current,
-        {
-          scale: 1.05,
-          duration: 1.5,
-          ease: 'power3.out',
-        },
-        '<'
-      )
-      // Start moving down
-      .to(
-        refs.background.current,
-        {
-          y: 300,
-          duration: 1.2,
-          ease: 'power2.in',
-        },
-        '-=0.8'
-      )
-      // Fade out with a slight delay after movement starts
-      .to(
-        refs.background.current,
-        {
-          opacity: 0,
-          duration: 1.2,
-          ease: 'power3.inOut',
-        },
-        '-=0.8'
-      );
-
-    return tl;
-  };
-
-  const handleClick = async () => {
-    setIsExiting(true);
-    createExitAnimation();
+      stagger: 0.1,
+    });
   };
 
   return (
-    <div className="fixed inset-0">
-      <CustomCursor />
-      {/* Background Layer */}
-      <div
-        ref={refs.background}
-        className="absolute inset-0"
-        style={{
-          backgroundImage: 'url("/images/fpo-home-bg.jpg")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'bottom',
-          backgroundRepeat: 'no-repeat',
-        }}
-      />
-
-      <div className="container relative top-[15vh] z-30 flex h-full justify-center">
-        <div className="flex flex-col items-center gap-12">
-          <div ref={refs.logo}>
-            <Image
-              className="h-auto w-auto"
-              src="/images/logo.webp"
-              alt="O'Linn Security Inc."
-              width={100}
-              height={100}
-              priority
-            />
-          </div>
-          <p ref={refs.text} className="max-w-lg text-center text-xl">
-            With over 38 years of experience, O'Linn Security Inc. offers comprehensive security
-            solutions tailored to your needs.
-          </p>
-          <div ref={refs.button}>
+    <R3FProvider>
+      <LandingWrapper>
+        {/* Your HTML content here */}
+        <div className="max-w-full text-white">
+          <h1 className="mb-4 text-4xl font-bold">Welcome to Our 3D Experience</h1>
+          <p className="mb-6">Explore our interactive 3D world and discover our services.</p>
+          <div ref={buttonRef}>
             <Button size="lg" onClick={handleClick}>
               ENTER EXPERIENCE
             </Button>
           </div>
         </div>
-      </div>
-    </div>
+      </LandingWrapper>
+
+      {/* Hide Leva in production, show in development */}
+      <Leva hidden={isProduction} />
+    </R3FProvider>
   );
 }

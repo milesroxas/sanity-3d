@@ -4,6 +4,7 @@ import { Canvas } from '@react-three/fiber';
 import { createContext, ReactNode, Suspense, useContext, useState } from 'react';
 import { Loading } from '../components/Loading';
 import { usePerfStore } from '../scenes/store/perfStore';
+
 type R3FContextType = {
   setR3FContent: (content: ReactNode) => void;
 };
@@ -28,7 +29,6 @@ export function R3FProvider({ children }: { children: ReactNode }) {
           <Loading />
           <Canvas
             camera={{ far: 1000 }}
-            performance={{ min: 0.5, max: 1.0 }}
             gl={{
               antialias: true,
             }}
@@ -38,7 +38,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
               onIncline={() => usePerfStore.getState().setDeclined(false)}
               onChange={({ factor }) => usePerfStore.getState().setDprFactor(factor)}
             >
-              <Suspense>{r3fContent}</Suspense>
+              <Suspense fallback={null}>{r3fContent}</Suspense>
             </PerformanceMonitor>
           </Canvas>
         </div>

@@ -28,6 +28,4 @@ export default async function Page({ searchParams }: PageProps) {
   if (!page) {
     return MissingSanityPage({ document: 'page', slug: 'index' });
   }
-
-  return;
 }
