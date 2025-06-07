@@ -24,15 +24,6 @@ import { Ground } from './components/Ground';
 import { SceneEnvironment } from './components/SceneEnvironment';
 import { useLandingCameraStore } from './store/landingCameraStore';
 
-interface Video {
-  asset: {
-    _id: string;
-    playbackId: string;
-    assetId: string;
-    filename: string;
-  };
-}
-
 interface ResponsivePositions {
   camera: {
     start: Vector3;
@@ -283,7 +274,11 @@ const LandingScene = forwardRef<
     setAnimating(true);
 
     // Create a black material we can fade in
-    const blackMaterial = new MeshBasicMaterial({ color: 'black', transparent: true, opacity: 0 });
+    const overlayMaterial = new MeshBasicMaterial({
+      color: 'white',
+      transparent: true,
+      opacity: 0,
+    });
 
     // Access camera store for the proper transition
     const cameraStore = useCameraStore.getState();
@@ -324,26 +319,26 @@ const LandingScene = forwardRef<
         },
         '-=0.4'
       )
-      // Fade in black overlay when camera is 75% through its movement
+      // Fade in overlay when camera is 75% through its movement
       .to(
-        blackMaterial,
+        overlayMaterial,
         {
           opacity: 1,
           duration: 0.8,
           ease: 'power2.inOut',
           onUpdate: () => {
             // Update the material opacity in the scene
-            blackMaterial.opacity = blackMaterial.opacity;
+            overlayMaterial.opacity = overlayMaterial.opacity;
           },
         },
         '-=1.5' // Start fading when the camera is 75% through its movement
       );
 
-    // Add a full-screen black plane that we can fade in
-    const blackPlane = new Mesh(new PlaneGeometry(100, 100), blackMaterial);
-    blackPlane.position.z = -10;
-    blackPlane.renderOrder = 999; // Ensure it renders on top
-    cameraRef.current?.add(blackPlane);
+    // Add a full-screen overlay plane that we can fade in
+    const overlayPlane = new Mesh(new PlaneGeometry(100, 100), overlayMaterial);
+    overlayPlane.position.z = -10;
+    overlayPlane.renderOrder = 999; // Ensure it renders on top
+    cameraRef.current?.add(overlayPlane);
   };
 
   // GSAP entrance animation
@@ -512,7 +507,7 @@ const LandingScene = forwardRef<
 
       {fadeOverlay && (
         <Html fullscreen>
-          <div className="absolute inset-0 bg-black opacity-100 transition-opacity duration-500">
+          <div className="absolute inset-0 bg-white opacity-100 transition-opacity duration-500">
             {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center text-white">

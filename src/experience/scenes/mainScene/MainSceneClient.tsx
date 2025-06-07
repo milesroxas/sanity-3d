@@ -30,7 +30,7 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
       // Then set the content and make it visible
       setR3FContent(<MainScene scene={scene} />);
       setIsReady(true);
-    }, 100);
+    }, 10);
 
     // Cleanup when unmounting
     return () => {

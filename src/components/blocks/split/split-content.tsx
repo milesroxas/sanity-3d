@@ -74,7 +74,7 @@ export default function SplitContent({
           <div className="flex w-full max-w-md gap-3">
             {links.slice(0, 2).map((link, index) => (
               <LinkButtons
-                key={index}
+                key={link._key || `link-${index}`}
                 links={[link]}
                 size="sm"
                 direction="column"

@@ -135,8 +135,8 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       postprocessing:
-        specifier: ^6.37.3
-        version: 6.37.3(three@0.175.0)
+        specifier: ^6.37.4
+        version: 6.37.4(three@0.175.0)
       react:
         specifier: 19.0.0
         version: 19.0.0
@@ -161,6 +161,9 @@ importers:
       sanity-plugin-mux-input:
         specifier: ^2.8.0
         version: 2.8.0(@emotion/is-prop-valid@1.2.2)(@types/react-dom@19.1.6(@types/react@19.1.6))(@types/react@19.1.6)(react-dom@19.0.0(react@19.0.0))(react-is@18.3.1)(react@19.0.0)(sanity@3.91.0(@emotion/is-prop-valid@1.2.2)(@types/node@22.15.30)(@types/react@19.1.6)(immer@10.1.1)(jiti@1.21.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(styled-components@6.1.18(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(terser@5.37.0)(typescript@5.8.3)(yaml@2.8.0))(styled-components@6.1.18(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
+      sanitycms:
+        specifier: 'link:'
+        version: 'link:'
       sonner:
         specifier: ^1.7.4
         version: 1.7.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -183,8 +186,8 @@ importers:
         specifier: ^2.36.0
         version: 2.36.0(three@0.175.0)
       zod:
-        specifier: ^3.25.55
-        version: 3.25.55
+        specifier: ^3.25.56
+        version: 3.25.56
       zustand:
         specifier: ^5.0.5
         version: 5.0.5(@types/react@19.1.6)(immer@10.1.1)(react@19.0.0)(use-sync-external-store@1.5.0(react@19.0.0))
@@ -3405,8 +3408,8 @@ packages:
   castable-video@1.0.10:
     resolution: {integrity: sha512-tJgUv+8/zE191y8EKojvB0eKIyKA9obIttd6Wpdm6x2qBmuwZ7wDgzVCSmf5cN2v9jBiuu0s7O5poz8a8cFX/w==}
 
-  castable-video@1.1.8:
-    resolution: {integrity: sha512-86xTxbVoIIX0gnorM10pl7ScdELdqPTMInvzSjQM/YbMxq7ml7OosCMYbZi0O4bZwgsN3Dq75o+XLb0q6dGtIA==}
+  castable-video@1.1.9:
+    resolution: {integrity: sha512-ZVU+z0UPwnG6vk9PG/gECLRIKtoQrmuWgauOiWMqKiqw7azibYBszCZtsgjOmRoeDWtAqKkN8iKlVnLGk91FRw==}
 
   ce-la-react@0.1.3:
     resolution: {integrity: sha512-zZwEEJv9XukeEGbswQXObaDJjYAufOIilSnDg4BWCpKNEYN84H9fpaB+wl+rYKWOIH4wBBPbLnOxKvDIwsL/JQ==}
@@ -3665,8 +3668,8 @@ packages:
   custom-media-element@1.3.3:
     resolution: {integrity: sha512-5Tenv3iLP8ZiLHcT0qSyfDPrqzkCMxczeLY7cTndbsMF7EkVgL/74a6hxNrn/F6RuD74TLK6R2r0GsmntTTtRg==}
 
-  custom-media-element@1.4.3:
-    resolution: {integrity: sha512-6DAQAC9VfpdUEc684Kr1Uvw+49vKUY3+hAQcBrqMNL577PeA8eM8YgpOmbySoTZ517EIqSVFrXH2nu8gqFJS4g==}
+  custom-media-element@1.4.4:
+    resolution: {integrity: sha512-y9iMXNeRm0Tt+567KJ/zJZR6UEqbpettWbfGaSpLpGJu6kSak6koMnwCF53a4FlqIdi9iRbsspj9IY266egAfQ==}
 
   cyclist@1.0.2:
     resolution: {integrity: sha512-0sVXIohTfLqVIW3kb/0n6IiWF3Ifj5nm2XaSrLq2DI6fKIGa2fYAZdk917rUneaeLVpYfFcyXE2ft0fe3remsA==}
@@ -5938,10 +5941,10 @@ packages:
     resolution: {integrity: sha512-QSa9EBe+uwlGTFmHsPKokv3B/oEMQZxfqW0QqNCyhpa6mB1afzulwn8hihglqAb2pOw+BJgNlmXQ8la2VeHB7w==}
     engines: {node: ^10 || ^12 || >=14}
 
-  postprocessing@6.37.3:
-    resolution: {integrity: sha512-2FzfZg41Ml/ddvSalLdCz7H53Wmr/ZvK238fauTG1CI97+65BDgo1dNH6AKhAWc5q9ngpyG5EYiXVbNCl2t1iA==}
+  postprocessing@6.37.4:
+    resolution: {integrity: sha512-O4dv29MDRSjXgMF1Luz3YHlT7NawKIliCfO2OgUCtIMTLNMCg+v0RLuT9/LQSDtVNXxUHGyy3mucbF3UePcElA==}
     peerDependencies:
-      three: '>= 0.157.0 < 0.177.0'
+      three: '>= 0.157.0 < 0.178.0'
 
   potpack@1.0.2:
     resolution: {integrity: sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ==}
@@ -6669,6 +6672,10 @@ packages:
 
   statuses@2.0.1:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
+    engines: {node: '>= 0.8'}
+
+  statuses@2.0.2:
+    resolution: {integrity: sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw==}
     engines: {node: '>= 0.8'}
 
   stdin-discarder@0.2.2:
@@ -7509,8 +7516,8 @@ packages:
     peerDependencies:
       zod: ^3.24.1
 
-  zod@3.25.55:
-    resolution: {integrity: sha512-219huNnkSLQnLsQ3uaRjXsxMrVm5C9W3OOpEVt2k5tvMKuA8nBSu38e0B//a+he9Iq2dvmk2VyYVlHqiHa4YBA==}
+  zod@3.25.56:
+    resolution: {integrity: sha512-rd6eEF3BTNvQnR2e2wwolfTmUTnp70aUTqr0oaGbHifzC3BKJsoV+Gat8vxUMR1hwOKBs6El+qWehrHbCpW6SQ==}
 
   zustand@3.7.2:
     resolution: {integrity: sha512-PIJDIZKtokhof+9+60cpockVOq05sJzHCriyvaLBmEJixseQ1a5Kdov6fWZfWOu5SK9c+FhH1jU0tntLxRJYMA==}
@@ -8947,8 +8954,8 @@ snapshots:
       express-rate-limit: 7.5.0(express@5.1.0)
       pkce-challenge: 5.0.0
       raw-body: 3.0.0
-      zod: 3.25.55
-      zod-to-json-schema: 3.24.5(zod@3.25.55)
+      zod: 3.25.56
+      zod-to-json-schema: 3.24.5(zod@3.25.56)
     transitivePeerDependencies:
       - supports-color
 
@@ -9008,8 +9015,8 @@ snapshots:
   '@mux/mux-video@0.25.2':
     dependencies:
       '@mux/playback-core': 0.29.0
-      castable-video: 1.1.8
-      custom-media-element: 1.4.3
+      castable-video: 1.1.9
+      custom-media-element: 1.4.4
       media-tracks: 0.3.3
 
   '@mux/playback-core@0.25.2':
@@ -9836,8 +9843,8 @@ snapshots:
     dependencies:
       '@react-three/fiber': 9.1.1(@types/react@19.1.6)(immer@10.1.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)
       maath: 0.6.0(@types/three@0.170.0)(three@0.175.0)
-      n8ao: 1.10.0(postprocessing@6.37.3(three@0.175.0))(three@0.175.0)
-      postprocessing: 6.37.3(three@0.175.0)
+      n8ao: 1.10.0(postprocessing@6.37.4(three@0.175.0))(three@0.175.0)
+      postprocessing: 6.37.4(three@0.175.0)
       react: 19.0.0
       three: 0.175.0
     transitivePeerDependencies:
@@ -9999,7 +10006,7 @@ snapshots:
       groq-js: 1.17.0
       json5: 2.2.3
       tsconfig-paths: 4.2.0
-      zod: 3.25.55
+      zod: 3.25.56
     transitivePeerDependencies:
       - supports-color
 
@@ -11280,9 +11287,9 @@ snapshots:
     dependencies:
       custom-media-element: 1.3.3
 
-  castable-video@1.1.8:
+  castable-video@1.1.9:
     dependencies:
-      custom-media-element: 1.4.3
+      custom-media-element: 1.4.4
 
   ce-la-react@0.1.3(react@19.0.0):
     dependencies:
@@ -11539,7 +11546,7 @@ snapshots:
 
   custom-media-element@1.3.3: {}
 
-  custom-media-element@1.4.3: {}
+  custom-media-element@1.4.4: {}
 
   cyclist@1.0.2: {}
 
@@ -12246,7 +12253,7 @@ snapshots:
       router: 2.2.0
       send: 1.2.0
       serve-static: 2.2.0
-      statuses: 2.0.1
+      statuses: 2.0.2
       type-is: 2.0.1
       vary: 1.1.2
     transitivePeerDependencies:
@@ -12356,7 +12363,7 @@ snapshots:
       escape-html: 1.0.3
       on-finished: 2.4.1
       parseurl: 1.3.3
-      statuses: 2.0.1
+      statuses: 2.0.2
     transitivePeerDependencies:
       - supports-color
 
@@ -13536,9 +13543,9 @@ snapshots:
       object-assign: 4.1.1
       thenify-all: 1.6.0
 
-  n8ao@1.10.0(postprocessing@6.37.3(three@0.175.0))(three@0.175.0):
+  n8ao@1.10.0(postprocessing@6.37.4(three@0.175.0))(three@0.175.0):
     dependencies:
-      postprocessing: 6.37.3(three@0.175.0)
+      postprocessing: 6.37.4(three@0.175.0)
       three: 0.175.0
 
   nano-pubsub@3.0.0: {}
@@ -14006,7 +14013,7 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  postprocessing@6.37.3(three@0.175.0):
+  postprocessing@6.37.4(three@0.175.0):
     dependencies:
       three: 0.175.0
 
@@ -14770,7 +14777,7 @@ snapshots:
       ms: 2.1.3
       on-finished: 2.4.1
       range-parser: 1.2.1
-      statuses: 2.0.1
+      statuses: 2.0.2
     transitivePeerDependencies:
       - supports-color
 
@@ -14988,6 +14995,8 @@ snapshots:
   stats.js@0.17.0: {}
 
   statuses@2.0.1: {}
+
+  statuses@2.0.2: {}
 
   stdin-discarder@0.2.2: {}
 
@@ -15862,11 +15871,11 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.7.0
 
-  zod-to-json-schema@3.24.5(zod@3.25.55):
+  zod-to-json-schema@3.24.5(zod@3.25.56):
     dependencies:
-      zod: 3.25.55
+      zod: 3.25.56
 
-  zod@3.25.55: {}
+  zod@3.25.56: {}
 
   zustand@3.7.2(react@19.0.0):
     optionalDependencies:

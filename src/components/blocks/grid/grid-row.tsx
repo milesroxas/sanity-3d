@@ -49,7 +49,7 @@ export default function GridRow({
       : undefined;
 
   return (
-    <SectionContainer color={color} padding={sectionPadding} key={_key}>
+    <SectionContainer color={color} padding={sectionPadding}>
       {columns && columns?.length > 0 && (
         <div className={cn(`grid grid-cols-1 gap-6`, `lg:${stegaClean(gridColumns)}`)}>
           {columns.map((block: Sanity.Block) => {

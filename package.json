@@ -55,7 +55,7 @@
     "next": "15.3.3",
     "next-sanity": "^9.12.0",
     "next-themes": "^0.4.6",
-    "postprocessing": "^6.37.3",
+    "postprocessing": "^6.37.4",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-hook-form": "^7.57.0",
@@ -64,6 +64,7 @@
     "rxjs": "^7.8.2",
     "sanity": "^3.91.0",
     "sanity-plugin-mux-input": "^2.8.0",
+    "sanitycms": "link:",
     "sonner": "^1.7.4",
     "styled-components": "^6.1.18",
     "tailwind-merge": "^2.6.0",
@@ -71,7 +72,7 @@
     "tempus": "1.0.0-dev.11",
     "three": "^0.175.0",
     "three-stdlib": "^2.36.0",
-    "zod": "^3.25.55",
+    "zod": "^3.25.56",
     "zustand": "^5.0.5"
   },
   "devDependencies": {

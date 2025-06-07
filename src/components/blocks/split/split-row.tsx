@@ -146,6 +146,7 @@ export default function SplitRow({
                       color={color}
                       styleVariant={style}
                       themeVariant={theme}
+                      key={mediaBlock._key}
                     />
                   ) : null;
                 })()}
@@ -178,6 +179,7 @@ export default function SplitRow({
                         color={color}
                         styleVariant={style}
                         themeVariant={theme}
+                        key={contentBlock._key}
                       />
                     ) : null;
                   })()}

@@ -9,7 +9,7 @@ interface VideoModalProps {
 
 export default function VideoModal({ video, onClose }: VideoModalProps) {
   const MuxPlayer = dynamic(() => import('@mux/mux-player-react'), {
-    ssr: false,
+    ssr: true,
     loading: () => (
       <div className="flex h-full w-full items-center justify-center rounded-md bg-black">
         <div className="text-gray-400">Loading video...</div>
@@ -35,6 +35,8 @@ export default function VideoModal({ video, onClose }: VideoModalProps) {
             }}
             theme="dark"
             autoPlay
+            poster=""
+            preload="auto" // Preload video data
             style={{
               height: '100%',
               width: '100%',
