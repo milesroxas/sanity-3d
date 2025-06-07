@@ -4,17 +4,34 @@ import { Button } from '@/components/ui/button';
 import { useGSAP } from '@gsap/react';
 import { Html, PerspectiveCamera } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
+
+import { INITIAL_POSITIONS } from '@/experience/scenes/store/cameraStore';
 import gsap from 'gsap';
 import { useControls } from 'leva';
 import { useRouter } from 'next/navigation';
 import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
-import { PerspectiveCamera as ThreePerspectiveCamera, Vector3 } from 'three';
+import {
+  Mesh,
+  MeshBasicMaterial,
+  PlaneGeometry,
+  PerspectiveCamera as ThreePerspectiveCamera,
+  Vector3,
+} from 'three';
 import { useCameraStore } from '../store/cameraStore';
 import { Billboard } from './components/Billboard';
 import { Effects } from './components/Effects';
 import { Ground } from './components/Ground';
 import { SceneEnvironment } from './components/SceneEnvironment';
 import { useLandingCameraStore } from './store/landingCameraStore';
+
+interface Video {
+  asset: {
+    _id: string;
+    playbackId: string;
+    assetId: string;
+    filename: string;
+  };
+}
 
 interface ResponsivePositions {
   camera: {
@@ -41,7 +58,13 @@ interface Vec3 {
   z: number;
 }
 
-const LandingScene = forwardRef<any>((_, ref) => {
+const LandingScene = forwardRef<
+  any,
+  {
+    modalVideo?: Sanity.Video;
+    portalRef: React.RefObject<HTMLDivElement>;
+  }
+>(({ modalVideo, portalRef }, ref) => {
   const [isReady, setIsReady] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const { resetToInitial } = useCameraStore();
@@ -51,6 +74,8 @@ const LandingScene = forwardRef<any>((_, ref) => {
   const router = useRouter();
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
+  const [fadeOverlay, setFadeOverlay] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Get viewport information for responsive calculations
   const { viewport, size } = useThree();
@@ -255,17 +280,70 @@ const LandingScene = forwardRef<any>((_, ref) => {
 
   // Handle exit animation
   const handleClick = () => {
+    setAnimating(true);
+
+    // Create a black material we can fade in
+    const blackMaterial = new MeshBasicMaterial({ color: 'black', transparent: true, opacity: 0 });
+
+    // Access camera store for the proper transition
+    const cameraStore = useCameraStore.getState();
+
     const tl = gsap.timeline({
-      onComplete: () => router.push('/experience'),
+      onComplete: () => {
+        // Set the camera position to match the main scene starting position
+        // This ensures no awkward camera jump when transitioning scenes
+        cameraStore.setCamera(
+          INITIAL_POSITIONS.mainIntro.position.clone(),
+          INITIAL_POSITIONS.mainIntro.target.clone(),
+          'main'
+        );
+
+        // Set a flag in the store to avoid resetToInitial being called in MainSceneClient
+        cameraStore.setIsLoading(true);
+
+        // Navigate after setting camera state
+        router.push('/experience');
+      },
     });
 
+    // Fade out UI elements first
     tl.to([buttonRef.current, textRef.current], {
       opacity: 0,
       y: -20,
       duration: 0.8,
       ease: 'power2.inOut',
       stagger: 0.1,
-    });
+    })
+      // Start camera movement upward
+      .to(
+        [animatedCamera.current, animatedTarget.current],
+        {
+          y: '+=50',
+          duration: 2,
+          ease: 'power1.inOut',
+        },
+        '-=0.4'
+      )
+      // Fade in black overlay when camera is 75% through its movement
+      .to(
+        blackMaterial,
+        {
+          opacity: 1,
+          duration: 0.8,
+          ease: 'power2.inOut',
+          onUpdate: () => {
+            // Update the material opacity in the scene
+            blackMaterial.opacity = blackMaterial.opacity;
+          },
+        },
+        '-=1.5' // Start fading when the camera is 75% through its movement
+      );
+
+    // Add a full-screen black plane that we can fade in
+    const blackPlane = new Mesh(new PlaneGeometry(100, 100), blackMaterial);
+    blackPlane.position.z = -10;
+    blackPlane.renderOrder = 999; // Ensure it renders on top
+    cameraRef.current?.add(blackPlane);
   };
 
   // GSAP entrance animation
@@ -422,6 +500,8 @@ const LandingScene = forwardRef<any>((_, ref) => {
       <Billboard
         position={currentPositions.billboard.position}
         scale={currentPositions.billboard.scale}
+        modalVideo={modalVideo}
+        portalRef={portalRef}
       />
 
       <Ground />
@@ -429,6 +509,21 @@ const LandingScene = forwardRef<any>((_, ref) => {
         <planeGeometry args={[1000, 1000]} />
         <meshStandardMaterial color="#DCBF9A" transparent opacity={1} />
       </mesh>
+
+      {fadeOverlay && (
+        <Html fullscreen>
+          <div className="absolute inset-0 bg-black opacity-100 transition-opacity duration-500">
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-t-2 border-white"></div>
+                  <p className="text-xl">Loading Experience</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </Html>
+      )}
     </>
   );
 });

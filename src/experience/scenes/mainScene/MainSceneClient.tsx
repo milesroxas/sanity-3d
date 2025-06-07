@@ -16,7 +16,7 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
   const { selectedScene, setSelectedScene } = useLogoMarkerStore();
   const { setR3FContent } = useR3F();
   const [isReady, setIsReady] = useState(false);
-  const { resetToInitial } = useCameraStore();
+  const { resetToInitial, isLoading } = useCameraStore();
 
   useEffect(() => {
     setIsReady(false);
@@ -26,6 +26,12 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
       () => {
         setR3FContent(<MainScene scene={scene} />);
         setIsReady(true);
+
+        // Only call resetToInitial if we're not already in a loading state
+        // This prevents double camera reset when coming from landing page
+        if (!isLoading) {
+          resetToInitial();
+        }
       },
       100 // Consistent delay for state propagation
     );
@@ -35,9 +41,13 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
       clearTimeout(timer);
       setR3FContent(null);
       setSelectedScene(null);
-      resetToInitial();
+
+      // Only reset on unmount if we're not in loading state
+      if (!isLoading) {
+        resetToInitial();
+      }
     };
-  }, [setR3FContent, setSelectedScene, resetToInitial]);
+  }, [setR3FContent, setSelectedScene, resetToInitial, isLoading, scene]);
 
   return (
     <div style={noScrollStyles}>

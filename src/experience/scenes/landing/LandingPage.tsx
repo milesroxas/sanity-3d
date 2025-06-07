@@ -4,10 +4,24 @@ import { Leva } from 'leva';
 import LandingWrapper from './LandingWrapper';
 const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === 'development';
 
-export default function LandingPage() {
+interface LandingPageProps {
+  textureVideo: Sanity.Media;
+  modalVideo: Sanity.Media;
+}
+
+export default function LandingPage({ textureVideo, modalVideo }: LandingPageProps) {
+  // Use getElementById instead of a ref
+  const portalRef = {
+    current: typeof document !== 'undefined' ? document.getElementById('modal-portal') : null,
+  };
+
   return (
     <R3FProvider>
-      <LandingWrapper />
+      <LandingWrapper
+        textureVideo={textureVideo}
+        modalVideo={modalVideo}
+        portalRef={portalRef as any}
+      />
 
       {/* Hide Leva in production, show in development */}
       <Leva hidden={isProduction} />

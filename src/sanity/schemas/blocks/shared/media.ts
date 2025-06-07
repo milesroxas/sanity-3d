@@ -18,14 +18,16 @@ export const media = defineType({
       validation: Rule => Rule.required(),
     }),
     defineField({
-      name: 'file',
-      title: 'File',
-      description: 'Upload your media file (image, video, or document)',
-      type: 'file',
+      name: 'mediaType',
+      title: 'Media Type',
+      type: 'string',
       options: {
-        storeOriginalFilename: true,
+        list: [
+          { title: 'Image', value: 'image' },
+          { title: 'Video', value: 'video' },
+        ],
       },
-      validation: Rule => Rule.required(),
+      initialValue: 'image',
     }),
     defineField({
       name: 'alt',
@@ -43,6 +45,18 @@ export const media = defineType({
       options: {
         layout: 'tags',
       },
+    }),
+    defineField({
+      name: 'image',
+      title: 'Image',
+      type: 'image',
+      hidden: ({ parent }) => parent?.mediaType !== 'image',
+    }),
+    defineField({
+      name: 'video',
+      title: 'Video',
+      type: 'mux.video',
+      hidden: ({ parent }) => parent?.mediaType !== 'video',
     }),
     orderRankField({ type: 'media' }),
   ],

@@ -42,6 +42,9 @@ export function R3FProvider({ children }: { children: ReactNode }) {
             </PerformanceMonitor>
           </Canvas>
         </div>
+
+        {/* Portal container for modals */}
+        <div id="modal-portal" className="pointer-events-none fixed inset-0 z-50" />
       </div>
     </R3FContext.Provider>
   );

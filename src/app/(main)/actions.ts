@@ -1,6 +1,7 @@
 'use server';
 import { client } from '@/sanity/lib/client';
 import { sanityFetch } from '@/sanity/lib/live';
+import { mediaQuery } from '@/sanity/queries/media';
 import { PAGE_QUERY } from '@/sanity/queries/page';
 import { NAVIGATION_SCENES_QUERY, SCENE_QUERY } from '@/sanity/queries/scene';
 import { SCENES_QUERY, SCENES_SLUGS_QUERY } from '@/sanity/queries/scenes';
@@ -82,6 +83,13 @@ export async function fetchNavigationScenes() {
 export const fetchSanityNav = async (): Promise<Sanity.Nav> => {
   const { data } = await sanityFetch({
     query: NAV_QUERY,
+  });
+  return data;
+};
+
+export const fetchSanityMedia = async (): Promise<Sanity.Media[]> => {
+  const { data } = await sanityFetch({
+    query: mediaQuery,
   });
   return data;
 };

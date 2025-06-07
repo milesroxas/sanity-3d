@@ -11,8 +11,6 @@ export default function TeamCard({
   title,
   excerpt,
   image,
-  bio,
-  email,
   onClick,
 }: Partial<{
   className: string;
