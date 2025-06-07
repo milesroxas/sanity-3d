@@ -2,7 +2,7 @@
 import { R3FProvider } from '@/experience/providers/R3FContext';
 import { Leva } from 'leva';
 import LandingWrapper from './LandingWrapper';
-const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === 'development';
+const isProduction = process.env.NODE_ENV === 'production';
 
 interface LandingPageProps {
   textureVideo: Sanity.Media;
