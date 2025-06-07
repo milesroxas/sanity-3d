@@ -67,8 +67,11 @@ export function LinkButton({
     const pageLink = link as Sanity.PageLink;
     if (!pageLink.page?.slug?.current) return null;
 
+    // Use variant from link data if no override is provided
+    const buttonVariant = variant || stegaClean(pageLink.buttonVariant);
+
     return (
-      <Button variant={variant || 'default'} size={size} className={className} asChild>
+      <Button variant={buttonVariant} size={size} className={className} asChild>
         <Link
           href={`/${pageLink.page.slug.current}`}
           onClick={e => {
@@ -99,8 +102,11 @@ export function LinkButton({
     const servicesLink = link as Sanity.ServicesLink;
     if (!servicesLink.services?.slug?.current) return null;
 
+    // Use variant from link data if no override is provided
+    const buttonVariant = variant || stegaClean(servicesLink.buttonVariant);
+
     return (
-      <Button variant={variant || 'default'} size={size} className={className} asChild>
+      <Button variant={buttonVariant} size={size} className={className} asChild>
         <Link
           href={`/services/${servicesLink.services.slug.current}`}
           onClick={e => {

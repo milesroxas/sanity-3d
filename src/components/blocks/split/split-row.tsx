@@ -106,11 +106,14 @@ export default function SplitRow({
             noGap ? 'gap-0' : 'gap-10 md:gap-20'
           )}
         >
-          {splitColumns.map(block => {
+          {splitColumns.map((block, index) => {
             const Component = componentMap[block._type as keyof typeof componentMap];
             if (!Component) {
-              return <div data-type={block._type} key={block._key} />;
+              return <div data-type={block._type} key={block._key || `split-unknown-${index}`} />;
             }
+
+            // Ensure block._key exists, fallback to index if it doesn't
+            const blockKey = block._key || `split-item-${index}`;
 
             return (
               <Component
@@ -118,7 +121,7 @@ export default function SplitRow({
                 color={color}
                 styleVariant={style}
                 themeVariant={theme}
-                key={block._key}
+                key={blockKey}
               />
             );
           })}
@@ -130,7 +133,7 @@ export default function SplitRow({
             {/* First render the media (image/video) */}
             {mediaBlock && (
               <div
-                key={mediaBlock._key}
+                key={`media-wrapper-${mediaBlock._key || 'fallback'}`}
                 className={cn(
                   'absolute top-0 z-10 h-full',
                   // Position based on original order
@@ -146,7 +149,7 @@ export default function SplitRow({
                       color={color}
                       styleVariant={style}
                       themeVariant={theme}
-                      key={mediaBlock._key}
+                      key={`media-component-${mediaBlock._key || 'fallback'}`}
                     />
                   ) : null;
                 })()}
@@ -156,7 +159,7 @@ export default function SplitRow({
             {/* Then render the content (always on top) */}
             {contentBlock && (
               <div
-                key={contentBlock._key}
+                key={`content-wrapper-${contentBlock._key || 'fallback'}`}
                 className={cn(
                   'absolute top-0 z-20 h-full',
                   // Position based on original order
@@ -179,7 +182,7 @@ export default function SplitRow({
                         color={color}
                         styleVariant={style}
                         themeVariant={theme}
-                        key={contentBlock._key}
+                        key={`content-component-${contentBlock._key || 'fallback'}`}
                       />
                     ) : null;
                   })()}

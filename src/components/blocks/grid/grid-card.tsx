@@ -1,7 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { LinkButtons } from '@/components/shared/link-button';
 import { cn } from '@/lib/utils';
 import { urlFor } from '@/sanity/lib/image';
-import { stegaClean } from 'next-sanity';
 import Image, { ImageProps } from 'next/image';
 import Link from 'next/link';
 import React from 'react';
@@ -194,14 +193,12 @@ export default function GridCard({
         </div>
 
         {hasLink && link && (
-          <Button
-            className={variant.button}
-            size={variant.buttonSize}
-            variant={stegaClean(link.buttonVariant) || 'default'}
-            asChild
-          >
-            <div>{link.title}</div>
-          </Button>
+          <LinkButtons
+            links={[link as any]}
+            containerClassName="mt-6"
+            direction="row"
+            variant={link.buttonVariant as any}
+          />
         )}
       </div>
     </Container>

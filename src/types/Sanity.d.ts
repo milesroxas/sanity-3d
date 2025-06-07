@@ -18,6 +18,7 @@ declare global {
       _type: 'pageLink';
       _key: string;
       title: string;
+      buttonVariant?: ButtonVariant;
       page: {
         _id: string;
         _type: string;
@@ -41,6 +42,7 @@ declare global {
       _type: 'servicesLink';
       _key: string;
       title: string;
+      buttonVariant?: ButtonVariant;
       services: {
         _id: string;
         _type: string;

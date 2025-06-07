@@ -49,16 +49,15 @@ export default function GridRow({
       : undefined;
 
   return (
-    <SectionContainer color={color} padding={sectionPadding}>
+    <SectionContainer color={color} padding={sectionPadding} key={_key}>
       {columns && columns?.length > 0 && (
         <div className={cn(`grid grid-cols-1 gap-6`, `lg:${stegaClean(gridColumns)}`)}>
-          {columns.map((block: Sanity.Block) => {
+          {columns.map((block: Sanity.Block, index: number) => {
             const Component = componentMap[block._type];
-            if (!Component) {
-              // Fallback for unknown block types to debug
-              return <div data-type={block._type} key={block._key} />;
-            }
-            return <Component {...block} color={color} key={block._key} />;
+            // Ensure block._key exists, fallback to index if it doesn't
+            const blockKey = block._key || `grid-item-${index}`;
+
+            return <Component {...block} color={color} key={blockKey} />;
           })}
         </div>
       )}

@@ -47,22 +47,26 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
 export default function Blocks({ blocks }: { blocks?: Sanity.Block[] }) {
   return (
     <>
-      {blocks?.map((block: Sanity.Block) => {
+      {blocks?.map((block: Sanity.Block, index: number) => {
         const Component = componentMap[block._type];
+
+        // Generate a unique key for the block
+        const blockKey = block._key || `block-${block._type}-${index}`;
+
         if (!Component) {
           // Fallback for unknown block types to debug
-          return <div data-type={block._type} key={block._key} />;
+          return <div data-type={block._type} key={blockKey} />;
         }
 
         // Create a wrapper div with a data attribute to help with debugging
         return (
           <div
-            key={block._key}
-            id={`block-${block._key}`}
+            key={blockKey}
+            id={`block-${blockKey}`}
             className="block-wrapper"
             data-block-type={block._type}
           >
-            <Component {...block} _key={block._key} />
+            <Component {...block} _key={blockKey} />
           </div>
         );
       })}

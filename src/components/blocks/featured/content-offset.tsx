@@ -264,7 +264,13 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
                 {content && <PortableTextRenderer value={content} className="text-white" />}
 
                 {/* LINKS - Now using reusable component */}
-                <LinkButtons links={links || []} containerClassName="mt-6" direction="row" />
+                {links && (
+                  <LinkButtons
+                    links={links.slice(0, 2)}
+                    containerClassName="mt-6"
+                    direction="row"
+                  />
+                )}
               </div>
             </div>
 
