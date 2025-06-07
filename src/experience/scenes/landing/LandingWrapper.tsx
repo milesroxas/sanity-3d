@@ -24,7 +24,7 @@ export default function LandingWrapper({ children }: { children?: React.ReactNod
 
   // Return the HTML content that should be displayed alongside the 3D scene
   return (
-    <div className="pointer-events-none absolute inset-0 z-50 h-screen w-screen">
+    <div className="pointer-events-none absolute inset-0 h-screen w-screen">
       <div className="container mx-auto flex h-full items-center px-4">
         <div className="pointer-events-auto">{children}</div>
       </div>

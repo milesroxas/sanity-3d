@@ -3,8 +3,8 @@ import { create } from 'zustand';
 
 export const LANDING_CAMERA_POSITIONS = {
   main: {
-    position: new Vector3(20, 10, 100),
-    target: new Vector3(-9, 14, -0.0),
+    position: new Vector3(8, 15, 100),
+    target: new Vector3(5, 15, 0),
   },
 };
 
