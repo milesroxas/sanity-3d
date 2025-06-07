@@ -88,13 +88,13 @@ const LandingScene = forwardRef<
     const isWideScreen = aspectRatio > 2;
 
     const textOffset = isMobile ? -viewport.width * 0.2 : -viewport.width * 0.35;
-    const billboardOffset = isMobile ? viewport.width * 0.15 : viewport.width * 0.5;
+    const billboardOffset = isMobile ? viewport.width * -0.2 : viewport.width * 0.5;
 
     if (isMobile) {
       return {
         camera: {
           start: new Vector3(0, 12, 120),
-          end: new Vector3(0, 15, 80),
+          end: new Vector3(0, 4, 80),
         },
         target: {
           start: new Vector3(0, 10, 0),
@@ -102,10 +102,10 @@ const LandingScene = forwardRef<
         },
         html: {
           start: new Vector3(0, 8, 0),
-          end: new Vector3(0, 18, 0),
+          end: new Vector3(-3, 25, 0),
         },
         billboard: {
-          position: new Vector3(billboardOffset, 25, -20),
+          position: new Vector3(billboardOffset, 0, -40),
           scale: 0.8,
         },
       };
@@ -123,7 +123,7 @@ const LandingScene = forwardRef<
         },
         html: {
           start: new Vector3(textOffset, 10, 0),
-          end: new Vector3(textOffset, 20, 0),
+          end: new Vector3(-12, 30, 0),
         },
         billboard: {
           position: new Vector3(-7, 0, -20),
