@@ -264,7 +264,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       controlType: 'Disabled',
       isAnimating: true,
       state: 'main',
-      isLoading: false,
+      isLoading: true, // Set to true while initializing
       currentPoiIndex: 0,
       firstTimeLoading: true,
       selectedPoi: null,
@@ -272,15 +272,15 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       previousTarget: null,
     });
 
-    // Start the animation after position has been updated
-    // Add a small delay to ensure the position update is applied first
+    // Give the camera a moment to update before starting animation
     setTimeout(() => {
+      set({ isLoading: false });
       get().startCameraTransition(
         startPos,
         INITIAL_POSITIONS.main.position,
         startTarget,
         INITIAL_POSITIONS.main.target
       );
-    }, 16); // Single frame delay at 60fps
+    }, 50);
   },
 }));
