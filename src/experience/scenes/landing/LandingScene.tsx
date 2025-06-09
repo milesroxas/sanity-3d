@@ -507,16 +507,7 @@ const LandingScene = forwardRef<
 
       {fadeOverlay && (
         <Html fullscreen>
-          <div className="absolute inset-0 bg-white opacity-100 transition-opacity duration-500">
-            {isLoading && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-t-2 border-white"></div>
-                  <p className="text-xl">Loading Experience</p>
-                </div>
-              </div>
-            )}
-          </div>
+          <div className="absolute inset-0 bg-white opacity-100 transition-opacity duration-500" />
         </Html>
       )}
     </>

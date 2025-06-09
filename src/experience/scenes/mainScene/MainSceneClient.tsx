@@ -3,7 +3,7 @@ import { useR3F } from '@/experience/providers/R3FContext';
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import LogoMarkerContent from './components/LogoMarkerContent';
 import MainScene from './MainScene';
 // Style to prevent scrollbars
@@ -18,6 +18,8 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
   const [isReady, setIsReady] = useState(false);
   const { resetToInitial, isLoading, position } = useCameraStore();
 
+  const memoizedScene = useMemo(() => scene, [scene._id]);
+
   useEffect(() => {
     // Initialize camera state first before rendering anything
     resetToInitial();
@@ -28,7 +30,7 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
       setSelectedScene(null);
 
       // Then set the content and make it visible
-      setR3FContent(<MainScene scene={scene} />);
+      setR3FContent(<MainScene scene={memoizedScene} />);
       setIsReady(true);
     }, 10);
 
@@ -42,7 +44,7 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
         resetToInitial();
       }
     };
-  }, [setR3FContent, setSelectedScene, resetToInitial, isLoading, scene]);
+  }, [setR3FContent, setSelectedScene, resetToInitial, isLoading, memoizedScene]);
 
   return (
     <div style={noScrollStyles}>
@@ -58,7 +60,7 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'black',
+              backgroundColor: 'white',
               zIndex: 1000,
             }}
           />

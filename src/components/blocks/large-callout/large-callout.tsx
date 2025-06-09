@@ -52,7 +52,7 @@ export default function LargeCallout({ body, _key }: { body: PortableTextBlock[]
     <div className="container">
       <div ref={blockRef} data-block-id={_key} className="large-callout-container">
         {body && Array.isArray(body) && body.length > 0 ? (
-          <div className="py-16 lg:py-32">
+          <div className="py-16 lg:pb-12 lg:pt-32">
             {/* Custom renderer that uses SplitText for each paragraph */}
             {body.map((block, index) => {
               if (block._type === 'block' && block.style === 'normal') {
