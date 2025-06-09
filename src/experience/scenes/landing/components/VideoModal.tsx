@@ -36,7 +36,7 @@ export default function VideoModal({ video, onClose }: VideoModalProps) {
             theme="dark"
             autoPlay
             poster=""
-            preload="auto" // Preload video data
+            preload="auto"
             style={{
               height: '100%',
               width: '100%',

@@ -1,11 +1,10 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { INITIAL_POSITIONS } from '@/experience/scenes/store/cameraStore';
 import { useGSAP } from '@gsap/react';
 import { Html, PerspectiveCamera } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
-
-import { INITIAL_POSITIONS } from '@/experience/scenes/store/cameraStore';
 import gsap from 'gsap';
 import { useControls } from 'leva';
 import { useRouter } from 'next/navigation';
@@ -20,8 +19,9 @@ import {
 import { useCameraStore } from '../store/cameraStore';
 import { Billboard } from './components/Billboard';
 import { Effects } from './components/Effects';
-import { Ground } from './components/Ground';
 import { SceneEnvironment } from './components/SceneEnvironment';
+import { DesertModels } from './compositions/DesertModels';
+import { Ground } from './compositions/Ground';
 import { useLandingCameraStore } from './store/landingCameraStore';
 
 interface ResponsivePositions {
@@ -67,6 +67,7 @@ const LandingScene = forwardRef<
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const [fadeOverlay, setFadeOverlay] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [sceneReady, setSceneReady] = useState(false);
 
   // Get viewport information for responsive calculations
   const { viewport, size } = useThree();
@@ -241,6 +242,28 @@ const LandingScene = forwardRef<
     manualBillboardScale,
   ]);
 
+  // Ensure camera position is set before first render
+  const initialCameraPosition = useMemo(() => {
+    const { camera } = responsivePositions;
+    return useResponsive
+      ? camera.start.clone()
+      : new Vector3(manualCameraPosition.x, manualCameraPosition.y, manualCameraPosition.z);
+  }, [useResponsive, responsivePositions, manualCameraPosition]);
+
+  // Ensure target position is set before first render
+  const initialTargetPosition = useMemo(() => {
+    const { target } = responsivePositions;
+    return useResponsive
+      ? target.start.clone()
+      : new Vector3(manualCameraTarget.x, manualCameraTarget.y, manualCameraTarget.z);
+  }, [useResponsive, responsivePositions, manualCameraTarget]);
+
+  // Initialize camera refs with correct positions immediately
+  useEffect(() => {
+    animatedCamera.current = initialCameraPosition.clone();
+    animatedTarget.current = initialTargetPosition.clone();
+  }, [initialCameraPosition, initialTargetPosition]);
+
   // Animated values for smooth transitions
   const animatedCamera = useRef(currentPositions.camera.clone());
   const animatedTarget = useRef(currentPositions.target.clone());
@@ -248,6 +271,19 @@ const LandingScene = forwardRef<
 
   // State for HTML position to trigger re-renders
   const [htmlPos, setHtmlPos] = useState(() => currentPositions.html.clone());
+
+  // Track whether HTML elements are mounted
+  const [htmlMounted, setHtmlMounted] = useState(false);
+
+  // Reference for the HTML container
+  const htmlContainerRef = useRef<HTMLDivElement>(null);
+
+  // Effect to track when HTML elements are mounted
+  useEffect(() => {
+    if (htmlContainerRef.current && !htmlMounted) {
+      setHtmlMounted(true);
+    }
+  }, [htmlContainerRef.current]);
 
   // Update camera in render loop
   useFrame(() => {
@@ -344,85 +380,90 @@ const LandingScene = forwardRef<
   // GSAP entrance animation
   useGSAP(
     () => {
-      if (!isReady || !useResponsive || hasAnimated) return;
+      // Only run animation when ready, using responsive positioning, not yet animated, and HTML elements are mounted
+      if (!isReady || !useResponsive || hasAnimated || !htmlMounted) return;
 
       // Kill any existing timeline
       if (timelineRef.current) {
         timelineRef.current.kill();
       }
 
-      gsap.set([textRef.current, buttonRef.current], { opacity: 0, y: 20 });
-
-      const tl = gsap.timeline({
-        onComplete: () => {
-          setAnimating(false);
-          setHasAnimated(true);
-          // Sync the HTML position state with the final animated position
-          setHtmlPos(animatedHtml.current.clone());
-        },
-      });
-
-      timelineRef.current = tl;
-
+      // Initialize animation variables
       const { camera, target, html } = responsivePositions;
 
       // Set initial positions
       animatedCamera.current.copy(camera.start);
       animatedTarget.current.copy(target.start);
       animatedHtml.current.copy(html.start);
-      setHtmlPos(html.start.clone()); // Also set the HTML position state
+      setHtmlPos(html.start.clone());
       setAnimating(true);
 
-      // Animate positions
-      tl.to(animatedCamera.current, {
-        x: camera.end.x,
-        y: camera.end.y,
-        z: camera.end.z,
-        duration: 3,
-        ease: 'power2.out',
-      })
-        .to(
-          animatedTarget.current,
-          {
-            x: target.end.x,
-            y: target.end.y,
-            z: target.end.z,
-            duration: 2,
-            ease: 'power2.out',
+      // Make sure refs exist before using GSAP
+      if (textRef.current && buttonRef.current) {
+        gsap.set([textRef.current, buttonRef.current], { opacity: 0, y: 20 });
+
+        const tl = gsap.timeline({
+          onComplete: () => {
+            setAnimating(false);
+            setHasAnimated(true);
+            // Sync the HTML position state with the final animated position
+            setHtmlPos(animatedHtml.current.clone());
           },
-          '<'
-        )
-        .to(
-          animatedHtml.current,
-          {
-            x: html.end.x,
-            y: html.end.y,
-            z: html.end.z,
-            duration: 3,
-            ease: 'power2.out',
-            onUpdate: () => {
-              // Update HTML position state during animation
-              setHtmlPos(animatedHtml.current.clone());
-            },
-          },
-          '<'
-        )
-        .to(textRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 1,
+        });
+
+        timelineRef.current = tl;
+
+        // Animate positions
+        tl.to(animatedCamera.current, {
+          x: camera.end.x,
+          y: camera.end.y,
+          z: camera.end.z,
+          duration: 3,
           ease: 'power2.out',
         })
-        .to(
-          buttonRef.current,
-          {
+          .to(
+            animatedTarget.current,
+            {
+              x: target.end.x,
+              y: target.end.y,
+              z: target.end.z,
+              duration: 2,
+              ease: 'power2.out',
+            },
+            '<'
+          )
+          .to(
+            animatedHtml.current,
+            {
+              x: html.end.x,
+              y: html.end.y,
+              z: html.end.z,
+              duration: 3,
+              ease: 'power2.out',
+              onUpdate: () => {
+                // Update HTML position state during animation
+                setHtmlPos(animatedHtml.current.clone());
+              },
+            },
+            '<'
+          )
+          .to(textRef.current, {
             opacity: 1,
             y: 0,
-            duration: 0.8,
+            duration: 1,
             ease: 'power2.out',
-          },
-          '-=0.5'
-        );
+          })
+          .to(
+            buttonRef.current,
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power2.out',
+            },
+            '-=0.5'
+          );
+      }
 
       return () => {
         if (timelineRef.current) {
@@ -431,11 +472,19 @@ const LandingScene = forwardRef<
         }
       };
     },
-    { dependencies: [isReady, useResponsive, hasAnimated] }
+    { dependencies: [isReady, useResponsive, hasAnimated, htmlMounted] }
   );
 
   // Component lifecycle
   useEffect(() => {
+    // Set camera positions first
+    animatedCamera.current = initialCameraPosition.clone();
+    animatedTarget.current = initialTargetPosition.clone();
+
+    // Then mark scene as ready
+    setSceneReady(true);
+
+    // Then set isReady with a slight delay to allow scene to stabilize
     const timer = setTimeout(() => {
       setIsReady(true);
     }, 100);
@@ -448,7 +497,7 @@ const LandingScene = forwardRef<
         timelineRef.current = null;
       }
     };
-  }, [resetToInitial]);
+  }, [resetToInitial, initialCameraPosition, initialTargetPosition]);
 
   // Calculate responsive text size and container width
   const textStyles = useMemo(
@@ -462,53 +511,65 @@ const LandingScene = forwardRef<
 
   return (
     <>
-      <Effects />
-      <SceneEnvironment />
-      <PerspectiveCamera
-        ref={cameraRef}
-        makeDefault
-        filmGauge={36}
-        fov={30}
-        near={0.1}
-        far={1000}
-        position={animatedCamera.current}
-      />
+      {sceneReady && (
+        <>
+          <Effects />
+          <SceneEnvironment />
+          <PerspectiveCamera
+            ref={cameraRef}
+            makeDefault
+            filmGauge={36}
+            fov={30}
+            near={0.1}
+            far={1000}
+            position={initialCameraPosition}
+          />
 
-      <ambientLight intensity={0.05} />
+          <ambientLight intensity={0.05} />
 
-      <group position={htmlPos}>
-        <Html center>
-          <div ref={textRef} className={`${textStyles.containerWidth} text-white`}>
-            <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>
-              With over 38 years of experience, O'Linn Security Inc. offers comprehensive security
-              solutions tailored to your needs.
-            </p>
-            <div ref={buttonRef}>
-              <Button size="sm" onClick={handleClick}>
-                ENTER EXPERIENCE
-              </Button>
-            </div>
-          </div>
-        </Html>
-      </group>
+          {isReady && (
+            <group position={htmlPos}>
+              <Html center>
+                <div ref={htmlContainerRef} className="contents">
+                  <div
+                    ref={textRef}
+                    className={`${textStyles.containerWidth} text-white ${isAnimating ? 'opacity-0' : ''}`}
+                  >
+                    <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>
+                      With over 38 years of experience, O'Linn Security Inc. offers comprehensive
+                      security solutions tailored to your needs.
+                    </p>
+                    <div ref={buttonRef} className={isAnimating ? 'opacity-0' : ''}>
+                      <Button size="sm" onClick={handleClick}>
+                        ENTER EXPERIENCE
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </Html>
+            </group>
+          )}
 
-      <Billboard
-        position={currentPositions.billboard.position}
-        scale={currentPositions.billboard.scale}
-        modalVideo={modalVideo}
-        portalRef={portalRef}
-      />
+          <Billboard
+            position={currentPositions.billboard.position}
+            scale={currentPositions.billboard.scale}
+            modalVideo={modalVideo}
+            portalRef={portalRef}
+          />
 
-      <Ground />
-      <mesh rotation-x={-Math.PI / 2} position={[0, -2, 0]}>
-        <planeGeometry args={[1000, 1000]} />
-        <meshStandardMaterial color="#DCBF9A" transparent opacity={1} />
-      </mesh>
+          <Ground />
+          <DesertModels />
+          <mesh rotation-x={-Math.PI / 2} position={[0, -2, 0]}>
+            <planeGeometry args={[1000, 1000]} />
+            <meshStandardMaterial color="#DCBF9A" transparent opacity={1} />
+          </mesh>
 
-      {fadeOverlay && (
-        <Html fullscreen>
-          <div className="absolute inset-0 bg-white opacity-100 transition-opacity duration-500" />
-        </Html>
+          {fadeOverlay && (
+            <Html fullscreen>
+              <div className="absolute inset-0 bg-white opacity-100 transition-opacity duration-500" />
+            </Html>
+          )}
+        </>
       )}
     </>
   );
