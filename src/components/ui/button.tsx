@@ -19,6 +19,7 @@ const buttonVariants = cva(
         icon: 'bg-primary hover:bg-transparent rounded-[10px] shadow-[0px_2px_2px_0px_hsl(var(--primary))]',
         ghost: 'text-primary hover:text-green-800',
         link: 'text-primary underline-offset-4 hover:underline',
+        button21: 'button-21',
       },
       size: {
         default: 'h-9 px-4 py-2',

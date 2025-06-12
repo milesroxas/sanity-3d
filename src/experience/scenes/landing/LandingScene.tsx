@@ -2,14 +2,19 @@
 
 import { Button } from '@/components/ui/button';
 import { useGSAP } from '@gsap/react';
-import { Html, PerspectiveCamera } from '@react-three/drei';
+import { Float, Html, PerspectiveCamera } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 
+import { vehicles } from '@/experience/animations';
+import { AnimatedClouds } from '@/experience/effects/components/Clouds';
+import { VehiclesInstances } from '@/experience/models/VehiclesInstances';
 import { INITIAL_POSITIONS } from '@/experience/scenes/store/cameraStore';
+import { getLinkData, SanityNav, SanitySettings } from '@/store/navStore';
 import gsap from 'gsap';
 import { useControls } from 'leva';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Mesh,
   MeshBasicMaterial,
@@ -20,8 +25,10 @@ import {
 import { useCameraStore } from '../store/cameraStore';
 import { Billboard } from './components/Billboard';
 import { Effects } from './components/Effects';
-import { Ground } from './components/Ground';
 import { SceneEnvironment } from './components/SceneEnvironment';
+import { DesertModels } from './compositions/DesertModels';
+import { Ground } from './compositions/Ground';
+import { Logo } from './compositions/Logo';
 import { useLandingCameraStore } from './store/landingCameraStore';
 
 interface ResponsivePositions {
@@ -54,8 +61,12 @@ const LandingScene = forwardRef<
   {
     modalVideo?: Sanity.Video;
     portalRef: React.RefObject<HTMLDivElement>;
+    nav: SanityNav;
+    settings: SanitySettings;
   }
->(({ modalVideo, portalRef }, ref) => {
+>(({ modalVideo, portalRef, nav, settings: landingSettings }, ref) => {
+  const navServices = nav.services;
+  const navCompanyLinks = nav.companyLinks;
   const [isReady, setIsReady] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const { resetToInitial } = useCameraStore();
@@ -66,10 +77,9 @@ const LandingScene = forwardRef<
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const [fadeOverlay, setFadeOverlay] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   // Get viewport information for responsive calculations
-  const { viewport, size } = useThree();
+  const { viewport, size, mouse } = useThree();
 
   // Calculate responsive positions based on viewport
   const responsivePositions = useMemo((): ResponsivePositions => {
@@ -153,6 +163,20 @@ const LandingScene = forwardRef<
       value: true,
       label: 'Use Responsive Positioning',
     },
+    mouseInfluence: {
+      value: 4,
+      min: 0,
+      max: 100,
+      step: 0.02,
+      label: 'Mouse Influence Strength',
+    },
+    mouseLerpSpeed: {
+      value: 0.01,
+      min: 0.1,
+      max: 1,
+      step: 0.001,
+      label: 'Mouse Lerp Speed',
+    },
   });
 
   const manualCameraControls = useControls('Manual Camera', {
@@ -194,10 +218,17 @@ const LandingScene = forwardRef<
       }`,
       editable: false,
     },
+    introComplete: {
+      value: hasAnimated && !isAnimating,
+      editable: false,
+      label: 'Cursor Motion Active',
+    },
   });
 
   // Extract values with proper typing
   const useResponsive = settings.useResponsive as boolean;
+  const mouseInfluence = settings.mouseInfluence as number;
+  const mouseLerpSpeed = settings.mouseLerpSpeed as number;
   const manualCameraPosition = manualCameraControls.position as Vec3;
   const manualCameraTarget = manualCameraControls.target as Vec3;
   const manualHtmlPosition = manualHtmlControls.position as Vec3;
@@ -246,17 +277,86 @@ const LandingScene = forwardRef<
   const animatedTarget = useRef(currentPositions.target.clone());
   const animatedHtml = useRef(currentPositions.html.clone());
 
+  // Mouse-influenced camera offset
+  const mouseOffset = useRef(new Vector3(0, 0, 0));
+  const targetMouseOffset = useRef(new Vector3(0, 0, 0));
+
   // State for HTML position to trigger re-renders
   const [htmlPos, setHtmlPos] = useState(() => currentPositions.html.clone());
 
-  // Update camera in render loop
-  useFrame(() => {
+  // Add this ref near your other refs
+  const isHoveringUI = useRef(false);
+
+  // Change these handlers to a more graceful implementation
+  const handleMouseEnterUI = useCallback((e: React.MouseEvent) => {
+    // Stop event propagation
+    e.stopPropagation();
+    isHoveringUI.current = true;
+    // Don't reset offsets immediately - let the lerping handle it
+  }, []);
+
+  const handleMouseLeaveUI = useCallback((e: React.MouseEvent) => {
+    // Stop event propagation
+    e.stopPropagation();
+    isHoveringUI.current = false;
+  }, []);
+
+  // Add a ref for UI influence factor (0 = no mouse movement, 1 = full movement)
+  const uiInfluenceFactor = useRef(1);
+
+  // Update camera in render loop with smoother transitions
+  useFrame((state, delta) => {
     if (cameraRef.current) {
-      // Only animate if not using GSAP animation
+      // Calculate mouse influence only if intro animation is complete
+      const introComplete = hasAnimated && !isAnimating;
+
+      // Smoothly transition UI influence factor
+      const targetInfluence = isHoveringUI.current ? 0 : 1;
+      // Use a faster lerp factor for UI influence to make it feel responsive but not instant
+      const uiLerpFactor = Math.min(1, 0.15 * 60 * delta);
+      uiInfluenceFactor.current += (targetInfluence - uiInfluenceFactor.current) * uiLerpFactor;
+
+      if (introComplete) {
+        // Get normalized mouse position from R3F directly (already in -1 to 1 range)
+        const normalizedX = state.mouse.x;
+
+        // Add a threshold to ignore very small mouse movements
+        if (Math.abs(normalizedX) > 0.05) {
+          // Apply the UI influence factor to smoothly reduce movement when hovering UI
+          const scaledInfluence = normalizedX * mouseInfluence * uiInfluenceFactor.current;
+          // Only set x-axis movement, keeping y and z at 0
+          targetMouseOffset.current.set(scaledInfluence, 0, 0);
+        } else {
+          // Small movements gradually return to center
+          const returnSpeed = 0.5 * 60 * delta; // Adjust for smoothness
+          targetMouseOffset.current.x *= 1 - returnSpeed;
+          if (Math.abs(targetMouseOffset.current.x) < 0.001) {
+            targetMouseOffset.current.x = 0;
+          }
+        }
+      } else {
+        // Reset offsets when intro is not complete
+        targetMouseOffset.current.set(0, 0, 0);
+      }
+
+      // Simple horizontal-only lerp with performance optimization
+      // Use a direct calculation instead of Vector3.lerp for single axis
+      const currentX = mouseOffset.current.x;
+      const targetX = targetMouseOffset.current.x;
+      const lerpFactor = Math.min(1, mouseLerpSpeed * 60 * delta);
+
+      // Only update if the change is significant
+      if (Math.abs(currentX - targetX) > 0.001) {
+        mouseOffset.current.x = currentX + (targetX - currentX) * lerpFactor;
+      }
+
+      // Only animate base positions if not using GSAP animation
       if (!isAnimating) {
-        animatedCamera.current.lerp(currentPositions.camera, 0.1);
-        animatedTarget.current.lerp(currentPositions.target, 0.1);
-        animatedHtml.current.lerp(currentPositions.html, 0.1);
+        // Simple lerp for camera position
+        const cameraLerp = Math.min(1, 0.1 * 60 * delta);
+        animatedCamera.current.lerp(currentPositions.camera, cameraLerp);
+        animatedTarget.current.lerp(currentPositions.target, cameraLerp);
+        animatedHtml.current.lerp(currentPositions.html, cameraLerp);
 
         // Update HTML position state if it has changed significantly
         if (animatedHtml.current.distanceTo(htmlPos) > 0.01) {
@@ -264,7 +364,12 @@ const LandingScene = forwardRef<
         }
       }
 
-      cameraRef.current.position.copy(animatedCamera.current);
+      // Apply base position + horizontal mouse offset to camera
+      cameraRef.current.position.x = animatedCamera.current.x + mouseOffset.current.x;
+      cameraRef.current.position.y = animatedCamera.current.y;
+      cameraRef.current.position.z = animatedCamera.current.z;
+
+      // Standard lookAt behavior - no rotation modifications
       cameraRef.current.lookAt(animatedTarget.current);
     }
   });
@@ -464,27 +569,73 @@ const LandingScene = forwardRef<
     <>
       <Effects />
       <SceneEnvironment />
+      <DesertModels />
+      <AnimatedClouds />
+      <VehiclesInstances useSharedMaterial={false}>
+        {/* Static vehicles from JSON data */}
+
+        <vehicles.AnimatedPlane pathOffset={0.85} scale={0.3} />
+      </VehiclesInstances>
+
       <PerspectiveCamera
         ref={cameraRef}
         makeDefault
         filmGauge={36}
         fov={30}
         near={0.1}
-        far={1000}
+        far={10000}
         position={animatedCamera.current}
       />
 
       <ambientLight intensity={0.05} />
 
       <group position={htmlPos}>
+        <Float speed={0.8} floatIntensity={0.2} rotationIntensity={0.1} floatingRange={[-0.4, 0.4]}>
+          <group position={[8, 0, 0]}>
+            <Logo position={[10, -10, 0]} />
+            <Html position={[-15, 20, 0]}>
+              <div
+                className="flex w-screen flex-row gap-6"
+                onMouseEnter={handleMouseEnterUI}
+                onMouseLeave={handleMouseLeaveUI}
+              >
+                {nav.companyLinks?.map((link, index) => {
+                  const linkData = getLinkData(link);
+                  return (
+                    <Link
+                      key={`company-${index}`}
+                      href={linkData.href}
+                      target={linkData.target ? '_blank' : undefined}
+                      rel={linkData.target ? 'noopener noreferrer' : undefined}
+                      className="text-md font-medium transition-colors duration-300 hover:text-green-100"
+                    >
+                      {linkData.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </Html>
+          </group>
+        </Float>
+
         <Html center>
           <div ref={textRef} className={`${textStyles.containerWidth} text-white`}>
             <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>
               With over 38 years of experience, O'Linn Security Inc. offers comprehensive security
               solutions tailored to your needs.
             </p>
-            <div ref={buttonRef}>
-              <Button size="sm" onClick={handleClick}>
+            <div
+              ref={buttonRef}
+              onMouseEnter={handleMouseEnterUI}
+              onMouseLeave={handleMouseLeaveUI}
+              className="relative z-10" // Add z-index to ensure it's on top
+            >
+              <Button
+                size="sm"
+                variant="button21"
+                onClick={handleClick}
+                className="relative text-white"
+              >
                 ENTER EXPERIENCE
               </Button>
             </div>
