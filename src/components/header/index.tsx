@@ -36,6 +36,11 @@ export default function Header({ nav, settings }: HeaderProps) {
   const isExperiencePage = pathname === '/experience' || pathname.startsWith('/experience/');
   const isLandingPage = pathname === '/';
 
+  // Don't render the header on the landing page
+  if (isLandingPage) {
+    return null;
+  }
+
   // Update experience page state when pathname changes
   useEffect(() => {
     setExperiencePage(isExperiencePage);

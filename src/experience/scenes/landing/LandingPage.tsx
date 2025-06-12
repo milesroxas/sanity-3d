@@ -28,7 +28,7 @@ export default function LandingPage({ textureVideo, modalVideo, nav, settings }:
       />
 
       {/* Hide Leva in production, show in development */}
-      <Leva hidden={false} />
+      <Leva hidden={process.env.NEXT_PUBLIC_SITE_ENV === 'production'} />
     </R3FProvider>
   );
 }

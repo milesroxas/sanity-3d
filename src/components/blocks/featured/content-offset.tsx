@@ -51,7 +51,7 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
   const blockOverlayRef = useRef<HTMLDivElement>(null);
 
   // Only show markers in development
-  const showMarkers = process.env.NODE_ENV === 'development';
+  const showMarkers = process.env.NEXT_PUBLIC_SITE_ENV !== 'production';
 
   // Register the plugin just to be safe
   useLayoutEffect(() => {

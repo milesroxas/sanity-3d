@@ -15,6 +15,9 @@ export default function LargeCallout({ body, _key }: { body: PortableTextBlock[]
     // Ensure refs are ready
     if (!blockRef.current || splitRefs.current.length === 0) return;
 
+    // Debug environment variables
+    console.log('NEXT_PUBLIC_SITE_ENV:', process.env.NEXT_PUBLIC_SITE_ENV);
+
     // Small delay to ensure SplitText instances are fully initialized
     const timeout = setTimeout(() => {
       runAnimations(() => {
@@ -34,11 +37,14 @@ export default function LargeCallout({ body, _key }: { body: PortableTextBlock[]
                 start: 'top 75%',
                 toggleActions: 'play none none none',
                 once: true,
-                markers: process.env.NODE_ENV === 'development',
+                markers: false,
               },
               index
             ),
           });
+
+          // Log the markers setting
+          console.log('GSAP markers setting:', process.env.NEXT_PUBLIC_SITE_ENV !== 'production');
         });
       });
     }, 100);
