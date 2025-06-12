@@ -56,6 +56,13 @@ interface Vec3 {
   z: number;
 }
 
+// Mouse interaction configuration
+const MOUSE_CONFIG = {
+  influence: 1.5, // Subtle influence strength
+  dampingFactor: 0.05, // Smooth damping for natural feel
+  uiDampingFactor: 0.8, // Reduce movement when hovering UI (subtle)
+} as const;
+
 const LandingScene = forwardRef<
   any,
   {
@@ -76,10 +83,14 @@ const LandingScene = forwardRef<
   const router = useRouter();
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
-  const [fadeOverlay, setFadeOverlay] = useState(false);
 
   // Get viewport information for responsive calculations
-  const { viewport, size, mouse } = useThree();
+  const { viewport, size } = useThree();
+
+  // Mouse interaction state
+  const mousePosition = useRef({ x: 0, y: 0 });
+  const cameraOffset = useRef({ x: 0, y: 0 });
+  const isHoveringUI = useRef(false);
 
   // Calculate responsive positions based on viewport
   const responsivePositions = useMemo((): ResponsivePositions => {
@@ -164,18 +175,18 @@ const LandingScene = forwardRef<
       label: 'Use Responsive Positioning',
     },
     mouseInfluence: {
-      value: 4,
+      value: MOUSE_CONFIG.influence,
       min: 0,
-      max: 100,
-      step: 0.02,
+      max: 5,
+      step: 0.1,
       label: 'Mouse Influence Strength',
     },
-    mouseLerpSpeed: {
-      value: 0.01,
-      min: 0.1,
-      max: 1,
-      step: 0.001,
-      label: 'Mouse Lerp Speed',
+    mouseDamping: {
+      value: MOUSE_CONFIG.dampingFactor,
+      min: 0.01,
+      max: 0.2,
+      step: 0.005,
+      label: 'Mouse Damping',
     },
   });
 
@@ -221,14 +232,14 @@ const LandingScene = forwardRef<
     introComplete: {
       value: hasAnimated && !isAnimating,
       editable: false,
-      label: 'Cursor Motion Active',
+      label: 'Mouse Interaction Active',
     },
   });
 
   // Extract values with proper typing
   const useResponsive = settings.useResponsive as boolean;
   const mouseInfluence = settings.mouseInfluence as number;
-  const mouseLerpSpeed = settings.mouseLerpSpeed as number;
+  const mouseDamping = settings.mouseDamping as number;
   const manualCameraPosition = manualCameraControls.position as Vec3;
   const manualCameraTarget = manualCameraControls.target as Vec3;
   const manualHtmlPosition = manualHtmlControls.position as Vec3;
@@ -277,136 +288,96 @@ const LandingScene = forwardRef<
   const animatedTarget = useRef(currentPositions.target.clone());
   const animatedHtml = useRef(currentPositions.html.clone());
 
-  // Mouse-influenced camera offset
-  const mouseOffset = useRef(new Vector3(0, 0, 0));
-  const targetMouseOffset = useRef(new Vector3(0, 0, 0));
-
   // State for HTML position to trigger re-renders
   const [htmlPos, setHtmlPos] = useState(() => currentPositions.html.clone());
 
-  // Add this ref near your other refs
-  const isHoveringUI = useRef(false);
-
-  // Change these handlers to a more graceful implementation
-  const handleMouseEnterUI = useCallback((e: React.MouseEvent) => {
-    // Stop event propagation
-    e.stopPropagation();
+  // Simplified mouse interaction handlers
+  const handleMouseEnterUI = useCallback(() => {
     isHoveringUI.current = true;
-    // Don't reset offsets immediately - let the lerping handle it
   }, []);
 
-  const handleMouseLeaveUI = useCallback((e: React.MouseEvent) => {
-    // Stop event propagation
-    e.stopPropagation();
+  const handleMouseLeaveUI = useCallback(() => {
     isHoveringUI.current = false;
   }, []);
 
-  // Add a ref for UI influence factor (0 = no mouse movement, 1 = full movement)
-  const uiInfluenceFactor = useRef(1);
-
-  // Update camera in render loop with smoother transitions
+  // Smooth mouse interaction with consistent damping
   useFrame((state, delta) => {
-    if (cameraRef.current) {
-      // Calculate mouse influence only if intro animation is complete
-      const introComplete = hasAnimated && !isAnimating;
+    if (!cameraRef.current) return;
 
-      // Smoothly transition UI influence factor
-      const targetInfluence = isHoveringUI.current ? 0 : 1;
-      // Use a faster lerp factor for UI influence to make it feel responsive but not instant
-      const uiLerpFactor = Math.min(1, 0.15 * 60 * delta);
-      uiInfluenceFactor.current += (targetInfluence - uiInfluenceFactor.current) * uiLerpFactor;
+    const introComplete = hasAnimated && !isAnimating;
 
-      if (introComplete) {
-        // Get normalized mouse position from R3F directly (already in -1 to 1 range)
-        const normalizedX = state.mouse.x;
+    // Only apply mouse interaction when intro is complete
+    if (introComplete) {
+      // Update target mouse position from normalized coordinates (-1 to 1)
+      mousePosition.current.x = state.mouse.x;
+      mousePosition.current.y = state.mouse.y;
 
-        // Add a threshold to ignore very small mouse movements
-        if (Math.abs(normalizedX) > 0.05) {
-          // Apply the UI influence factor to smoothly reduce movement when hovering UI
-          const scaledInfluence = normalizedX * mouseInfluence * uiInfluenceFactor.current;
-          // Only set x-axis movement, keeping y and z at 0
-          targetMouseOffset.current.set(scaledInfluence, 0, 0);
-        } else {
-          // Small movements gradually return to center
-          const returnSpeed = 0.5 * 60 * delta; // Adjust for smoothness
-          targetMouseOffset.current.x *= 1 - returnSpeed;
-          if (Math.abs(targetMouseOffset.current.x) < 0.001) {
-            targetMouseOffset.current.x = 0;
-          }
-        }
-      } else {
-        // Reset offsets when intro is not complete
-        targetMouseOffset.current.set(0, 0, 0);
-      }
+      // Apply UI damping when hovering over UI elements
+      const dampingMultiplier = isHoveringUI.current ? MOUSE_CONFIG.uiDampingFactor : 1;
+      const effectiveDamping = mouseDamping * dampingMultiplier;
 
-      // Simple horizontal-only lerp with performance optimization
-      // Use a direct calculation instead of Vector3.lerp for single axis
-      const currentX = mouseOffset.current.x;
-      const targetX = targetMouseOffset.current.x;
-      const lerpFactor = Math.min(1, mouseLerpSpeed * 60 * delta);
+      // Smooth lerp towards target position with consistent damping
+      // Convert to frame-rate independent lerping
+      const lerpFactor = 1 - Math.exp(-effectiveDamping * 60 * delta);
 
-      // Only update if the change is significant
-      if (Math.abs(currentX - targetX) > 0.001) {
-        mouseOffset.current.x = currentX + (targetX - currentX) * lerpFactor;
-      }
-
-      // Only animate base positions if not using GSAP animation
-      if (!isAnimating) {
-        // Simple lerp for camera position
-        const cameraLerp = Math.min(1, 0.1 * 60 * delta);
-        animatedCamera.current.lerp(currentPositions.camera, cameraLerp);
-        animatedTarget.current.lerp(currentPositions.target, cameraLerp);
-        animatedHtml.current.lerp(currentPositions.html, cameraLerp);
-
-        // Update HTML position state if it has changed significantly
-        if (animatedHtml.current.distanceTo(htmlPos) > 0.01) {
-          setHtmlPos(animatedHtml.current.clone());
-        }
-      }
-
-      // Apply base position + horizontal mouse offset to camera
-      cameraRef.current.position.x = animatedCamera.current.x + mouseOffset.current.x;
-      cameraRef.current.position.y = animatedCamera.current.y;
-      cameraRef.current.position.z = animatedCamera.current.z;
-
-      // Standard lookAt behavior - no rotation modifications
-      cameraRef.current.lookAt(animatedTarget.current);
+      cameraOffset.current.x +=
+        (mousePosition.current.x * mouseInfluence - cameraOffset.current.x) * lerpFactor;
+      cameraOffset.current.y +=
+        (mousePosition.current.y * mouseInfluence * 0.5 - cameraOffset.current.y) * lerpFactor; // Reduced Y influence
+    } else {
+      // Smoothly return to center when intro is not complete
+      const returnLerpFactor = 1 - Math.exp(-mouseDamping * 2 * 60 * delta);
+      cameraOffset.current.x += (0 - cameraOffset.current.x) * returnLerpFactor;
+      cameraOffset.current.y += (0 - cameraOffset.current.y) * returnLerpFactor;
     }
+
+    // Update camera positions when not animating with GSAP
+    if (!isAnimating) {
+      const positionLerp = 1 - Math.exp(-0.1 * 60 * delta);
+      animatedCamera.current.lerp(currentPositions.camera, positionLerp);
+      animatedTarget.current.lerp(currentPositions.target, positionLerp);
+      animatedHtml.current.lerp(currentPositions.html, positionLerp);
+
+      // Update HTML position state when needed
+      if (animatedHtml.current.distanceTo(htmlPos) > 0.01) {
+        setHtmlPos(animatedHtml.current.clone());
+      }
+    }
+
+    // Apply final camera position with smooth mouse offset
+    cameraRef.current.position.set(
+      animatedCamera.current.x + cameraOffset.current.x,
+      animatedCamera.current.y + cameraOffset.current.y,
+      animatedCamera.current.z
+    );
+
+    cameraRef.current.lookAt(animatedTarget.current);
   });
 
   // Handle exit animation
   const handleClick = () => {
     setAnimating(true);
 
-    // Create a black material we can fade in
     const overlayMaterial = new MeshBasicMaterial({
       color: 'white',
       transparent: true,
       opacity: 0,
     });
 
-    // Access camera store for the proper transition
     const cameraStore = useCameraStore.getState();
 
     const tl = gsap.timeline({
       onComplete: () => {
-        // Set the camera position to match the main scene starting position
-        // This ensures no awkward camera jump when transitioning scenes
         cameraStore.setCamera(
           INITIAL_POSITIONS.mainIntro.position.clone(),
           INITIAL_POSITIONS.mainIntro.target.clone(),
           'main'
         );
-
-        // Set a flag in the store to avoid resetToInitial being called in MainSceneClient
         cameraStore.setIsLoading(true);
-
-        // Navigate after setting camera state
         router.push('/experience');
       },
     });
 
-    // Fade out UI elements first
     tl.to([buttonRef.current, textRef.current], {
       opacity: 0,
       y: -20,
@@ -414,7 +385,6 @@ const LandingScene = forwardRef<
       ease: 'power2.inOut',
       stagger: 0.1,
     })
-      // Start camera movement upward
       .to(
         [animatedCamera.current, animatedTarget.current],
         {
@@ -424,25 +394,19 @@ const LandingScene = forwardRef<
         },
         '-=0.4'
       )
-      // Fade in overlay when camera is 75% through its movement
       .to(
         overlayMaterial,
         {
           opacity: 1,
           duration: 0.8,
           ease: 'power2.inOut',
-          onUpdate: () => {
-            // Update the material opacity in the scene
-            overlayMaterial.opacity = overlayMaterial.opacity;
-          },
         },
-        '-=1.5' // Start fading when the camera is 75% through its movement
+        '-=1.5'
       );
 
-    // Add a full-screen overlay plane that we can fade in
     const overlayPlane = new Mesh(new PlaneGeometry(100, 100), overlayMaterial);
     overlayPlane.position.z = -10;
-    overlayPlane.renderOrder = 999; // Ensure it renders on top
+    overlayPlane.renderOrder = 999;
     cameraRef.current?.add(overlayPlane);
   };
 
@@ -451,7 +415,6 @@ const LandingScene = forwardRef<
     () => {
       if (!isReady || !useResponsive || hasAnimated) return;
 
-      // Kill any existing timeline
       if (timelineRef.current) {
         timelineRef.current.kill();
       }
@@ -462,7 +425,6 @@ const LandingScene = forwardRef<
         onComplete: () => {
           setAnimating(false);
           setHasAnimated(true);
-          // Sync the HTML position state with the final animated position
           setHtmlPos(animatedHtml.current.clone());
         },
       });
@@ -475,7 +437,7 @@ const LandingScene = forwardRef<
       animatedCamera.current.copy(camera.start);
       animatedTarget.current.copy(target.start);
       animatedHtml.current.copy(html.start);
-      setHtmlPos(html.start.clone()); // Also set the HTML position state
+      setHtmlPos(html.start.clone());
       setAnimating(true);
 
       // Animate positions
@@ -506,7 +468,6 @@ const LandingScene = forwardRef<
             duration: 3,
             ease: 'power2.out',
             onUpdate: () => {
-              // Update HTML position state during animation
               setHtmlPos(animatedHtml.current.clone());
             },
           },
@@ -572,8 +533,6 @@ const LandingScene = forwardRef<
       <DesertModels />
       <AnimatedClouds />
       <VehiclesInstances useSharedMaterial={false}>
-        {/* Static vehicles from JSON data */}
-
         <vehicles.AnimatedPlane pathOffset={0.85} scale={0.3} />
       </VehiclesInstances>
 
@@ -628,7 +587,7 @@ const LandingScene = forwardRef<
               ref={buttonRef}
               onMouseEnter={handleMouseEnterUI}
               onMouseLeave={handleMouseLeaveUI}
-              className="relative z-10" // Add z-index to ensure it's on top
+              className="relative z-10"
             >
               <Button
                 size="sm"
@@ -655,12 +614,6 @@ const LandingScene = forwardRef<
         <planeGeometry args={[1000, 1000]} />
         <meshStandardMaterial color="#DCBF9A" transparent opacity={1} />
       </mesh>
-
-      {fadeOverlay && (
-        <Html fullscreen>
-          <div className="absolute inset-0 bg-white opacity-100 transition-opacity duration-500" />
-        </Html>
-      )}
     </>
   );
 });
