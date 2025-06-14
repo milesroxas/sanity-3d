@@ -4,7 +4,7 @@ import {
   MountainInstances,
   MountainInstances_Blender,
 } from '@/experience/models/MountainInstances';
-import { Environment as DreiEnvironment } from '@react-three/drei';
+import { Environment as DreiEnvironment, Effects } from '@react-three/drei';
 import { useControls } from 'leva';
 
 type EnvironmentPreset =
@@ -52,6 +52,8 @@ export function SceneEnvironment() {
 
   return (
     <>
+      <Effects />
+      <ambientLight intensity={0.05} />
       <DreiEnvironment
         preset={environmentControls.preset}
         background={environmentControls.background}

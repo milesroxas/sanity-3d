@@ -36,11 +36,6 @@ export default function Header({ nav, settings }: HeaderProps) {
   const isExperiencePage = pathname === '/experience' || pathname.startsWith('/experience/');
   const isLandingPage = pathname === '/';
 
-  // Don't render the header on the landing page
-  if (isLandingPage) {
-    return null;
-  }
-
   // Update experience page state when pathname changes
   useEffect(() => {
     setExperiencePage(isExperiencePage);
@@ -150,6 +145,11 @@ export default function Header({ nav, settings }: HeaderProps) {
       hideNav();
     }
   }, [otherMarkersVisible, isExperiencePage, showHeader, showNav, hideHeader, hideNav]);
+
+  // Don't render the header on the landing page
+  if (isLandingPage) {
+    return null;
+  }
 
   return (
     <header ref={headerRef} className="fixed top-0 z-50 w-full border-border/40 py-2">

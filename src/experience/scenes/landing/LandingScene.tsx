@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { useGSAP } from '@gsap/react';
 import { Float, Html, PerspectiveCamera } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 
@@ -16,6 +15,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Euler,
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
@@ -31,37 +31,131 @@ import { Ground } from './compositions/Ground';
 import { Logo } from './compositions/Logo';
 import { useLandingCameraStore } from './store/landingCameraStore';
 
-interface ResponsivePositions {
-  camera: {
-    start: Vector3;
-    end: Vector3;
-  };
-  target: {
-    start: Vector3;
-    end: Vector3;
-  };
-  html: {
-    start: Vector3;
-    end: Vector3;
-  };
-  billboard: {
-    position: Vector3;
-    scale: number;
-  };
-}
-
 interface Vec3 {
   x: number;
   y: number;
   z: number;
 }
 
+interface ResponsiveConfig {
+  camera: {
+    position: Vec3;
+    target: Vec3;
+  };
+  mainContent: {
+    position: Vec3;
+    rotation: Vec3;
+  };
+  billboard: {
+    position: Vec3;
+    scale: number;
+  };
+  logo: {
+    position: Vec3;
+    rotation: Vec3;
+  };
+  links: {
+    position: Vec3;
+  };
+}
+
 // Mouse interaction configuration
 const MOUSE_CONFIG = {
-  influence: 1.5, // Subtle influence strength
-  dampingFactor: 0.05, // Smooth damping for natural feel
-  uiDampingFactor: 0.8, // Reduce movement when hovering UI (subtle)
+  influence: 1.5,
+  dampingFactor: 0.05,
+  uiDampingFactor: 0.8,
 } as const;
+
+// Responsive configurations
+const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', ResponsiveConfig> = {
+  mobile: {
+    camera: {
+      position: { x: 0, y: 4, z: 80 },
+      target: { x: 0, y: 12, z: 0 },
+    },
+    mainContent: {
+      position: { x: -3.0, y: 11.7, z: 40.7 },
+      rotation: { x: 0, y: 0.25, z: 0 },
+    },
+    billboard: {
+      position: { x: 2.4, y: 0, z: -77.6 },
+      scale: 0.8,
+    },
+    logo: {
+      position: { x: 20.0, y: 9.0, z: -31.5 },
+      rotation: { x: 0, y: 0, z: 0 },
+    },
+    links: {
+      position: { x: -15.4, y: 29.8, z: 0 },
+    },
+  },
+  tablet: {
+    camera: {
+      position: { x: 20, y: 12, z: 90 },
+      target: { x: -3, y: 18.1, z: 0 },
+    },
+    mainContent: {
+      position: { x: 2.1, y: 19.4, z: 38.9 },
+      rotation: { x: 0, y: 0.25, z: 0 },
+    },
+    billboard: {
+      position: { x: -12.3, y: 0, z: -70.9 },
+      scale: 1.0,
+    },
+    logo: {
+      position: { x: 5.5, y: 5.5, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+    },
+    links: {
+      position: { x: -24.7, y: 36.7, z: 0 },
+    },
+  },
+  desktop: {
+    camera: {
+      position: { x: 15, y: 10, z: 100 },
+      target: { x: -7, y: 20, z: 0 },
+    },
+    mainContent: {
+      position: { x: -6.2, y: 17.9, z: 50.0 },
+      rotation: { x: 0.12, y: 0.53, z: 0 },
+    },
+    billboard: {
+      position: { x: -4, y: 0, z: -20 },
+      scale: 1.1,
+    },
+    logo: {
+      position: { x: -14.5, y: 12.5, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+    },
+    links: {
+      position: { x: -43.0, y: 42.8, z: 0 },
+    },
+  },
+};
+
+// Custom hook for responsive configuration
+function useResponsiveConfig(): ResponsiveConfig {
+  const { size, viewport } = useThree();
+
+  return useMemo(() => {
+    const isMobile = size.width < 768;
+    const isTablet = size.width >= 768 && size.width < 1024;
+
+    let config: ResponsiveConfig;
+
+    if (isMobile) {
+      config = structuredClone(RESPONSIVE_CONFIGS.mobile);
+      // Adjust billboard position based on viewport
+      config.billboard.position.x = viewport.width * -0.2;
+    } else if (isTablet) {
+      config = structuredClone(RESPONSIVE_CONFIGS.tablet);
+    } else {
+      config = structuredClone(RESPONSIVE_CONFIGS.desktop);
+    }
+
+    return config;
+  }, [size.width, viewport.width]);
+}
 
 const LandingScene = forwardRef<
   any,
@@ -72,8 +166,6 @@ const LandingScene = forwardRef<
     settings: SanitySettings;
   }
 >(({ modalVideo, portalRef, nav, settings: landingSettings }, ref) => {
-  const navServices = nav.services;
-  const navCompanyLinks = nav.companyLinks;
   const [isReady, setIsReady] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const { resetToInitial } = useCameraStore();
@@ -82,266 +174,392 @@ const LandingScene = forwardRef<
   const textRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
-  const timelineRef = useRef<gsap.core.Timeline | null>(null);
+  const { size } = useThree();
 
-  // Get viewport information for responsive calculations
-  const { viewport, size } = useThree();
+  // Get responsive configuration
+  const responsiveConfig = useResponsiveConfig();
 
   // Mouse interaction state
   const mousePosition = useRef({ x: 0, y: 0 });
   const cameraOffset = useRef({ x: 0, y: 0 });
   const isHoveringUI = useRef(false);
 
-  // Calculate responsive positions based on viewport
-  const responsivePositions = useMemo((): ResponsivePositions => {
-    const isMobile = size.width < 768;
-    const isTablet = size.width >= 768 && size.width < 1024;
-    const aspectRatio = size.width / size.height;
-    const isWideScreen = aspectRatio > 2;
-
-    const textOffset = isMobile ? -viewport.width * 0.2 : -viewport.width * 0.35;
-    const billboardOffset = isMobile ? viewport.width * -0.2 : viewport.width * 0.5;
-
-    if (isMobile) {
-      return {
-        camera: {
-          start: new Vector3(0, 12, 120),
-          end: new Vector3(0, 4, 80),
-        },
-        target: {
-          start: new Vector3(0, 10, 0),
-          end: new Vector3(0, 12, 0),
-        },
-        html: {
-          start: new Vector3(0, 8, 0),
-          end: new Vector3(-3, 25, 0),
-        },
-        billboard: {
-          position: new Vector3(billboardOffset, 0, -40),
-          scale: 0.8,
-        },
-      };
-    }
-
-    if (isTablet) {
-      return {
-        camera: {
-          start: new Vector3(15, 10, 110),
-          end: new Vector3(20, 12, 90),
-        },
-        target: {
-          start: new Vector3(-5, 10, 0),
-          end: new Vector3(-3, 15, 0),
-        },
-        html: {
-          start: new Vector3(textOffset, 10, 0),
-          end: new Vector3(-12, 30, 0),
-        },
-        billboard: {
-          position: new Vector3(-7, 0, -20),
-          scale: 1,
-        },
-      };
-    }
-
-    // Desktop and wide screen
-    const cameraZ = isWideScreen ? 120 : 100;
-    const endCameraZ = isWideScreen ? 100 : 100;
-
-    return {
-      camera: {
-        start: new Vector3(20, 7, cameraZ),
-        end: new Vector3(25, 10, endCameraZ),
-      },
-      target: {
-        start: new Vector3(-9, 12, 0),
-        end: new Vector3(-7, 20, 0),
-      },
-      html: {
-        start: new Vector3(textOffset, 12, 0),
-        end: new Vector3(textOffset, 25, 0),
-      },
-      billboard: {
-        position: new Vector3(-4, 0, -20),
-        scale: 1.2,
-      },
-    };
-  }, [viewport.width, size.width, size.height]);
-
-  // Leva controls with proper typing
-  const settings = useControls('Settings', {
-    useResponsive: {
-      value: true,
-      label: 'Use Responsive Positioning',
-    },
-    mouseInfluence: {
-      value: MOUSE_CONFIG.influence,
-      min: 0,
-      max: 5,
-      step: 0.1,
-      label: 'Mouse Influence Strength',
-    },
-    mouseDamping: {
-      value: MOUSE_CONFIG.dampingFactor,
-      min: 0.01,
-      max: 0.2,
-      step: 0.005,
-      label: 'Mouse Damping',
-    },
+  // Debug controls for all scene elements
+  const { enabled: debugEnabled } = useControls('Debug Controls', {
+    enabled: false,
   });
 
-  const manualCameraControls = useControls('Manual Camera', {
-    position: {
-      value: { x: 25, y: 10, z: 80 },
-      render: get => !get('Settings.useResponsive'),
+  const {
+    positionX: cameraPositionX,
+    positionY: cameraPositionY,
+    positionZ: cameraPositionZ,
+    targetX: cameraTargetX,
+    targetY: cameraTargetY,
+    targetZ: cameraTargetZ,
+    mouseInfluence,
+    mouseDamping,
+  } = useControls(
+    'Camera Settings',
+    {
+      positionX: { value: responsiveConfig.camera.position.x, step: 0.1 },
+      positionY: { value: responsiveConfig.camera.position.y, step: 0.1 },
+      positionZ: { value: responsiveConfig.camera.position.z, step: 0.1 },
+      targetX: { value: responsiveConfig.camera.target.x, step: 0.1 },
+      targetY: { value: responsiveConfig.camera.target.y, step: 0.1 },
+      targetZ: { value: responsiveConfig.camera.target.z, step: 0.1 },
+      mouseInfluence: {
+        value: MOUSE_CONFIG.influence,
+        min: 0,
+        max: 5,
+        step: 0.1,
+      },
+      mouseDamping: {
+        value: MOUSE_CONFIG.dampingFactor,
+        min: 0.01,
+        max: 0.2,
+        step: 0.005,
+      },
     },
-    target: {
-      value: { x: -7, y: 20, z: 0 },
-      render: get => !get('Settings.useResponsive'),
-    },
-  });
+    { collapsed: true }
+  );
 
-  const manualHtmlControls = useControls('Manual HTML', {
-    position: {
-      value: { x: -15, y: 25, z: 0 },
-      render: get => !get('Settings.useResponsive'),
+  const {
+    positionX: mainContentPositionX,
+    positionY: mainContentPositionY,
+    positionZ: mainContentPositionZ,
+    rotationX: mainContentRotationX,
+    rotationY: mainContentRotationY,
+    rotationZ: mainContentRotationZ,
+  } = useControls(
+    'Main Content Settings',
+    {
+      positionX: { value: responsiveConfig.mainContent.position.x, step: 0.1 },
+      positionY: { value: responsiveConfig.mainContent.position.y, step: 0.1 },
+      positionZ: { value: responsiveConfig.mainContent.position.z, step: 0.1 },
+      rotationX: {
+        value: responsiveConfig.mainContent.rotation.x,
+        min: -Math.PI,
+        max: Math.PI,
+        step: 0.01,
+      },
+      rotationY: {
+        value: responsiveConfig.mainContent.rotation.y,
+        min: -Math.PI,
+        max: Math.PI,
+        step: 0.01,
+      },
+      rotationZ: {
+        value: responsiveConfig.mainContent.rotation.z,
+        min: -Math.PI,
+        max: Math.PI,
+        step: 0.01,
+      },
     },
-  });
+    { collapsed: true }
+  );
 
-  const manualBillboardControls = useControls('Manual Billboard', {
-    position: {
-      value: { x: -7, y: 0, z: -20 },
-      render: get => !get('Settings.useResponsive'),
+  const {
+    positionX: billboardPositionX,
+    positionY: billboardPositionY,
+    positionZ: billboardPositionZ,
+    scale: billboardScale,
+  } = useControls(
+    'Billboard Settings',
+    {
+      positionX: { value: responsiveConfig.billboard.position.x, step: 0.1 },
+      positionY: { value: responsiveConfig.billboard.position.y, step: 0.1 },
+      positionZ: { value: responsiveConfig.billboard.position.z, step: 0.1 },
+      scale: {
+        value: responsiveConfig.billboard.scale,
+        min: 0.1,
+        max: 2,
+        step: 0.1,
+      },
     },
-    scale: {
-      value: 1,
-      min: 0.1,
-      max: 2,
-      step: 0.1,
-      render: get => !get('Settings.useResponsive'),
-    },
-  });
+    { collapsed: true }
+  );
 
-  useControls('Debug', {
+  const {
+    positionX: logoPositionX,
+    positionY: logoPositionY,
+    positionZ: logoPositionZ,
+    rotationX: logoRotationX,
+    rotationY: logoRotationY,
+    rotationZ: logoRotationZ,
+  } = useControls(
+    'Logo Settings',
+    {
+      positionX: { value: responsiveConfig.logo.position.x, step: 0.1 },
+      positionY: { value: responsiveConfig.logo.position.y, step: 0.1 },
+      positionZ: { value: responsiveConfig.logo.position.z, step: 0.1 },
+      rotationX: {
+        value: responsiveConfig.logo.rotation.x,
+        min: -Math.PI,
+        max: Math.PI,
+        step: 0.01,
+      },
+      rotationY: {
+        value: responsiveConfig.logo.rotation.y,
+        min: -Math.PI,
+        max: Math.PI,
+        step: 0.01,
+      },
+      rotationZ: {
+        value: responsiveConfig.logo.rotation.z,
+        min: -Math.PI,
+        max: Math.PI,
+        step: 0.01,
+      },
+    },
+    { collapsed: true }
+  );
+
+  const {
+    positionX: linksPositionX,
+    positionY: linksPositionY,
+    positionZ: linksPositionZ,
+  } = useControls(
+    'Links Settings',
+    {
+      positionX: { value: responsiveConfig.links.position.x, step: 0.1 },
+      positionY: { value: responsiveConfig.links.position.y, step: 0.1 },
+      positionZ: { value: responsiveConfig.links.position.z, step: 0.1 },
+    },
+    { collapsed: true }
+  );
+
+  useControls('Scene Info', {
     deviceInfo: {
       value: `${size.width}x${size.height} | ${
         size.width < 768 ? 'Mobile' : size.width < 1024 ? 'Tablet' : 'Desktop'
       }`,
       editable: false,
     },
-    introComplete: {
+    mouseInteractionActive: {
       value: hasAnimated && !isAnimating,
       editable: false,
-      label: 'Mouse Interaction Active',
     },
   });
 
-  // Extract values with proper typing
-  const useResponsive = settings.useResponsive as boolean;
-  const mouseInfluence = settings.mouseInfluence as number;
-  const mouseDamping = settings.mouseDamping as number;
-  const manualCameraPosition = manualCameraControls.position as Vec3;
-  const manualCameraTarget = manualCameraControls.target as Vec3;
-  const manualHtmlPosition = manualHtmlControls.position as Vec3;
-  const manualBillboardPosition = manualBillboardControls.position as Vec3;
-  const manualBillboardScale = manualBillboardControls.scale as number;
-
-  // Determine current positions based on mode and animation state
-  const currentPositions = useMemo(() => {
-    if (useResponsive) {
-      const phase = !isReady || isAnimating ? 'start' : 'end';
+  // Use debug controls only when enabled, otherwise use responsive config
+  const currentConfig = useMemo(() => {
+    if (debugEnabled) {
       return {
-        camera: responsivePositions.camera[phase],
-        target: responsivePositions.target[phase],
-        html: responsivePositions.html[phase],
-        billboard: responsivePositions.billboard,
-      };
-    } else {
-      return {
-        camera: new Vector3(manualCameraPosition.x, manualCameraPosition.y, manualCameraPosition.z),
-        target: new Vector3(manualCameraTarget.x, manualCameraTarget.y, manualCameraTarget.z),
-        html: new Vector3(manualHtmlPosition.x, manualHtmlPosition.y, manualHtmlPosition.z),
-        billboard: {
-          position: new Vector3(
-            manualBillboardPosition.x,
-            manualBillboardPosition.y,
-            manualBillboardPosition.z
-          ),
-          scale: manualBillboardScale,
+        camera: {
+          position: {
+            x: cameraPositionX,
+            y: cameraPositionY,
+            z: cameraPositionZ,
+          },
+          target: {
+            x: cameraTargetX,
+            y: cameraTargetY,
+            z: cameraTargetZ,
+          },
         },
+        mainContent: {
+          position: {
+            x: mainContentPositionX,
+            y: mainContentPositionY,
+            z: mainContentPositionZ,
+          },
+          rotation: {
+            x: mainContentRotationX,
+            y: mainContentRotationY,
+            z: mainContentRotationZ,
+          },
+        },
+        billboard: {
+          position: {
+            x: billboardPositionX,
+            y: billboardPositionY,
+            z: billboardPositionZ,
+          },
+          scale: billboardScale,
+        },
+        logo: {
+          position: {
+            x: logoPositionX,
+            y: logoPositionY,
+            z: logoPositionZ,
+          },
+          rotation: {
+            x: logoRotationX,
+            y: logoRotationY,
+            z: logoRotationZ,
+          },
+        },
+        links: {
+          position: {
+            x: linksPositionX,
+            y: linksPositionY,
+            z: linksPositionZ,
+          },
+        },
+        mouseInfluence,
+        mouseDamping,
       };
     }
+    return {
+      ...responsiveConfig,
+      mouseInfluence: MOUSE_CONFIG.influence,
+      mouseDamping: MOUSE_CONFIG.dampingFactor,
+    };
   }, [
-    useResponsive,
-    responsivePositions,
-    isReady,
-    isAnimating,
-    manualCameraPosition,
-    manualCameraTarget,
-    manualHtmlPosition,
-    manualBillboardPosition,
-    manualBillboardScale,
+    debugEnabled,
+    cameraPositionX,
+    cameraPositionY,
+    cameraPositionZ,
+    cameraTargetX,
+    cameraTargetY,
+    cameraTargetZ,
+    mainContentPositionX,
+    mainContentPositionY,
+    mainContentPositionZ,
+    mainContentRotationX,
+    mainContentRotationY,
+    mainContentRotationZ,
+    billboardPositionX,
+    billboardPositionY,
+    billboardPositionZ,
+    billboardScale,
+    logoPositionX,
+    logoPositionY,
+    logoPositionZ,
+    logoRotationX,
+    logoRotationY,
+    logoRotationZ,
+    linksPositionX,
+    linksPositionY,
+    linksPositionZ,
+    mouseInfluence,
+    mouseDamping,
+    responsiveConfig,
   ]);
 
+  // Convert to Vector3 objects
+  const positions = useMemo(
+    () => ({
+      camera: new Vector3(
+        currentConfig.camera.position.x,
+        currentConfig.camera.position.y,
+        currentConfig.camera.position.z
+      ),
+      target: new Vector3(
+        currentConfig.camera.target.x,
+        currentConfig.camera.target.y,
+        currentConfig.camera.target.z
+      ),
+      mainContent: new Vector3(
+        currentConfig.mainContent.position.x,
+        currentConfig.mainContent.position.y,
+        currentConfig.mainContent.position.z
+      ),
+      mainContentRotation: new Euler(
+        currentConfig.mainContent.rotation.x,
+        currentConfig.mainContent.rotation.y,
+        currentConfig.mainContent.rotation.z
+      ),
+      billboard: {
+        position: new Vector3(
+          currentConfig.billboard.position.x,
+          currentConfig.billboard.position.y,
+          currentConfig.billboard.position.z
+        ),
+        scale: currentConfig.billboard.scale,
+      },
+      logo: {
+        position: new Vector3(
+          currentConfig.logo.position.x,
+          currentConfig.logo.position.y,
+          currentConfig.logo.position.z
+        ),
+        rotation: new Euler(
+          currentConfig.logo.rotation.x,
+          currentConfig.logo.rotation.y,
+          currentConfig.logo.rotation.z
+        ),
+      },
+      links: {
+        position: new Vector3(
+          currentConfig.links.position.x,
+          currentConfig.links.position.y,
+          currentConfig.links.position.z
+        ),
+      },
+    }),
+    [currentConfig]
+  );
+
   // Animated values for smooth transitions
-  const animatedCamera = useRef(currentPositions.camera.clone());
-  const animatedTarget = useRef(currentPositions.target.clone());
-  const animatedHtml = useRef(currentPositions.html.clone());
+  const animatedCamera = useRef(positions.camera.clone());
+  const animatedTarget = useRef(positions.target.clone());
+  const animatedMainContent = useRef(positions.mainContent.clone());
 
-  // State for HTML position to trigger re-renders
-  const [htmlPos, setHtmlPos] = useState(() => currentPositions.html.clone());
+  // State for main content position to trigger re-renders
+  const [mainContentPosition, setMainContentPosition] = useState(() =>
+    positions.mainContent.clone()
+  );
+  const [mainContentRotation, setMainContentRotation] = useState(() =>
+    positions.mainContentRotation.clone()
+  );
 
-  // Simplified mouse interaction handlers
-  const handleMouseEnterUI = useCallback(() => {
-    isHoveringUI.current = true;
-  }, []);
+  // Simplified component lifecycle
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsReady(true);
+      setHasAnimated(true);
+      setAnimating(false);
+    }, 100);
 
-  const handleMouseLeaveUI = useCallback(() => {
-    isHoveringUI.current = false;
-  }, []);
+    return () => {
+      clearTimeout(timer);
+      resetToInitial();
+    };
+  }, [resetToInitial, setAnimating]);
 
-  // Smooth mouse interaction with consistent damping
+  // Simplified frame update
   useFrame((state, delta) => {
     if (!cameraRef.current) return;
 
-    const introComplete = hasAnimated && !isAnimating;
-
-    // Only apply mouse interaction when intro is complete
-    if (introComplete) {
-      // Update target mouse position from normalized coordinates (-1 to 1)
+    // Apply mouse interaction
+    if (hasAnimated && !isAnimating) {
       mousePosition.current.x = state.mouse.x;
       mousePosition.current.y = state.mouse.y;
 
-      // Apply UI damping when hovering over UI elements
       const dampingMultiplier = isHoveringUI.current ? MOUSE_CONFIG.uiDampingFactor : 1;
-      const effectiveDamping = mouseDamping * dampingMultiplier;
-
-      // Smooth lerp towards target position with consistent damping
-      // Convert to frame-rate independent lerping
+      const effectiveDamping = currentConfig.mouseDamping * dampingMultiplier;
       const lerpFactor = 1 - Math.exp(-effectiveDamping * 60 * delta);
 
       cameraOffset.current.x +=
-        (mousePosition.current.x * mouseInfluence - cameraOffset.current.x) * lerpFactor;
+        (mousePosition.current.x * currentConfig.mouseInfluence - cameraOffset.current.x) *
+        lerpFactor;
       cameraOffset.current.y +=
-        (mousePosition.current.y * mouseInfluence * 0.5 - cameraOffset.current.y) * lerpFactor; // Reduced Y influence
+        (mousePosition.current.y * currentConfig.mouseInfluence * 0.5 - cameraOffset.current.y) *
+        lerpFactor;
     } else {
-      // Smoothly return to center when intro is not complete
-      const returnLerpFactor = 1 - Math.exp(-mouseDamping * 2 * 60 * delta);
-      cameraOffset.current.x += (0 - cameraOffset.current.x) * returnLerpFactor;
-      cameraOffset.current.y += (0 - cameraOffset.current.y) * returnLerpFactor;
+      cameraOffset.current.x = 0;
+      cameraOffset.current.y = 0;
     }
 
-    // Update camera positions when not animating with GSAP
-    if (!isAnimating) {
-      const positionLerp = 1 - Math.exp(-0.1 * 60 * delta);
-      animatedCamera.current.lerp(currentPositions.camera, positionLerp);
-      animatedTarget.current.lerp(currentPositions.target, positionLerp);
-      animatedHtml.current.lerp(currentPositions.html, positionLerp);
+    // Update camera positions
+    const positionLerp = 1 - Math.exp(-0.1 * 60 * delta);
+    animatedCamera.current.lerp(positions.camera, positionLerp);
+    animatedTarget.current.lerp(positions.target, positionLerp);
+    animatedMainContent.current.lerp(positions.mainContent, positionLerp);
 
-      // Update HTML position state when needed
-      if (animatedHtml.current.distanceTo(htmlPos) > 0.01) {
-        setHtmlPos(animatedHtml.current.clone());
-      }
+    // Update main content position state if it has changed significantly
+    if (animatedMainContent.current.distanceTo(mainContentPosition) > 0.01) {
+      setMainContentPosition(animatedMainContent.current.clone());
+    }
+
+    // Update main content rotation if it has changed
+    if (
+      Math.abs(mainContentRotation.x - positions.mainContentRotation.x) > 0.01 ||
+      Math.abs(mainContentRotation.y - positions.mainContentRotation.y) > 0.01 ||
+      Math.abs(mainContentRotation.z - positions.mainContentRotation.z) > 0.01
+    ) {
+      setMainContentRotation(positions.mainContentRotation.clone());
     }
 
     // Apply final camera position with smooth mouse offset
@@ -353,6 +571,25 @@ const LandingScene = forwardRef<
 
     cameraRef.current.lookAt(animatedTarget.current);
   });
+
+  // Mouse interaction handlers
+  const handleMouseEnterUI = useCallback(() => {
+    isHoveringUI.current = true;
+  }, []);
+
+  const handleMouseLeaveUI = useCallback(() => {
+    isHoveringUI.current = false;
+  }, []);
+
+  // Calculate responsive text size and container width
+  const textStyles = useMemo(
+    () => ({
+      textSize: size.width < 768 ? 'text-lg' : 'text-2xl',
+      containerWidth:
+        size.width < 768 ? 'w-[280px]' : size.width < 1024 ? 'w-[400px]' : 'w-[500px]',
+    }),
+    [size.width]
+  );
 
   // Handle exit animation
   const handleClick = () => {
@@ -410,122 +647,6 @@ const LandingScene = forwardRef<
     cameraRef.current?.add(overlayPlane);
   };
 
-  // GSAP entrance animation
-  useGSAP(
-    () => {
-      if (!isReady || !useResponsive || hasAnimated) return;
-
-      if (timelineRef.current) {
-        timelineRef.current.kill();
-      }
-
-      gsap.set([textRef.current, buttonRef.current], { opacity: 0, y: 20 });
-
-      const tl = gsap.timeline({
-        onComplete: () => {
-          setAnimating(false);
-          setHasAnimated(true);
-          setHtmlPos(animatedHtml.current.clone());
-        },
-      });
-
-      timelineRef.current = tl;
-
-      const { camera, target, html } = responsivePositions;
-
-      // Set initial positions
-      animatedCamera.current.copy(camera.start);
-      animatedTarget.current.copy(target.start);
-      animatedHtml.current.copy(html.start);
-      setHtmlPos(html.start.clone());
-      setAnimating(true);
-
-      // Animate positions
-      tl.to(animatedCamera.current, {
-        x: camera.end.x,
-        y: camera.end.y,
-        z: camera.end.z,
-        duration: 3,
-        ease: 'power2.out',
-      })
-        .to(
-          animatedTarget.current,
-          {
-            x: target.end.x,
-            y: target.end.y,
-            z: target.end.z,
-            duration: 2,
-            ease: 'power2.out',
-          },
-          '<'
-        )
-        .to(
-          animatedHtml.current,
-          {
-            x: html.end.x,
-            y: html.end.y,
-            z: html.end.z,
-            duration: 3,
-            ease: 'power2.out',
-            onUpdate: () => {
-              setHtmlPos(animatedHtml.current.clone());
-            },
-          },
-          '<'
-        )
-        .to(textRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power2.out',
-        })
-        .to(
-          buttonRef.current,
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power2.out',
-          },
-          '-=0.5'
-        );
-
-      return () => {
-        if (timelineRef.current) {
-          timelineRef.current.kill();
-          timelineRef.current = null;
-        }
-      };
-    },
-    { dependencies: [isReady, useResponsive, hasAnimated] }
-  );
-
-  // Component lifecycle
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsReady(true);
-    }, 100);
-
-    return () => {
-      clearTimeout(timer);
-      resetToInitial();
-      if (timelineRef.current) {
-        timelineRef.current.kill();
-        timelineRef.current = null;
-      }
-    };
-  }, [resetToInitial]);
-
-  // Calculate responsive text size and container width
-  const textStyles = useMemo(
-    () => ({
-      textSize: size.width < 768 ? 'text-lg' : 'text-2xl',
-      containerWidth:
-        size.width < 768 ? 'w-[280px]' : size.width < 1024 ? 'w-[400px]' : 'w-[500px]',
-    }),
-    [size.width]
-  );
-
   return (
     <>
       <Effects />
@@ -548,63 +669,61 @@ const LandingScene = forwardRef<
 
       <ambientLight intensity={0.05} />
 
-      <group position={htmlPos}>
-        <Float speed={0.8} floatIntensity={0.2} rotationIntensity={0.1} floatingRange={[-0.4, 0.4]}>
-          <group position={[8, 0, 0]}>
-            <Logo position={[10, -10, 0]} />
-            <Html position={[-15, 20, 0]}>
-              <div
-                className="flex w-screen flex-row gap-6"
-                onMouseEnter={handleMouseEnterUI}
-                onMouseLeave={handleMouseLeaveUI}
-              >
-                {nav.companyLinks?.map((link, index) => {
-                  const linkData = getLinkData(link);
-                  return (
-                    <Link
-                      key={`company-${index}`}
-                      href={linkData.href}
-                      target={linkData.target ? '_blank' : undefined}
-                      rel={linkData.target ? 'noopener noreferrer' : undefined}
-                      className="text-md font-medium transition-colors duration-300 hover:text-green-100"
-                    >
-                      {linkData.label}
-                    </Link>
-                  );
-                })}
-              </div>
-            </Html>
-          </group>
-        </Float>
-
-        <Html center>
-          <div ref={textRef} className={`${textStyles.containerWidth} text-white`}>
-            <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>
-              With over 38 years of experience, O'Linn Security Inc. offers comprehensive security
-              solutions tailored to your needs.
-            </p>
+      <Float speed={0.8} floatIntensity={0.2} rotationIntensity={0.1} floatingRange={[-0.4, 0.4]}>
+        <group position={[8, 0, 0]} rotation={positions.logo.rotation}>
+          <Logo position={positions.logo.position} />
+          <Html position={positions.links.position}>
             <div
-              ref={buttonRef}
+              className="flex w-screen flex-row gap-6"
               onMouseEnter={handleMouseEnterUI}
               onMouseLeave={handleMouseLeaveUI}
-              className="relative z-10"
             >
-              <Button
-                size="sm"
-                variant="button21"
-                onClick={handleClick}
-                className="relative text-white"
-              >
-                ENTER EXPERIENCE
-              </Button>
+              {nav.companyLinks?.map((link, index) => {
+                const linkData = getLinkData(link);
+                return (
+                  <Link
+                    key={`company-${index}`}
+                    href={linkData.href}
+                    target={linkData.target ? '_blank' : undefined}
+                    rel={linkData.target ? 'noopener noreferrer' : undefined}
+                    className="text-md font-medium transition-colors duration-300 hover:text-green-100"
+                  >
+                    {linkData.label}
+                  </Link>
+                );
+              })}
             </div>
+          </Html>
+        </group>
+      </Float>
+
+      <Html center position={mainContentPosition} transform rotation={mainContentRotation}>
+        <div ref={textRef} className={`${textStyles.containerWidth} text-white`}>
+          <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>
+            With over 38 years of experience, O'Linn Security Inc. offers comprehensive security
+            solutions tailored to your needs.
+          </p>
+          <div
+            ref={buttonRef}
+            onMouseEnter={handleMouseEnterUI}
+            onMouseLeave={handleMouseLeaveUI}
+            className="relative z-10"
+          >
+            <Button
+              size="sm"
+              variant="button21"
+              onClick={handleClick}
+              className="relative text-white"
+            >
+              ENTER EXPERIENCE
+            </Button>
           </div>
-        </Html>
-      </group>
+        </div>
+      </Html>
 
       <Billboard
-        position={currentPositions.billboard.position}
-        scale={currentPositions.billboard.scale}
+        position={positions.billboard.position}
+        scale={positions.billboard.scale}
         modalVideo={modalVideo}
         portalRef={portalRef}
       />
