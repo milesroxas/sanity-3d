@@ -1,19 +1,17 @@
 'use client';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Float, Html, PerspectiveCamera, useProgress } from '@react-three/drei';
 import { RootState, useFrame, useThree } from '@react-three/fiber';
 
-import { vehicles } from '@/experience/animations';
-import { AnimatedClouds } from '@/experience/effects/components/Clouds';
-import { VehiclesInstances } from '@/experience/models/VehiclesInstances';
 import { INITIAL_POSITIONS } from '@/experience/scenes/store/cameraStore';
 import { getLinkData, SanityNav } from '@/store/navStore';
 import gsap from 'gsap';
 import { CSSPlugin } from 'gsap/CSSPlugin';
 import { useControls } from 'leva';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+
 import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Euler,
@@ -23,13 +21,15 @@ import {
   PerspectiveCamera as ThreePerspectiveCamera,
   Vector3,
 } from 'three';
+
 import { useCameraStore } from '../store/cameraStore';
+
 import { Billboard } from './components/Billboard';
-import { Effects } from './components/Effects';
+
 import { SceneEnvironment } from './components/SceneEnvironment';
-import { DesertModels } from './compositions/DesertModels';
-import { Ground } from './compositions/Ground';
+
 import { Logo } from './compositions/Logo';
+
 import { useLandingCameraStore } from './store/landingCameraStore';
 
 // Register the plugin
@@ -168,14 +168,21 @@ const LandingScene = forwardRef<
     portalRef: React.RefObject<HTMLDivElement>;
     nav: SanityNav;
   }
->(({ modalVideo, portalRef, nav }) => {
+>(({ modalVideo, portalRef, nav }, ref) => {
   const [hasAnimated, setHasAnimated] = useState(false);
   const { resetToInitial } = useCameraStore();
   const { isAnimating, setAnimating } = useLandingCameraStore();
   const buttonRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
+  const { camera } = useThree();
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const tlRef = useRef<gsap.core.Timeline>(null);
+
   const { size } = useThree();
   const overlayRef = useRef<Mesh | null>(null);
   const animationTimelineRef = useRef<gsap.core.Timeline | null>(null);
@@ -585,7 +592,8 @@ const LandingScene = forwardRef<
     const tl = gsap.timeline({
       onComplete: () => {
         // Ensure the camera is at its final position
-        animatedCamera.current.y = positions.camera.y;
+        animatedCamera.current.copy(positions.camera);
+        animatedTarget.current.copy(positions.target);
 
         setHasAnimated(true);
         setAnimating(false);
@@ -637,6 +645,9 @@ const LandingScene = forwardRef<
       const initialY = animatedCamera.current.y;
       const targetY = positions.camera.y;
 
+      const initialZ = animatedCamera.current.z;
+      const targetZ = positions.camera.z;
+
       // Create a tracking object to store animation state
       const animationTracker = { progress: 0 };
 
@@ -650,12 +661,14 @@ const LandingScene = forwardRef<
 
       tl.to(animationTracker, {
         progress: 1,
-        duration: 4,
+        duration: 1,
         onUpdate: function () {
           // Calculate easing (power2.out)
           const easedProgress = 1 - Math.pow(1 - animationTracker.progress, 2);
           // Update camera Y position directly
           animatedCamera.current.y = initialY + (targetY - initialY) * easedProgress;
+          // Also animate Z position back to normal
+          animatedCamera.current.z = initialZ + (targetZ - initialZ) * easedProgress;
         },
         ease: 'none', // We're handling the easing manually in onUpdate
       });
@@ -769,7 +782,7 @@ const LandingScene = forwardRef<
 
     tl.to(animationTracker, {
       progress: 1,
-      duration: 1.5,
+      duration: 1,
       delay: -0.3, // Equivalent to '-=0.3'
       onUpdate: function () {
         // Apply easing (power2.in)
@@ -828,12 +841,27 @@ const LandingScene = forwardRef<
     };
   }, [resetToInitial]);
 
-  // Frame update
+  // Fix for useFrame hook - properly respect isAnimating flag
+
   useFrame((state: RootState, delta: number) => {
     if (!cameraRef.current) return;
 
-    // Apply mouse interaction
-    if (hasAnimated && !isAnimating) {
+    // When animating (entrance or exit), don't apply any position lerping
+    if (isAnimating) {
+      // During animation, just apply the GSAP-animated positions directly
+      cameraRef.current.position.copy(animatedCamera.current);
+      cameraRef.current.lookAt(animatedTarget.current);
+
+      // Still update main content position for UI
+      if (animatedMainContent.current.distanceTo(mainContentPosition) > 0.01) {
+        setMainContentPosition(animatedMainContent.current.clone());
+      }
+
+      return; // Exit early - don't apply any lerping or mouse interaction
+    }
+
+    // Apply mouse interaction only after animation is complete
+    if (hasAnimated) {
       mousePosition.current.x = state.mouse.x;
       mousePosition.current.y = state.mouse.y;
 
@@ -848,34 +876,26 @@ const LandingScene = forwardRef<
         (mousePosition.current.y * currentConfig.mouseInfluence * 0.5 - cameraOffset.current.y) *
         lerpFactor;
 
-      // Only apply position lerping when not animating with GSAP
-      // and only for positions that aren't being animated by GSAP
+      // Now it's safe to lerp positions
       const positionLerp = 1 - Math.exp(-0.1 * 60 * delta);
-
-      // Only lerp X and Z for camera (Y is handled by GSAP during animation)
-      const tempCamera = positions.camera.clone();
-      tempCamera.y = animatedCamera.current.y; // Preserve the Y value
-      animatedCamera.current.lerp(tempCamera, positionLerp);
-
+      animatedCamera.current.lerp(positions.camera, positionLerp);
       animatedTarget.current.lerp(positions.target, positionLerp);
       animatedMainContent.current.lerp(positions.mainContent, positionLerp);
     } else {
+      // Before animation has run, just set positions directly
+      animatedCamera.current.copy(positions.camera);
+      animatedTarget.current.copy(positions.target);
+      animatedMainContent.current.copy(positions.mainContent);
       cameraOffset.current.x = 0;
       cameraOffset.current.y = 0;
-
-      // During animations, only lerp the main content if needed
-      if (!isAnimating) {
-        const positionLerp = 1 - Math.exp(-0.1 * 60 * delta);
-        animatedMainContent.current.lerp(positions.mainContent, positionLerp);
-      }
     }
 
-    // Update main content position state if it has changed significantly
+    // Update main content position state
     if (animatedMainContent.current.distanceTo(mainContentPosition) > 0.01) {
       setMainContentPosition(animatedMainContent.current.clone());
     }
 
-    // Update main content rotation if it has changed
+    // Update main content rotation
     if (
       Math.abs(mainContentRotation.x - positions.mainContentRotation.x) > 0.01 ||
       Math.abs(mainContentRotation.y - positions.mainContentRotation.y) > 0.01 ||
@@ -896,13 +916,7 @@ const LandingScene = forwardRef<
 
   return (
     <>
-      <Effects />
       <SceneEnvironment />
-      <DesertModels />
-      <AnimatedClouds />
-      <VehiclesInstances useSharedMaterial={false}>
-        <vehicles.AnimatedPlane pathOffset={0.85} scale={0.3} />
-      </VehiclesInstances>
 
       <PerspectiveCamera
         ref={cameraRef}
@@ -913,8 +927,6 @@ const LandingScene = forwardRef<
         far={10000}
         position={animatedCamera.current}
       />
-
-      <ambientLight intensity={0.05} />
 
       <Float speed={0.8} floatIntensity={0.2} rotationIntensity={0.1} floatingRange={[-0.4, 0.4]}>
         <group position={[8, 0, 0]} rotation={positions.logo.rotation}>
@@ -983,12 +995,6 @@ const LandingScene = forwardRef<
         modalVideo={modalVideo}
         portalRef={portalRef}
       />
-
-      <Ground />
-      <mesh rotation-x={-Math.PI / 2} position={[0, -2, 0]}>
-        <planeGeometry args={[1000, 1000]} />
-        <meshStandardMaterial color="#DCBF9A" transparent opacity={1} />
-      </mesh>
     </>
   );
 });

@@ -1,9 +1,15 @@
+import { vehicles } from '@/experience/animations';
 import { BlenderExportData } from '@/experience/baseModels/shared/types';
 import mountainData from '@/experience/data/intro-mountain.json';
+import { AnimatedClouds } from '@/experience/effects/components/Clouds';
 import {
   MountainInstances,
   MountainInstances_Blender,
 } from '@/experience/models/MountainInstances';
+import { Ground } from '@/experience/scenes/landing/compositions/Ground';
+
+import { VehiclesInstances } from '@/experience/models/VehiclesInstances';
+import { DesertModels } from '@/experience/scenes/landing/compositions/DesertModels';
 import { Environment as DreiEnvironment, Effects } from '@react-three/drei';
 import { useControls } from 'leva';
 
@@ -68,6 +74,17 @@ export function SceneEnvironment() {
         ]}
         intensity={environmentControls.lightIntensity}
       />
+
+      <AnimatedClouds />
+
+      <Ground />
+
+      <VehiclesInstances useSharedMaterial={false}>
+        <vehicles.AnimatedPlane pathOffset={0.85} scale={0.3} />
+      </VehiclesInstances>
+
+      <DesertModels />
+
       <MountainInstances useSharedMaterial={true}>
         <MountainInstances_Blender instancesData={mountainData as BlenderExportData[]} />
       </MountainInstances>
