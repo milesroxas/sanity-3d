@@ -1,8 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Float, Html, PerspectiveCamera } from '@react-three/drei';
-import { useFrame, useThree } from '@react-three/fiber';
+import { Float, Html, PerspectiveCamera, useProgress } from '@react-three/drei';
+import { RootState, useFrame, useThree } from '@react-three/fiber';
 
 import { vehicles } from '@/experience/animations';
 import { AnimatedClouds } from '@/experience/effects/components/Clouds';
@@ -175,7 +175,11 @@ const LandingScene = forwardRef<
   const router = useRouter();
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
   const { size } = useThree();
+  const [elementsInitialized, setElementsInitialized] = useState(false);
 
+  // Use Drei's progress hook to track loading
+  const { progress } = useProgress();
+  const isLoaded = progress === 100;
   // Get responsive configuration
   const responsiveConfig = useResponsiveConfig();
 
@@ -183,6 +187,9 @@ const LandingScene = forwardRef<
   const mousePosition = useRef({ x: 0, y: 0 });
   const cameraOffset = useRef({ x: 0, y: 0 });
   const isHoveringUI = useRef(false);
+  const overlayRef = useRef<Mesh | null>(null);
+  const overlayMaterialRef = useRef<MeshBasicMaterial | null>(null);
+  const animationTimelineRef = useRef<GSAPTimeline | null>(null);
 
   // Debug controls for all scene elements
   const { enabled: debugEnabled } = useControls('Debug Controls', {
@@ -504,22 +511,311 @@ const LandingScene = forwardRef<
     positions.mainContentRotation.clone()
   );
 
+  // Refs for logo and links animation
+  const logoRef = useRef<HTMLDivElement>(null);
+  const linksRef = useRef<HTMLDivElement>(null);
+
+  // Initialize UI elements
+  useEffect(() => {
+    const elementsToHide = [
+      buttonRef.current,
+      textRef.current,
+      logoRef.current,
+      linksRef.current,
+    ].filter(Boolean);
+
+    if (elementsToHide.length > 0) {
+      try {
+        elementsToHide.forEach(element => {
+          if (element) {
+            gsap.set(element, {
+              opacity: 0,
+            });
+          }
+        });
+        setElementsInitialized(true);
+      } catch (error) {
+        console.error('Error setting initial opacity:', error);
+      }
+    }
+  }, []);
+
+  // Mouse interaction handlers
+  const handleMouseEnterUI = useCallback(() => {
+    isHoveringUI.current = true;
+  }, []);
+
+  const handleMouseLeaveUI = useCallback(() => {
+    isHoveringUI.current = false;
+  }, []);
+
+  // Calculate responsive text size and container width
+  const textStyles = useMemo(
+    () => ({
+      textSize: size.width < 768 ? 'text-lg' : 'text-2xl',
+      containerWidth:
+        size.width < 768 ? 'w-[280px]' : size.width < 1024 ? 'w-[400px]' : 'w-[500px]',
+    }),
+    [size.width]
+  );
+
+  // Create overlay helper
+  const createOverlay = useCallback(() => {
+    if (!cameraRef.current) return null;
+
+    const overlayMaterial = new MeshBasicMaterial({
+      color: 'white',
+      transparent: true,
+      opacity: 0,
+    });
+
+    const overlayPlane = new Mesh(new PlaneGeometry(100, 100), overlayMaterial);
+    overlayPlane.position.z = -10;
+    overlayPlane.renderOrder = 999;
+    cameraRef.current.add(overlayPlane);
+
+    return { overlayPlane, overlayMaterial };
+  }, []);
+
+  // Handle entrance animation
+  const handleEnter = useCallback(() => {
+    if (!cameraRef.current || isAnimating || hasAnimated) return;
+
+    setAnimating(true);
+
+    // Create overlay
+    const overlay = createOverlay();
+    if (!overlay) {
+      setAnimating(false);
+      return;
+    }
+
+    const { overlayPlane, overlayMaterial } = overlay;
+    overlayRef.current = overlayPlane;
+
+    // Set overlay to fully opaque for fade in
+    overlayMaterial.opacity = 1;
+
+    // Set initial camera position (higher up for entrance effect)
+    const startPosition = positions.camera.clone();
+    startPosition.y += 20;
+
+    animatedCamera.current.copy(startPosition);
+    animatedTarget.current.copy(positions.target);
+
+    // Cancel any existing timeline
+    if (animationTimelineRef.current) {
+      animationTimelineRef.current.kill();
+    }
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        setHasAnimated(true);
+        setAnimating(false);
+        // Clean up overlay
+        if (overlayRef.current && overlayRef.current.parent) {
+          overlayRef.current.parent.remove(overlayRef.current);
+          overlayMaterial.dispose();
+          overlayRef.current = null;
+        }
+      },
+    });
+
+    animationTimelineRef.current = tl;
+
+    // Animate overlay fade out
+    tl.to(overlayMaterial, {
+      opacity: 0,
+      duration: 1.5,
+      ease: 'power2.inOut',
+    })
+      // Animate camera down to final position
+      .to(
+        animatedCamera.current,
+        {
+          y: positions.camera.y,
+          duration: 2,
+          ease: 'power2.out',
+        },
+        '-=1'
+      );
+
+    // Animate UI elements
+    const uiElements = [
+      { ref: buttonRef, delay: 0 },
+      { ref: textRef, delay: 0.1 },
+      { ref: logoRef, delay: 0.2 },
+      { ref: linksRef, delay: 0.3 },
+    ];
+
+    uiElements.forEach(({ ref, delay }) => {
+      if (ref.current) {
+        tl.fromTo(
+          ref.current,
+          {
+            opacity: 0,
+            y: 20,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power2.out',
+          },
+          `-=${0.5 - delay}`
+        );
+      }
+    });
+  }, [isAnimating, hasAnimated, positions.camera, positions.target, createOverlay]);
+
   // Simplified component lifecycle
   useEffect(() => {
-    const timer = setTimeout(() => {
+    console.log('Component lifecycle check:', { elementsInitialized, isLoaded });
+
+    // Only set ready when elements are initialized and assets are loaded
+    if (elementsInitialized && isLoaded) {
+      console.log('Setting isReady to true');
       setIsReady(true);
-      setHasAnimated(true);
-      setAnimating(false);
-    }, 100);
+    }
 
     return () => {
-      clearTimeout(timer);
       resetToInitial();
     };
-  }, [resetToInitial, setAnimating]);
+  }, [resetToInitial, elementsInitialized, isLoaded]);
+
+  // Trigger entrance animation when ready
+  useEffect(() => {
+    if (isReady && !hasAnimated) {
+      handleEnter();
+    }
+  }, [isReady, hasAnimated, handleEnter]);
+
+  // Handle exit animation
+  // Handle exit animation
+  const handleClick = useCallback(() => {
+    if (isAnimating) return;
+
+    setAnimating(true);
+
+    // Create overlay
+    const overlay = createOverlay();
+    if (!overlay) {
+      // Fallback: navigate without animation
+      const cameraStore = useCameraStore.getState();
+      cameraStore.setCamera(
+        INITIAL_POSITIONS.mainIntro.position.clone(),
+        INITIAL_POSITIONS.mainIntro.target.clone(),
+        'main'
+      );
+      cameraStore.setIsLoading(true);
+      router.push('/experience');
+      return;
+    }
+
+    const { overlayPlane, overlayMaterial } = overlay;
+    overlayRef.current = overlayPlane;
+
+    const cameraStore = useCameraStore.getState();
+
+    // Cancel any existing timeline
+    if (animationTimelineRef.current) {
+      animationTimelineRef.current.kill();
+    }
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        cameraStore.setCamera(
+          INITIAL_POSITIONS.mainIntro.position.clone(),
+          INITIAL_POSITIONS.mainIntro.target.clone(),
+          'main'
+        );
+        cameraStore.setIsLoading(true);
+        router.push('/experience');
+      },
+    });
+
+    animationTimelineRef.current = tl;
+
+    // Animate UI elements out
+    const uiElements = [
+      { ref: buttonRef, delay: 0 },
+      { ref: textRef, delay: 0.08 },
+      { ref: logoRef, delay: 0.16 },
+      { ref: linksRef, delay: 0.24 },
+    ];
+
+    uiElements.forEach(({ ref, delay }) => {
+      if (ref.current) {
+        tl.to(
+          ref.current,
+          {
+            opacity: 0,
+            y: -20,
+            duration: 0.6,
+            ease: 'power2.in',
+          },
+          delay
+        );
+      }
+    });
+
+    // Animate camera target upward
+    tl.to(
+      animatedTarget.current,
+      {
+        y: `+=${55}`,
+        duration: 1.5,
+        ease: 'power2.in',
+      },
+      '-=1.5'
+    );
+
+    // Fade in overlay
+    tl.to(
+      overlayMaterial,
+      {
+        opacity: 1,
+        duration: 0.8,
+        ease: 'power2.in',
+      },
+      '-=1'
+    );
+  }, [isAnimating, router, createOverlay]);
+
+  // Trigger entrance animation when loaded
+  useEffect(() => {
+    if (isLoaded && !hasAnimated && !isAnimating) {
+      // Use requestAnimationFrame to ensure DOM is ready
+      requestAnimationFrame(() => {
+        handleEnter();
+      });
+    }
+  }, [isLoaded, hasAnimated, isAnimating, handleEnter]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      // Kill any running animations
+      if (animationTimelineRef.current) {
+        animationTimelineRef.current.kill();
+      }
+      // Clean up overlay if it exists
+      if (overlayRef.current && overlayRef.current.parent) {
+        overlayRef.current.parent.remove(overlayRef.current);
+        if (overlayRef.current.material) {
+          if (Array.isArray(overlayRef.current.material)) {
+            overlayRef.current.material.forEach(mat => mat.dispose());
+          } else {
+            overlayRef.current.material.dispose();
+          }
+        }
+      }
+      resetToInitial();
+    };
+  }, [resetToInitial]);
 
   // Simplified frame update
-  useFrame((state, delta) => {
+  useFrame((state: RootState, delta: number) => {
     if (!cameraRef.current) return;
 
     // Apply mouse interaction
@@ -572,110 +868,6 @@ const LandingScene = forwardRef<
     cameraRef.current.lookAt(animatedTarget.current);
   });
 
-  // Mouse interaction handlers
-  const handleMouseEnterUI = useCallback(() => {
-    isHoveringUI.current = true;
-  }, []);
-
-  const handleMouseLeaveUI = useCallback(() => {
-    isHoveringUI.current = false;
-  }, []);
-
-  // Calculate responsive text size and container width
-  const textStyles = useMemo(
-    () => ({
-      textSize: size.width < 768 ? 'text-lg' : 'text-2xl',
-      containerWidth:
-        size.width < 768 ? 'w-[280px]' : size.width < 1024 ? 'w-[400px]' : 'w-[500px]',
-    }),
-    [size.width]
-  );
-
-  // Handle entrance animation
-  const handleEnter = () => {
-    setAnimating(true);
-
-    const overlayMaterial = new MeshBasicMaterial({
-      color: 'white',
-      transparent: true,
-      opacity: 1,
-    });
-
-    const cameraStore = useCameraStore.getState();
-
-    const tl = gsap.timeline({});
-
-    tl.to([buttonRef.current, textRef.current], {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      ease: 'power2.inOut',
-      stagger: 0.1,
-    });
-  };
-
-  // Handle exit animation
-  const handleClick = () => {
-    setAnimating(true);
-
-    const overlayMaterial = new MeshBasicMaterial({
-      color: 'white',
-      transparent: true,
-      opacity: 0,
-    });
-
-    const cameraStore = useCameraStore.getState();
-
-    const tl = gsap.timeline({
-      onComplete: () => {
-        cameraStore.setCamera(
-          INITIAL_POSITIONS.mainIntro.position.clone(),
-          INITIAL_POSITIONS.mainIntro.target.clone(),
-          'main'
-        );
-        cameraStore.setIsLoading(true);
-        router.push('/experience');
-      },
-    });
-
-    tl.to([buttonRef.current, textRef.current], {
-      opacity: 0,
-      y: -20,
-      duration: 0.8,
-      ease: 'power2.inOut',
-      stagger: 0.1,
-    })
-      .to(
-        [animatedCamera.current, animatedTarget.current],
-        {
-          y: '+=50',
-          duration: 2,
-          ease: 'power1.inOut',
-        },
-        '-=0.4'
-      )
-      .to(
-        overlayMaterial,
-        {
-          opacity: 1,
-          duration: 0.8,
-          ease: 'power2.inOut',
-        },
-        '-=1.5'
-      );
-
-    const overlayPlane = new Mesh(new PlaneGeometry(100, 100), overlayMaterial);
-    overlayPlane.position.z = -10;
-    overlayPlane.renderOrder = 999;
-    cameraRef.current?.add(overlayPlane);
-  };
-
-  useEffect(() => {
-    if (isReady && !isAnimating) {
-      handleEnter();
-    }
-  }, [isReady, isAnimating]);
-
   return (
     <>
       <Effects />
@@ -700,10 +892,13 @@ const LandingScene = forwardRef<
 
       <Float speed={0.8} floatIntensity={0.2} rotationIntensity={0.1} floatingRange={[-0.4, 0.4]}>
         <group position={[8, 0, 0]} rotation={positions.logo.rotation}>
-          <Logo position={positions.logo.position} />
+          <group ref={logoRef}>
+            <Logo position={positions.logo.position} />
+          </group>
           <Html position={positions.links.position}>
             <div
-              className="flex w-screen flex-row gap-6"
+              ref={linksRef}
+              className="flex w-screen flex-row gap-6 opacity-0"
               onMouseEnter={handleMouseEnterUI}
               onMouseLeave={handleMouseLeaveUI}
             >
@@ -727,7 +922,7 @@ const LandingScene = forwardRef<
       </Float>
 
       <Html center position={mainContentPosition} transform rotation={mainContentRotation}>
-        <div ref={textRef} className={`${textStyles.containerWidth} text-white`}>
+        <div ref={textRef} className={`${textStyles.containerWidth} text-white opacity-0`}>
           <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>
             With over 38 years of experience, O'Linn Security Inc. offers comprehensive security
             solutions tailored to your needs.
