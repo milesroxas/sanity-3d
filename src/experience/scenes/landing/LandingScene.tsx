@@ -584,6 +584,9 @@ const LandingScene = forwardRef<
 
     const tl = gsap.timeline({
       onComplete: () => {
+        // Ensure the camera is at its final position
+        animatedCamera.current.y = positions.camera.y;
+
         setHasAnimated(true);
         setAnimating(false);
         // Clean up overlay
@@ -634,6 +637,9 @@ const LandingScene = forwardRef<
       const initialY = animatedCamera.current.y;
       const targetY = positions.camera.y;
 
+      // Create a tracking object to store animation state
+      const animationTracker = { progress: 0 };
+
       tl.to(
         {},
         {
@@ -642,21 +648,17 @@ const LandingScene = forwardRef<
         }
       );
 
-      tl.to(
-        {},
-        {
-          duration: 4,
-          onUpdate: function () {
-            // Calculate progress (0 to 1)
-            const progress = this.progress();
-            // Apply easing (power2.out)
-            const easedProgress = 1 - Math.pow(1 - progress, 2);
-            // Update camera Y position directly
-            animatedCamera.current.y = initialY + (targetY - initialY) * easedProgress;
-          },
-          ease: 'none', // We're handling the easing manually in onUpdate
-        }
-      );
+      tl.to(animationTracker, {
+        progress: 1,
+        duration: 4,
+        onUpdate: function () {
+          // Calculate easing (power2.out)
+          const easedProgress = 1 - Math.pow(1 - animationTracker.progress, 2);
+          // Update camera Y position directly
+          animatedCamera.current.y = initialY + (targetY - initialY) * easedProgress;
+        },
+        ease: 'none', // We're handling the easing manually in onUpdate
+      });
 
       // Animate UI elements
       const uiElements = [
@@ -762,26 +764,25 @@ const LandingScene = forwardRef<
     const initialTargetY = animatedTarget.current.y;
     const targetTargetY = initialTargetY + 55;
 
-    tl.to(
-      {},
-      {
-        duration: 1.5,
-        delay: -0.3, // Equivalent to '-=0.3'
-        onUpdate: function () {
-          // Calculate progress (0 to 1)
-          const progress = this.progress();
-          // Apply easing (power2.in)
-          const easedProgress = Math.pow(progress, 2);
-          // Update camera Y position directly
-          animatedCamera.current.y =
-            initialCameraY + (targetCameraY - initialCameraY) * easedProgress;
-          // Update target Y position directly
-          animatedTarget.current.y =
-            initialTargetY + (targetTargetY - initialTargetY) * easedProgress;
-        },
-        ease: 'none', // We're handling the easing manually in onUpdate
-      }
-    );
+    // Create a tracking object to store animation state
+    const animationTracker = { progress: 0 };
+
+    tl.to(animationTracker, {
+      progress: 1,
+      duration: 1.5,
+      delay: -0.3, // Equivalent to '-=0.3'
+      onUpdate: function () {
+        // Apply easing (power2.in)
+        const easedProgress = Math.pow(animationTracker.progress, 2);
+        // Update camera Y position directly
+        animatedCamera.current.y =
+          initialCameraY + (targetCameraY - initialCameraY) * easedProgress;
+        // Update target Y position directly
+        animatedTarget.current.y =
+          initialTargetY + (targetTargetY - initialTargetY) * easedProgress;
+      },
+      ease: 'none', // We're handling the easing manually in onUpdate
+    });
 
     // Fade in overlay
     tl.to(
@@ -848,8 +849,14 @@ const LandingScene = forwardRef<
         lerpFactor;
 
       // Only apply position lerping when not animating with GSAP
+      // and only for positions that aren't being animated by GSAP
       const positionLerp = 1 - Math.exp(-0.1 * 60 * delta);
-      animatedCamera.current.lerp(positions.camera, positionLerp);
+
+      // Only lerp X and Z for camera (Y is handled by GSAP during animation)
+      const tempCamera = positions.camera.clone();
+      tempCamera.y = animatedCamera.current.y; // Preserve the Y value
+      animatedCamera.current.lerp(tempCamera, positionLerp);
+
       animatedTarget.current.lerp(positions.target, positionLerp);
       animatedMainContent.current.lerp(positions.mainContent, positionLerp);
     } else {

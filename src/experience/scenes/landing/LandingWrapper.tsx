@@ -32,12 +32,7 @@ export default function LandingWrapper({
 
     // Set R3F content with both videos
     setR3FContent(
-      <LandingScene
-        nav={nav}
-        settings={settings}
-        modalVideo={(modalVideo as any)?.video}
-        portalRef={portalRef}
-      />
+      <LandingScene nav={nav} modalVideo={(modalVideo as any)?.video} portalRef={portalRef} />
     );
 
     // Cleanup when unmounting
