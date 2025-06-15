@@ -59,13 +59,16 @@ export function SceneEnvironment() {
   return (
     <>
       <Effects />
+
       <ambientLight intensity={0.05} />
+
       <DreiEnvironment
         preset={environmentControls.preset}
         background={environmentControls.background}
         backgroundBlurriness={environmentControls.blur}
         environmentIntensity={environmentControls.intensity}
       />
+
       <directionalLight
         position={[
           environmentControls.lightPosition.x,
@@ -77,8 +80,6 @@ export function SceneEnvironment() {
 
       <AnimatedClouds />
 
-      <Ground />
-
       <VehiclesInstances useSharedMaterial={false}>
         <vehicles.AnimatedPlane pathOffset={0.85} scale={0.3} />
       </VehiclesInstances>
@@ -88,6 +89,12 @@ export function SceneEnvironment() {
       <MountainInstances useSharedMaterial={true}>
         <MountainInstances_Blender instancesData={mountainData as BlenderExportData[]} />
       </MountainInstances>
+
+      <Ground />
+      <mesh rotation-x={-Math.PI / 2} position={[0, -2, 0]}>
+        <planeGeometry args={[1000, 1000]} />
+        <meshStandardMaterial color="#DCBF9A" transparent opacity={1} />
+      </mesh>
     </>
   );
 }
