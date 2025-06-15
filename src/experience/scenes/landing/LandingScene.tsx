@@ -70,23 +70,23 @@ const MOUSE_CONFIG = {
 const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', ResponsiveConfig> = {
   mobile: {
     camera: {
-      position: { x: 0, y: 4, z: 80 },
-      target: { x: 0, y: 12, z: 0 },
+      position: { x: 0, y: 5.8, z: 77.4 },
+      target: { x: 0, y: 19.6, z: -5 },
     },
     mainContent: {
-      position: { x: -3.0, y: 11.7, z: 40.7 },
-      rotation: { x: 0, y: 0.25, z: 0 },
+      position: { x: -0.8, y: 14.2, z: 40.7 },
+      rotation: { x: 0.1, y: 0.0, z: 0 },
     },
     billboard: {
       position: { x: 2.4, y: 0, z: -77.6 },
       scale: 0.8,
     },
     logo: {
-      position: { x: 20.0, y: 9.0, z: -31.5 },
+      position: { x: 27.4, y: 21.9, z: -31.5 },
       rotation: { x: 0, y: 0, z: 0 },
     },
     links: {
-      position: { x: -15.4, y: 29.8, z: 0 },
+      position: { x: -16.8, y: 33.4, z: 0 },
     },
   },
   tablet: {
@@ -95,7 +95,7 @@ const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', ResponsiveConf
       target: { x: -3, y: 18.1, z: 0 },
     },
     mainContent: {
-      position: { x: 2.1, y: 19.4, z: 38.9 },
+      position: { x: 0.1, y: 18.2, z: 38.9 },
       rotation: { x: 0, y: 0.25, z: 0 },
     },
     billboard: {
@@ -117,7 +117,7 @@ const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', ResponsiveConf
     },
     mainContent: {
       position: { x: -6.2, y: 17.9, z: 50.0 },
-      rotation: { x: 0.12, y: 0.53, z: 0 },
+      rotation: { x: 0.03, y: 0.3, z: 0.01 },
     },
     billboard: {
       position: { x: -4, y: 0, z: -20 },
@@ -591,6 +591,29 @@ const LandingScene = forwardRef<
     [size.width]
   );
 
+  // Handle entrance animation
+  const handleEnter = () => {
+    setAnimating(true);
+
+    const overlayMaterial = new MeshBasicMaterial({
+      color: 'white',
+      transparent: true,
+      opacity: 1,
+    });
+
+    const cameraStore = useCameraStore.getState();
+
+    const tl = gsap.timeline({});
+
+    tl.to([buttonRef.current, textRef.current], {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: 'power2.inOut',
+      stagger: 0.1,
+    });
+  };
+
   // Handle exit animation
   const handleClick = () => {
     setAnimating(true);
@@ -647,6 +670,12 @@ const LandingScene = forwardRef<
     cameraRef.current?.add(overlayPlane);
   };
 
+  useEffect(() => {
+    if (isReady && !isAnimating) {
+      handleEnter();
+    }
+  }, [isReady, isAnimating]);
+
   return (
     <>
       <Effects />
@@ -686,7 +715,7 @@ const LandingScene = forwardRef<
                     href={linkData.href}
                     target={linkData.target ? '_blank' : undefined}
                     rel={linkData.target ? 'noopener noreferrer' : undefined}
-                    className="text-md font-medium transition-colors duration-300 hover:text-green-100"
+                    className="text-md font-semibold transition-colors duration-300 hover:text-green-100"
                   >
                     {linkData.label}
                   </Link>
