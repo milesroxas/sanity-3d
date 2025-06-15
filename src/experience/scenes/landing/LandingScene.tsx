@@ -10,6 +10,7 @@ import { VehiclesInstances } from '@/experience/models/VehiclesInstances';
 import { INITIAL_POSITIONS } from '@/experience/scenes/store/cameraStore';
 import { getLinkData, SanityNav, SanitySettings } from '@/store/navStore';
 import gsap from 'gsap';
+import { CSSPlugin } from 'gsap/CSSPlugin';
 import { useControls } from 'leva';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -30,6 +31,9 @@ import { DesertModels } from './compositions/DesertModels';
 import { Ground } from './compositions/Ground';
 import { Logo } from './compositions/Logo';
 import { useLandingCameraStore } from './store/landingCameraStore';
+
+// Register the plugin
+gsap.registerPlugin(CSSPlugin);
 
 interface Vec3 {
   x: number;
@@ -166,7 +170,6 @@ const LandingScene = forwardRef<
     settings: SanitySettings;
   }
 >(({ modalVideo, portalRef, nav, settings: landingSettings }, ref) => {
-  const [isReady, setIsReady] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const { resetToInitial } = useCameraStore();
   const { isAnimating, setAnimating } = useLandingCameraStore();
@@ -175,11 +178,13 @@ const LandingScene = forwardRef<
   const router = useRouter();
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
   const { size } = useThree();
-  const [elementsInitialized, setElementsInitialized] = useState(false);
+  const overlayRef = useRef<Mesh | null>(null);
+  const animationTimelineRef = useRef<gsap.core.Timeline | null>(null);
 
   // Use Drei's progress hook to track loading
   const { progress } = useProgress();
   const isLoaded = progress === 100;
+
   // Get responsive configuration
   const responsiveConfig = useResponsiveConfig();
 
@@ -187,9 +192,6 @@ const LandingScene = forwardRef<
   const mousePosition = useRef({ x: 0, y: 0 });
   const cameraOffset = useRef({ x: 0, y: 0 });
   const isHoveringUI = useRef(false);
-  const overlayRef = useRef<Mesh | null>(null);
-  const overlayMaterialRef = useRef<MeshBasicMaterial | null>(null);
-  const animationTimelineRef = useRef<GSAPTimeline | null>(null);
 
   // Debug controls for all scene elements
   const { enabled: debugEnabled } = useControls('Debug Controls', {
@@ -515,31 +517,6 @@ const LandingScene = forwardRef<
   const logoRef = useRef<HTMLDivElement>(null);
   const linksRef = useRef<HTMLDivElement>(null);
 
-  // Initialize UI elements
-  useEffect(() => {
-    const elementsToHide = [
-      buttonRef.current,
-      textRef.current,
-      logoRef.current,
-      linksRef.current,
-    ].filter(Boolean);
-
-    if (elementsToHide.length > 0) {
-      try {
-        elementsToHide.forEach(element => {
-          if (element) {
-            gsap.set(element, {
-              opacity: 0,
-            });
-          }
-        });
-        setElementsInitialized(true);
-      } catch (error) {
-        console.error('Error setting initial opacity:', error);
-      }
-    }
-  }, []);
-
   // Mouse interaction handlers
   const handleMouseEnterUI = useCallback(() => {
     isHoveringUI.current = true;
@@ -566,7 +543,7 @@ const LandingScene = forwardRef<
     const overlayMaterial = new MeshBasicMaterial({
       color: 'white',
       transparent: true,
-      opacity: 0,
+      opacity: 1,
     });
 
     const overlayPlane = new Mesh(new PlaneGeometry(100, 100), overlayMaterial);
@@ -585,16 +562,10 @@ const LandingScene = forwardRef<
 
     // Create overlay
     const overlay = createOverlay();
-    if (!overlay) {
-      setAnimating(false);
-      return;
-    }
+    if (!overlay) return;
 
     const { overlayPlane, overlayMaterial } = overlay;
     overlayRef.current = overlayPlane;
-
-    // Set overlay to fully opaque for fade in
-    overlayMaterial.opacity = 1;
 
     // Set initial camera position (higher up for entrance effect)
     const startPosition = positions.camera.clone();
@@ -607,6 +578,10 @@ const LandingScene = forwardRef<
     if (animationTimelineRef.current) {
       animationTimelineRef.current.kill();
     }
+
+    // Make sure the overlay is visible initially
+    overlayMaterial.opacity = 1;
+    overlayMaterial.transparent = true;
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -623,74 +598,74 @@ const LandingScene = forwardRef<
 
     animationTimelineRef.current = tl;
 
-    // Animate overlay fade out
-    tl.to(overlayMaterial, {
-      opacity: 0,
-      duration: 1.5,
-      ease: 'power2.inOut',
-    })
+    // Create a separate function to animate the material opacity
+    // This avoids the GSAP plugin issue
+    const animateOverlay = () => {
+      return new Promise<void>(resolve => {
+        let startTime = Date.now();
+        const duration = 1000; // 1 second in ms
+
+        const tick = () => {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+
+          // Use a power ease-out function
+          const easeProgress = 1 - Math.pow(1 - progress, 2);
+
+          // Set the opacity directly
+          if (overlayMaterial) {
+            overlayMaterial.opacity = 1 - easeProgress;
+          }
+
+          if (progress < 1) {
+            requestAnimationFrame(tick);
+          } else {
+            resolve();
+          }
+        };
+
+        requestAnimationFrame(tick);
+      });
+    };
+
+    // Start the overlay animation and then continue with the timeline
+    animateOverlay().then(() => {
       // Animate camera down to final position
-      .to(
-        animatedCamera.current,
-        {
-          y: positions.camera.y,
-          duration: 2,
-          ease: 'power2.out',
-        },
-        '-=1'
-      );
+      tl.to(animatedCamera.current, {
+        y: positions.camera.y,
+        duration: 2,
+        ease: 'power2.out',
+      });
 
-    // Animate UI elements
-    const uiElements = [
-      { ref: buttonRef, delay: 0 },
-      { ref: textRef, delay: 0.1 },
-      { ref: logoRef, delay: 0.2 },
-      { ref: linksRef, delay: 0.3 },
-    ];
+      // Animate UI elements
+      const uiElements = [
+        { ref: buttonRef, delay: 0 },
+        { ref: textRef, delay: 0.1 },
+        { ref: logoRef, delay: 0.2 },
+        { ref: linksRef, delay: 0.3 },
+      ];
 
-    uiElements.forEach(({ ref, delay }) => {
-      if (ref.current) {
-        tl.fromTo(
-          ref.current,
-          {
-            opacity: 0,
-            y: 20,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power2.out',
-          },
-          `-=${0.5 - delay}`
-        );
-      }
+      uiElements.forEach(({ ref, delay }) => {
+        if (ref.current) {
+          tl.fromTo(
+            ref.current,
+            {
+              opacity: 0,
+              y: 20,
+            },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power2.out',
+            },
+            `-=0.7`
+          );
+        }
+      });
     });
   }, [isAnimating, hasAnimated, positions.camera, positions.target, createOverlay]);
 
-  // Simplified component lifecycle
-  useEffect(() => {
-    console.log('Component lifecycle check:', { elementsInitialized, isLoaded });
-
-    // Only set ready when elements are initialized and assets are loaded
-    if (elementsInitialized && isLoaded) {
-      console.log('Setting isReady to true');
-      setIsReady(true);
-    }
-
-    return () => {
-      resetToInitial();
-    };
-  }, [resetToInitial, elementsInitialized, isLoaded]);
-
-  // Trigger entrance animation when ready
-  useEffect(() => {
-    if (isReady && !hasAnimated) {
-      handleEnter();
-    }
-  }, [isReady, hasAnimated, handleEnter]);
-
-  // Handle exit animation
   // Handle exit animation
   const handleClick = useCallback(() => {
     if (isAnimating) return;
@@ -759,6 +734,17 @@ const LandingScene = forwardRef<
       }
     });
 
+    // Animate camera position upward
+    tl.to(
+      animatedCamera.current,
+      {
+        y: `+=${50}`,
+        duration: 1.5,
+        ease: 'power2.in',
+      },
+      '-=0.3'
+    );
+
     // Animate camera target upward
     tl.to(
       animatedTarget.current,
@@ -814,7 +800,7 @@ const LandingScene = forwardRef<
     };
   }, [resetToInitial]);
 
-  // Simplified frame update
+  // Frame update
   useFrame((state: RootState, delta: number) => {
     if (!cameraRef.current) return;
 
@@ -898,7 +884,8 @@ const LandingScene = forwardRef<
           <Html position={positions.links.position}>
             <div
               ref={linksRef}
-              className="flex w-screen flex-row gap-6 opacity-0"
+              className="flex w-screen flex-row gap-6"
+              style={{ opacity: 0 }}
               onMouseEnter={handleMouseEnterUI}
               onMouseLeave={handleMouseLeaveUI}
             >
@@ -922,7 +909,11 @@ const LandingScene = forwardRef<
       </Float>
 
       <Html center position={mainContentPosition} transform rotation={mainContentRotation}>
-        <div ref={textRef} className={`${textStyles.containerWidth} text-white opacity-0`}>
+        <div
+          ref={textRef}
+          className={`${textStyles.containerWidth} text-white`}
+          style={{ opacity: 0 }}
+        >
           <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>
             With over 38 years of experience, O'Linn Security Inc. offers comprehensive security
             solutions tailored to your needs.
@@ -932,6 +923,7 @@ const LandingScene = forwardRef<
             onMouseEnter={handleMouseEnterUI}
             onMouseLeave={handleMouseLeaveUI}
             className="relative z-10"
+            style={{ opacity: 0 }}
           >
             <Button
               size="sm"
