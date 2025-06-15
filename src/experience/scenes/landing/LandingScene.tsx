@@ -8,7 +8,7 @@ import { vehicles } from '@/experience/animations';
 import { AnimatedClouds } from '@/experience/effects/components/Clouds';
 import { VehiclesInstances } from '@/experience/models/VehiclesInstances';
 import { INITIAL_POSITIONS } from '@/experience/scenes/store/cameraStore';
-import { getLinkData, SanityNav, SanitySettings } from '@/store/navStore';
+import { getLinkData, SanityNav } from '@/store/navStore';
 import gsap from 'gsap';
 import { CSSPlugin } from 'gsap/CSSPlugin';
 import { useControls } from 'leva';
@@ -167,9 +167,8 @@ const LandingScene = forwardRef<
     modalVideo?: Sanity.Video;
     portalRef: React.RefObject<HTMLDivElement>;
     nav: SanityNav;
-    settings: SanitySettings;
   }
->(({ modalVideo, portalRef, nav, settings: landingSettings }, ref) => {
+>(({ modalVideo, portalRef, nav }) => {
   const [hasAnimated, setHasAnimated] = useState(false);
   const { resetToInitial } = useCameraStore();
   const { isAnimating, setAnimating } = useLandingCameraStore();
@@ -569,7 +568,7 @@ const LandingScene = forwardRef<
 
     // Set initial camera position (higher up for entrance effect)
     const startPosition = positions.camera.clone();
-    startPosition.y += 20;
+    startPosition.z += 200;
 
     animatedCamera.current.copy(startPosition);
     animatedTarget.current.copy(positions.target);
@@ -602,7 +601,7 @@ const LandingScene = forwardRef<
     // This avoids the GSAP plugin issue
     const animateOverlay = () => {
       return new Promise<void>(resolve => {
-        let startTime = Date.now();
+        const startTime = Date.now();
         const duration = 1000; // 1 second in ms
 
         const tick = () => {
@@ -631,11 +630,33 @@ const LandingScene = forwardRef<
     // Start the overlay animation and then continue with the timeline
     animateOverlay().then(() => {
       // Animate camera down to final position
-      tl.to(animatedCamera.current, {
-        y: positions.camera.y,
-        duration: 2,
-        ease: 'power2.out',
-      });
+      // Store initial position to animate from
+      const initialY = animatedCamera.current.y;
+      const targetY = positions.camera.y;
+
+      tl.to(
+        {},
+        {
+          duration: 0.5, // This creates the delay
+          onComplete: () => {},
+        }
+      );
+
+      tl.to(
+        {},
+        {
+          duration: 4,
+          onUpdate: function () {
+            // Calculate progress (0 to 1)
+            const progress = this.progress();
+            // Apply easing (power2.out)
+            const easedProgress = 1 - Math.pow(1 - progress, 2);
+            // Update camera Y position directly
+            animatedCamera.current.y = initialY + (targetY - initialY) * easedProgress;
+          },
+          ease: 'none', // We're handling the easing manually in onUpdate
+        }
+      );
 
       // Animate UI elements
       const uiElements = [
@@ -735,25 +756,31 @@ const LandingScene = forwardRef<
     });
 
     // Animate camera position upward
-    tl.to(
-      animatedCamera.current,
-      {
-        y: `+=${50}`,
-        duration: 1.5,
-        ease: 'power2.in',
-      },
-      '-=0.3'
-    );
+    const initialCameraY = animatedCamera.current.y;
+    const targetCameraY = initialCameraY + 50;
 
-    // Animate camera target upward
+    const initialTargetY = animatedTarget.current.y;
+    const targetTargetY = initialTargetY + 55;
+
     tl.to(
-      animatedTarget.current,
+      {},
       {
-        y: `+=${55}`,
         duration: 1.5,
-        ease: 'power2.in',
-      },
-      '-=1.5'
+        delay: -0.3, // Equivalent to '-=0.3'
+        onUpdate: function () {
+          // Calculate progress (0 to 1)
+          const progress = this.progress();
+          // Apply easing (power2.in)
+          const easedProgress = Math.pow(progress, 2);
+          // Update camera Y position directly
+          animatedCamera.current.y =
+            initialCameraY + (targetCameraY - initialCameraY) * easedProgress;
+          // Update target Y position directly
+          animatedTarget.current.y =
+            initialTargetY + (targetTargetY - initialTargetY) * easedProgress;
+        },
+        ease: 'none', // We're handling the easing manually in onUpdate
+      }
     );
 
     // Fade in overlay
@@ -819,16 +846,22 @@ const LandingScene = forwardRef<
       cameraOffset.current.y +=
         (mousePosition.current.y * currentConfig.mouseInfluence * 0.5 - cameraOffset.current.y) *
         lerpFactor;
+
+      // Only apply position lerping when not animating with GSAP
+      const positionLerp = 1 - Math.exp(-0.1 * 60 * delta);
+      animatedCamera.current.lerp(positions.camera, positionLerp);
+      animatedTarget.current.lerp(positions.target, positionLerp);
+      animatedMainContent.current.lerp(positions.mainContent, positionLerp);
     } else {
       cameraOffset.current.x = 0;
       cameraOffset.current.y = 0;
-    }
 
-    // Update camera positions
-    const positionLerp = 1 - Math.exp(-0.1 * 60 * delta);
-    animatedCamera.current.lerp(positions.camera, positionLerp);
-    animatedTarget.current.lerp(positions.target, positionLerp);
-    animatedMainContent.current.lerp(positions.mainContent, positionLerp);
+      // During animations, only lerp the main content if needed
+      if (!isAnimating) {
+        const positionLerp = 1 - Math.exp(-0.1 * 60 * delta);
+        animatedMainContent.current.lerp(positions.mainContent, positionLerp);
+      }
+    }
 
     // Update main content position state if it has changed significantly
     if (animatedMainContent.current.distanceTo(mainContentPosition) > 0.01) {
