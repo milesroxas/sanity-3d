@@ -79,7 +79,7 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
       target: { x: -7, y: 20, z: 0 },
     },
     mainContent: {
-      position: { x: -6.2, y: 17.9, z: 50.0 },
+      position: { x: -4.4, y: 17.9, z: 50.0 },
       rotation: { x: 0.03, y: 0.3, z: 0.01 },
     },
     billboard: {
@@ -87,11 +87,11 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
       scale: 1.1,
     },
     logo: {
-      position: { x: -6.6, y: 12.5, z: 0 },
+      position: { x: -1.9, y: 12.5, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
     },
     links: {
-      position: { x: -10.3, y: 26.9, z: 50 },
+      position: { x: -8.0, y: 26.9, z: 50 },
     },
   },
 };
