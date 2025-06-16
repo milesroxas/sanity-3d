@@ -66,7 +66,7 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
       scale: 1.0,
     },
     logo: {
-      position: { x: 5.5, y: 5.5, z: 0 },
+      position: { x: 13.7, y: 10.7, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
     },
     links: {
@@ -91,7 +91,7 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
       rotation: { x: 0, y: 0, z: 0 },
     },
     links: {
-      position: { x: -8.0, y: 26.9, z: 50 },
+      position: { x: -8.0, y: 26.6, z: 50 },
     },
   },
 };

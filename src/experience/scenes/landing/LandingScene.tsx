@@ -274,10 +274,28 @@ const LandingScene = forwardRef<
   // **FIX**: Get contextSafe function from useGSAP, but we will build the timelines dynamically.
   const { contextSafe } = useGSAP();
 
+  useLayoutEffect(() => {
+    // Set initial state of 3D elements
+    if (logoGroupRef.current) {
+      logoGroupRef.current.scale.set(0.8, 0.8, 0.8);
+    }
+
+    // Set initial state of HTML elements
+    if (linksRef.current) {
+      linksRef.current.style.opacity = '0';
+      linksRef.current.style.transform = 'translateY(20px)';
+      linksRef.current.style.pointerEvents = 'auto';
+    }
+
+    if (contentRef.current) {
+      contentRef.current.style.opacity = '0';
+      contentRef.current.style.transform = 'translateY(20px)';
+    }
+  }, []);
+
   const handleEnter = contextSafe(() => {
     if (!cameraRef.current || isAnimating || hasAnimated) return;
 
-    // Create a timeline without using the selector
     const tl = gsap.timeline({
       onComplete: () => {
         setHasAnimated(true);
@@ -299,7 +317,7 @@ const LandingScene = forwardRef<
     // Fade in scene
     gsap.to(overlay.overlayMaterial, {
       opacity: 0,
-      duration: 1.5,
+      duration: 2,
       ease: 'power2.out',
     });
 
@@ -312,41 +330,52 @@ const LandingScene = forwardRef<
       duration: 4,
       ease: 'power2.out',
       onUpdate: () => cameraRef.current?.lookAt(positions.target),
-      onComplete: () => {
-        // Only start fading in elements after camera animation completes
+    });
 
-        // Animate 3D Logo - ensure it starts invisible and scales up
-        if (logoGroupRef.current) {
-          // Set initial scale to 0
-          logoGroupRef.current.scale.set(0, 0, 0);
+    // Create a sequence for the elements AFTER camera animation
+    tl.add(() => {
+      if (logoGroupRef.current) {
+        // Logo animation
+        gsap.to(logoGroupRef.current.scale, {
+          x: 1,
+          y: 1,
+          z: 1,
+          duration: 1,
+          ease: 'power2.out',
+          onComplete: () => {
+            // Links animation - target the inner div directly
+            if (linksRef.current) {
+              gsap.to(linksRef.current, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: 'power2.out',
+              });
+            }
 
-          gsap.to(logoGroupRef.current.scale, {
-            x: 1,
-            y: 1,
-            z: 1,
-            duration: 1,
-            ease: 'power2.out',
-            onComplete: () => {
-              // After logo animation, fade in the UI elements
-              if (linksRef.current) {
-                linksRef.current.style.transition =
-                  'opacity 0.8s ease-out, transform 0.8s ease-out';
-                linksRef.current.style.opacity = '1';
-                linksRef.current.style.transform = 'translateY(0)';
+            // Content animation - target both the HTML wrapper and inner div
+            if (contentRef.current) {
+              // First make the HTML wrapper visible
+              const htmlParent = contentRef.current.parentElement;
+              if (htmlParent) {
+                gsap.to(htmlParent, {
+                  opacity: 1,
+                  duration: 0.1, // Make this quick
+                });
               }
 
-              setTimeout(() => {
-                if (contentRef.current) {
-                  contentRef.current.style.transition =
-                    'opacity 0.8s ease-out, transform 0.8s ease-out';
-                  contentRef.current.style.opacity = '1';
-                  contentRef.current.style.transform = 'translateY(0)';
-                }
-              }, 300); // Slightly after links
-            },
-          });
-        }
-      },
+              // Then animate the content div
+              gsap.to(contentRef.current, {
+                opacity: 1,
+                y: 0, // Use y instead of transform for GSAP
+                duration: 0.8,
+                ease: 'power2.out',
+                delay: 0.3, // Slight delay after links
+              });
+            }
+          },
+        });
+      }
     });
 
     tl.play();
@@ -431,28 +460,14 @@ const LandingScene = forwardRef<
       overlay.overlayMaterial,
       {
         opacity: 1,
-        duration: 0.8,
+        duration: 1.25,
         ease: 'power2.in',
       },
-      1
+      10
     );
 
     tl.play();
   });
-
-  // Add useLayoutEffect to ensure HTML elements are properly initialized
-  useLayoutEffect(() => {
-    if (linksRef.current) {
-      linksRef.current.style.opacity = '0';
-      linksRef.current.style.transform = 'translateY(-20px)';
-      linksRef.current.style.pointerEvents = 'auto'; // Ensure links are clickable
-    }
-
-    if (contentRef.current) {
-      contentRef.current.style.opacity = '0';
-      contentRef.current.style.transform = 'translateY(20px)';
-    }
-  }, []);
 
   useEffect(() => {
     if (isLoaded && !hasAnimated && !isAnimating) {
@@ -472,95 +487,6 @@ const LandingScene = forwardRef<
       resetToInitial();
     };
   }, [resetToInitial]);
-
-  useEffect(() => {
-    // Initialize the logo scale to 1 when not animating
-    if (logoGroupRef.current && !isAnimating && hasAnimated) {
-      logoGroupRef.current.scale.set(1, 1, 1);
-    }
-  }, [hasAnimated, isAnimating]);
-
-  // Update the fallback mechanism to match the new link styling
-  useEffect(() => {
-    if (hasAnimated && portalRef.current) {
-      // Check if links are visible after animation is complete
-      setTimeout(() => {
-        if (linksRef.current) {
-          const opacity = window.getComputedStyle(linksRef.current).opacity;
-          const computedVisibility = window.getComputedStyle(linksRef.current).visibility;
-          const isLinkVisible = parseFloat(opacity) > 0.5 && computedVisibility !== 'hidden';
-
-          // If links are not visible, create a fallback
-          if (!isLinkVisible) {
-            // Get position from config for fallback positioning
-            const linksPosX = currentConfig.links.position.x;
-            const linksPosY = currentConfig.links.position.y;
-
-            // Convert 3D position to screen position (approximate)
-            const screenWidth = window.innerWidth;
-            const screenHeight = window.innerHeight;
-            const screenX = (linksPosX / 10 + 0.5) * screenWidth;
-            const screenY = (-linksPosY / 10 + 0.5) * screenHeight;
-
-            // Create fallback links directly in the portal div
-            const fallbackLinks = document.createElement('div');
-            fallbackLinks.className = 'fallback-links';
-            fallbackLinks.style.cssText = `
-              position: absolute;
-              top: ${screenY}px;
-              left: ${screenX}px;
-              transform: translate(-50%, -50%);
-              display: flex;
-              justify-content: space-between;
-              gap: 48px;
-              z-index: 1000;
-              pointer-events: auto;
-              width: 80%;
-              max-width: 1200px;
-            `;
-
-            if (nav.companyLinks && nav.companyLinks.length > 0) {
-              nav.companyLinks.forEach((link, index) => {
-                const linkData = getLinkData(link);
-                const linkElement = document.createElement('a');
-                linkElement.href = linkData.href;
-                if (linkData.target) {
-                  linkElement.target = '_blank';
-                  linkElement.rel = 'noopener noreferrer';
-                }
-                linkElement.textContent = linkData.label;
-                linkElement.className =
-                  'text-md w-full font-semibold transition-colors duration-300 hover:text-green-100';
-                linkElement.style.cssText = `
-                  color: white;
-                  text-decoration: none;
-                  cursor: pointer;
-                  padding: 8px 16px;
-                  flex: 1;
-                  width: 100%;
-                  display: block;
-                `;
-
-                fallbackLinks.appendChild(linkElement);
-              });
-
-              portalRef.current.appendChild(fallbackLinks);
-            }
-          }
-        }
-      }, 5000); // Check after animations are complete
-    }
-
-    return () => {
-      // Clean up fallback links on unmount
-      if (portalRef.current) {
-        const fallbackLinks = portalRef.current.querySelector('.fallback-links');
-        if (fallbackLinks) {
-          portalRef.current.removeChild(fallbackLinks);
-        }
-      }
-    };
-  }, [hasAnimated, nav.companyLinks, portalRef, currentConfig.links.position]);
 
   useFrame((state, delta) => {
     if (!cameraRef.current || isAnimating || !hasAnimated) return;
@@ -622,7 +548,6 @@ const LandingScene = forwardRef<
       <ambientLight intensity={0.05} />
 
       <Float speed={0.7} floatIntensity={0.2} rotationIntensity={0.1} floatingRange={[-0.4, 0.4]}>
-        {/* Position the logo group according to config */}
         <group
           ref={logoGroupRef}
           position={[
@@ -636,7 +561,6 @@ const LandingScene = forwardRef<
             currentConfig.logo.rotation.z,
           ]}
         >
-          {/* The Logo component doesn't need position since it's positioned by the parent group */}
           <Logo />
         </group>
       </Float>
@@ -652,7 +576,7 @@ const LandingScene = forwardRef<
         prepend
         zIndexRange={[100, 0]}
         style={{
-          pointerEvents: 'auto', // Enable pointer events
+          pointerEvents: 'auto',
           width: 'auto',
           whiteSpace: 'nowrap',
         }}
@@ -665,6 +589,8 @@ const LandingScene = forwardRef<
           style={{
             display: 'flex',
             width: '100%',
+            opacity: 0,
+            transform: 'translateY(-20px)',
           }}
         >
           {nav.companyLinks && nav.companyLinks.length > 0 ? (
@@ -702,7 +628,8 @@ const LandingScene = forwardRef<
         prepend
         zIndexRange={[100, 0]}
         style={{
-          pointerEvents: 'auto', // Enable pointer events
+          pointerEvents: 'auto',
+          opacity: 0,
         }}
       >
         <div
@@ -710,6 +637,10 @@ const LandingScene = forwardRef<
           className={`${textStyles.containerWidth} text-white`}
           onMouseEnter={handleMouseEnterUI}
           onMouseLeave={handleMouseLeaveUI}
+          style={{
+            opacity: 0,
+            transform: 'translateY(20px)',
+          }}
         >
           <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>
             With over 38 years of experience, O'Linn Security Inc. offers comprehensive security
