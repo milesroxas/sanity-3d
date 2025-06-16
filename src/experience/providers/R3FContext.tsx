@@ -25,7 +25,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
         <div className="absolute z-50 mx-auto">{children}</div>
 
         {/* Canvas positioned behind the UI */}
-        <div className="fixed inset-0 overflow-hidden transition-opacity duration-1000 ease-in-out">
+        <div className="fixed inset-0 z-40 overflow-hidden transition-opacity duration-1000 ease-in-out">
           <Loading />
           <Canvas
             camera={{ far: 1000 }}
@@ -44,7 +44,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
         </div>
 
         {/* Portal container for modals */}
-        <div id="modal-portal" className="pointer-events-none fixed inset-0 z-50" />
+        <div id="modal-portal" className="pointer-events-none fixed inset-0 z-40" />
       </div>
     </R3FContext.Provider>
   );

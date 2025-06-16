@@ -568,6 +568,7 @@ const LandingScene = forwardRef<
           style={{
             pointerEvents: 'auto',
             opacity: 0,
+            zIndex: 30,
           }}
         >
           <div
@@ -578,6 +579,7 @@ const LandingScene = forwardRef<
             style={{
               opacity: 0,
               transform: 'translateY(20px)',
+              zIndex: 30,
             }}
           >
             <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>

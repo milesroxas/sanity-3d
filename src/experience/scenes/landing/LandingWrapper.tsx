@@ -21,7 +21,6 @@ export default function LandingWrapper({
   modalVideo,
   portalRef,
   nav,
-  settings,
 }: LandingWrapperProps) {
   const { setR3FContent } = useR3F();
   const resetLandingCamera = useLandingCameraStore(state => state.reset);
