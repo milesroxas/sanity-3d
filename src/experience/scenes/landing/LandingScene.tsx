@@ -7,22 +7,30 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { vehicles } from '@/experience/animations';
 import { AnimatedClouds } from '@/experience/effects/components/Clouds';
 import { VehiclesInstances } from '@/experience/models/VehiclesInstances';
-import { INITIAL_POSITIONS } from '@/experience/scenes/store/cameraStore';
+import { INITIAL_POSITIONS, useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { getLinkData, SanityNav } from '@/store/navStore';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Euler,
+  Group,
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
   PerspectiveCamera as ThreePerspectiveCamera,
   Vector3,
 } from 'three';
-import { useCameraStore } from '../store/cameraStore';
 import { Billboard } from './components/Billboard';
 import { Effects } from './components/Effects';
 import { SceneEnvironment } from './components/SceneEnvironment';
@@ -44,7 +52,7 @@ import { useLandingCameraStore } from './store/landingCameraStore';
 const LandingScene = forwardRef<
   any,
   {
-    modalVideo?: Sanity.Video;
+    modalVideo?: any;
     portalRef: React.RefObject<HTMLDivElement>;
     nav: SanityNav;
   }
@@ -57,37 +65,26 @@ const LandingScene = forwardRef<
   const { size } = useThree();
   const overlayRef = useRef<Mesh | null>(null);
 
-  // Container ref for GSAP scope
-  const containerRef = useRef<HTMLDivElement>(null);
+  const logoGroupRef = useRef<Group>(null);
+  const entranceTimelineRef = useRef<gsap.core.Timeline | null>(null);
 
-  // Timeline references
-  const entranceTimelineRef = useRef<gsap.core.Timeline>(null);
-  const exitTimelineRef = useRef<gsap.core.Timeline>(null);
+  // Add refs for HTML elements
+  const linksRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  const logoHtmlRef = useRef<HTMLDivElement>(null);
-  const mainContentHtmlRef = useRef<HTMLDivElement>(null);
-  const linksHtmlRef = useRef<HTMLDivElement>(null);
-
-  // Use Drei's progress hook to track loading
   const { progress } = useProgress();
   const isLoaded = progress === 100;
 
-  // Get responsive configuration
   const responsiveConfig = useResponsiveConfig();
   const textStyles = useResponsiveTextStyles();
 
-  // Mouse interaction state
   const mousePosition = useRef({ x: 0, y: 0 });
   const cameraOffset = useRef({ x: 0, y: 0 });
   const isHoveringUI = useRef(false);
 
-  // Debug controls
   const { enabled: debugEnabled } = useDebugControls();
-
-  // Use scene info controls
   useSceneInfoControls(size.width, size.height, hasAnimated && !isAnimating);
 
-  // Camera controls
   const {
     positionX: cameraPositionX,
     positionY: cameraPositionY,
@@ -103,8 +100,6 @@ const LandingScene = forwardRef<
     MOUSE_CONFIG.influence,
     MOUSE_CONFIG.dampingFactor
   );
-
-  // Main content controls
   const {
     positionX: mainContentPositionX,
     positionY: mainContentPositionY,
@@ -116,16 +111,12 @@ const LandingScene = forwardRef<
     responsiveConfig.mainContent.position,
     responsiveConfig.mainContent.rotation
   );
-
-  // Billboard controls
   const {
     positionX: billboardPositionX,
     positionY: billboardPositionY,
     positionZ: billboardPositionZ,
     scale: billboardScale,
   } = useBillboardControls(responsiveConfig.billboard.position, responsiveConfig.billboard.scale);
-
-  // Logo controls
   const {
     positionX: logoPositionX,
     positionY: logoPositionY,
@@ -134,69 +125,31 @@ const LandingScene = forwardRef<
     rotationY: logoRotationY,
     rotationZ: logoRotationZ,
   } = useLogoControls(responsiveConfig.logo.position, responsiveConfig.logo.rotation);
-
-  // Links controls
   const {
     positionX: linksPositionX,
     positionY: linksPositionY,
     positionZ: linksPositionZ,
   } = useLinksControls(responsiveConfig.links.position);
-
-  // Use debug controls only when enabled, otherwise use responsive config
   const currentConfig = useMemo(() => {
     if (debugEnabled) {
       return {
         camera: {
-          position: {
-            x: cameraPositionX,
-            y: cameraPositionY,
-            z: cameraPositionZ,
-          },
-          target: {
-            x: cameraTargetX,
-            y: cameraTargetY,
-            z: cameraTargetZ,
-          },
+          position: { x: cameraPositionX, y: cameraPositionY, z: cameraPositionZ },
+          target: { x: cameraTargetX, y: cameraTargetY, z: cameraTargetZ },
         },
         mainContent: {
-          position: {
-            x: mainContentPositionX,
-            y: mainContentPositionY,
-            z: mainContentPositionZ,
-          },
-          rotation: {
-            x: mainContentRotationX,
-            y: mainContentRotationY,
-            z: mainContentRotationZ,
-          },
+          position: { x: mainContentPositionX, y: mainContentPositionY, z: mainContentPositionZ },
+          rotation: { x: mainContentRotationX, y: mainContentRotationY, z: mainContentRotationZ },
         },
         billboard: {
-          position: {
-            x: billboardPositionX,
-            y: billboardPositionY,
-            z: billboardPositionZ,
-          },
+          position: { x: billboardPositionX, y: billboardPositionY, z: billboardPositionZ },
           scale: billboardScale,
         },
         logo: {
-          position: {
-            x: logoPositionX,
-            y: logoPositionY,
-            z: logoPositionZ,
-          },
-          rotation: {
-            x: logoRotationX,
-            y: logoRotationY,
-            z: logoRotationZ,
-          },
+          position: { x: logoPositionX, y: logoPositionY, z: logoPositionZ },
+          rotation: { x: logoRotationX, y: logoRotationY, z: logoRotationZ },
         },
-        links: {
-          position: {
-            x: linksPositionX,
-            y: linksPositionY,
-            z: linksPositionZ,
-          },
-        },
+        links: { position: { x: linksPositionX, y: linksPositionY, z: linksPositionZ } },
         mouseInfluence,
         mouseDamping,
       };
@@ -237,8 +190,6 @@ const LandingScene = forwardRef<
     mouseDamping,
     responsiveConfig,
   ]);
-
-  // Convert to Vector3 objects
   const positions = useMemo(
     () => ({
       camera: new Vector3(
@@ -292,7 +243,6 @@ const LandingScene = forwardRef<
     [currentConfig]
   );
 
-  // State for main content position to trigger re-renders
   const [mainContentPosition, setMainContentPosition] = useState(() =>
     positions.mainContent.clone()
   );
@@ -300,148 +250,118 @@ const LandingScene = forwardRef<
     positions.mainContentRotation.clone()
   );
 
-  // Mouse interaction handlers
   const handleMouseEnterUI = useCallback(() => {
     isHoveringUI.current = true;
   }, []);
-
   const handleMouseLeaveUI = useCallback(() => {
     isHoveringUI.current = false;
   }, []);
 
-  // Create overlay helper
   const createOverlay = useCallback(() => {
     if (!cameraRef.current) return null;
-
     const overlayMaterial = new MeshBasicMaterial({
       color: 'white',
       transparent: true,
       opacity: 1,
     });
-
     const overlayPlane = new Mesh(new PlaneGeometry(100, 100), overlayMaterial);
     overlayPlane.position.z = -10;
     overlayPlane.renderOrder = 999;
     cameraRef.current.add(overlayPlane);
-
     return { overlayPlane, overlayMaterial };
   }, []);
 
-  // Main GSAP hook with context-safe animations
-  const { contextSafe } = useGSAP(
-    () => {
-      // Create entrance timeline (paused initially)
-      entranceTimelineRef.current = gsap.timeline({
-        paused: true,
-        onComplete: () => {
-          setHasAnimated(true);
-          setAnimating(false);
-          // Clean up overlay
-          if (overlayRef.current && overlayRef.current.parent) {
-            overlayRef.current.parent.remove(overlayRef.current);
-            if (Array.isArray(overlayRef.current.material)) {
-              overlayRef.current.material.forEach(mat => mat.dispose());
-            } else {
-              overlayRef.current.material.dispose();
-            }
-            overlayRef.current = null;
-          }
-        },
-      });
+  // **FIX**: Get contextSafe function from useGSAP, but we will build the timelines dynamically.
+  const { contextSafe } = useGSAP();
 
-      // Set up entrance animation
-      if (cameraRef.current) {
-        const startPosition = positions.camera.clone();
-        startPosition.z += 200;
-
-        // Set initial camera position
-        cameraRef.current.position.copy(startPosition);
-
-        // Camera animation
-        entranceTimelineRef.current.to(cameraRef.current.position, {
-          x: positions.camera.x,
-          y: positions.camera.y,
-          z: positions.camera.z,
-          duration: 4,
-          ease: 'power2.out',
-          onUpdate: () => {
-            if (cameraRef.current) {
-              cameraRef.current.lookAt(positions.target);
-            }
-          },
-        });
-
-        const uiElements = [
-          logoHtmlRef.current,
-          mainContentHtmlRef.current,
-          linksHtmlRef.current,
-        ].filter(Boolean);
-
-        if (uiElements.length > 0) {
-          entranceTimelineRef.current.fromTo(
-            uiElements,
-            {
-              opacity: 0,
-              y: 20,
-            },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.8,
-              stagger: 0.1,
-              ease: 'power2.out',
-            },
-            '-=2'
-          );
-        }
-      }
-    },
-    {
-      dependencies: [positions.camera, positions.target],
-    }
-  );
-
-  // Context-safe entrance handler
   const handleEnter = contextSafe(() => {
     if (!cameraRef.current || isAnimating || hasAnimated) return;
 
-    setAnimating(true);
-
-    // Create and setup overlay
-    const overlay = createOverlay();
-    if (!overlay) return;
-
-    const { overlayPlane, overlayMaterial } = overlay;
-    overlayRef.current = overlayPlane;
-
-    // Animate overlay fade out
-    gsap.to(overlayMaterial, {
-      opacity: 0,
-      duration: 1,
-      ease: 'power2.out',
+    // Create a timeline without using the selector
+    const tl = gsap.timeline({
       onComplete: () => {
-        // Play entrance timeline after overlay fades
-        entranceTimelineRef.current?.play();
+        setHasAnimated(true);
+        setAnimating(false);
+        if (overlayRef.current?.parent) {
+          overlayRef.current.parent.remove(overlayRef.current);
+          (overlayRef.current.material as MeshBasicMaterial).dispose();
+          overlayRef.current = null;
+        }
       },
     });
-  });
-
-  // Context-safe exit handler
-  const handleExit = contextSafe(() => {
-    if (isAnimating) return;
+    entranceTimelineRef.current = tl;
 
     setAnimating(true);
-
-    // Create overlay for exit
     const overlay = createOverlay();
     if (!overlay) return;
+    overlayRef.current = overlay.overlayPlane;
 
-    const { overlayPlane, overlayMaterial } = overlay;
-    overlayRef.current = overlayPlane;
-    overlayMaterial.opacity = 0;
+    // Fade in scene
+    gsap.to(overlay.overlayMaterial, {
+      opacity: 0,
+      duration: 1.5,
+      ease: 'power2.out',
+    });
 
-    // Create exit timeline
-    exitTimelineRef.current = gsap.timeline({
+    // Animate camera
+    const startPosition = positions.camera.clone();
+    startPosition.z += 200;
+    cameraRef.current.position.copy(startPosition);
+    tl.to(cameraRef.current.position, {
+      ...positions.camera,
+      duration: 4,
+      ease: 'power2.out',
+      onUpdate: () => cameraRef.current?.lookAt(positions.target),
+      onComplete: () => {
+        // Only start fading in elements after camera animation completes
+
+        // Animate 3D Logo - ensure it starts invisible and scales up
+        if (logoGroupRef.current) {
+          // Set initial scale to 0
+          logoGroupRef.current.scale.set(0, 0, 0);
+
+          gsap.to(logoGroupRef.current.scale, {
+            x: 1,
+            y: 1,
+            z: 1,
+            duration: 1,
+            ease: 'power2.out',
+            onComplete: () => {
+              // After logo animation, fade in the UI elements
+              if (linksRef.current) {
+                linksRef.current.style.transition =
+                  'opacity 0.8s ease-out, transform 0.8s ease-out';
+                linksRef.current.style.opacity = '1';
+                linksRef.current.style.transform = 'translateY(0)';
+              }
+
+              setTimeout(() => {
+                if (contentRef.current) {
+                  contentRef.current.style.transition =
+                    'opacity 0.8s ease-out, transform 0.8s ease-out';
+                  contentRef.current.style.opacity = '1';
+                  contentRef.current.style.transform = 'translateY(0)';
+                }
+              }, 300); // Slightly after links
+            },
+          });
+        }
+      },
+    });
+
+    tl.play();
+  });
+
+  const handleExit = contextSafe(() => {
+    if (isAnimating) return;
+    setAnimating(true);
+
+    const overlay = createOverlay();
+    if (!overlay) return;
+    overlayRef.current = overlay.overlayPlane;
+    overlay.overlayMaterial.opacity = 0;
+
+    const tl = gsap.timeline({
       onComplete: () => {
         const cameraStore = useCameraStore.getState();
         cameraStore.setCamera(
@@ -454,64 +374,86 @@ const LandingScene = forwardRef<
       },
     });
 
-    const uiElements = [
-      logoHtmlRef.current,
-      mainContentHtmlRef.current,
-      linksHtmlRef.current,
-    ].filter(Boolean);
-
-    if (uiElements.length > 0) {
-      exitTimelineRef.current.to(uiElements, {
-        opacity: 0,
-        y: -20,
-        duration: 0.6,
-        stagger: 0.08,
-        ease: 'power2.in',
-      });
+    // Use direct DOM manipulation for exit animations
+    if (linksRef.current) {
+      linksRef.current.style.transition = 'opacity 0.6s ease-in, transform 0.6s ease-in';
+      linksRef.current.style.opacity = '0';
+      linksRef.current.style.transform = 'translateY(-20px)';
     }
 
-    // Animate camera up
+    if (contentRef.current) {
+      contentRef.current.style.transition = 'opacity 0.6s ease-in, transform 0.6s ease-in';
+      contentRef.current.style.opacity = '0';
+      contentRef.current.style.transform = 'translateY(-20px)';
+    }
+
+    // Animate 3D logo out
+    if (logoGroupRef.current) {
+      tl.to(
+        logoGroupRef.current.scale,
+        {
+          x: 0,
+          y: 0,
+          z: 0,
+          duration: 0.6,
+          ease: 'power2.in',
+        },
+        0
+      );
+    }
+
+    // Animate camera
     if (cameraRef.current) {
-      exitTimelineRef.current.to(
+      const targetClone = positions.target.clone();
+      tl.to(
         cameraRef.current.position,
         {
           y: '+=50',
           duration: 1.5,
           ease: 'power2.in',
         },
-        '-=0.3'
+        0.3
       );
 
-      // Also animate target up for smooth look
-      exitTimelineRef.current.to(
-        positions.target,
+      tl.to(
+        targetClone,
         {
           y: '+=55',
           duration: 1.5,
           ease: 'power2.in',
-          onUpdate: () => {
-            if (cameraRef.current) {
-              cameraRef.current.lookAt(positions.target);
-            }
-          },
+          onUpdate: () => cameraRef.current?.lookAt(targetClone),
         },
-        '<' // Start at same time as camera animation
+        0.3
       );
     }
 
-    // Fade in overlay
-    exitTimelineRef.current.to(
-      overlayMaterial,
+    tl.to(
+      overlay.overlayMaterial,
       {
         opacity: 1,
         duration: 0.8,
         ease: 'power2.in',
       },
-      '-=1'
+      1
     );
+
+    tl.play();
   });
 
-  // Trigger entrance animation when loaded
+  // Add useLayoutEffect to ensure HTML elements are properly initialized
+  useLayoutEffect(() => {
+    if (linksRef.current) {
+      linksRef.current.style.opacity = '0';
+      linksRef.current.style.transform = 'translateY(-20px)';
+      linksRef.current.style.pointerEvents = 'auto'; // Ensure links are clickable
+    }
+
+    if (contentRef.current) {
+      contentRef.current.style.opacity = '0';
+      contentRef.current.style.transform = 'translateY(20px)';
+    }
+  }, []);
+
   useEffect(() => {
     if (isLoaded && !hasAnimated && !isAnimating) {
       requestAnimationFrame(() => {
@@ -520,81 +462,145 @@ const LandingScene = forwardRef<
     }
   }, [isLoaded, hasAnimated, isAnimating, handleEnter]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      // GSAP animations are automatically cleaned up by useGSAP
-      // Just clean up overlay if it exists
-      if (overlayRef.current && overlayRef.current.parent) {
+      if (overlayRef.current?.parent) {
         overlayRef.current.parent.remove(overlayRef.current);
-        if (overlayRef.current.material) {
-          if (Array.isArray(overlayRef.current.material)) {
-            overlayRef.current.material.forEach(mat => mat.dispose());
-          } else {
-            overlayRef.current.material.dispose();
-          }
-        }
+        (overlayRef.current.material as MeshBasicMaterial)?.dispose();
       }
+      entranceTimelineRef.current?.kill();
       resetToInitial();
     };
   }, [resetToInitial]);
 
-  // useFrame for continuous mouse interaction only
-  useFrame((state, delta) => {
-    if (!cameraRef.current) return;
+  useEffect(() => {
+    // Initialize the logo scale to 1 when not animating
+    if (logoGroupRef.current && !isAnimating && hasAnimated) {
+      logoGroupRef.current.scale.set(1, 1, 1);
+    }
+  }, [hasAnimated, isAnimating]);
 
-    // During animation, let GSAP handle everything
-    if (isAnimating) {
-      // Update main content position for UI
+  // Update the fallback mechanism to match the new link styling
+  useEffect(() => {
+    if (hasAnimated && portalRef.current) {
+      // Check if links are visible after animation is complete
+      setTimeout(() => {
+        if (linksRef.current) {
+          const opacity = window.getComputedStyle(linksRef.current).opacity;
+          const computedVisibility = window.getComputedStyle(linksRef.current).visibility;
+          const isLinkVisible = parseFloat(opacity) > 0.5 && computedVisibility !== 'hidden';
+
+          // If links are not visible, create a fallback
+          if (!isLinkVisible) {
+            // Get position from config for fallback positioning
+            const linksPosX = currentConfig.links.position.x;
+            const linksPosY = currentConfig.links.position.y;
+
+            // Convert 3D position to screen position (approximate)
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const screenX = (linksPosX / 10 + 0.5) * screenWidth;
+            const screenY = (-linksPosY / 10 + 0.5) * screenHeight;
+
+            // Create fallback links directly in the portal div
+            const fallbackLinks = document.createElement('div');
+            fallbackLinks.className = 'fallback-links';
+            fallbackLinks.style.cssText = `
+              position: absolute;
+              top: ${screenY}px;
+              left: ${screenX}px;
+              transform: translate(-50%, -50%);
+              display: flex;
+              justify-content: space-between;
+              gap: 48px;
+              z-index: 1000;
+              pointer-events: auto;
+              width: 80%;
+              max-width: 1200px;
+            `;
+
+            if (nav.companyLinks && nav.companyLinks.length > 0) {
+              nav.companyLinks.forEach((link, index) => {
+                const linkData = getLinkData(link);
+                const linkElement = document.createElement('a');
+                linkElement.href = linkData.href;
+                if (linkData.target) {
+                  linkElement.target = '_blank';
+                  linkElement.rel = 'noopener noreferrer';
+                }
+                linkElement.textContent = linkData.label;
+                linkElement.className =
+                  'text-md w-full font-semibold transition-colors duration-300 hover:text-green-100';
+                linkElement.style.cssText = `
+                  color: white;
+                  text-decoration: none;
+                  cursor: pointer;
+                  padding: 8px 16px;
+                  flex: 1;
+                  width: 100%;
+                  display: block;
+                `;
+
+                fallbackLinks.appendChild(linkElement);
+              });
+
+              portalRef.current.appendChild(fallbackLinks);
+            }
+          }
+        }
+      }, 5000); // Check after animations are complete
+    }
+
+    return () => {
+      // Clean up fallback links on unmount
+      if (portalRef.current) {
+        const fallbackLinks = portalRef.current.querySelector('.fallback-links');
+        if (fallbackLinks) {
+          portalRef.current.removeChild(fallbackLinks);
+        }
+      }
+    };
+  }, [hasAnimated, nav.companyLinks, portalRef, currentConfig.links.position]);
+
+  useFrame((state, delta) => {
+    if (!cameraRef.current || isAnimating || !hasAnimated) return;
+
+    mousePosition.current.x = state.mouse.x;
+    mousePosition.current.y = state.mouse.y;
+    const dampingMultiplier = isHoveringUI.current ? MOUSE_CONFIG.uiDampingFactor : 1;
+    const effectiveDamping = currentConfig.mouseDamping * dampingMultiplier;
+    const lerpFactor = 1 - Math.exp(-effectiveDamping * 60 * delta);
+    cameraOffset.current.x +=
+      (mousePosition.current.x * currentConfig.mouseInfluence - cameraOffset.current.x) *
+      lerpFactor;
+    cameraOffset.current.y +=
+      (mousePosition.current.y * currentConfig.mouseInfluence * 0.5 - cameraOffset.current.y) *
+      lerpFactor;
+    cameraRef.current.position.set(
+      positions.camera.x + cameraOffset.current.x,
+      positions.camera.y + cameraOffset.current.y,
+      positions.camera.z
+    );
+    cameraRef.current.lookAt(positions.target);
+  });
+
+  useFrame(() => {
+    if (!isAnimating) {
       if (positions.mainContent.distanceTo(mainContentPosition) > 0.01) {
         setMainContentPosition(positions.mainContent.clone());
       }
-      return;
-    }
-
-    // Apply mouse interaction only after animation is complete
-    if (hasAnimated) {
-      mousePosition.current.x = state.mouse.x;
-      mousePosition.current.y = state.mouse.y;
-
-      const dampingMultiplier = isHoveringUI.current ? MOUSE_CONFIG.uiDampingFactor : 1;
-      const effectiveDamping = currentConfig.mouseDamping * dampingMultiplier;
-      const lerpFactor = 1 - Math.exp(-effectiveDamping * 60 * delta);
-
-      cameraOffset.current.x +=
-        (mousePosition.current.x * currentConfig.mouseInfluence - cameraOffset.current.x) *
-        lerpFactor;
-      cameraOffset.current.y +=
-        (mousePosition.current.y * currentConfig.mouseInfluence * 0.5 - cameraOffset.current.y) *
-        lerpFactor;
-
-      // Apply final camera position with mouse offset
-      cameraRef.current.position.set(
-        positions.camera.x + cameraOffset.current.x,
-        positions.camera.y + cameraOffset.current.y,
-        positions.camera.z
-      );
-
-      cameraRef.current.lookAt(positions.target);
-    }
-
-    // Update main content position state
-    if (positions.mainContent.distanceTo(mainContentPosition) > 0.01) {
-      setMainContentPosition(positions.mainContent.clone());
-    }
-
-    // Update main content rotation
-    if (
-      Math.abs(mainContentRotation.x - positions.mainContentRotation.x) > 0.01 ||
-      Math.abs(mainContentRotation.y - positions.mainContentRotation.y) > 0.01 ||
-      Math.abs(mainContentRotation.z - positions.mainContentRotation.z) > 0.01
-    ) {
-      setMainContentRotation(positions.mainContentRotation.clone());
+      if (
+        Math.abs(mainContentRotation.x - positions.mainContentRotation.x) > 0.01 ||
+        Math.abs(mainContentRotation.y - positions.mainContentRotation.y) > 0.01 ||
+        Math.abs(mainContentRotation.z - positions.mainContentRotation.z) > 0.01
+      ) {
+        setMainContentRotation(positions.mainContentRotation.clone());
+      }
     }
   });
 
   return (
-    <>
+    <group>
       <Effects />
       <SceneEnvironment />
       <DesertModels />
@@ -616,42 +622,91 @@ const LandingScene = forwardRef<
       <ambientLight intensity={0.05} />
 
       <Float speed={0.7} floatIntensity={0.2} rotationIntensity={0.1} floatingRange={[-0.4, 0.4]}>
-        <group position={[8, 0, 0]} rotation={positions.logo.rotation}>
-          <Logo ref={logoHtmlRef} position={positions.logo.position} />
-          <Html ref={linksHtmlRef} position={positions.links.position} style={{ opacity: 0 }}>
-            <div
-              className="flex w-screen flex-row gap-6"
-              onMouseEnter={handleMouseEnterUI}
-              onMouseLeave={handleMouseLeaveUI}
-            >
-              {nav.companyLinks?.map((link, index) => {
-                const linkData = getLinkData(link);
-                return (
-                  <Link
-                    key={`company-${index}`}
-                    href={linkData.href}
-                    target={linkData.target ? '_blank' : undefined}
-                    rel={linkData.target ? 'noopener noreferrer' : undefined}
-                    className="text-md font-semibold transition-colors duration-300 hover:text-green-100"
-                  >
-                    {linkData.label}
-                  </Link>
-                );
-              })}
-            </div>
-          </Html>
+        {/* Position the logo group according to config */}
+        <group
+          ref={logoGroupRef}
+          position={[
+            currentConfig.logo.position.x,
+            currentConfig.logo.position.y,
+            currentConfig.logo.position.z,
+          ]}
+          rotation={[
+            currentConfig.logo.rotation.x,
+            currentConfig.logo.rotation.y,
+            currentConfig.logo.rotation.z,
+          ]}
+        >
+          {/* The Logo component doesn't need position since it's positioned by the parent group */}
+          <Logo />
         </group>
       </Float>
 
+      {/* Position links according to config */}
+      <Html
+        position={[
+          currentConfig.links.position.x,
+          currentConfig.links.position.y,
+          currentConfig.links.position.z,
+        ]}
+        portal={portalRef}
+        prepend
+        zIndexRange={[100, 0]}
+        style={{
+          pointerEvents: 'auto', // Enable pointer events
+          width: 'auto',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <div
+          ref={linksRef}
+          className="flex w-full flex-row gap-12"
+          onMouseEnter={handleMouseEnterUI}
+          onMouseLeave={handleMouseLeaveUI}
+          style={{
+            display: 'flex',
+            width: '100%',
+          }}
+        >
+          {nav.companyLinks && nav.companyLinks.length > 0 ? (
+            nav.companyLinks.map((link, index) => {
+              const linkData = getLinkData(link);
+              return (
+                <Link
+                  key={`company-${index}`}
+                  href={linkData.href}
+                  target={linkData.target ? '_blank' : undefined}
+                  rel={linkData.target ? 'noopener noreferrer' : undefined}
+                  className="text-md w-full font-semibold text-green-800 transition-colors duration-300 hover:text-green-100"
+                  style={{
+                    display: 'block',
+                    flex: '1',
+                    width: '100%',
+                  }}
+                >
+                  {linkData.label}
+                </Link>
+              );
+            })
+          ) : (
+            <span>No links available</span>
+          )}
+        </div>
+      </Html>
+
       <Html
         center
-        ref={mainContentHtmlRef}
         position={mainContentPosition}
         transform
         rotation={mainContentRotation}
-        style={{ opacity: 0 }}
+        portal={portalRef}
+        prepend
+        zIndexRange={[100, 0]}
+        style={{
+          pointerEvents: 'auto', // Enable pointer events
+        }}
       >
         <div
+          ref={contentRef}
           className={`${textStyles.containerWidth} text-white`}
           onMouseEnter={handleMouseEnterUI}
           onMouseLeave={handleMouseLeaveUI}
@@ -672,7 +727,7 @@ const LandingScene = forwardRef<
         modalVideo={modalVideo}
         portalRef={portalRef}
       />
-    </>
+    </group>
   );
 });
 

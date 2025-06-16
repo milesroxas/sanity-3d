@@ -87,11 +87,11 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
       scale: 1.1,
     },
     logo: {
-      position: { x: -14.5, y: 12.5, z: 0 },
+      position: { x: -6.6, y: 12.5, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
     },
     links: {
-      position: { x: -43.0, y: 42.8, z: 0 },
+      position: { x: -10.3, y: 26.9, z: 50 },
     },
   },
 };

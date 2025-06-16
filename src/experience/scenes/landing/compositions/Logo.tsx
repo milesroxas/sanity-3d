@@ -18,8 +18,12 @@ type GLTFResult = GLTF & {
   };
 };
 
-export function Logo(props: ThreeElements['group']) {
+export function Logo(props: ThreeElements['group'] & { className?: string }) {
   const { nodes, materials } = useGLTF('/models/landing/logo.glb') as unknown as GLTFResult;
+
+  // Log when the Logo component is rendered
+  console.log('Logo component rendered', props);
+
   return (
     <group {...props} dispose={null}>
       <group name="Scene002">
