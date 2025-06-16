@@ -52,7 +52,7 @@ export function Logo(
         <group
           name="Logo002"
           position={[-47.805, 34.767, -24.424]}
-          rotation={[Math.PI / 2, 0, -0.5]}
+          rotation={[Math.PI / 2, 0, 0]}
           scale={0.193}
         >
           <mesh name="Mesh004" geometry={nodes.Mesh004.geometry} material={materials.Logo} />

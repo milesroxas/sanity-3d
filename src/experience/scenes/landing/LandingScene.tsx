@@ -1,17 +1,22 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Float, Html, PerspectiveCamera, useProgress } from '@react-three/drei';
+import {
+  Billboard as DreiBillboard,
+  Float,
+  Html,
+  PerspectiveCamera,
+  useProgress,
+} from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 
 import { vehicles } from '@/experience/animations';
 import { AnimatedClouds } from '@/experience/effects/components/Clouds';
 import { VehiclesInstances } from '@/experience/models/VehiclesInstances';
 import { INITIAL_POSITIONS, useCameraStore } from '@/experience/scenes/store/cameraStore';
-import { getLinkData, SanityNav } from '@/store/navStore';
+import { SanityNav } from '@/store/navStore';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   forwardRef,
@@ -40,7 +45,6 @@ import {
   useBillboardControls,
   useCameraControls,
   useDebugControls,
-  useLinksControls,
   useLogoControls,
   useMainContentControls,
   useSceneInfoControls,
@@ -69,7 +73,7 @@ const LandingScene = forwardRef<
   const entranceTimelineRef = useRef<gsap.core.Timeline | null>(null);
 
   // Add refs for HTML elements
-  const linksRef = useRef<HTMLDivElement>(null);
+
   const contentRef = useRef<HTMLDivElement>(null);
 
   const { progress } = useProgress();
@@ -125,11 +129,7 @@ const LandingScene = forwardRef<
     rotationY: logoRotationY,
     rotationZ: logoRotationZ,
   } = useLogoControls(responsiveConfig.logo.position, responsiveConfig.logo.rotation);
-  const {
-    positionX: linksPositionX,
-    positionY: linksPositionY,
-    positionZ: linksPositionZ,
-  } = useLinksControls(responsiveConfig.links.position);
+
   const currentConfig = useMemo(() => {
     if (debugEnabled) {
       return {
@@ -149,7 +149,6 @@ const LandingScene = forwardRef<
           position: { x: logoPositionX, y: logoPositionY, z: logoPositionZ },
           rotation: { x: logoRotationX, y: logoRotationY, z: logoRotationZ },
         },
-        links: { position: { x: linksPositionX, y: linksPositionY, z: linksPositionZ } },
         mouseInfluence,
         mouseDamping,
       };
@@ -183,9 +182,6 @@ const LandingScene = forwardRef<
     logoRotationX,
     logoRotationY,
     logoRotationZ,
-    linksPositionX,
-    linksPositionY,
-    linksPositionZ,
     mouseInfluence,
     mouseDamping,
     responsiveConfig,
@@ -232,13 +228,6 @@ const LandingScene = forwardRef<
           currentConfig.logo.rotation.z
         ),
       },
-      links: {
-        position: new Vector3(
-          currentConfig.links.position.x,
-          currentConfig.links.position.y,
-          currentConfig.links.position.z
-        ),
-      },
     }),
     [currentConfig]
   );
@@ -271,20 +260,12 @@ const LandingScene = forwardRef<
     return { overlayPlane, overlayMaterial };
   }, []);
 
-  // **FIX**: Get contextSafe function from useGSAP, but we will build the timelines dynamically.
   const { contextSafe } = useGSAP();
 
   useLayoutEffect(() => {
     // Set initial state of 3D elements
     if (logoGroupRef.current) {
       logoGroupRef.current.scale.set(0.8, 0.8, 0.8);
-    }
-
-    // Set initial state of HTML elements
-    if (linksRef.current) {
-      linksRef.current.style.opacity = '0';
-      linksRef.current.style.transform = 'translateY(20px)';
-      linksRef.current.style.pointerEvents = 'auto';
     }
 
     if (contentRef.current) {
@@ -343,16 +324,6 @@ const LandingScene = forwardRef<
           duration: 1,
           ease: 'power2.out',
           onComplete: () => {
-            // Links animation - target the inner div directly
-            if (linksRef.current) {
-              gsap.to(linksRef.current, {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                ease: 'power2.out',
-              });
-            }
-
             // Content animation - target both the HTML wrapper and inner div
             if (contentRef.current) {
               // First make the HTML wrapper visible
@@ -367,7 +338,7 @@ const LandingScene = forwardRef<
               // Then animate the content div
               gsap.to(contentRef.current, {
                 opacity: 1,
-                y: 0, // Use y instead of transform for GSAP
+                y: 0, //
                 duration: 0.8,
                 ease: 'power2.out',
                 delay: 0.3, // Slight delay after links
@@ -402,20 +373,6 @@ const LandingScene = forwardRef<
     if (!overlay) return;
     overlayRef.current = overlay.overlayPlane;
     overlay.overlayMaterial.opacity = 0;
-
-    // First animate UI elements out
-    if (linksRef.current) {
-      tl.to(
-        linksRef.current,
-        {
-          opacity: 0,
-          y: -20,
-          duration: 0.6,
-          ease: 'power2.in',
-        },
-        0
-      );
-    }
 
     if (contentRef.current) {
       const htmlParent = contentRef.current.parentElement;
@@ -595,96 +552,49 @@ const LandingScene = forwardRef<
             currentConfig.logo.rotation.z,
           ]}
         >
-          <Logo />
+          <DreiBillboard follow={true}>
+            <Logo />
+          </DreiBillboard>
         </group>
       </Float>
-
-      {/* Position links according to config */}
-      <Html
-        position={[
-          currentConfig.links.position.x,
-          currentConfig.links.position.y,
-          currentConfig.links.position.z,
-        ]}
-        portal={portalRef}
-        prepend
-        zIndexRange={[100, 0]}
-        style={{
-          pointerEvents: 'auto',
-          width: 'auto',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        <div
-          ref={linksRef}
-          className="flex w-full flex-row gap-12"
-          onMouseEnter={handleMouseEnterUI}
-          onMouseLeave={handleMouseLeaveUI}
+      <DreiBillboard follow={true}>
+        <Html
+          center
+          position={mainContentPosition}
+          transform
+          rotation={mainContentRotation}
+          portal={portalRef}
+          prepend
           style={{
-            display: 'flex',
-            width: '100%',
+            pointerEvents: 'auto',
             opacity: 0,
-            transform: 'translateY(-20px)',
           }}
         >
-          {nav.companyLinks && nav.companyLinks.length > 0 ? (
-            nav.companyLinks.map((link, index) => {
-              const linkData = getLinkData(link);
-              return (
-                <Link
-                  key={`company-${index}`}
-                  href={linkData.href}
-                  target={linkData.target ? '_blank' : undefined}
-                  rel={linkData.target ? 'noopener noreferrer' : undefined}
-                  className="text-md w-full font-semibold text-green-800 transition-colors duration-300 hover:text-green-100"
-                  style={{
-                    display: 'block',
-                    flex: '1',
-                    width: '100%',
-                  }}
-                >
-                  {linkData.label}
-                </Link>
-              );
-            })
-          ) : (
-            <span>No links available</span>
-          )}
-        </div>
-      </Html>
-
-      <Html
-        center
-        position={mainContentPosition}
-        transform
-        rotation={mainContentRotation}
-        portal={portalRef}
-        prepend
-        zIndexRange={[100, 0]}
-        style={{
-          pointerEvents: 'auto',
-          opacity: 0,
-        }}
-      >
-        <div
-          ref={contentRef}
-          className={`${textStyles.containerWidth} text-white`}
-          onMouseEnter={handleMouseEnterUI}
-          onMouseLeave={handleMouseLeaveUI}
-          style={{
-            opacity: 0,
-            transform: 'translateY(20px)',
-          }}
-        >
-          <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>
-            With over 38 years of experience, O'Linn Security Inc. offers comprehensive security
-            solutions tailored to your needs.
-          </p>
-          <Button size="sm" variant="button21" onClick={handleExit} className="relative text-white">
-            ENTER EXPERIENCE
-          </Button>
-        </div>
-      </Html>
+          <div
+            ref={contentRef}
+            className={`${textStyles.containerWidth} text-white`}
+            onMouseEnter={handleMouseEnterUI}
+            onMouseLeave={handleMouseLeaveUI}
+            style={{
+              opacity: 0,
+              transform: 'translateY(20px)',
+            }}
+          >
+            <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>
+              With over 38 years of experience, O'Linn Security Inc. offers comprehensive security
+              solutions tailored to your needs.
+            </p>
+            <Button
+              size="sm"
+              variant="button21"
+              onClick={handleExit}
+              className="relative text-white"
+            >
+              ENTER EXPERIENCE
+            </Button>
+          </div>
+        </Html>
+      </DreiBillboard>
 
       <Billboard
         position={positions.billboard.position}

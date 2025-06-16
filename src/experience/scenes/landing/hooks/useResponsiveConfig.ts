@@ -24,9 +24,6 @@ export interface ResponsiveConfig {
     position: Vec3;
     rotation: Vec3;
   };
-  links: {
-    position: Vec3;
-  };
 }
 
 // Responsive configurations
@@ -37,19 +34,16 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
       target: { x: 0, y: 19.6, z: -5 },
     },
     mainContent: {
-      position: { x: -0.8, y: 14.2, z: 40.7 },
-      rotation: { x: 0.1, y: 0.0, z: 0 },
+      position: { x: -0.8, y: 21.1, z: 40.7 },
+      rotation: { x: 0, y: 0.0, z: 0 },
     },
     billboard: {
       position: { x: 2.4, y: 0, z: -77.6 },
       scale: 0.8,
     },
     logo: {
-      position: { x: 27.4, y: 21.9, z: -31.5 },
+      position: { x: 32.6, y: 16.3, z: -31.5 },
       rotation: { x: 0, y: 0, z: 0 },
-    },
-    links: {
-      position: { x: -16.8, y: 33.4, z: 0 },
     },
   },
   tablet: {
@@ -58,19 +52,16 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
       target: { x: -3, y: 18.1, z: 0 },
     },
     mainContent: {
-      position: { x: 0.1, y: 18.2, z: 38.9 },
-      rotation: { x: 0, y: 0.25, z: 0 },
+      position: { x: -5.0, y: 22.8, z: 50.6 },
+      rotation: { x: 0, y: 0, z: 0 },
     },
     billboard: {
       position: { x: -12.3, y: 0, z: -70.9 },
       scale: 1.0,
     },
     logo: {
-      position: { x: 13.7, y: 10.7, z: 0 },
+      position: { x: 7.4, y: 20.2, z: -50 },
       rotation: { x: 0, y: 0, z: 0 },
-    },
-    links: {
-      position: { x: -24.7, y: 36.7, z: 0 },
     },
   },
   desktop: {
@@ -79,19 +70,16 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
       target: { x: -7, y: 20, z: 0 },
     },
     mainContent: {
-      position: { x: -4.4, y: 17.9, z: 50.0 },
-      rotation: { x: 0.03, y: 0.3, z: 0.01 },
+      position: { x: -14.3, y: 20.8, z: 58.0 },
+      rotation: { x: 0, y: 0, z: 0 },
     },
     billboard: {
       position: { x: -4, y: 0, z: -20 },
       scale: 1.1,
     },
     logo: {
-      position: { x: -1.9, y: 12.5, z: 0 },
+      position: { x: 34.9, y: 11.7, z: -20 },
       rotation: { x: 0, y: 0, z: 0 },
-    },
-    links: {
-      position: { x: -8.0, y: 26.6, z: 50 },
     },
   },
 };

@@ -146,11 +146,6 @@ export default function Header({ nav, settings }: HeaderProps) {
     }
   }, [otherMarkersVisible, isExperiencePage, showHeader, showNav, hideHeader, hideNav]);
 
-  // Don't render the header on the landing page
-  if (isLandingPage) {
-    return null;
-  }
-
   return (
     <header ref={headerRef} className="fixed top-0 z-50 w-full border-border/40 py-2">
       <div className="container relative flex h-14 items-center">
