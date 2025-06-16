@@ -385,11 +385,6 @@ const LandingScene = forwardRef<
     if (isAnimating) return;
     setAnimating(true);
 
-    const overlay = createOverlay();
-    if (!overlay) return;
-    overlayRef.current = overlay.overlayPlane;
-    overlay.overlayMaterial.opacity = 0;
-
     const tl = gsap.timeline({
       onComplete: () => {
         const cameraStore = useCameraStore.getState();
@@ -403,27 +398,18 @@ const LandingScene = forwardRef<
       },
     });
 
-    // Use direct DOM manipulation for exit animations
+    const overlay = createOverlay();
+    if (!overlay) return;
+    overlayRef.current = overlay.overlayPlane;
+    overlay.overlayMaterial.opacity = 0;
+
+    // First animate UI elements out
     if (linksRef.current) {
-      linksRef.current.style.transition = 'opacity 0.6s ease-in, transform 0.6s ease-in';
-      linksRef.current.style.opacity = '0';
-      linksRef.current.style.transform = 'translateY(-20px)';
-    }
-
-    if (contentRef.current) {
-      contentRef.current.style.transition = 'opacity 0.6s ease-in, transform 0.6s ease-in';
-      contentRef.current.style.opacity = '0';
-      contentRef.current.style.transform = 'translateY(-20px)';
-    }
-
-    // Animate 3D logo out
-    if (logoGroupRef.current) {
       tl.to(
-        logoGroupRef.current.scale,
+        linksRef.current,
         {
-          x: 0,
-          y: 0,
-          z: 0,
+          opacity: 0,
+          y: -20,
           duration: 0.6,
           ease: 'power2.in',
         },
@@ -431,40 +417,88 @@ const LandingScene = forwardRef<
       );
     }
 
-    // Animate camera
-    if (cameraRef.current) {
-      const targetClone = positions.target.clone();
+    if (contentRef.current) {
+      const htmlParent = contentRef.current.parentElement;
       tl.to(
-        cameraRef.current.position,
+        contentRef.current,
         {
-          y: '+=50',
-          duration: 1.5,
+          opacity: 0,
+          y: -20,
+          duration: 0.6,
           ease: 'power2.in',
         },
-        0.3
+        0
       );
 
+      if (htmlParent) {
+        tl.to(
+          htmlParent,
+          {
+            opacity: 0,
+            duration: 0.6,
+            ease: 'power2.in',
+          },
+          0.6
+        );
+      }
+    }
+
+    // Then animate 3D logo out
+    if (logoGroupRef.current) {
       tl.to(
-        targetClone,
+        logoGroupRef.current.scale,
         {
-          y: '+=55',
-          duration: 1.5,
+          x: 0,
+          y: 0,
+          z: 0,
+          duration: 0.8,
           ease: 'power2.in',
-          onUpdate: () => cameraRef.current?.lookAt(targetClone),
         },
-        0.3
+        0.2
       );
     }
 
-    tl.to(
-      overlay.overlayMaterial,
-      {
-        opacity: 1,
-        duration: 1.25,
-        ease: 'power2.in',
-      },
-      10
-    );
+    // Then animate camera and overlay
+    if (cameraRef.current) {
+      // Store initial positions
+      const startPosition = cameraRef.current.position.clone();
+      const startTarget = positions.target.clone();
+      const endTarget = startTarget.clone().add(new Vector3(0, 200, 0));
+
+      // Animate camera position
+      tl.to(
+        cameraRef.current.position,
+        {
+          y: '+=200',
+          duration: 2.5,
+          ease: 'power2.in',
+        },
+        0.8
+      );
+
+      // Animate camera target
+      tl.to(
+        startTarget,
+        {
+          y: endTarget.y,
+          duration: 2.5,
+          ease: 'power2.in',
+          onUpdate: () => cameraRef.current?.lookAt(startTarget),
+        },
+        0.8
+      );
+
+      // Fade to white
+      tl.to(
+        overlay.overlayMaterial,
+        {
+          opacity: 1,
+          duration: 2,
+          ease: 'power2.in',
+        },
+        1.3
+      );
+    }
 
     tl.play();
   });

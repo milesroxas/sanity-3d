@@ -12,10 +12,12 @@ interface LandingCameraStore {
   position: Vector3;
   target: Vector3;
   isAnimating: boolean;
+  hasAnimated: boolean;
 
   // Actions
   setCamera: (position: Vector3, target: Vector3) => void;
   setAnimating: (isAnimating: boolean) => void;
+  setHasAnimated: (hasAnimated: boolean) => void;
   reset: () => void;
 }
 
@@ -23,6 +25,7 @@ export const useLandingCameraStore = create<LandingCameraStore>(set => ({
   position: LANDING_CAMERA_POSITIONS.main.position.clone(),
   target: LANDING_CAMERA_POSITIONS.main.target.clone(),
   isAnimating: false,
+  hasAnimated: false,
 
   setCamera: (position, target) =>
     set({
@@ -32,10 +35,13 @@ export const useLandingCameraStore = create<LandingCameraStore>(set => ({
 
   setAnimating: isAnimating => set({ isAnimating }),
 
+  setHasAnimated: hasAnimated => set({ hasAnimated }),
+
   reset: () =>
     set({
       position: LANDING_CAMERA_POSITIONS.main.position.clone(),
       target: LANDING_CAMERA_POSITIONS.main.target.clone(),
       isAnimating: false,
+      hasAnimated: false,
     }),
 }));
