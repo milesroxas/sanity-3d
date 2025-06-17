@@ -2,7 +2,7 @@ import MissingSanityPage from '@/components/ui/missing-sanity-page';
 import LandingPage from '@/experience/scenes/landing/LandingPage';
 import { generatePageMetadata } from '@/lib/metadata';
 import { client } from '@/sanity/lib/client';
-import { fetchSanityNav, fetchSanityPageBySlug, fetchSanitySettings } from './actions';
+import { fetchSanityPageBySlug } from './actions';
 
 export const dynamic = 'force-static';
 export async function generateMetadata() {
@@ -19,9 +19,6 @@ interface PageProps {
 export default async function Page({ searchParams }: PageProps) {
   const resolvedSearchParams = await searchParams;
   const isRootPath = Object.keys(resolvedSearchParams).length === 0;
-
-  const nav = await fetchSanityNav();
-  const settings = await fetchSanitySettings();
 
   // Fetch both specific media items
   const [textureVideo, modalVideo] = await Promise.all([
@@ -41,7 +38,7 @@ export default async function Page({ searchParams }: PageProps) {
       }
     `),
     client.fetch(`
-      *[_id == "37505212-067e-4122-8f90-39a047f6ef2b"][0]{
+      *[_id == "9e88d329-c760-473b-9124-b8bcf3e7c611"][0]{
         _id,
         title,
         mediaType,

@@ -44,7 +44,15 @@ import { MOUSE_CONFIG } from './config/mouseConfig';
 import { useResponsiveConfig, useResponsiveTextStyles } from './hooks/useResponsiveConfig';
 import { useLandingCameraStore } from './store/landingCameraStore';
 
-const LandingScene = ({ modalVideo, portalRef }: { modalVideo: any; portalRef: any }) => {
+const LandingScene = ({
+  modalVideo,
+  textureVideo,
+  portalRef,
+}: {
+  modalVideo: any;
+  textureVideo: any;
+  portalRef: any;
+}) => {
   const [hasAnimated, setHasAnimated] = useState(false);
 
   const { isAnimating, setAnimating } = useLandingCameraStore();
@@ -504,6 +512,7 @@ const LandingScene = ({ modalVideo, portalRef }: { modalVideo: any; portalRef: a
         position={positions.billboard.position}
         scale={positions.billboard.scale}
         modalVideo={modalVideo}
+        textureVideo={textureVideo}
         portalRef={portalRef}
       />
     </group>

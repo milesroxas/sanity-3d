@@ -1,6 +1,6 @@
 import { Html, useCursor, useGLTF, useVideoTexture } from '@react-three/drei';
 import { PlayCircle } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import * as THREE from 'three';
 import { GLTF } from 'three-stdlib';
 import VideoModal from './VideoModal';
@@ -24,13 +24,23 @@ interface BillboardProps {
   position?: THREE.Vector3;
   scale?: number;
   modalVideo?: Sanity.Video;
+  textureVideo?: Sanity.Video;
   portalRef?: React.RefObject<HTMLDivElement>;
 }
 
-export function Billboard({ position, scale = 1, modalVideo, portalRef }: BillboardProps) {
-  const portalRefInternal = useRef<HTMLDivElement>(null);
+export function Billboard({
+  position,
+  scale = 1,
+  modalVideo,
+  textureVideo,
+  portalRef,
+}: BillboardProps) {
+  // Use the video URL from Sanity if available, otherwise fallback to the default
+  const videoUrl = textureVideo?.asset?.playbackId
+    ? `https://stream.mux.com/${textureVideo.asset.playbackId}/low.mp4`
+    : '/videos/intro-video-loop.mp4';
 
-  const texture = useVideoTexture('/videos/intro-video-loop.mp4', {
+  const texture = useVideoTexture(videoUrl, {
     muted: true,
     loop: true,
     start: true,
