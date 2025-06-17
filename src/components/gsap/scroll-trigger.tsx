@@ -10,7 +10,7 @@ export function ScrollTriggerConfig() {
     gsap.registerPlugin(ScrollTrigger);
     ScrollTrigger.clearScrollMemory('manual');
     ScrollTrigger.defaults({
-      markers: process.env.NODE_ENV === 'development',
+      markers: process.env.NEXT_PUBLIC_SITE_ENV !== 'production',
     });
   }, []);
 

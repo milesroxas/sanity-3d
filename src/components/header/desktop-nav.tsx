@@ -458,12 +458,12 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
             {/* Navigation Panel */}
             <div
               ref={refs.rightPanelRef}
-              className="flex h-full w-1/2 flex-col justify-between py-12 pr-12" // Consider pl-12 or similar for symmetry if needed
+              className="flex h-full w-1/2 flex-col justify-between py-12 pr-12"
             >
               <div className="flex flex-grow flex-col">
                 <div
                   ref={refs.mainLinksRef}
-                  className="flex flex-grow flex-row items-center gap-12" // 'items-center' might be 'items-start' if content is tall
+                  className="flex flex-grow flex-row items-center gap-12"
                 >
                   <div className="flex flex-grow flex-row items-start">
                     {/* Company Links */}
