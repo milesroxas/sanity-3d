@@ -10,7 +10,7 @@ import SectionContainer, {
 } from '@/components/ui/section-container';
 import { stegaClean } from 'next-sanity';
 import Image from 'next/image';
-import CtaTeamList from './cta-team.client';
+import CtaTeamList, { CtaTeamModalProvider } from './cta-team.client';
 
 interface CtaTeamProps {
   padding: ISectionPadding['padding'];
@@ -58,83 +58,80 @@ export default async function CtaTeam({
   const rightColumnMembers = limitedTeamMembers.slice(3, 6);
 
   return (
-    <SectionContainer color={color} padding={sectionPadding}>
-      {/* Main container with improved responsive layout */}
-      <div className="relative flex flex-col justify-between overflow-x-clip">
-        {/* Mobile layout - single column with content first, then cards */}
-        <div className="grid w-full grid-cols-1 gap-8 md:hidden">
-          {/* Center content for mobile */}
-          <div className="z-20 px-4">
-            <MobileContent
-              tagLine={tagLine}
-              title={title}
-              body={body}
-              links={links}
-              align={align}
-              color={color}
-            />
-          </div>
-
-          {/* Mobile team members - showing just the first 3 in a single row */}
-          <div className="relative h-64 overflow-visible px-4">
-            <CtaTeamList teamMembers={leftColumnMembers} position="left" />
-          </div>
-        </div>
-
-        {/* Desktop layout - three columns */}
-        <div className="hidden w-full grid-cols-12 gap-4 md:grid">
-          {/* Left column team members */}
-          <div className="col-span-3 h-[500px] md:col-span-3 lg:col-span-3">
-            <CtaTeamList teamMembers={leftColumnMembers} position="left" />
-          </div>
-
-          {/* Center content */}
-          <div className="col-span-6 flex items-center justify-center px-4 py-12">
-            <div
-              className={cn(
-                'relative z-20 w-full max-w-[420px]',
-                color === 'primary' ? 'text-background' : undefined
-              )}
-            >
-              {tagLine && (
-                <h1 className="mb-4 text-sm leading-[0] md:text-base">
-                  <span className="font-semibold uppercase">{tagLine}</span>
-                </h1>
-              )}
-              <h2 className="mb-4 text-2xl font-bold text-card-foreground md:text-3xl lg:text-4xl">
-                {title}
-              </h2>
-              {body && <PortableTextRenderer value={body} />}
-
-              <LinkButtons
-                links={links || []}
-                size="default"
-                containerClassName={cn(
-                  'mt-6 md:mt-10',
-                  align === 'center' ? 'justify-center' : undefined
-                )}
-                className="md:size-md"
+    <CtaTeamModalProvider allTeamMembers={limitedTeamMembers}>
+      <SectionContainer color={color} padding={sectionPadding}>
+        {/* Main container with improved responsive layout */}
+        <div className="relative flex flex-col justify-between overflow-x-clip">
+          {/* Mobile layout - single column with content only, no team cards */}
+          <div className="grid w-full grid-cols-1 gap-8 md:hidden">
+            {/* Center content for mobile */}
+            <div className="z-20 px-4">
+              <MobileContent
+                tagLine={tagLine}
+                title={title}
+                body={body}
+                links={links}
+                align={align}
+                color={color}
               />
-
-              <div className="pointer-events-none absolute bottom-[-100px] left-[-100px] md:bottom-[-150px] md:left-[-160px]">
-                <Image
-                  src="/images/security-officer.png"
-                  alt=""
-                  width={120}
-                  height={120}
-                  className="w-16 md:w-24 lg:w-32"
-                />
-              </div>
             </div>
           </div>
 
-          {/* Right column team members */}
-          <div className="col-span-3 h-[500px] md:col-span-3 lg:col-span-3">
-            <CtaTeamList teamMembers={rightColumnMembers} position="right" />
+          {/* Desktop layout - three columns */}
+          <div className="hidden w-full grid-cols-12 gap-4 md:grid">
+            {/* Left column team members */}
+            <div className="col-span-3 h-[500px] md:col-span-3 lg:col-span-3">
+              <CtaTeamList teamMembers={leftColumnMembers} position="left" />
+            </div>
+
+            {/* Center content */}
+            <div className="col-span-5 flex items-center justify-center px-4 py-12">
+              <div
+                className={cn(
+                  'relative z-20 w-full',
+                  color === 'primary' ? 'text-background' : undefined
+                )}
+              >
+                {tagLine && (
+                  <h1 className="mb-4 text-sm leading-[0] md:text-sm">
+                    <span className="font-semibold uppercase">{tagLine}</span>
+                  </h1>
+                )}
+                <h2 className="mb-4 text-xl font-bold text-card-foreground md:text-3xl lg:text-4xl">
+                  {title}
+                </h2>
+                {body && <PortableTextRenderer value={body} />}
+
+                <LinkButtons
+                  links={links || []}
+                  size="default"
+                  containerClassName={cn(
+                    'mt-6 md:mt-10',
+                    align === 'center' ? 'justify-center' : undefined
+                  )}
+                  className="md:size-md"
+                />
+
+                <div className="pointer-events-none absolute bottom-[-100px] right-[-100px] md:bottom-[-200px] md:right-[0px] lg:bottom-[-220px] lg:right-[-100px]">
+                  <Image
+                    src="/images/security-officer.png"
+                    alt=""
+                    width={120}
+                    height={120}
+                    className="w-16 md:w-24 lg:w-32"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Right column team members */}
+            <div className="col-span-3 h-[500px] md:col-span-3 lg:col-span-3">
+              <CtaTeamList teamMembers={rightColumnMembers} position="right" />
+            </div>
           </div>
         </div>
-      </div>
-    </SectionContainer>
+      </SectionContainer>
+    </CtaTeamModalProvider>
   );
 }
 

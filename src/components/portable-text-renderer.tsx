@@ -75,11 +75,7 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
         },
       },
       block: createBlockComponents({
-        normal: ({ children }) => (
-          <p className="w-full max-w-full" style={{ marginBottom: '1rem' }}>
-            {children}
-          </p>
-        ),
+        normal: ({ children }) => <p className="w-full max-w-full">{children}</p>,
         largeText: ({ children }) => <p className="mb-12 w-full max-w-full text-lg">{children}</p>,
         h1: ({ children }) => <h1 className="mb-4 mt-4">{children}</h1>,
         h2: ({ children }) => <h2 className="mb-4 mt-4">{children}</h2>,

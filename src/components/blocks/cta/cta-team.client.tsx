@@ -1,10 +1,18 @@
 'use client';
+import TeamModal from '@/components/ui/TeamModal';
 import { urlFor } from '@/sanity/lib/image';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import Image from 'next/image';
-import Link from 'next/link';
-import { useMemo, useRef } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 interface TeamMember {
   _id: string;
@@ -20,6 +28,8 @@ interface TeamMember {
     };
     alt?: string;
   };
+  bio?: any;
+  email?: string;
   position?: {
     x: number;
     y: number;
@@ -37,6 +47,109 @@ interface EnhancedTeamMember extends TeamMember {
 interface CtaTeamListProps {
   teamMembers: TeamMember[];
   position?: 'left' | 'right';
+}
+
+// Create a context to share modal state
+interface TeamModalContextType {
+  openModal: (member: TeamMember) => void;
+  selectedMember: TeamMember | null;
+  isModalOpen: boolean;
+}
+
+const TeamModalContext = createContext<TeamModalContextType | undefined>(undefined);
+
+// Provider component to manage modal state
+export function CtaTeamModalProvider({
+  children,
+  allTeamMembers,
+}: {
+  children: React.ReactNode;
+  allTeamMembers: TeamMember[];
+}) {
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Check for team member in URL hash on initial load and when hash changes
+  useEffect(() => {
+    const checkHash = () => {
+      const hash = window.location.hash;
+      if (hash && hash.startsWith('#member=')) {
+        const memberSlug = hash.substring(8); // Remove '#member='
+        const member = allTeamMembers.find(m => m.slug?.current === memberSlug);
+        if (member) {
+          setSelectedMember(member);
+          setIsModalOpen(true);
+          return;
+        }
+      }
+
+      // If there's no valid member hash but modal is open, close it
+      if (isModalOpen && !hash.startsWith('#member=')) {
+        setIsModalOpen(false);
+        setTimeout(() => setSelectedMember(null), 300);
+      }
+    };
+
+    // Check on mount
+    checkHash();
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', checkHash);
+    return () => window.removeEventListener('hashchange', checkHash);
+  }, [allTeamMembers, isModalOpen]);
+
+  // Function to handle opening the modal with a specific team member
+  const openModal = useCallback((member: TeamMember) => {
+    setSelectedMember(member);
+    setIsModalOpen(true);
+
+    // Update URL hash with the team member's slug
+    if (member.slug?.current) {
+      // Use hash fragment instead of query params to avoid page transitions
+      window.location.hash = `member=${member.slug.current}`;
+    }
+  }, []);
+
+  // Function to handle closing the modal
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false);
+
+    // Remove the hash from URL without triggering navigation
+    if (window.history.pushState) {
+      window.history.pushState(null, '', window.location.pathname);
+    } else {
+      window.location.hash = '';
+    }
+
+    // Clear selected member after animation completes
+    setTimeout(() => setSelectedMember(null), 300);
+  }, []);
+
+  return (
+    <TeamModalContext.Provider value={{ openModal, selectedMember, isModalOpen }}>
+      {selectedMember && (
+        <TeamModal
+          title={selectedMember.title}
+          role={selectedMember.role || ''}
+          image={selectedMember.image}
+          bio={selectedMember.bio}
+          email={selectedMember.email}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
+      {children}
+    </TeamModalContext.Provider>
+  );
+}
+
+// Hook to use the modal context
+function useTeamModal() {
+  const context = useContext(TeamModalContext);
+  if (context === undefined) {
+    throw new Error('useTeamModal must be used within a CtaTeamModalProvider');
+  }
+  return context;
 }
 
 // Card size options - using relative sizes for better responsiveness
@@ -87,10 +200,10 @@ const getCardPositions = (
           break;
         case 1: // Middle right card
           xPosition = '5%';
-          yPosition = '40%';
+          yPosition = '35%';
           break;
         case 2: // Bottom right card
-          xPosition = '15%';
+          xPosition = '2%';
           yPosition = '70%';
           break;
         default:
@@ -109,10 +222,11 @@ const getCardPositions = (
   });
 };
 
+// Main component - desktop only
 export default function CtaTeamList({ teamMembers, position = 'left' }: CtaTeamListProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const { openModal } = useTeamModal();
 
-  // Use useMemo to compute card positions in a consistent way
   const sizedMembers = useMemo(() => {
     const limitedMembers = teamMembers.slice(0, 3);
     return getCardPositions(limitedMembers, position);
@@ -126,7 +240,6 @@ export default function CtaTeamList({ teamMembers, position = 'left' }: CtaTeamL
       // Clear any existing animations first
       gsap.killTweensOf(cards);
 
-      // Subtle floating animation - very minimal movement to maintain layout
       cards.forEach(card => {
         const floatDistance = 20; // Minimal float distance
         const floatDuration = Math.random() * 1 + 3.5; // 3.5-4.5 second duration
@@ -146,6 +259,7 @@ export default function CtaTeamList({ teamMembers, position = 'left' }: CtaTeamL
     { scope: containerRef, dependencies: [sizedMembers] }
   );
 
+  // Only render on desktop (md and above)
   return (
     <div className="relative hidden h-full w-full md:block" ref={containerRef}>
       {/* Container with responsive positioning */}
@@ -159,6 +273,7 @@ export default function CtaTeamList({ teamMembers, position = 'left' }: CtaTeamL
             yPosition={member.yPosition}
             isLeftPosition={member.isLeftPosition}
             position={position}
+            onClick={() => openModal(member)}
           />
         ))}
       </div>
@@ -166,7 +281,7 @@ export default function CtaTeamList({ teamMembers, position = 'left' }: CtaTeamL
   );
 }
 
-// Updated TeamMemberCard with responsive positioning
+// TeamMemberCard component remains exactly the same
 function TeamMemberCard({
   member,
   cardSize,
@@ -174,6 +289,7 @@ function TeamMemberCard({
   yPosition,
   isLeftPosition,
   position,
+  onClick,
 }: {
   member: TeamMember;
   cardSize: { size: string; className: string };
@@ -181,8 +297,9 @@ function TeamMemberCard({
   yPosition: string;
   isLeftPosition: boolean;
   position: string;
+  onClick: () => void;
 }) {
-  const cardRef = useRef<HTMLAnchorElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   // Position style using relative units for responsiveness
   const cardStyle: React.CSSProperties = {
@@ -195,13 +312,13 @@ function TeamMemberCard({
   };
 
   return (
-    <Link
+    <div
       ref={cardRef}
-      href={`/team/${member.slug.current}`}
-      className={`team-card group relative flex flex-col overflow-hidden rounded-md transition-all duration-300 ease-in-out ${cardSize.className}`}
+      className={`team-card group relative flex cursor-pointer flex-col overflow-hidden rounded-md transition-all duration-300 ease-in-out ${cardSize.className}`}
       data-member-id={member._id}
       data-position={position}
       style={cardStyle}
+      onClick={onClick}
     >
       {member.image && member.image.asset?._id && (
         <div
@@ -226,6 +343,6 @@ function TeamMemberCard({
         <h3 className="text-xs font-bold md:text-sm">{member.title}</h3>
         {member.role && <p className="hidden text-xs sm:block">{member.role}</p>}
       </div>
-    </Link>
+    </div>
   );
 }
