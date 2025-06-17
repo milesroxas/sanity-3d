@@ -1,13 +1,13 @@
 'use client';
 
-import { PortableText, PortableTextProps, PortableTextBlockComponent } from '@portabletext/react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { YouTubeEmbed } from '@next/third-parties/google';
 import { Button } from '@/components/ui/button';
 import { extractHrefFromLinkMark } from '@/lib/sanity-utils';
 import { cn } from '@/lib/utils';
+import { YouTubeEmbed } from '@next/third-parties/google';
+import { PortableText, PortableTextBlockComponent, PortableTextProps } from '@portabletext/react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import Image from 'next/image';
+import Link from 'next/link';
 
 // Define variants using class-variance-authority
 const portableTextVariants = cva('', {
@@ -83,9 +83,9 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
         largeText: ({ children }) => <p className="mb-12 w-full max-w-full text-lg">{children}</p>,
         h1: ({ children }) => <h1 className="mb-4 mt-4">{children}</h1>,
         h2: ({ children }) => <h2 className="mb-4 mt-4">{children}</h2>,
-        h3: ({ children }) => <h3 className="mb-4 mt-4">{children}</h3>,
-        h4: ({ children }) => <h4 className="mb-4 mt-4">{children}</h4>,
-        h5: ({ children }) => <h5 className="mb-4 mt-4">{children}</h5>,
+        h3: ({ children }) => <h3 className="mb-2 mt-4">{children}</h3>,
+        h4: ({ children }) => <h4 className="mb-1 mt-4">{children}</h4>,
+        h5: ({ children }) => <h5 className="mb-1 mt-4">{children}</h5>,
       }),
       marks: {
         link: ({ value, children }) => {
@@ -184,28 +184,24 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
       ...defaultComponents,
       block: createBlockComponents({
         normal: ({ children }) => (
-          <p className="w-full max-w-full text-sm md:text-base" style={{ marginBottom: '0.75rem' }}>
+          <p className="mb-2 w-full max-w-full text-sm md:mb-6 md:text-base">{children}</p>
+        ),
+        largeText: ({ children }) => (
+          <p className="mb-6 w-full max-w-full text-sm font-medium text-slate-700 md:mb-8 md:pt-2 md:text-lg">
             {children}
           </p>
         ),
-        largeText: ({ children }) => (
-          <p className="mb-6 w-full max-w-full text-base font-medium md:text-lg">{children}</p>
-        ),
         h1: ({ children }) => (
-          <h1 className="mb-3 mt-4 text-lg font-bold text-primary md:text-xl">{children}</h1>
+          <h1 className="text-lg font-bold text-primary md:text-xl">{children}</h1>
         ),
         h2: ({ children }) => (
-          <h2 className="mb-3 mt-4 text-base font-bold text-primary md:text-lg">{children}</h2>
+          <h2 className="text-base font-bold leading-tight text-primary md:text-2xl">{children}</h2>
         ),
         h3: ({ children }) => (
-          <h3 className="mb-3 mt-3 text-sm font-semibold text-primary md:text-base">{children}</h3>
+          <h3 className="text-sm font-semibold text-primary md:text-base">{children}</h3>
         ),
-        h4: ({ children }) => (
-          <h4 className="mb-3 mt-3 text-sm font-semibold md:text-base">{children}</h4>
-        ),
-        h5: ({ children }) => (
-          <h5 className="mb-3 mt-3 text-xs font-semibold md:text-sm">{children}</h5>
-        ),
+        h4: ({ children }) => <h4 className="text-sm font-semibold md:text-base">{children}</h4>,
+        h5: ({ children }) => <h5 className="text-xs font-semibold md:text-sm">{children}</h5>,
       }),
       list: {
         bullet: ({ children }) => (
@@ -249,13 +245,13 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
           </p>
         ),
         largeText: ({ children }) => (
-          <p className="mb-4 w-full max-w-full text-base font-medium">{children}</p>
+          <p className="mb-4 w-full max-w-full text-xs font-medium text-muted">{children}</p>
         ),
-        h1: ({ children }) => <h1 className="mb-2 mt-3 text-base font-bold">{children}</h1>,
-        h2: ({ children }) => <h2 className="mb-2 mt-3 text-sm font-bold">{children}</h2>,
-        h3: ({ children }) => <h3 className="mb-2 mt-2 text-sm font-semibold">{children}</h3>,
-        h4: ({ children }) => <h4 className="mb-2 mt-2 text-xs font-semibold">{children}</h4>,
-        h5: ({ children }) => <h5 className="mb-2 mt-2 text-xs font-medium">{children}</h5>,
+        h1: ({ children }) => <h1 className="text-xl font-bold">{children}</h1>,
+        h2: ({ children }) => <h2 className="text-xl font-bold">{children}</h2>,
+        h3: ({ children }) => <h3 className="text-lg font-semibold">{children}</h3>,
+        h4: ({ children }) => <h4 className="text-xs font-semibold">{children}</h4>,
+        h5: ({ children }) => <h5 className="text-xs font-medium">{children}</h5>,
       }),
       list: {
         bullet: ({ children }) => (

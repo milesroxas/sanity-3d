@@ -196,7 +196,7 @@ export default function LogoMarkerContent() {
                     {selectedScene.title}
                   </h3>
                   {selectedScene.body && (
-                    <div className="flex-1 text-sm text-secondary md:text-base">
+                    <div className="flex-1">
                       <PortableTextRenderer value={selectedScene.body} variant="drawer" />
                     </div>
                   )}
@@ -211,7 +211,7 @@ export default function LogoMarkerContent() {
                   {selectedScene.title}
                 </h3>
                 {selectedScene.body && (
-                  <div className="flex-1 text-sm text-secondary md:text-base">
+                  <div className="flex-1 text-secondary">
                     <PortableTextRenderer value={selectedScene.body} variant="drawer" />
                   </div>
                 )}
@@ -221,7 +221,7 @@ export default function LogoMarkerContent() {
 
           {/* Fixed bottom button using LinkButton component */}
           {selectedScene.links && selectedScene.links.length > 0 && (
-            <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-center pb-4 pl-6 pr-6 pt-2">
+            <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-center bg-background pb-4 pl-6 pr-6 pt-4">
               <LinkButton link={selectedScene.links[0]} className="w-full" size="default" />
             </div>
           )}
