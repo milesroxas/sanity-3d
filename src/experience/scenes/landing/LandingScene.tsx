@@ -18,15 +18,7 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import {
-  Euler,
-  Group,
-  Mesh,
-  MeshBasicMaterial,
-  PlaneGeometry,
-  PerspectiveCamera as ThreePerspectiveCamera,
-  Vector3,
-} from 'three';
+import { Euler, Group, PerspectiveCamera as ThreePerspectiveCamera, Vector3 } from 'three';
 import { Billboard } from './components/Billboard';
 import { Effects } from './components/Effects';
 import { SceneEnvironment } from './components/SceneEnvironment';
@@ -233,20 +225,6 @@ const LandingScene = ({
   }, []);
   const handleMouseLeaveUI = useCallback(() => {
     isHoveringUI.current = false;
-  }, []);
-
-  const createOverlay = useCallback(() => {
-    if (!cameraRef.current) return null;
-    const overlayMaterial = new MeshBasicMaterial({
-      color: 'white',
-      transparent: true,
-      opacity: 1,
-    });
-    const overlayPlane = new Mesh(new PlaneGeometry(100, 100), overlayMaterial);
-    overlayPlane.position.z = -10;
-    overlayPlane.renderOrder = 999;
-    cameraRef.current.add(overlayPlane);
-    return { overlayPlane, overlayMaterial };
   }, []);
 
   const { contextSafe } = useGSAP();

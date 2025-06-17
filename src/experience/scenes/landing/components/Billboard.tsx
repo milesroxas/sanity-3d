@@ -23,8 +23,8 @@ type GLTFResult = GLTF & {
 interface BillboardProps {
   position?: THREE.Vector3;
   scale?: number;
-  modalVideo?: Sanity.Video;
-  textureVideo?: Sanity.Video;
+  modalVideo?: any;
+  textureVideo?: any;
   portalRef?: React.RefObject<HTMLDivElement>;
 }
 
@@ -37,7 +37,7 @@ export function Billboard({
 }: BillboardProps) {
   // Use the video URL from Sanity if available, otherwise fallback to the default
   const videoUrl = textureVideo?.asset?.playbackId
-    ? `https://stream.mux.com/${textureVideo.asset.playbackId}/low.mp4`
+    ? `https://stream.mux.com/${textureVideo.asset.playbackId}.m3u8`
     : '/videos/intro-video-loop.mp4';
 
   const texture = useVideoTexture(videoUrl, {
