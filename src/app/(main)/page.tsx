@@ -58,14 +58,7 @@ export default async function Page({ searchParams }: PageProps) {
   ]);
 
   if (isRootPath) {
-    return (
-      <LandingPage
-        textureVideo={textureVideo}
-        modalVideo={modalVideo}
-        nav={nav}
-        settings={settings}
-      />
-    );
+    return <LandingPage textureVideo={textureVideo} modalVideo={modalVideo} />;
   }
 
   const page = await fetchSanityPageBySlug({ slug: 'index' });

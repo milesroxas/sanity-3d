@@ -14,19 +14,10 @@ import { vehicles } from '@/experience/animations';
 import { AnimatedClouds } from '@/experience/effects/components/Clouds';
 import { VehiclesInstances } from '@/experience/models/VehiclesInstances';
 import { INITIAL_POSITIONS, useCameraStore } from '@/experience/scenes/store/cameraStore';
-import { SanityNav } from '@/store/navStore';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { useRouter } from 'next/navigation';
-import {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Euler,
   Group,
@@ -53,26 +44,16 @@ import { MOUSE_CONFIG } from './config/mouseConfig';
 import { useResponsiveConfig, useResponsiveTextStyles } from './hooks/useResponsiveConfig';
 import { useLandingCameraStore } from './store/landingCameraStore';
 
-const LandingScene = forwardRef<
-  any,
-  {
-    modalVideo?: any;
-    portalRef: React.RefObject<HTMLDivElement>;
-    nav: SanityNav;
-  }
->(({ modalVideo, portalRef, nav }, ref) => {
+const LandingScene = ({ modalVideo, portalRef }: { modalVideo: any; portalRef: any }) => {
   const [hasAnimated, setHasAnimated] = useState(false);
-  const { resetToInitial } = useCameraStore();
+
   const { isAnimating, setAnimating } = useLandingCameraStore();
   const router = useRouter();
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
   const { size } = useThree();
-  const overlayRef = useRef<Mesh | null>(null);
 
   const logoGroupRef = useRef<Group>(null);
   const entranceTimelineRef = useRef<gsap.core.Timeline | null>(null);
-
-  // Add refs for HTML elements
 
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -263,11 +244,6 @@ const LandingScene = forwardRef<
   const { contextSafe } = useGSAP();
 
   useLayoutEffect(() => {
-    // Set initial state of 3D elements
-    if (logoGroupRef.current) {
-      logoGroupRef.current.scale.set(0.8, 0.8, 0.8);
-    }
-
     if (contentRef.current) {
       contentRef.current.style.opacity = '0';
       contentRef.current.style.transform = 'translateY(20px)';
@@ -281,70 +257,40 @@ const LandingScene = forwardRef<
       onComplete: () => {
         setHasAnimated(true);
         setAnimating(false);
-        if (overlayRef.current?.parent) {
-          overlayRef.current.parent.remove(overlayRef.current);
-          (overlayRef.current.material as MeshBasicMaterial).dispose();
-          overlayRef.current = null;
-        }
       },
     });
+
     entranceTimelineRef.current = tl;
 
     setAnimating(true);
-    const overlay = createOverlay();
-    if (!overlay) return;
-    overlayRef.current = overlay.overlayPlane;
-
-    // Fade in scene
-    gsap.to(overlay.overlayMaterial, {
-      opacity: 0,
-      duration: 2,
-      ease: 'power2.out',
-    });
 
     // Animate camera
     const startPosition = positions.camera.clone();
-    startPosition.z += 200;
+    startPosition.z += 100;
     cameraRef.current.position.copy(startPosition);
     tl.to(cameraRef.current.position, {
       ...positions.camera,
-      duration: 4,
+      duration: 2,
       ease: 'power2.out',
       onUpdate: () => cameraRef.current?.lookAt(positions.target),
     });
 
-    // Create a sequence for the elements AFTER camera animation
     tl.add(() => {
-      if (logoGroupRef.current) {
-        // Logo animation
-        gsap.to(logoGroupRef.current.scale, {
-          x: 1,
-          y: 1,
-          z: 1,
-          duration: 1,
-          ease: 'power2.out',
-          onComplete: () => {
-            // Content animation - target both the HTML wrapper and inner div
-            if (contentRef.current) {
-              // First make the HTML wrapper visible
-              const htmlParent = contentRef.current.parentElement;
-              if (htmlParent) {
-                gsap.to(htmlParent, {
-                  opacity: 1,
-                  duration: 0.1, // Make this quick
-                });
-              }
+      if (contentRef.current) {
+        const htmlParent = contentRef.current.parentElement;
+        if (htmlParent) {
+          gsap.to(htmlParent, {
+            opacity: 1,
+            duration: 0.1,
+          });
+        }
 
-              // Then animate the content div
-              gsap.to(contentRef.current, {
-                opacity: 1,
-                y: 0, //
-                duration: 0.8,
-                ease: 'power2.out',
-                delay: 0.3, // Slight delay after links
-              });
-            }
-          },
+        gsap.to(contentRef.current, {
+          opacity: 1,
+          y: 0, //
+          duration: 0.8,
+          ease: 'power2.out',
+          delay: 0.3,
         });
       }
     });
@@ -365,14 +311,10 @@ const LandingScene = forwardRef<
           'main'
         );
         cameraStore.setIsLoading(true);
+
         router.push('/experience');
       },
     });
-
-    const overlay = createOverlay();
-    if (!overlay) return;
-    overlayRef.current = overlay.overlayPlane;
-    overlay.overlayMaterial.opacity = 0;
 
     if (contentRef.current) {
       const htmlParent = contentRef.current.parentElement;
@@ -400,25 +342,7 @@ const LandingScene = forwardRef<
       }
     }
 
-    // Then animate 3D logo out
-    if (logoGroupRef.current) {
-      tl.to(
-        logoGroupRef.current.scale,
-        {
-          x: 0,
-          y: 0,
-          z: 0,
-          duration: 0.8,
-          ease: 'power2.in',
-        },
-        0.2
-      );
-    }
-
-    // Then animate camera and overlay
     if (cameraRef.current) {
-      // Store initial positions
-      const startPosition = cameraRef.current.position.clone();
       const startTarget = positions.target.clone();
       const endTarget = startTarget.clone().add(new Vector3(0, 200, 0));
 
@@ -444,17 +368,6 @@ const LandingScene = forwardRef<
         },
         0.8
       );
-
-      // Fade to white
-      tl.to(
-        overlay.overlayMaterial,
-        {
-          opacity: 1,
-          duration: 2,
-          ease: 'power2.in',
-        },
-        1.3
-      );
     }
 
     tl.play();
@@ -467,17 +380,6 @@ const LandingScene = forwardRef<
       });
     }
   }, [isLoaded, hasAnimated, isAnimating, handleEnter]);
-
-  useEffect(() => {
-    return () => {
-      if (overlayRef.current?.parent) {
-        overlayRef.current.parent.remove(overlayRef.current);
-        (overlayRef.current.material as MeshBasicMaterial)?.dispose();
-      }
-      entranceTimelineRef.current?.kill();
-      resetToInitial();
-    };
-  }, [resetToInitial]);
 
   useFrame((state, delta) => {
     if (!cameraRef.current || isAnimating || !hasAnimated) return;
@@ -542,9 +444,9 @@ const LandingScene = forwardRef<
         <group
           ref={logoGroupRef}
           position={[
-            currentConfig.logo.position.x,
-            currentConfig.logo.position.y,
-            currentConfig.logo.position.z,
+            positions.logo.position.x,
+            positions.logo.position.y,
+            positions.logo.position.z,
           ]}
           rotation={[
             currentConfig.logo.rotation.x,
@@ -606,7 +508,7 @@ const LandingScene = forwardRef<
       />
     </group>
   );
-});
+};
 
 LandingScene.displayName = 'LandingScene';
 

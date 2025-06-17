@@ -1,7 +1,6 @@
 'use client';
 
 import { useR3F } from '@/experience/providers/R3FContext';
-import { SanityNav, SanitySettings } from '@/store/navStore';
 import { useEffect } from 'react';
 import LandingScene from './LandingScene';
 import { useLandingCameraStore } from './store/landingCameraStore';
@@ -11,8 +10,6 @@ interface LandingWrapperProps {
   modalVideo: Sanity.Media;
   portalRef: any;
   children?: React.ReactNode;
-  nav: SanityNav;
-  settings: SanitySettings;
 }
 
 export default function LandingWrapper({
@@ -20,7 +17,6 @@ export default function LandingWrapper({
   textureVideo,
   modalVideo,
   portalRef,
-  nav,
 }: LandingWrapperProps) {
   const { setR3FContent } = useR3F();
   const resetLandingCamera = useLandingCameraStore(state => state.reset);
@@ -30,9 +26,7 @@ export default function LandingWrapper({
     resetLandingCamera();
 
     // Set R3F content with both videos
-    setR3FContent(
-      <LandingScene nav={nav} modalVideo={(modalVideo as any)?.video} portalRef={portalRef} />
-    );
+    setR3FContent(<LandingScene modalVideo={(modalVideo as any)?.video} portalRef={portalRef} />);
 
     // Cleanup when unmounting
     return () => {
