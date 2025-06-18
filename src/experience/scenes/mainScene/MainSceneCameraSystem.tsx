@@ -4,7 +4,6 @@ import { button, folder, useControls, useCreateStore } from 'leva';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { MathUtils, PerspectiveCamera as ThreePerspectiveCamera, Vector3 } from 'three';
 
-// Define boundary limits for camera movement
 const BOUNDARY_LIMITS = {
   minX: -200,
   maxX: 200,
@@ -16,10 +15,10 @@ const BOUNDARY_LIMITS = {
 
 // Define angle limits
 const ANGLE_LIMITS = {
-  minPolar: 0, // Minimum polar angle (up/down rotation) in radians
-  maxPolar: Math.PI / 2, // Maximum polar angle in radians
-  minAzimuth: -Math.PI / 4, // Minimum azimuth angle (left/right rotation) in radians
-  maxAzimuth: Math.PI / 4, // Maximum azimuth angle in radians
+  minPolar: 0,
+  maxPolar: Math.PI / 2,
+  minAzimuth: -Math.PI / 4,
+  maxAzimuth: Math.PI / 4,
 };
 
 // Typed debounce utility function

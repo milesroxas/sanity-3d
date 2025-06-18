@@ -126,15 +126,6 @@ export default function LogoMarkerContent() {
     };
   }, [isContentVisible, selectedScene, headerTitle, isAnimating]);
 
-  // Clean up any pending timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
-
   const handleClose = () => {
     if (!drawerRef.current) return;
 
@@ -144,16 +135,9 @@ export default function LogoMarkerContent() {
       duration: 0.75,
       ease: 'power2.in',
       onComplete: () => {
-        // Set state to false after animation completes
         setContentVisible(false);
-
-        // Trigger camera animation
         setShouldAnimateBack(true);
-
-        // Hide other markers with a small delay
-        setTimeout(() => {
-          setOtherMarkersVisible(false);
-        }, 100);
+        setOtherMarkersVisible(false);
       },
     });
   };
