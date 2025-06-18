@@ -4,10 +4,12 @@ import PortableTextRenderer from '@/components/portable-text-renderer';
 import { LinkButton } from '@/components/shared/link-button';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useExpandedContentStore } from '@/experience/scenes/store/expandedContentStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import gsap from 'gsap';
 import { X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import MarkerContentOverlay from './MarkerContentOverlay';
 
 export default function LogoMarkerContent() {
   const {
@@ -17,7 +19,9 @@ export default function LogoMarkerContent() {
     setShouldAnimateBack,
     setOtherMarkersVisible,
   } = useLogoMarkerStore();
+  const { title, content, isVisible, closeExpandedContent } = useExpandedContentStore();
   console.log(selectedScene);
+  console.log('Selected scene blocks:', selectedScene?.blocks);
   // Refs
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -30,6 +34,10 @@ export default function LogoMarkerContent() {
   const [headerTitle, setHeaderTitle] = useState('Security Services');
   const [previousTitle, setPreviousTitle] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
+  const [expandedContent, setExpandedContent] = useState<{
+    title: string;
+    content: any[];
+  } | null>(null);
 
   // GSAP animation for entry
   useEffect(() => {
@@ -129,6 +137,9 @@ export default function LogoMarkerContent() {
   const handleClose = () => {
     if (!drawerRef.current) return;
 
+    // Close expanded content when logo marker is closed
+    closeExpandedContent();
+
     // Animate drawer out
     gsap.to(drawerRef.current, {
       x: '-100%',
@@ -141,6 +152,17 @@ export default function LogoMarkerContent() {
       },
     });
   };
+
+  const handleCloseExpanded = () => {
+    setExpandedContent(null);
+  };
+
+  // Also add an effect to sync the expanded content with logo marker visibility:
+  useEffect(() => {
+    if (!isContentVisible) {
+      closeExpandedContent();
+    }
+  }, [isContentVisible, closeExpandedContent]);
 
   if (!selectedScene) return null;
 
@@ -184,7 +206,9 @@ export default function LogoMarkerContent() {
                       <PortableTextRenderer value={selectedScene.body} variant="drawer" />
                     </div>
                   )}
-                  <Blocks blocks={selectedScene.blocks} />
+                  {selectedScene.blocks && selectedScene.blocks.length > 0 ? (
+                    <Blocks blocks={selectedScene.blocks} />
+                  ) : null}
                 </div>
               </ScrollArea>
             </div>
@@ -199,6 +223,9 @@ export default function LogoMarkerContent() {
                     <PortableTextRenderer value={selectedScene.body} variant="drawer" />
                   </div>
                 )}
+                {selectedScene.blocks && selectedScene.blocks.length > 0 ? (
+                  <Blocks blocks={selectedScene.blocks} />
+                ) : null}
               </div>
             </div>
           )}
@@ -210,6 +237,22 @@ export default function LogoMarkerContent() {
             </div>
           )}
         </div>
+      )}
+      {expandedContent && (
+        <MarkerContentOverlay
+          title={expandedContent.title}
+          content={expandedContent.content}
+          isVisible={!!expandedContent}
+          onClose={handleCloseExpanded}
+        />
+      )}
+      {isVisible && title && content && (
+        <MarkerContentOverlay
+          title={title}
+          content={content}
+          isVisible={isVisible}
+          onClose={closeExpandedContent}
+        />
       )}
     </>
   );

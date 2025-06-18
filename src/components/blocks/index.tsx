@@ -13,18 +13,7 @@ import TimelineRow from '@/components/blocks/timeline/timeline-row';
 import FAQs from '@/components/ui/faqs';
 import FormNewsletter from '@/components/ui/forms/newsletter';
 import CtaTeam from './cta/cta-team';
-
-import { createBlurUp } from '@mux/blurup';
-
-async function getVideoWithPlaceholder(playbackId: string) {
-  try {
-    const { blurDataURL, aspectRatio } = await createBlurUp(playbackId, {});
-    return { blurDataURL, aspectRatio };
-  } catch (error) {
-    console.error('Error generating video placeholder:', error);
-    return { blurDataURL: null, aspectRatio: 16 / 9 };
-  }
-}
+import ExpandedContent from './experience/content';
 
 const componentMap: { [key: string]: React.ComponentType<any> } = {
   heroOne: Hero1,
@@ -42,6 +31,7 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   'form-newsletter': FormNewsletter,
   'large-callout': LargeCallout,
   'featured-content-offset': FeaturedContentOffset,
+  'section-content': ExpandedContent,
 };
 
 export default function Blocks({ blocks }: { blocks?: Sanity.Block[] }) {
@@ -50,15 +40,12 @@ export default function Blocks({ blocks }: { blocks?: Sanity.Block[] }) {
       {blocks?.map((block: Sanity.Block, index: number) => {
         const Component = componentMap[block._type];
 
-        // Generate a unique key for the block
         const blockKey = block._key || `block-${block._type}-${index}`;
 
         if (!Component) {
-          // Fallback for unknown block types to debug
           return <div data-type={block._type} key={blockKey} />;
         }
 
-        // Create a wrapper div with a data attribute to help with debugging
         return (
           <div
             key={blockKey}

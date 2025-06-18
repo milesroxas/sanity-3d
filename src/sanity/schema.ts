@@ -29,6 +29,9 @@ import gridCard from './schemas/blocks/grid/grid-card';
 import gridPost from './schemas/blocks/grid/grid-post';
 import gridRow from './schemas/blocks/grid/grid-row';
 
+// Experience blocks
+
+import sectionContent from './schemas/blocks/experience/section-content';
 // Hero blocks
 import hero1 from './schemas/blocks/hero/hero-1';
 import hero2 from './schemas/blocks/hero/hero-2';
@@ -106,6 +109,8 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     largeCallout,
     featuredContentOffset,
     ctaTeam,
+
+    sectionContent,
     // singleton
     settings,
     nav,
