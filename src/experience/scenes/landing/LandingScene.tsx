@@ -252,11 +252,12 @@ const LandingScene = ({
 
     // Animate camera
     const startPosition = positions.camera.clone();
-    startPosition.z += 100;
+    startPosition.z += 200;
+    startPosition.y += 50;
     cameraRef.current.position.copy(startPosition);
     tl.to(cameraRef.current.position, {
       ...positions.camera,
-      duration: 2,
+      duration: 5,
       ease: 'power2.out',
       onUpdate: () => cameraRef.current?.lookAt(positions.target),
     });
@@ -330,7 +331,7 @@ const LandingScene = ({
 
     if (cameraRef.current) {
       const startTarget = positions.target.clone();
-      const endTarget = startTarget.clone().add(new Vector3(0, 200, 0));
+      const endTarget = startTarget.clone().add(new Vector3(0, 300, 0));
 
       // Animate camera position
       tl.to(

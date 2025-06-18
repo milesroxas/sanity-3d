@@ -27,8 +27,8 @@ export function Ground() {
   const { nodes, materials } = useGLTF('/models/landing/ground.glb') as unknown as GLTFResult;
   return (
     <group dispose={null}>
-      <mesh rotation-x={-Math.PI / 2} position={[0, -2, 0]}>
-        <planeGeometry args={[1000, 1000]} />
+      <mesh rotation-x={-Math.PI / 2} position={[0, -2, -100]} scale={2}>
+        <planeGeometry args={[1200, 1200]} />
         <meshStandardMaterial color="#DCBF9A" transparent opacity={1} />
       </mesh>
       <group name="Scene002">
