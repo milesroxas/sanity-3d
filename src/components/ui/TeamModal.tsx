@@ -131,7 +131,7 @@ export default function TeamModal({
           <div ref={contentRef} className="flex flex-col justify-center p-8">
             <ScrollArea
               ref={scrollAreaRef}
-              className="max-h-[80vh] overflow-y-auto pb-8"
+              className="max-h-[60vh] overflow-y-auto pb-8 md:max-h-[80vh]"
               onWheel={e => e.stopPropagation()}
             >
               <DialogHeader className="mb-6">
