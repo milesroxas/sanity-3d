@@ -5,7 +5,7 @@ import { urlFor } from '@/sanity/lib/image';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import Newsletter from '../ui/forms/newsletter';
+import FooterNewsletter from '../ui/forms/footer-newsletter';
 import PreFooter from './pre-footer';
 
 // Define the Sanity logo interface
@@ -61,7 +61,6 @@ export default function FooterClient({ nav, settings }: FooterClientProps) {
     return null;
   }
 
-  // Helper function to get link data
   const getLink = (link: any) => {
     if (!link) return { label: '', href: '#', target: false };
 
@@ -130,17 +129,13 @@ export default function FooterClient({ nav, settings }: FooterClientProps) {
     <footer className="bg-muted">
       <div className="overflow-hidden rounded-tl-[20px] rounded-tr-[20px] bg-zinc-900 text-white md:rounded-tl-[20px] md:rounded-tr-[20px] lg:rounded-tl-[50px] lg:rounded-tr-[50px]">
         <PreFooter />
-        <div className="container px-4 py-8 md:py-12">
+        <div className="container px-4 pt-8 md:pt-12">
           {/* Main footer content */}
           <div className="space-y-8">
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-6 xl:gap-8">
               {/* Logo section */}
-              <div className="lg:col-span-3">
-                <Link
-                  className="inline-block w-12 md:w-16"
-                  href="/experience"
-                  aria-label="Home page"
-                >
+              <div className="lg:col-span-1">
+                <Link className="inline-block w-12 md:w-16" href="/" aria-label="Home page">
                   {nav?.logo ? (
                     <Image
                       src={urlFor(nav.logo.asset).url()}
@@ -153,81 +148,63 @@ export default function FooterClient({ nav, settings }: FooterClientProps) {
                 </Link>
               </div>
 
-              {/* Company links */}
-              {companyLinks.length > 0 && (
-                <div className="space-y-3 lg:col-span-2">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-300">
-                    Company
-                  </h3>
-                  <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm lg:flex-col lg:gap-x-0 lg:gap-y-3">
+              <div className="flex flex-row items-start gap-8 align-top lg:col-span-7 lg:flex-col">
+                {companyLinks.length > 0 && (
+                  <div className="flex flex-col flex-wrap gap-x-4 gap-y-2 lg:flex-row lg:gap-y-2">
                     {companyLinks.map((navItem, index) => (
                       <Link
                         key={`company-${navItem.label}-${index}`}
                         href={navItem.href || '#'}
                         target={navItem.target ? '_blank' : undefined}
                         rel={navItem.target ? 'noopener noreferrer' : undefined}
-                        className="text-zinc-400 transition-colors hover:text-white"
+                        className="text-xs text-zinc-400 transition-colors hover:text-green-400"
                       >
                         {navItem.label}
                       </Link>
                     ))}
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Services links */}
-              {servicesLinks.length > 0 && (
-                <div className="space-y-3 lg:col-span-2">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-300">
-                    Services
-                  </h3>
-                  <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm lg:flex-col lg:gap-x-0 lg:gap-y-3">
-                    {servicesLinks.map((navItem, index) => (
-                      <Link
-                        key={`services-${navItem.label}-${index}`}
-                        href={navItem.href || '#'}
-                        target={navItem.target ? '_blank' : undefined}
-                        rel={navItem.target ? 'noopener noreferrer' : undefined}
-                        className="text-zinc-400 transition-colors hover:text-white"
-                      >
-                        {navItem.label}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Newsletter section */}
-              <div className="lg:col-span-5">
-                <div className="">
-                  <Newsletter
-                    colorVariant="transparent"
-                    buttonText="Subscribe"
-                    successMessage="You've been subscribed to our newsletter."
-                    inputClassName="w-full bg-zinc-800 border-zinc-700 placeholder:text-zinc-400"
-                    className="w-full p-0"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Social links - aligned with newsletter end on desktop */}
-            {settings?.social && (
-              <div className="lg:grid lg:grid-cols-12 lg:gap-6 xl:gap-8">
-                <div className="lg:col-span-6 lg:col-start-7">
-                  <div className="lg:ml-auto lg:max-w-md">
-                    <div className="flex justify-start lg:justify-end">
-                      <SocialLinks social={settings.social} className="flex gap-4" />
+                {servicesLinks.length > 0 && (
+                  <div className="lg:col-span-6">
+                    <div className="flex flex-col flex-wrap gap-x-4 gap-y-2 lg:flex-row lg:gap-y-2">
+                      {servicesLinks.map((navItem, index) => (
+                        <Link
+                          key={`services-${navItem.label}-${index}`}
+                          href={navItem.href || '#'}
+                          target={navItem.target ? '_blank' : undefined}
+                          rel={navItem.target ? 'noopener noreferrer' : undefined}
+                          className="text-xs text-zinc-400 transition-colors hover:text-green-400"
+                        >
+                          {navItem.label}
+                        </Link>
+                      ))}
                     </div>
                   </div>
-                </div>
+                )}
               </div>
-            )}
+
+              {/* Newsletter section */}
+              <div className="flex flex-col gap-8 lg:col-span-4 lg:items-end lg:gap-4">
+                <FooterNewsletter
+                  colorVariant="transparent"
+                  buttonText="Subscribe"
+                  successMessage="You've been subscribed to our newsletter."
+                  inputClassName="w-full bg-zinc-800 border-zinc-700 placeholder:text-zinc-400"
+                  className="w-full p-0"
+                />
+                {/* Social links - aligned with newsletter end on desktop */}
+                {settings?.social && (
+                  <div className="flex justify-start lg:justify-end">
+                    <SocialLinks social={settings.social} className="flex gap-4" />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Copyright and legal section */}
-          <div className="mt-8 flex flex-col gap-4 border-t border-zinc-800 pt-6 text-xs text-zinc-400 md:flex-row md:items-center md:justify-between md:gap-6">
-            {/* Copyright */}
+          <div className="mt-8 flex flex-row gap-4 border-t border-zinc-800 py-6 text-xs text-zinc-400 md:flex-row md:items-center md:justify-between md:gap-6">
             <div>
               <p>&copy; O'Linn Security Inc. {getCurrentYear()}.</p>
             </div>
@@ -241,7 +218,7 @@ export default function FooterClient({ nav, settings }: FooterClientProps) {
                     href={legalItem.href || '#'}
                     target={legalItem.target ? '_blank' : undefined}
                     rel={legalItem.target ? 'noopener noreferrer' : undefined}
-                    className="transition-colors hover:text-zinc-300"
+                    className="transition-colors hover:text-green-400"
                   >
                     {legalItem.label}
                   </Link>

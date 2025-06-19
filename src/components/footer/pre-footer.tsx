@@ -1,12 +1,10 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { useGSAP } from '@gsap/react';
-import { ArrowRightIcon } from '@radix-ui/react-icons';
 import gsap from 'gsap';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useRef } from 'react';
-import { Button } from '../ui/button';
 
 export default function PreFooter() {
   const pathname = usePathname();
@@ -80,68 +78,31 @@ export default function PreFooter() {
       {/* Background image */}
 
       {/* Content container */}
-      <div className="w-full">
-        <div className="container relative z-20 pb-24">
-          <div className="flex flex-col items-center justify-between gap-6 lg:flex-row">
-            <p className="w-full text-lg font-light leading-relaxed text-white md:text-xl lg:w-1/2 xl:text-3xl">
+      <div
+        className="w-full pb-80"
+        style={{
+          backgroundImage: 'url("/images/footer-bg.png")',
+          backgroundSize: 'cover',
+          backgroundPosition: '0% 50%',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <div className="container relative z-20 flex flex-col gap-12 pb-24">
+          <div className="items-center justify-between gap-6 lg:flex-row">
+            <p className="mx-auto text-center text-lg font-light leading-relaxed text-white md:text-xl lg:w-[75%] xl:text-3xl">
               Request your personalized security proposal from our family‑owned local leaders who've
               been safeguarding communities for 40 years.
             </p>
-
-            {/* Button group with grid for equal width buttons */}
-            <div className="grid w-full grid-cols-1 gap-6 lg:w-auto lg:grid-cols-2">
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full whitespace-normal bg-white py-6 text-black hover:bg-gray-100"
-              >
-                Contact Us
-              </Button>
-              <Button size="lg" className="w-full whitespace-normal py-6 text-white">
-                Request a Proposal
-              </Button>
-            </div>
           </div>
-        </div>
-        <div className="relative h-[80vh]">
-          <Link
-            href="/"
-            onMouseEnter={handleHover}
-            onMouseLeave={handleHoverOut}
-            className="relative z-40 flex w-full flex-col items-center gap-6"
-          >
-            <div
-              ref={textRef}
-              className="z-50 w-full text-center text-[8vw] font-light"
-              style={
-                {
-                  '--gradient-from': '#A6D3B6',
-                  '--gradient-to': '#9DFFC4',
-                  background:
-                    'linear-gradient(90deg, var(--gradient-from) 0%, var(--gradient-to) 100%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  mixBlendMode: 'difference',
-                  lineHeight: '1',
-                } as React.CSSProperties
-              }
+          <div className="mx-auto grid max-w-prose grid-cols-1 gap-2 lg:w-auto lg:grid-cols-2">
+            <Button className="w-full whitespace-normal py-4">Request a Proposal</Button>
+            <Button
+              className="w-full whitespace-normal py-4 text-primary hover:text-green-400"
+              variant="ghost"
             >
-              Explore our services
-            </div>
-            <div className="z-50 flex w-full justify-center text-primary" ref={iconRef}>
-              <ArrowRightIcon className="h-8 w-8 lg:h-14 lg:w-14" />
-            </div>
-          </Link>
-          <div
-            className="absolute inset-0 z-0"
-            style={{
-              backgroundImage: 'url("/images/pre-footer-bg.jpg")',
-              backgroundSize: 'cover',
-              backgroundPosition: 'bottom',
-              backgroundRepeat: 'no-repeat',
-            }}
-          />
+              Enter Experience
+            </Button>
+          </div>
         </div>
       </div>
     </section>

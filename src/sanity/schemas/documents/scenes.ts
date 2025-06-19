@@ -50,6 +50,12 @@ export default defineType({
       group: 'content',
     }),
     defineField({
+      name: 'blocks',
+      type: 'array',
+      group: 'content',
+      of: [{ type: 'section-content' }],
+    }),
+    defineField({
       name: 'links',
       type: link.name,
       validation: (rule: any) => rule.max(2),
@@ -169,12 +175,7 @@ export default defineType({
         },
       ],
     }),
-    defineField({
-      name: 'blocks',
-      type: 'array',
-      group: 'content',
-      of: [{ type: 'section-content' }],
-    }),
+
     defineField({
       name: 'modelFiles',
       title: 'Model Files',

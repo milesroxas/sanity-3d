@@ -47,7 +47,7 @@ export default function SocialLinks({
         <SocialLink
           url={social.facebook}
           label="Facebook"
-          className="hover:text-slate-300"
+          className="hover:text-green-400"
           icon={
             <svg
               className={iconClassName}
@@ -68,7 +68,7 @@ export default function SocialLinks({
         <SocialLink
           url={social.instagram}
           label="Instagram"
-          className="hover:text-slate-300"
+          className="hover:text-green-400"
           icon={
             <svg
               className={iconClassName}
@@ -89,7 +89,7 @@ export default function SocialLinks({
         <SocialLink
           url={social.twitter}
           label="Twitter"
-          className="hover:text-slate-300"
+          className="hover:text-green-400"
           icon={
             <svg
               className={iconClassName}
@@ -106,7 +106,7 @@ export default function SocialLinks({
         <SocialLink
           url={social.linkedin}
           label="LinkedIn"
-          className="hover:text-slate-300"
+          className="hover:text-green-400"
           icon={
             <svg
               className={iconClassName}
@@ -123,7 +123,7 @@ export default function SocialLinks({
         <SocialLink
           url={social.youtube}
           label="YouTube"
-          className="hover:text-slate-300"
+          className="hover:text-green-400"
           icon={
             <svg
               className={iconClassName}
@@ -144,7 +144,7 @@ export default function SocialLinks({
         <SocialLink
           url={social.tiktok}
           label="TikTok"
-          className="hover:text-slate-300"
+          className="hover:text-green-400"
           icon={
             <svg
               className={iconClassName}
@@ -161,7 +161,7 @@ export default function SocialLinks({
         <SocialLink
           url={social.yelp}
           label="Yelp"
-          className="hover:text-slate-300"
+          className="hover:text-green-400"
           icon={
             <svg
               className={iconClassName}
@@ -178,7 +178,7 @@ export default function SocialLinks({
         <SocialLink
           url={social.googleReviews}
           label="Google Reviews"
-          className="hover:text-slate-300"
+          className="hover:text-green-400"
           icon={
             <svg
               className={iconClassName}
