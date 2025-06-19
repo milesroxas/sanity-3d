@@ -45,9 +45,8 @@ const LandingScene = ({
   textureVideo: any;
   portalRef: any;
 }) => {
-  const [hasAnimated, setHasAnimated] = useState(false);
-
-  const { isAnimating, setAnimating } = useLandingCameraStore();
+  const [localHasAnimated, setLocalHasAnimated] = useState(false);
+  const { isAnimating, setAnimating, hasAnimated, setHasAnimated } = useLandingCameraStore();
   const router = useRouter();
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
   const { size } = useThree();
@@ -234,6 +233,10 @@ const LandingScene = ({
       contentRef.current.style.opacity = '0';
       contentRef.current.style.transform = 'translateY(20px)';
     }
+
+    if (contentRef.current?.parentElement) {
+      contentRef.current.parentElement.style.opacity = '0';
+    }
   }, []);
 
   const handleEnter = contextSafe(() => {
@@ -241,6 +244,7 @@ const LandingScene = ({
 
     const tl = gsap.timeline({
       onComplete: () => {
+        setLocalHasAnimated(true);
         setHasAnimated(true);
         setAnimating(false);
       },
@@ -262,25 +266,34 @@ const LandingScene = ({
       onUpdate: () => cameraRef.current?.lookAt(positions.target),
     });
 
+    // Add a specific marker for when to start content animation
+    // This ensures the camera has moved significantly before content appears
+    tl.addLabel('contentStart', 3); // Start content animation 3 seconds into the camera movement
+
     tl.add(() => {
       if (contentRef.current) {
         const htmlParent = contentRef.current.parentElement;
         if (htmlParent) {
           gsap.to(htmlParent, {
             opacity: 1,
-            duration: 0.1,
+            duration: 0.3, // Slightly longer to ensure it's fully visible
           });
         }
 
+        // Make sure the content is in the starting position before animating
+        contentRef.current.style.opacity = '0';
+        contentRef.current.style.transform = 'translateY(20px)';
+
+        // Add a small delay to ensure the parent is visible first
         gsap.to(contentRef.current, {
           opacity: 1,
-          y: 0, //
-          duration: 0.8,
+          y: 0,
+          duration: 1.0, // Slightly longer animation for smoother effect
           ease: 'power2.out',
-          delay: 0.3,
+          delay: 0.1, // Small delay after parent becomes visible
         });
       }
-    });
+    }, 'contentStart'); // Use the label to time this with the camera animation
 
     tl.play();
   });
@@ -362,9 +375,22 @@ const LandingScene = ({
 
   useEffect(() => {
     if (isLoaded && !hasAnimated && !isAnimating) {
+      // First time loading - animate in with camera
       requestAnimationFrame(() => {
         handleEnter();
       });
+    } else if (isLoaded && hasAnimated && !isAnimating) {
+      // Returning to the page - make content immediately visible without animation
+      if (contentRef.current) {
+        const htmlParent = contentRef.current.parentElement;
+        if (htmlParent) {
+          htmlParent.style.opacity = '1';
+        }
+        // Set content immediately visible
+        contentRef.current.style.opacity = '1';
+        contentRef.current.style.transform = 'translateY(0)';
+        setLocalHasAnimated(true);
+      }
     }
   }, [isLoaded, hasAnimated, isAnimating, handleEnter]);
 
@@ -391,17 +417,10 @@ const LandingScene = ({
   });
 
   useFrame(() => {
-    if (!isAnimating) {
-      if (positions.mainContent.distanceTo(mainContentPosition) > 0.01) {
-        setMainContentPosition(positions.mainContent.clone());
-      }
-      if (
-        Math.abs(mainContentRotation.x - positions.mainContentRotation.x) > 0.01 ||
-        Math.abs(mainContentRotation.y - positions.mainContentRotation.y) > 0.01 ||
-        Math.abs(mainContentRotation.z - positions.mainContentRotation.z) > 0.01
-      ) {
-        setMainContentRotation(positions.mainContentRotation.clone());
-      }
+    if (!isAnimating && hasAnimated) {
+      // Always update position when not animating and after initial animation
+      setMainContentPosition(positions.mainContent.clone());
+      setMainContentRotation(positions.mainContentRotation.clone());
     }
   });
 
@@ -456,7 +475,6 @@ const LandingScene = ({
           prepend
           style={{
             pointerEvents: 'auto',
-            opacity: 0,
             zIndex: 30,
           }}
         >

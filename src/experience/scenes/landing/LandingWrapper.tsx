@@ -19,13 +19,15 @@ export default function LandingWrapper({
   portalRef,
 }: LandingWrapperProps) {
   const { setR3FContent } = useR3F();
-  const resetLandingCamera = useLandingCameraStore(state => state.reset);
+  const { setCamera, setAnimating } = useLandingCameraStore();
 
   useEffect(() => {
-    // Reset landing camera
-    resetLandingCamera();
+    setCamera(
+      useLandingCameraStore.getState().position.clone(),
+      useLandingCameraStore.getState().target.clone()
+    );
+    setAnimating(false);
 
-    // Set R3F content with both videos
     setR3FContent(
       <LandingScene
         modalVideo={(modalVideo as any)?.video}
@@ -34,13 +36,11 @@ export default function LandingWrapper({
       />
     );
 
-    // Cleanup when unmounting
     return () => {
       setR3FContent(null);
     };
-  }, [setR3FContent, resetLandingCamera, textureVideo, modalVideo, portalRef]);
+  }, [setR3FContent, setCamera, setAnimating, textureVideo, modalVideo, portalRef]);
 
-  // Return the HTML content that should be displayed alongside the 3D scene
   return (
     <div className="pointer-events-none absolute inset-0 h-screen w-screen">
       <div className="container mx-auto flex h-full items-center px-4">
