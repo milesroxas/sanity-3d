@@ -23,8 +23,9 @@ type EnvironmentPreset =
 
 export function Environment() {
   const environmentControls = useControls(
-    'Environment',
+    'mainSceneEnvironment',
     {
+      useCustomHDR: { value: true },
       preset: {
         value: 'sunset' as EnvironmentPreset,
         options: [
@@ -42,10 +43,10 @@ export function Environment() {
       },
       background: { value: true },
       blur: { value: 0.9, min: 0, max: 1, step: 0.1 },
-      intensity: { value: 1.2, min: 0, max: 5, step: 0.1 },
-      lightIntensity: { value: 0.8, min: 0, max: 2, step: 0.1 },
+      intensity: { value: 1, min: 0, max: 5, step: 0.1 },
+      lightIntensity: { value: 3, min: 0, max: 20, step: 0.1 },
       lightPosition: {
-        value: { x: 10, y: 20, z: 15 },
+        value: { x: 10, y: 20, z: 10 },
         step: 1,
       },
     },
@@ -55,7 +56,9 @@ export function Environment() {
   return (
     <>
       <DreiEnvironment
-        preset={environmentControls.preset}
+        {...(environmentControls.useCustomHDR
+          ? { files: '/textures/desert-clear-sky.hdr' }
+          : { preset: environmentControls.preset })}
         background={environmentControls.background}
         backgroundBlurriness={environmentControls.blur}
         environmentIntensity={environmentControls.intensity}

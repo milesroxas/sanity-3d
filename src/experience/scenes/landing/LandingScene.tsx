@@ -3,7 +3,6 @@
 import { Button } from '@/components/ui/button';
 import {
   Billboard as DreiBillboard,
-  Float,
   Html,
   PerspectiveCamera,
   useProgress,
@@ -17,18 +16,17 @@ import { INITIAL_POSITIONS, useCameraStore } from '@/experience/scenes/store/cam
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Euler, Group, PerspectiveCamera as ThreePerspectiveCamera, Vector3 } from 'three';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Euler, PerspectiveCamera as ThreePerspectiveCamera, Vector3 } from 'three';
 import { Billboard } from './components/Billboard';
 import { Effects } from './components/Effects';
 import { SceneEnvironment } from './components/SceneEnvironment';
 import { DesertModels } from './compositions/DesertModels';
-import { Logo } from './compositions/Logo';
+
 import {
   useBillboardControls,
   useCameraControls,
   useDebugControls,
-  useLogoControls,
   useMainContentControls,
   useSceneInfoControls,
 } from './config/controls';
@@ -45,14 +43,14 @@ const LandingScene = ({
   textureVideo: any;
   portalRef: any;
 }) => {
-  const [localHasAnimated, setLocalHasAnimated] = useState(false);
   const { isAnimating, setAnimating, hasAnimated, setHasAnimated } = useLandingCameraStore();
   const router = useRouter();
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
   const { size } = useThree();
 
-  const logoGroupRef = useRef<Group>(null);
   const entranceTimelineRef = useRef<gsap.core.Timeline | null>(null);
+  const hasInitializedRef = useRef(false);
+  const visibilityChangeRef = useRef(false);
 
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -101,14 +99,6 @@ const LandingScene = ({
     positionZ: billboardPositionZ,
     scale: billboardScale,
   } = useBillboardControls(responsiveConfig.billboard.position, responsiveConfig.billboard.scale);
-  const {
-    positionX: logoPositionX,
-    positionY: logoPositionY,
-    positionZ: logoPositionZ,
-    rotationX: logoRotationX,
-    rotationY: logoRotationY,
-    rotationZ: logoRotationZ,
-  } = useLogoControls(responsiveConfig.logo.position, responsiveConfig.logo.rotation);
 
   const currentConfig = useMemo(() => {
     if (debugEnabled) {
@@ -124,10 +114,6 @@ const LandingScene = ({
         billboard: {
           position: { x: billboardPositionX, y: billboardPositionY, z: billboardPositionZ },
           scale: billboardScale,
-        },
-        logo: {
-          position: { x: logoPositionX, y: logoPositionY, z: logoPositionZ },
-          rotation: { x: logoRotationX, y: logoRotationY, z: logoRotationZ },
         },
         mouseInfluence,
         mouseDamping,
@@ -156,12 +142,7 @@ const LandingScene = ({
     billboardPositionY,
     billboardPositionZ,
     billboardScale,
-    logoPositionX,
-    logoPositionY,
-    logoPositionZ,
-    logoRotationX,
-    logoRotationY,
-    logoRotationZ,
+
     mouseInfluence,
     mouseDamping,
     responsiveConfig,
@@ -196,28 +177,45 @@ const LandingScene = ({
         ),
         scale: currentConfig.billboard.scale,
       },
-      logo: {
-        position: new Vector3(
-          currentConfig.logo.position.x,
-          currentConfig.logo.position.y,
-          currentConfig.logo.position.z
-        ),
-        rotation: new Euler(
-          currentConfig.logo.rotation.x,
-          currentConfig.logo.rotation.y,
-          currentConfig.logo.rotation.z
-        ),
-      },
     }),
     [currentConfig]
   );
 
-  const [mainContentPosition, setMainContentPosition] = useState(() =>
-    positions.mainContent.clone()
-  );
-  const [mainContentRotation, setMainContentRotation] = useState(() =>
-    positions.mainContentRotation.clone()
-  );
+  const [mainContentPosition] = useState(() => positions.mainContent.clone());
+
+  // Immediately set hasAnimated to true if it was already true in the store
+  // This ensures content is visible when navigating back
+  useEffect(() => {
+    if (useLandingCameraStore.getState().hasAnimated && !hasAnimated) {
+      setHasAnimated(true);
+    }
+  }, [hasAnimated, setHasAnimated]);
+
+  // Add cleanup for GSAP timeline and handle visibility changes
+  useEffect(() => {
+    // Handle visibility change to prevent re-animations when switching tabs
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Page is now hidden
+        visibilityChangeRef.current = true;
+      } else if (visibilityChangeRef.current && hasAnimated) {
+        // Page is now visible again and we've already animated
+        // Don't trigger animations again
+        visibilityChangeRef.current = false;
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      // Kill GSAP timeline to prevent memory leaks
+      if (entranceTimelineRef.current) {
+        entranceTimelineRef.current.kill();
+        entranceTimelineRef.current = null;
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [hasAnimated]);
 
   const handleMouseEnterUI = useCallback(() => {
     isHoveringUI.current = true;
@@ -228,31 +226,57 @@ const LandingScene = ({
 
   const { contextSafe } = useGSAP();
 
-  useLayoutEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.style.opacity = '0';
-      contentRef.current.style.transform = 'translateY(20px)';
+  // Add a ref to track if we've initialized visibility
+  const hasInitializedVisibilityRef = useRef(false);
+
+  // Update the setContentVisibility function
+  const setContentVisibility = useCallback((visible: boolean) => {
+    if (!contentRef.current) return;
+
+    // Set portal visibility
+    if (portalRef.current) {
+      portalRef.current.style.opacity = visible ? '1' : '0';
+
+      // Mark that we've initialized visibility
+      if (visible) {
+        hasInitializedVisibilityRef.current = true;
+      }
     }
 
-    if (contentRef.current?.parentElement) {
-      contentRef.current.parentElement.style.opacity = '0';
-    }
+    // Set content visibility
+    contentRef.current.style.opacity = visible ? '1' : '0';
+    contentRef.current.style.transform = visible ? 'translateY(0)' : 'translateY(20px)';
   }, []);
 
+  // Add an effect to check portal readiness
+  useEffect(() => {
+    // If we need to show content but haven't initialized visibility yet
+    if (
+      !hasInitializedVisibilityRef.current &&
+      (hasAnimated || useLandingCameraStore.getState().hasAnimated) &&
+      portalRef.current
+    ) {
+      setContentVisibility(true);
+    }
+  }, [hasAnimated, setContentVisibility]);
+
+  // 2. Modify handleEnter to use the helper function for initial setup
   const handleEnter = contextSafe(() => {
-    if (!cameraRef.current || isAnimating || hasAnimated) return;
+    if (!cameraRef.current || isAnimating) return;
 
     const tl = gsap.timeline({
       onComplete: () => {
-        setLocalHasAnimated(true);
         setHasAnimated(true);
         setAnimating(false);
+        hasInitializedRef.current = true;
       },
     });
 
     entranceTimelineRef.current = tl;
-
     setAnimating(true);
+
+    // Prepare content for animation (hide it first)
+    setContentVisibility(false);
 
     // Animate camera
     const startPosition = positions.camera.clone();
@@ -266,41 +290,40 @@ const LandingScene = ({
       onUpdate: () => cameraRef.current?.lookAt(positions.target),
     });
 
-    // Add a specific marker for when to start content animation
-    // This ensures the camera has moved significantly before content appears
-    tl.addLabel('contentStart', 3); // Start content animation 3 seconds into the camera movement
+    tl.addLabel('contentStart', 3);
 
+    // Animate content
     tl.add(() => {
+      if (portalRef.current) {
+        gsap.to(portalRef.current, {
+          opacity: 1,
+          duration: 0.3,
+        });
+      }
+
       if (contentRef.current) {
-        const htmlParent = contentRef.current.parentElement;
-        if (htmlParent) {
-          gsap.to(htmlParent, {
-            opacity: 1,
-            duration: 0.3, // Slightly longer to ensure it's fully visible
-          });
-        }
-
-        // Make sure the content is in the starting position before animating
-        contentRef.current.style.opacity = '0';
-        contentRef.current.style.transform = 'translateY(20px)';
-
-        // Add a small delay to ensure the parent is visible first
         gsap.to(contentRef.current, {
           opacity: 1,
           y: 0,
-          duration: 1.0, // Slightly longer animation for smoother effect
+          duration: 1.0,
           ease: 'power2.out',
-          delay: 0.1, // Small delay after parent becomes visible
+          delay: 0.1,
         });
       }
-    }, 'contentStart'); // Use the label to time this with the camera animation
+    }, 'contentStart');
 
     tl.play();
   });
 
+  // 3. Modify handleExit to use consistent animation approach
   const handleExit = contextSafe(() => {
     if (isAnimating) return;
     setAnimating(true);
+
+    if (entranceTimelineRef.current) {
+      entranceTimelineRef.current.kill();
+      entranceTimelineRef.current = null;
+    }
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -311,13 +334,14 @@ const LandingScene = ({
           'main'
         );
         cameraStore.setIsLoading(true);
-
         router.push('/experience');
       },
     });
 
+    entranceTimelineRef.current = tl;
+
+    // Animate content out
     if (contentRef.current) {
-      const htmlParent = contentRef.current.parentElement;
       tl.to(
         contentRef.current,
         {
@@ -328,25 +352,25 @@ const LandingScene = ({
         },
         0
       );
-
-      if (htmlParent) {
-        tl.to(
-          htmlParent,
-          {
-            opacity: 0,
-            duration: 0.6,
-            ease: 'power2.in',
-          },
-          0.6
-        );
-      }
     }
 
+    if (portalRef.current) {
+      tl.to(
+        portalRef.current,
+        {
+          opacity: 0,
+          duration: 0.6,
+          ease: 'power2.in',
+        },
+        0.6
+      );
+    }
+
+    // Camera animations (unchanged)
     if (cameraRef.current) {
       const startTarget = positions.target.clone();
       const endTarget = startTarget.clone().add(new Vector3(0, 300, 0));
 
-      // Animate camera position
       tl.to(
         cameraRef.current.position,
         {
@@ -357,7 +381,6 @@ const LandingScene = ({
         0.8
       );
 
-      // Animate camera target
       tl.to(
         startTarget,
         {
@@ -373,26 +396,46 @@ const LandingScene = ({
     tl.play();
   });
 
+  // 1. Add an initialization effect that runs once on mount
   useEffect(() => {
-    if (isLoaded && !hasAnimated && !isAnimating) {
-      // First time loading - animate in with camera
-      requestAnimationFrame(() => {
-        handleEnter();
-      });
-    } else if (isLoaded && hasAnimated && !isAnimating) {
-      // Returning to the page - make content immediately visible without animation
-      if (contentRef.current) {
-        const htmlParent = contentRef.current.parentElement;
-        if (htmlParent) {
-          htmlParent.style.opacity = '1';
+    // Set initial visibility based on hasAnimated state
+    if (useLandingCameraStore.getState().hasAnimated) {
+      // Use a small timeout to ensure the portal ref is ready
+      const timer = setTimeout(() => {
+        if (portalRef.current) {
+          portalRef.current.style.opacity = '1';
         }
-        // Set content immediately visible
-        contentRef.current.style.opacity = '1';
-        contentRef.current.style.transform = 'translateY(0)';
-        setLocalHasAnimated(true);
-      }
+        if (contentRef.current) {
+          contentRef.current.style.opacity = '1';
+          contentRef.current.style.transform = 'translateY(0)';
+        }
+      }, 50);
+
+      return () => clearTimeout(timer);
     }
-  }, [isLoaded, hasAnimated, isAnimating, handleEnter]);
+  }, []);
+
+  // 2. Update your existing useEffect to avoid race conditions
+  useEffect(() => {
+    // Initial animation trigger
+    if (isLoaded && !hasAnimated && !isAnimating && !document.hidden) {
+      requestAnimationFrame(handleEnter);
+      return;
+    }
+
+    // Force show content if we've already animated
+    const shouldShowContent =
+      isLoaded && (hasAnimated || useLandingCameraStore.getState().hasAnimated) && !isAnimating;
+
+    if (shouldShowContent) {
+      // Use a small timeout to ensure the portal ref is ready
+      const timer = setTimeout(() => {
+        setContentVisibility(true);
+      }, 50);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLoaded, hasAnimated, isAnimating, handleEnter, setContentVisibility]);
 
   useFrame((state, delta) => {
     if (!cameraRef.current || isAnimating || !hasAnimated) return;
@@ -416,13 +459,21 @@ const LandingScene = ({
     cameraRef.current.lookAt(positions.target);
   });
 
-  useFrame(() => {
-    if (!isAnimating && hasAnimated) {
-      // Always update position when not animating and after initial animation
-      setMainContentPosition(positions.mainContent.clone());
-      setMainContentRotation(positions.mainContentRotation.clone());
+  // Add this effect at the top level of your component
+  useEffect(() => {
+    // Ensure portal is visible when component mounts if we've already animated
+    if (useLandingCameraStore.getState().hasAnimated && portalRef?.current) {
+      portalRef.current.style.opacity = '1';
     }
-  });
+
+    // This will run when the component unmounts
+    return () => {
+      // Make sure portal is visible when unmounting (for when we return)
+      if (portalRef?.current) {
+        portalRef.current.style.opacity = '1';
+      }
+    };
+  }, []);
 
   return (
     <group>
@@ -446,36 +497,17 @@ const LandingScene = ({
 
       <ambientLight intensity={0.05} />
 
-      <Float speed={0.7} floatIntensity={0.2} rotationIntensity={0.1} floatingRange={[-0.4, 0.4]}>
-        <group
-          ref={logoGroupRef}
-          position={[
-            positions.logo.position.x,
-            positions.logo.position.y,
-            positions.logo.position.z,
-          ]}
-          rotation={[
-            currentConfig.logo.rotation.x,
-            currentConfig.logo.rotation.y,
-            currentConfig.logo.rotation.z,
-          ]}
-        >
-          <DreiBillboard follow={true}>
-            <Logo />
-          </DreiBillboard>
-        </group>
-      </Float>
       <DreiBillboard follow={true}>
         <Html
           center
           position={mainContentPosition}
           transform
-          rotation={mainContentRotation}
           portal={portalRef}
           prepend
           style={{
             pointerEvents: 'auto',
             zIndex: 30,
+            scale: 2.5,
           }}
         >
           <div
@@ -484,8 +516,11 @@ const LandingScene = ({
             onMouseEnter={handleMouseEnterUI}
             onMouseLeave={handleMouseLeaveUI}
             style={{
-              opacity: 0,
-              transform: 'translateY(20px)',
+              opacity: hasAnimated || useLandingCameraStore.getState().hasAnimated ? 1 : 0,
+              transform:
+                hasAnimated || useLandingCameraStore.getState().hasAnimated
+                  ? 'translateY(0)'
+                  : 'translateY(20px)',
               zIndex: 30,
             }}
           >
@@ -518,4 +553,5 @@ const LandingScene = ({
 
 LandingScene.displayName = 'LandingScene';
 
-export default LandingScene;
+// Memoize the component to prevent unnecessary re-renders
+export default memo(LandingScene);

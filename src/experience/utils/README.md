@@ -1,166 +1,121 @@
-# Shadow Utilities
+# Utility Functions
 
-This directory contains utility functions and components to help manage shadows in your 3D scene.
-
-## Available Utilities
-
-### `addShadowsToModel`
-
-Recursively adds shadow properties to all meshes in a model.
-
-```typescript
-import { addShadowsToModel } from '@/experience/utils/shadows';
-
-// In your component
-useEffect(() => {
-  if (modelRef.current) {
-    addShadowsToModel(modelRef.current);
-  }
-}, []);
-```
-
-### `addShadowsToGLTFNodes`
-
-Adds shadow properties to all meshes in a GLTF model's nodes.
-
-```typescript
-import { addShadowsToGLTFNodes } from '@/experience/utils/shadows';
-
-export function MyModel() {
-  const { nodes } = useGLTF('/models/my-model.glb');
-
-  // Add shadows to all nodes
-  addShadowsToGLTFNodes(nodes);
-
-  return (
-    // Your component JSX
-  );
-}
-```
-
-### `withShadows` Higher-Order Component
-
-Wraps a component and adds shadow properties to all meshes within it.
-
-```typescript
-import { withShadows } from '@/experience/utils/withShadows';
-
-// Your original component
-function MyComponent(props) {
-  return (
-    // Your component JSX
-  );
-}
-
-// Export with shadows
-export default withShadows(MyComponent);
-
-// Or with custom shadow settings
-export default withShadows(MyComponent, true, false); // cast but don't receive
-```
+This directory contains utility functions and components to help manage various aspects of your 3D scene.
 
 ## Material Utilities
 
-The `materialUtils.ts` file provides a utility function for sharing texture maps across models:
+The `materialUtils.ts` file provides utilities for working with materials and textures in your 3D scene, with a focus on shared texture atlases.
 
-```tsx
-import { createMaterialWithTextureMap } from '../utils/materialUtils';
+### Shared Texture Atlas System
 
-// In your model component:
-export function MyModel(props) {
-  const { nodes, materials } = useGLTF('/models/my-model.glb');
+Our project uses a shared texture atlas approach for efficient rendering. The main color atlas is `color-atlas-new2.png`, with additional maps for specular highlights (`color-atlas-specular.png`) and emission effects (`color-atlas-emission-night.png`).
 
-  // Create a material that uses the shared texture atlas
-  const myMaterial = createMaterialWithTextureMap(materials['TEXTURE-NAME']);
-
-  return (
-    // Use the material in your meshes
-  );
-}
-```
-
-## GLTF Model Types and Material Utilities
-
-This project uses standardized types and utilities for working with GLTF models and materials, especially for handling the shared texture atlas pattern.
-
-### Types
-
-The `experience/types/modelTypes.ts` file contains standardized types for GLTF models:
-
-- `ObjectMap`: Standard structure as per drei documentation for nodes and materials
-- `GLTFModel`: Base type for all GLTF models (GLTF & ObjectMap)
-- `MeshGLTFModel`: Simplified type for when all nodes are meshes
-- `MaterialMap`: Type for materials map
-
-### Material Utilities
-
-The `experience/utils/materialUtils.ts` file provides utilities for working with materials:
-
-#### Shared Texture Atlas
-
-We use a shared texture atlas (`LOWPOLY-COLORS`) across multiple models. The `createSharedAtlasMaterial` function makes it easy to access this shared material:
+#### Basic Usage
 
 ```tsx
 import { createSharedAtlasMaterial } from '@/experience/utils/materialUtils';
 
-export function MyModel(props) {
-  const { nodes, materials } = useGLTF('/path/to/model.glb') as unknown as MeshGLTFModel;
+export function MyComponent() {
+  const { nodes, materials } = useGLTF('/models/my-model.glb');
+  const LowpolyMaterial = createSharedAtlasMaterial(materials);
 
-  // Get the shared texture atlas material
-  const sharedMaterial = createSharedAtlasMaterial(materials);
-
-  return (
-    <group {...props} dispose={null}>
-      <mesh
-        geometry={nodes['some-node'].geometry}
-        material={sharedMaterial} // Using shared material
-      />
-    </group>
-  );
+  return <mesh geometry={nodes.myMesh.geometry} material={LowpolyMaterial} />;
 }
 ```
 
-#### Model-Specific Materials
+#### Advanced Usage with PBR Maps
 
-For model-specific materials, access them directly from the materials object:
-
-```tsx
-<mesh geometry={nodes['some-node'].geometry} material={materials.someModelSpecificMaterial} />
-```
-
-### Typing GLTF Models
-
-For most models, use the simplified approach:
+For components that need specular and emission effects, load the additional texture maps with drei's `useTexture`:
 
 ```tsx
-import { MeshGLTFModel } from '@/experience/types/modelTypes';
+import { createSharedAtlasMaterial } from '@/experience/utils/materialUtils';
+import { useGLTF, useTexture } from '@react-three/drei';
+import { useEffect, useMemo } from 'react';
+import * as THREE from 'three';
 
-// Basic type when you don't need specific material typing
-type GLTFResult = MeshGLTFModel;
+export function MyComponent() {
+  const { nodes, materials } = useGLTF('/models/my-model.glb');
 
-// Extended type when you need specific material typing
-type GLTFResult = MeshGLTFModel & {
-  materials: {
-    ['SPECIFIC-MATERIAL']: THREE.MeshStandardMaterial;
-  };
-};
+  // Create base material
+  const LowpolyMaterial = useMemo(() => createSharedAtlasMaterial(materials), [materials]);
 
-export function MyModel(props) {
-  const { nodes, materials } = useGLTF('/path/to/model.glb') as unknown as GLTFResult;
-  // ...
+  // Load additional texture maps
+  const { specularMap, emissionMap } = useTexture({
+    specularMap: '/textures/color-atlas-specular.png',
+    emissionMap: '/textures/color-atlas-emission-night.png',
+  });
+
+  // Apply textures in an effect
+  useEffect(() => {
+    if (specularMap && LowpolyMaterial) {
+      const gridSize = 8;
+      specularMap.wrapS = specularMap.wrapT = THREE.RepeatWrapping;
+      specularMap.repeat.set(1 / gridSize, 1 / gridSize);
+      specularMap.offset.set(5 / gridSize, 1 - (1 + 1) / gridSize);
+      LowpolyMaterial.roughnessMap = specularMap;
+      LowpolyMaterial.needsUpdate = true;
+    }
+
+    if (emissionMap && LowpolyMaterial) {
+      const gridSize = 8;
+      emissionMap.wrapS = emissionMap.wrapT = THREE.RepeatWrapping;
+      emissionMap.repeat.set(1 / gridSize, 1 / gridSize);
+      emissionMap.offset.set(5 / gridSize, 1 - (1 + 1) / gridSize);
+      LowpolyMaterial.emissiveMap = emissionMap;
+      LowpolyMaterial.emissive = new THREE.Color(0xffffff);
+      LowpolyMaterial.emissiveIntensity = 0.5;
+      LowpolyMaterial.needsUpdate = true;
+    }
+  }, [LowpolyMaterial, specularMap, emissionMap]);
+
+  return <mesh geometry={nodes.myMesh.geometry} material={LowpolyMaterial} />;
 }
 ```
 
-The `as unknown as GLTFResult` pattern is needed due to TypeScript's type checking rules when converting between types that don't directly overlap.
+### Available Functions
 
-## Best Practices
+#### `createMaterialWithTextureMap(sourceMaterial, options)`
 
-1. **Performance**: Not all objects need to cast shadows. Consider only enabling shadow casting for larger objects.
+Creates a material that uses a texture map from a source material.
 
-2. **Ground Objects**: Ground objects should typically receive shadows but not cast them.
+- `sourceMaterial`: The material containing the texture map
+- `options`: Additional material options (optional)
 
-3. **Small Details**: Small detail objects often don't need to cast shadows.
+#### `createSharedAtlasMaterial(materials, options)`
 
-4. **Transparent Objects**: Be careful with transparent objects and shadows, as they can cause visual artifacts.
+Creates a material using the project-wide shared texture atlas (LOWPOLY-COLORS).
 
-5. **Shadow Quality vs Performance**: Higher shadow map sizes give better quality but impact performance.
+- `materials`: Materials from GLTF model
+- `options`: Additional material options (optional)
+
+#### `configureMaterialForInstancing(material, options)`
+
+Configures a material for instancing with proper normal handling.
+
+- `material`: The material to configure
+- `options`: Additional material options (optional)
+
+### Best Practices
+
+1. **Preload Textures**: Use `useTexture.preload()` to preload textures for better performance.
+2. **Apply Textures in Effects**: Always apply textures to materials in useEffect hooks to avoid React render-time state updates.
+3. **Memoize Materials**: Use useMemo for material creation to prevent unnecessary recreations.
+4. **Consistent UV Settings**: Use the same gridSize, repeat, and offset settings for all texture maps.
+
+## Shadow Utilities
+
+The shadow utilities help manage shadows in your 3D scene.
+
+### Available Functions
+
+#### `addShadowsToModel(model)`
+
+Recursively adds shadow properties to all meshes in a model.
+
+#### `addShadowsToGLTFNodes(nodes)`
+
+Adds shadow properties to all meshes in a GLTF model's nodes.
+
+#### `withShadows(Component, castShadow, receiveShadow)`
+
+HOC that wraps a component and adds shadow properties to all meshes within it.

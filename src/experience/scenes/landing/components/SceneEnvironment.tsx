@@ -6,12 +6,16 @@ import {
   MountainInstances,
   MountainInstances_Blender,
 } from '@/experience/models/MountainInstances';
-import { Ground } from '@/experience/scenes/landing/compositions/Ground';
 
 import { VehiclesInstances } from '@/experience/models/VehiclesInstances';
 import { DesertModels } from '@/experience/scenes/landing/compositions/DesertModels';
-import { Environment as DreiEnvironment, Effects } from '@react-three/drei';
+import { StreetProps } from '@/experience/scenes/landing/compositions/StreetProps';
+import { Environment as DreiEnvironment, useTexture } from '@react-three/drei';
 import { useControls } from 'leva';
+import { IntroGrass } from './IntroGrass';
+import { IntroGroundPlane } from './IntroGroundPlane';
+
+import { Effects } from './Effects';
 
 type EnvironmentPreset =
   | 'sunset'
@@ -27,8 +31,9 @@ type EnvironmentPreset =
 
 export function SceneEnvironment() {
   const environmentControls = useControls(
-    'Environment',
+    'landingEnvironment',
     {
+      useCustomHDR: { value: true },
       preset: {
         value: 'sunset' as EnvironmentPreset,
         options: [
@@ -45,9 +50,9 @@ export function SceneEnvironment() {
         ] as EnvironmentPreset[],
       },
       background: { value: true },
-      blur: { value: 0.9, min: 0, max: 1, step: 0.1 },
-      intensity: { value: 1.2, min: 0, max: 5, step: 0.1 },
-      lightIntensity: { value: 0.8, min: 0, max: 2, step: 0.1 },
+      blur: { value: 0.3, min: 0, max: 1, step: 0.1 },
+      intensity: { value: 0.3, min: 0, max: 5, step: 0.1 },
+      lightIntensity: { value: 3, min: 0, max: 10, step: 0.1 },
       lightPosition: {
         value: { x: 10, y: 20, z: 15 },
         step: 1,
@@ -56,18 +61,24 @@ export function SceneEnvironment() {
     { collapsed: true }
   );
 
+  const grassPosition = useControls('Intro Grass', {
+    x: { value: 0, min: -500, max: 500, step: 0.1 },
+    y: { value: 0, min: -10, max: 10, step: 0.01 },
+    z: { value: 0, min: -500, max: 500, step: 0.1 },
+  });
+
   return (
     <>
-      <Effects />
-
-      <ambientLight intensity={0.05} />
-
       <DreiEnvironment
-        preset={environmentControls.preset}
+        {...(environmentControls.useCustomHDR
+          ? { files: '/textures/desert-clear-sky.hdr' }
+          : { preset: environmentControls.preset })}
         background={environmentControls.background}
         backgroundBlurriness={environmentControls.blur}
         environmentIntensity={environmentControls.intensity}
       />
+
+      <Effects />
 
       <directionalLight
         position={[
@@ -90,11 +101,16 @@ export function SceneEnvironment() {
         <MountainInstances_Blender instancesData={mountainData as BlenderExportData[]} />
       </MountainInstances>
 
-      <Ground />
-      <mesh rotation-x={-Math.PI / 2} position={[0, -2, 0]}>
-        <planeGeometry args={[1000, 1000]} />
-        <meshStandardMaterial color="#DCBF9A" transparent opacity={1} />
-      </mesh>
+      <StreetProps />
+
+      <group position={[grassPosition.x, grassPosition.y, grassPosition.z]}>
+        <IntroGrass />
+      </group>
+
+      <IntroGroundPlane />
     </>
   );
 }
+
+// Preload the HDR texture for better performance
+useTexture.preload('/textures/desert-clear-sky.hdr');

@@ -1,8 +1,14 @@
 import type { MaterialMap } from '@/experience/types/modelTypes';
+import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
 // The key for the shared texture atlas used across the entire project
 export const SHARED_TEXTURE_KEY = 'LOWPOLY-COLORS';
+
+// Preload the textures to avoid loading during render
+useTexture.preload('/textures/color-atlas-new2.png');
+useTexture.preload('/textures/color-atlas-specular.png');
+useTexture.preload('/textures/color-atlas-emission-night.png');
 
 /**
  * Creates a material that uses the shared texture atlas
@@ -17,8 +23,8 @@ export function createMaterialWithTextureMap(
   const textureMap = (sourceMaterial as any).map || null;
 
   // Determine if source is already a PBR material to extract properties
-  let roughness = 0.7;
-  let metalness = 0.2;
+  let roughness = 1;
+  let metalness = 0;
 
   if (sourceMaterial instanceof THREE.MeshStandardMaterial) {
     roughness = sourceMaterial.roughness;
@@ -52,13 +58,22 @@ export function createSharedAtlasMaterial(
     console.warn(`Shared texture atlas "${SHARED_TEXTURE_KEY}" not found in materials`);
     return new THREE.MeshStandardMaterial({
       color: 0xff00ff,
-      roughness: 0.7,
-      metalness: 0.2,
-      envMapIntensity: 1.0,
+      roughness: 1, // Higher default roughness
+      metalness: 0, // Lower default metalness
+      envMapIntensity: 0, // Lower environment map intensity
       ...options,
     }); // Fallback magenta material
   }
-  return createMaterialWithTextureMap(materials[SHARED_TEXTURE_KEY], options);
+
+  // Create material with texture map and non-reflective defaults
+  const material = createMaterialWithTextureMap(materials[SHARED_TEXTURE_KEY], {
+    roughness: 1,
+    metalness: 0,
+    envMapIntensity: 0,
+    ...options,
+  });
+
+  return material;
 }
 
 /**

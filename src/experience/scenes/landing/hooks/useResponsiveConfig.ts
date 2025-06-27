@@ -20,10 +20,6 @@ export interface ResponsiveConfig {
     position: Vec3;
     scale: number;
   };
-  logo: {
-    position: Vec3;
-    rotation: Vec3;
-  };
 }
 
 // Responsive configurations
@@ -41,10 +37,6 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
       position: { x: 2.4, y: 0, z: -77.6 },
       scale: 0.8,
     },
-    logo: {
-      position: { x: 32.6, y: 16.3, z: -31.5 },
-      rotation: { x: 0, y: 0, z: 0 },
-    },
   },
   tablet: {
     camera: {
@@ -59,27 +51,19 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
       position: { x: -12.3, y: 0, z: -70.9 },
       scale: 1.0,
     },
-    logo: {
-      position: { x: 7.4, y: 20.2, z: -50 },
-      rotation: { x: 0, y: 0, z: 0 },
-    },
   },
   desktop: {
     camera: {
-      position: { x: 15, y: 10, z: 100 },
-      target: { x: -7, y: 20, z: 0 },
+      position: { x: 15.0, y: 8.4, z: 78 },
+      target: { x: -6, y: 22, z: 2 },
     },
     mainContent: {
-      position: { x: -14.3, y: 20.8, z: 58.0 },
+      position: { x: -22.3, y: 32, z: -20 },
       rotation: { x: 0, y: 0, z: 0 },
     },
     billboard: {
-      position: { x: -4, y: 0, z: -20 },
+      position: { x: -4, y: 1.3, z: -20 },
       scale: 1.1,
-    },
-    logo: {
-      position: { x: 34.9, y: 11.7, z: -20 },
-      rotation: { x: 0, y: 0, z: 0 },
     },
   },
 };

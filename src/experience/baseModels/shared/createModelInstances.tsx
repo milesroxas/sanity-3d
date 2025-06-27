@@ -469,7 +469,11 @@ export function createModelInstancing<T extends ModelInstances>(
                   key={`${type}-${batchIndex}-${index}`}
                   position={item.position}
                   rotation={item.rotation}
-                  scale={item.scale}
+                  scale={
+                    typeof item.scale === 'number'
+                      ? [item.scale, item.scale, item.scale]
+                      : item.scale
+                  }
                 />
               ))}
             </InstanceComponent>

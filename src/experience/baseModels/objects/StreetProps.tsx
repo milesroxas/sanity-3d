@@ -112,6 +112,14 @@ export function StreetProps(props: ThreeElements['group']) {
         material={LowpolyMaterial}
         position={[34.254, 0, 0]}
       />
+      <mesh
+        castShadow
+        receiveShadow
+        geometry={nodes['mainroad-straight'].geometry}
+        material={LowpolyMaterial}
+        position={[73.501, 0.044, -0.601]}
+        rotation={[0, 1.571, 0]}
+      />
       <group name="windmill">
         <mesh
           castShadow

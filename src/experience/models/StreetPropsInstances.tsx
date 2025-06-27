@@ -19,7 +19,8 @@ type StreetPropType =
   | 'flag-golf_red'
   | 'water-tower-big'
   | 'windmill-base'
-  | 'windmill-propeller';
+  | 'windmill-propeller'
+  | 'mainroad-straight';
 
 type StreetPropsInstances = ModelInstances & {
   [K in StreetPropType]: ModelInstanceComponent;
@@ -47,6 +48,7 @@ const mapBlenderNamesToTypes = (name: string): StreetPropType | null => {
     'water-tower-big': 'water-tower-big',
     'windmill-base': 'windmill-base',
     'windmill-propeller': 'windmill-propeller',
+    'mainroad-straight': 'mainroad-straight',
   };
 
   return nameMap[baseName] || null;

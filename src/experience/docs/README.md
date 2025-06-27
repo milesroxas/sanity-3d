@@ -24,3 +24,9 @@
 - [Instancing Examples](../examples)
 - [Scene Compositions](../scenes/mainScene/compositions)
 - [Animation System](../animations)
+
+## GLTF Pipeline
+
+```bash
+gltf-pipeline -i raw-exports/models/mountain.gltf -o public/models/mountain.glb
+```
