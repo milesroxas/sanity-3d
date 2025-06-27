@@ -224,7 +224,9 @@ export default function LogoMarkerContent() {
                   </div>
                 )}
                 {selectedScene.blocks && selectedScene.blocks.length > 0 ? (
-                  <Blocks blocks={selectedScene.blocks} />
+                  <div className="flex flex-col gap-4">
+                    <Blocks blocks={selectedScene.blocks} />
+                  </div>
                 ) : null}
               </div>
             </div>

@@ -16,14 +16,11 @@ export const useExpandedContentStore = create<ExpandedContentState>((set, get) =
   content: null,
   isVisible: false,
   setExpandedContent: (title, content) => set({ title, content, isVisible: true }),
-  closeExpandedContent: () => set({ isVisible: false }),
+  closeExpandedContent: () => set({ title: null, content: null, isVisible: false }), // Clear everything
   syncWithLogoMarker: () => {
-    // Get the current logo marker visibility state
     const logoMarkerVisible = useLogoMarkerStore.getState().isContentVisible;
-
-    // If logo marker is closed, also close expanded content
     if (!logoMarkerVisible) {
-      set({ isVisible: false });
+      set({ title: null, content: null, isVisible: false }); // Clear everything here too
     }
   },
 }));

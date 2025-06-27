@@ -19,12 +19,13 @@ const MainScene = forwardRef<any, MainSceneProps>(({ scene }, ref) => {
     <>
       <MainSceneCameraSystem />
       <TempFloor position={[0, -0.05, 0]} />
-
+      <Effects />
       <Environment />
+
       <Buildings />
       <Props />
       <Vehicles />
-      <Effects />
+
       <LogoMarkers scene={scene} />
     </>
   );

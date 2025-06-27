@@ -2,7 +2,7 @@
 import PortableTextRenderer from '@/components/portable-text-renderer';
 import { LinkButtons } from '@/components/shared/link-button';
 import { useExpandedContentStore } from '@/experience/scenes/store/expandedContentStore';
-import { ChevronRight } from 'lucide-react';
+import { CircleMinus, CirclePlus } from 'lucide-react';
 import { PortableTextBlock } from 'next-sanity';
 
 export interface ContentProps {
@@ -18,27 +18,37 @@ export default function ExpandedContent({
   expandedBody,
   links,
 }: ContentProps) {
-  const { setExpandedContent } = useExpandedContentStore();
+  const { title, setExpandedContent, closeExpandedContent } = useExpandedContentStore();
 
-  const handleHeadingClick = () => {
-    if (expandedBody && expandedBody.length > 0) {
+  const isActive = title === heading;
+
+  const handleClick = () => {
+    if (isActive) {
+      closeExpandedContent();
+    } else if (expandedBody?.length > 0) {
       setExpandedContent(heading, expandedBody);
     }
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      {heading && (
-        <button
-          onClick={handleHeadingClick}
-          className="flex items-center gap-1 text-left text-2xl font-bold transition-colors hover:text-secondary"
-        >
-          {heading}
-          {expandedBody && expandedBody.length > 0 && <ChevronRight className="h-5 w-5" />}
-        </button>
-      )}
-      {sectionBody && <PortableTextRenderer value={sectionBody} />}
-      {links && <LinkButtons links={links} />}
-    </div>
+    <button
+      onClick={handleClick}
+      className={`flex flex-col items-center space-y-2 rounded-md border px-4 py-4 text-left align-middle transition-all duration-300 ease-out ${
+        isActive
+          ? 'border-primary bg-green-100 text-slate-900'
+          : 'border-gray-200 bg-white/80 hover:border-primary hover:bg-green-50 hover:text-slate-800'
+      } `}
+    >
+      <div className="flex flex-col gap-1 text-sm">
+        {heading && (
+          <div className="flex items-center justify-between gap-1">
+            <h3 className="text-xl font-medium">{heading}</h3>
+            {isActive ? <CircleMinus className="h-4 w-4" /> : <CirclePlus className="h-4 w-4" />}
+          </div>
+        )}
+        {sectionBody && <PortableTextRenderer value={sectionBody} />}
+        {links && <LinkButtons links={links} />}
+      </div>
+    </button>
   );
 }

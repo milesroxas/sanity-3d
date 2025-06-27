@@ -42,9 +42,13 @@ export function Environment() {
         ] as EnvironmentPreset[],
       },
       background: { value: true },
-      blur: { value: 0.9, min: 0, max: 1, step: 0.1 },
+      blur: { value: 0.3, min: 0, max: 1, step: 0.1 },
       intensity: { value: 1, min: 0, max: 5, step: 0.1 },
-      lightIntensity: { value: 3, min: 0, max: 20, step: 0.1 },
+      environmentRotation: {
+        value: { x: 0, y: 0, z: 0 },
+        step: 0.1,
+      },
+      lightIntensity: { value: 4, min: 0, max: 20, step: 0.1 },
       lightPosition: {
         value: { x: 10, y: 20, z: 10 },
         step: 1,
@@ -62,6 +66,11 @@ export function Environment() {
         background={environmentControls.background}
         backgroundBlurriness={environmentControls.blur}
         environmentIntensity={environmentControls.intensity}
+        environmentRotation={[
+          environmentControls.environmentRotation.x,
+          environmentControls.environmentRotation.y,
+          environmentControls.environmentRotation.z,
+        ]}
       />
       <directionalLight
         position={[
