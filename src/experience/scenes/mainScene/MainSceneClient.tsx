@@ -16,23 +16,19 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
   const { selectedScene, setSelectedScene } = useLogoMarkerStore();
   const { setR3FContent } = useR3F();
   const [isReady, setIsReady] = useState(false);
-  const { resetToInitial, isLoading, position } = useCameraStore();
+  const { resetToInitial, isLoading } = useCameraStore();
 
   const memoizedScene = useMemo(() => scene, [scene._id]);
 
   useEffect(() => {
-    // Initialize camera state first before rendering anything
     resetToInitial();
 
-    // Short delay to ensure camera state is initialized
-    setTimeout(() => {
-      setIsReady(false);
-      setSelectedScene(null);
+    setIsReady(false);
+    setSelectedScene(null);
 
-      // Then set the content and make it visible
-      setR3FContent(<MainScene scene={memoizedScene} />);
-      setIsReady(true);
-    }, 10);
+    // Then set the content and make it visible
+    setR3FContent(<MainScene scene={memoizedScene} />);
+    setIsReady(true);
 
     // Cleanup when unmounting
     return () => {

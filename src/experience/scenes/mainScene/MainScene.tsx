@@ -1,4 +1,5 @@
 'use client';
+
 import { TempFloor } from '@/experience/baseModels/Ground/TempFloor';
 import Effects from '@/experience/effects';
 import { forwardRef } from 'react';
@@ -18,6 +19,7 @@ const MainScene = forwardRef<any, MainSceneProps>(({ scene }, ref) => {
     <>
       <MainSceneCameraSystem />
       <TempFloor position={[0, -0.05, 0]} />
+
       <Environment />
       <Buildings />
       <Props />
