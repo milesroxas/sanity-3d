@@ -27,7 +27,85 @@ export const SCENE_QUERY = groq`
         }
       }
     },
-    blocks,
+    blocks[] {
+      ...,
+      _type == "experience-carousel" => {
+        ...,
+        images[] {
+          ...,
+          asset->{
+            _id,
+            url,
+            metadata {
+              lqip,
+              dimensions {
+                width,
+                height
+              }
+            }
+          }
+        }
+      },
+      _type == "section-content" => {
+        ...,
+        sectionBody[]{
+          ...,
+          _type == "image" => {
+            ...,
+            asset->{
+              _id,
+              url,
+              mimeType,
+              metadata {
+                lqip,
+                dimensions {
+                  width,
+                  height
+                }
+              }
+            }
+          }
+        },
+        blocks[] {
+          ...,
+          _type == "expanded-body" => {
+            ...,
+            body[]{
+              ...,
+              _type == "image" => {
+                ...,
+                asset->{
+                  _id,
+                  url,
+                  mimeType,
+                  metadata {
+                    lqip,
+                    dimensions {
+                      width,
+                      height
+                    }
+                  }
+                }
+              }
+            }, 
+            links[] {
+      ...,
+      _type == 'pageLink' => {
+        ...,
+        page->{_id, _type, title, slug}
+      },
+      _type == 'customLink' => {
+        ...
+      },
+      _type == 'servicesLink' => {
+        ...,
+        services->{_id, _type, title, slug}
+      },
+    },
+          }
+        }
+      }
+    },
     links[] {
       ...,
       _type == 'pageLink' => {

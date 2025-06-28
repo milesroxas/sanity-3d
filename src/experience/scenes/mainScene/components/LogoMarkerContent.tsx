@@ -19,11 +19,9 @@ export default function LogoMarkerContent() {
     setShouldAnimateBack,
     setOtherMarkersVisible,
   } = useLogoMarkerStore();
-  const { title, content, isVisible, closeExpandedContent } = useExpandedContentStore();
-  console.log(selectedScene);
-  console.log('Selected scene blocks:', selectedScene?.blocks);
+  const { title, blocks, isVisible, closeExpandedContent } = useExpandedContentStore();
+
   // Refs
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -37,6 +35,7 @@ export default function LogoMarkerContent() {
   const [expandedContent, setExpandedContent] = useState<{
     title: string;
     content: any[];
+    blocks?: Sanity.Block[];
   } | null>(null);
 
   // GSAP animation for entry
@@ -137,10 +136,7 @@ export default function LogoMarkerContent() {
   const handleClose = () => {
     if (!drawerRef.current) return;
 
-    // Close expanded content when logo marker is closed
-    closeExpandedContent();
-
-    // Animate drawer out
+    // Animate drawer out - MarkerContentOverlay will handle its own close animation
     gsap.to(drawerRef.current, {
       x: '-100%',
       duration: 0.75,
@@ -240,20 +236,12 @@ export default function LogoMarkerContent() {
           )}
         </div>
       )}
-      {expandedContent && (
-        <MarkerContentOverlay
-          title={expandedContent.title}
-          content={expandedContent.content}
-          isVisible={!!expandedContent}
-          onClose={handleCloseExpanded}
-        />
-      )}
-      {isVisible && title && content && (
+      {isVisible && title && (
         <MarkerContentOverlay
           title={title}
-          content={content}
           isVisible={isVisible}
           onClose={closeExpandedContent}
+          blocks={blocks || []}
         />
       )}
     </>

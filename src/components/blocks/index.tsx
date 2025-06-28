@@ -14,6 +14,8 @@ import FAQs from '@/components/ui/faqs';
 import FormNewsletter from '@/components/ui/forms/newsletter';
 import CtaTeam from './cta/cta-team';
 import ExpandedContent from './experience/content';
+import ExpandedBody from './experience/expanded-body';
+import ExperienceCarousel from './experience/experience-carousel';
 
 const componentMap: { [key: string]: React.ComponentType<any> } = {
   heroOne: Hero1,
@@ -32,6 +34,8 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   'large-callout': LargeCallout,
   'featured-content-offset': FeaturedContentOffset,
   'section-content': ExpandedContent,
+  'experience-carousel': ExperienceCarousel,
+  'expanded-body': ExpandedBody,
 };
 
 export default function Blocks({ blocks }: { blocks?: Sanity.Block[] }) {

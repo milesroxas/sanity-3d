@@ -53,7 +53,7 @@ export default defineType({
       name: 'blocks',
       type: 'array',
       group: 'content',
-      of: [{ type: 'section-content' }],
+      of: [{ type: 'section-content' }, { type: 'experience-carousel' }],
     }),
     defineField({
       name: 'links',

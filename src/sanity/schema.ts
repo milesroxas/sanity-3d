@@ -31,7 +31,10 @@ import gridRow from './schemas/blocks/grid/grid-row';
 
 // Experience blocks
 
+import expandedBody from './schemas/blocks/experience/expanded-body';
+import experienceCarousel from './schemas/blocks/experience/section-carousel';
 import sectionContent from './schemas/blocks/experience/section-content';
+
 // Hero blocks
 import hero1 from './schemas/blocks/hero/hero-1';
 import hero2 from './schemas/blocks/hero/hero-2';
@@ -76,6 +79,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     scenes,
     services,
     legal,
+
     // shared objects
     blockContent,
     link,
@@ -87,6 +91,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     paddingDirection,
     media,
     video,
+
     // blocks
     hero1,
     hero2,
@@ -110,7 +115,11 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     featuredContentOffset,
     ctaTeam,
 
+    // Experience blocks
+    experienceCarousel,
     sectionContent,
+    expandedBody,
+
     // singleton
     settings,
     nav,

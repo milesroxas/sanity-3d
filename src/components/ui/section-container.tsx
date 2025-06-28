@@ -26,11 +26,24 @@ export interface ISectionContainerProps {
   className?: string;
   padding?: ISectionPadding | null;
   noGap?: boolean;
+  noContainer?: boolean;
 }
 
 // Use forwardRef to properly handle ref forwarding
 const SectionContainer = React.forwardRef<HTMLDivElement, ISectionContainerProps>(
-  ({ color = 'background', theme, style, padding, children, className, noGap }, ref) => {
+  (
+    {
+      color = 'background',
+      theme,
+      style,
+      padding,
+      children,
+      className,
+      noGap,
+      noContainer = false,
+    },
+    ref
+  ) => {
     // Use default padding if none provided
     const effectivePadding = padding || DEFAULT_PADDING;
 
@@ -49,7 +62,7 @@ const SectionContainer = React.forwardRef<HTMLDivElement, ISectionContainerProps
     const getPaddingClasses = (size: ISectionPadding['padding']) => {
       switch (size) {
         case 'none':
-          return { top: '', bottom: '' };
+          return { top: 'pt-0', bottom: 'pb-0' };
         case 'small':
           return { top: 'pt-8 xl:pt-16', bottom: 'pb-8 xl:pb-16' };
         case 'medium':
@@ -59,7 +72,7 @@ const SectionContainer = React.forwardRef<HTMLDivElement, ISectionContainerProps
         case 'xlarge':
           return { top: 'pt-32 xl:pt-48', bottom: 'pb-32 xl:pb-48' };
         default:
-          return { top: '', bottom: '' };
+          return { top: 'pt-0', bottom: 'pb-0' };
       }
     };
 
@@ -76,6 +89,8 @@ const SectionContainer = React.forwardRef<HTMLDivElement, ISectionContainerProps
         ? paddingClasses.bottom
         : '';
 
+    const content = noContainer ? children : <div className="container">{children}</div>;
+
     return (
       <div
         ref={ref}
@@ -90,7 +105,7 @@ const SectionContainer = React.forwardRef<HTMLDivElement, ISectionContainerProps
         )}
         data-theme={theme || undefined}
       >
-        <div className="container">{children}</div>
+        {content}
       </div>
     );
   }

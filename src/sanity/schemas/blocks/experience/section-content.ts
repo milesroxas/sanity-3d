@@ -18,9 +18,9 @@ export default defineType({
       type: 'block-content',
     }),
     defineField({
-      name: 'expandedBody',
-      title: 'Expanded Body',
-      type: 'block-content',
+      name: 'blocks',
+      type: 'array',
+      of: [{ type: 'experience-carousel' }, { type: 'expanded-body' }],
     }),
     defineField({
       name: 'links',
