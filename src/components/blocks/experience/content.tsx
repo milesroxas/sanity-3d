@@ -25,8 +25,6 @@ export default function ExpandedContent({ heading, sectionBody, links, blocks }:
   // Handle close with proper timing
   const handleClose = () => {
     setIsClosing(true);
-    // The MarkerContentOverlay should detect this and start its animation
-    // After the overlay animation starts, we'll call closeExpandedContent
   };
 
   const handleClick = () => {

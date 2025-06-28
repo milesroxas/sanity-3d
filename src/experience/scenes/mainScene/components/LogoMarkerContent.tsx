@@ -86,16 +86,23 @@ export default function LogoMarkerContent() {
 
     setIsAnimating(true);
 
-    // Animate title change with horizontal slide and fade
+    // Check if we're on mobile
+    const isMobile = window.innerWidth < 768;
+
+    // Animate title change with slide and fade
     gsap.fromTo(
       titleRef.current,
       {
         opacity: 0,
-        x: previousTitle === 'Security Services' ? -20 : 20, // Direction based on which way we're transitioning
+        // Use y animation for mobile, x for desktop
+        ...(isMobile
+          ? { y: previousTitle === 'Security Services' ? -10 : 10 }
+          : { x: previousTitle === 'Security Services' ? -20 : 20 }),
       },
       {
         opacity: 1,
-        x: 0,
+        // Reset the appropriate axis
+        ...(isMobile ? { y: 0 } : { x: 0 }),
         duration: 0.35,
         ease: 'power1.out',
         onComplete: () => setIsAnimating(false),
@@ -145,12 +152,9 @@ export default function LogoMarkerContent() {
         setContentVisible(false);
         setShouldAnimateBack(true);
         setOtherMarkersVisible(false);
+        setExpandedContent(null);
       },
     });
-  };
-
-  const handleCloseExpanded = () => {
-    setExpandedContent(null);
   };
 
   // Also add an effect to sync the expanded content with logo marker visibility:

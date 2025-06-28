@@ -1,4 +1,3 @@
-'use client';
 import Blocks from '@/components/blocks';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -58,14 +57,13 @@ export default function MarkerContentOverlay({
   // Close expanded content if logo marker is closed
   useEffect(() => {
     if (!isLogoMarkerVisible && isVisible && !isAnimating) {
-      handleClose(); // Use handleClose to trigger animation instead of onClose
+      handleClose();
     }
   }, [isLogoMarkerVisible, isVisible, isAnimating]);
 
   // Handle close animation
   const handleClose = () => {
     setIsAnimating(true);
-    // Let the animation play, then call onClose after animation completes
   };
 
   // GSAP animations using useGSAP hook
@@ -74,22 +72,68 @@ export default function MarkerContentOverlay({
       if (!overlayRef.current) return;
 
       const shouldShow = isVisible && isLogoMarkerVisible && !isAnimating;
-      const shouldHide = (!isVisible || !isLogoMarkerVisible) && !isAnimating;
+
       const shouldAnimate = isAnimating;
 
       if (shouldShow) {
         setIsAnimating(false);
         if (isMobile) {
-          // Mobile: slide up animation
-          gsap.fromTo(
+          gsap.killTweensOf([
             overlayRef.current,
-            { y: '100%' },
-            {
+            titleRef.current,
+            contentRef.current,
+            blocksRef.current,
+            closeRef.current,
+          ]);
+
+          // Mobile: slide up animation - IMPORTANT: Set initial states first
+          gsap.set(overlayRef.current, { y: '100%', x: 0, opacity: 0 });
+          gsap.set(titleRef.current, { opacity: 0, y: 10, x: 0 }); // Explicitly set x to 0
+          gsap.set(contentRef.current, { opacity: 0, y: 20, x: 0 }); // Explicitly set x to 0
+          gsap.set(blocksRef.current, { opacity: 0, y: 20, x: 0 }); // Explicitly set x to 0
+          gsap.set(closeRef.current, { opacity: 0, x: 0 }); // Explicitly set x to 0
+
+          // Now animate
+          gsap
+            .timeline()
+            .to(overlayRef.current, {
               y: 0,
-              duration: 0.8,
-              ease: 'power2.out',
-            }
-          );
+              duration: 0.5,
+              opacity: 1,
+              ease: 'power2.inOut',
+            })
+            .to(
+              contentRef.current,
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.5,
+                ease: 'power2.inOut',
+              },
+              '='
+            )
+            .to(titleRef.current, {
+              opacity: 1,
+              y: 0,
+              duration: 0.3,
+              ease: 'power2.inOut',
+            })
+
+            .to(
+              blocksRef.current,
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.3,
+                ease: 'power2.inOut',
+              },
+              '-=0.1'
+            )
+            .to(closeRef.current, {
+              opacity: 1,
+              duration: 0.3,
+              ease: 'power2.inOut',
+            });
         } else {
           // Desktop: fade in animation with timeline
           const tl = gsap.timeline();
@@ -155,16 +199,64 @@ export default function MarkerContentOverlay({
         // Handle close animation
         if (isMobile) {
           // Mobile: slide down animation
-          gsap.to(overlayRef.current, {
-            y: '100%',
-            opacity: 0,
-            duration: 0.3,
-            ease: 'power2.in',
+          const tl = gsap.timeline({
             onComplete: () => {
               setIsAnimating(false);
               onClose();
             },
           });
+
+          tl.to(blocksRef.current, {
+            opacity: 0,
+            y: 10,
+            duration: 0.2,
+            ease: 'power2.in',
+          })
+
+            .to(
+              closeRef.current,
+              {
+                opacity: 0,
+                duration: 0.2,
+                ease: 'power2.in',
+              },
+              '-=0.1'
+            )
+            .to(
+              titleRef.current,
+              {
+                opacity: 0,
+                y: 10,
+                x: 0,
+                duration: 0.2,
+                ease: 'power2.in',
+              },
+              '-=0.1'
+            )
+            .to(
+              contentRef.current,
+              {
+                opacity: 0,
+                y: 10,
+                duration: 0.2,
+                ease: 'power2.in',
+              },
+              '-=0.1'
+            )
+            .to(overlayRef.current, {
+              y: '100%',
+              duration: 0.3,
+              ease: 'power2.in',
+            })
+            .to(
+              overlayRef.current,
+              {
+                opacity: 0,
+                duration: 0.3,
+                ease: 'power2.in',
+              },
+              '-=0.1'
+            );
         } else {
           // Desktop: fade out animation
           const tl = gsap.timeline({
@@ -214,16 +306,12 @@ export default function MarkerContentOverlay({
   // Mobile layout: full screen overlay with slide-up animation
   if (isMobile) {
     return (
-      <div className="pointer-events-none fixed inset-0 z-40">
-        <div
-          ref={overlayRef}
-          className="pointer-events-auto absolute inset-0 flex flex-col bg-background"
-          style={{
-            borderTopLeftRadius: '1rem',
-            borderTopRightRadius: '1rem',
-          }}
-        >
-          <div className="sticky top-0 z-10 flex items-center justify-between bg-background/95 p-4 backdrop-blur-sm">
+      <div className="pointer-events-none fixed inset-0 z-40" ref={overlayRef}>
+        <div className="pointer-events-auto absolute inset-0 flex flex-col rounded-none bg-background">
+          <div
+            className="sticky top-0 z-10 flex items-center justify-between rounded-none bg-background/90 p-4"
+            ref={contentRef}
+          >
             <h2 className="text-lg font-bold text-secondary" ref={titleRef}>
               {title}
             </h2>
@@ -238,7 +326,7 @@ export default function MarkerContentOverlay({
             </Button>
           </div>
           <ScrollArea className="flex-1">
-            <div className="p-4" ref={contentRef}>
+            <div className="p-4">
               {blocks && blocks.length > 0 ? (
                 <div className="flex flex-col gap-4" ref={blocksRef}>
                   <Blocks blocks={blocks} />
@@ -265,7 +353,7 @@ export default function MarkerContentOverlay({
       <div className="flex flex-1 items-center justify-center">
         <div
           ref={overlayRef}
-          className="pointer-events-auto flex h-full max-h-[90vh] w-full max-w-3xl flex-col rounded-lg bg-background shadow-xl"
+          className="pointer-events-auto flex h-full max-h-[90vh] w-full max-w-3xl flex-col bg-background shadow-xl md:rounded-lg"
         >
           <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-lg bg-background/95 p-6 pb-4 backdrop-blur-sm">
             <h2 className="text-xl font-bold text-secondary" ref={titleRef}>
