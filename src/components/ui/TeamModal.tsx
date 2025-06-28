@@ -122,16 +122,16 @@ export default function TeamModal({
       <DialogOverlay className="bg-black/50" />
       <DialogContent
         size="full"
-        className="bg-black p-0 text-white"
+        className="max-h-[80vh] bg-black p-0 text-white"
         ref={modalRef}
         onWheel={handleWheel}
       >
-        <div className="grid h-full grid-cols-1 md:grid-cols-2">
-          {/* ── CONTENT COLUMN ── */}
-          <div ref={contentRef} className="flex flex-col justify-center p-8">
+        <div className="relative h-full">
+          {/* Left side content */}
+          <div ref={contentRef} className="relative z-10 h-full p-8">
             <ScrollArea
               ref={scrollAreaRef}
-              className="max-h-[60vh] overflow-y-auto pb-8 md:max-h-[80vh]"
+              className="h-full max-h-[calc(80vh-4rem)] w-full max-w-md overflow-y-auto"
               onWheel={e => e.stopPropagation()}
             >
               <DialogHeader className="mb-6">
@@ -145,17 +145,17 @@ export default function TeamModal({
               </DialogHeader>
 
               {bio && (
-                <div className="prose prose-sm max-w-none">
+                <div className="prose prose-sm prose-p:text-white prose-headings:text-white max-w-none text-white">
                   {typeof bio === 'string' ? <p>{bio}</p> : <PortableTextRenderer value={bio} />}
                 </div>
               )}
             </ScrollArea>
           </div>
 
-          {/* ── IMAGE COLUMN ── */}
-          <div className="flex flex-col justify-end pl-12">
-            {image && image.asset?._id && (
-              <div className="relative bottom-[1px] right-[-100px] aspect-square w-11/12 max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
+          {/* Bottom right sticky image */}
+          {image && image.asset?._id && (
+            <div className="pointer-events-none absolute bottom-8 right-8 -z-10">
+              <div className="relative aspect-square w-64 max-w-xs">
                 <Image
                   ref={imageRef}
                   src={urlFor(image.asset).url()}
@@ -165,10 +165,11 @@ export default function TeamModal({
                   fill
                   style={{ objectFit: 'cover' }}
                   quality={100}
+                  className="rounded-lg"
                 />
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
