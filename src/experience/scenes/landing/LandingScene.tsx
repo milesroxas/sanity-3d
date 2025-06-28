@@ -17,7 +17,7 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { useRouter } from 'next/navigation';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Euler, PerspectiveCamera as ThreePerspectiveCamera, Vector3 } from 'three';
+import { PerspectiveCamera as ThreePerspectiveCamera, Vector3 } from 'three';
 import { Billboard } from './components/Billboard';
 import { Effects } from './components/Effects';
 import { SceneEnvironment } from './components/SceneEnvironment';
@@ -86,13 +86,7 @@ const LandingScene = ({
     positionX: mainContentPositionX,
     positionY: mainContentPositionY,
     positionZ: mainContentPositionZ,
-    rotationX: mainContentRotationX,
-    rotationY: mainContentRotationY,
-    rotationZ: mainContentRotationZ,
-  } = useMainContentControls(
-    responsiveConfig.mainContent.position,
-    responsiveConfig.mainContent.rotation
-  );
+  } = useMainContentControls(responsiveConfig.mainContent.position);
   const {
     positionX: billboardPositionX,
     positionY: billboardPositionY,
@@ -109,7 +103,6 @@ const LandingScene = ({
         },
         mainContent: {
           position: { x: mainContentPositionX, y: mainContentPositionY, z: mainContentPositionZ },
-          rotation: { x: mainContentRotationX, y: mainContentRotationY, z: mainContentRotationZ },
         },
         billboard: {
           position: { x: billboardPositionX, y: billboardPositionY, z: billboardPositionZ },
@@ -135,9 +128,6 @@ const LandingScene = ({
     mainContentPositionX,
     mainContentPositionY,
     mainContentPositionZ,
-    mainContentRotationX,
-    mainContentRotationY,
-    mainContentRotationZ,
     billboardPositionX,
     billboardPositionY,
     billboardPositionZ,
@@ -163,11 +153,6 @@ const LandingScene = ({
         currentConfig.mainContent.position.x,
         currentConfig.mainContent.position.y,
         currentConfig.mainContent.position.z
-      ),
-      mainContentRotation: new Euler(
-        currentConfig.mainContent.rotation.x,
-        currentConfig.mainContent.rotation.y,
-        currentConfig.mainContent.rotation.z
       ),
       billboard: {
         position: new Vector3(

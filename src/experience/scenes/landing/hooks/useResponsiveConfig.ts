@@ -14,7 +14,6 @@ export interface ResponsiveConfig {
   };
   mainContent: {
     position: Vec3;
-    rotation: Vec3;
   };
   billboard: {
     position: Vec3;
@@ -26,12 +25,11 @@ export interface ResponsiveConfig {
 export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', ResponsiveConfig> = {
   mobile: {
     camera: {
-      position: { x: 0, y: 5.8, z: 77.4 },
-      target: { x: 0, y: 19.6, z: -5 },
+      position: { x: 0, y: 2, z: 29 },
+      target: { x: 2, y: 7, z: 0 },
     },
     mainContent: {
-      position: { x: -0.8, y: 21.1, z: 40.7 },
-      rotation: { x: 0, y: 0.0, z: 0 },
+      position: { x: 0, y: 20, z: -60 },
     },
     billboard: {
       position: { x: 2.4, y: 0, z: -77.6 },
@@ -40,15 +38,14 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
   },
   tablet: {
     camera: {
-      position: { x: 20, y: 12, z: 90 },
-      target: { x: -3, y: 18.1, z: 0 },
+      position: { x: 20, y: 12, z: 70 },
+      target: { x: 0, y: 18.1, z: 0 },
     },
     mainContent: {
-      position: { x: -5.0, y: 22.8, z: 50.6 },
-      rotation: { x: 0, y: 0, z: 0 },
+      position: { x: -6.5, y: 35, z: -30 },
     },
     billboard: {
-      position: { x: -12.3, y: 0, z: -70.9 },
+      position: { x: -12.3, y: 0, z: -30 },
       scale: 1.0,
     },
   },
@@ -59,7 +56,6 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
     },
     mainContent: {
       position: { x: -22.3, y: 32, z: -20 },
-      rotation: { x: 0, y: 0, z: 0 },
     },
     billboard: {
       position: { x: -4, y: 1.3, z: -20 },
