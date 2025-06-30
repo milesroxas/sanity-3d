@@ -122,55 +122,52 @@ export default function TeamModal({
       <DialogOverlay className="bg-black/50" />
       <DialogContent
         size="full"
-        className="max-h-[80vh] bg-black p-0 text-white"
+        className="max-h-[80vh] bg-black p-0 text-white lg:h-full"
         ref={modalRef}
         onWheel={handleWheel}
       >
-        <div className="relative h-full">
-          {/* Left side content */}
-          <div ref={contentRef} className="relative z-10 h-full p-8">
-            <ScrollArea
-              ref={scrollAreaRef}
-              className="h-full max-h-[calc(80vh-4rem)] w-full max-w-md overflow-y-auto"
-              onWheel={e => e.stopPropagation()}
-            >
-              <DialogHeader className="mb-6">
-                <DialogTitle className="text-2xl md:text-3xl">{title}</DialogTitle>
-                {role && <p className="text-md mt-2 text-gray-500">{role}</p>}
-                {email && (
-                  <p className="mt-2 text-sm text-primary">
-                    <a href={`mailto:${email}`}>{email}</a>
-                  </p>
-                )}
-              </DialogHeader>
-
-              {bio && (
-                <div className="prose prose-sm prose-p:text-white prose-headings:text-white max-w-none text-white">
-                  {typeof bio === 'string' ? <p>{bio}</p> : <PortableTextRenderer value={bio} />}
-                </div>
-              )}
-            </ScrollArea>
-          </div>
-
-          {/* Bottom right sticky image */}
+        <ScrollArea
+          ref={scrollAreaRef}
+          className="relative h-full w-full overflow-y-auto px-8 pb-12"
+          onWheel={e => e.stopPropagation()}
+        >
           {image && image.asset?._id && (
-            <div className="pointer-events-none absolute bottom-8 right-8 -z-10">
-              <div className="relative aspect-square w-64 max-w-xs">
-                <Image
-                  ref={imageRef}
-                  src={urlFor(image.asset).url()}
-                  alt={image.alt || title}
-                  placeholder={image?.asset?.metadata?.lqip ? 'blur' : undefined}
-                  blurDataURL={image?.asset?.metadata?.lqip || ''}
-                  fill
-                  style={{ objectFit: 'cover' }}
-                  quality={100}
-                  className="rounded-lg"
-                />
-              </div>
+            <div className="lg:max-w-1/3 pointer-events-none relative order-first aspect-square max-w-40 md:absolute md:bottom-0 md:right-[-2rem] md:-z-10 md:w-1/2 md:max-w-full lg:w-1/3">
+              <Image
+                ref={imageRef}
+                src={urlFor(image.asset).url()}
+                alt={image.alt || title}
+                placeholder={image?.asset?.metadata?.lqip ? 'blur' : undefined}
+                blurDataURL={image?.asset?.metadata?.lqip || ''}
+                fill
+                style={{ objectFit: 'cover' }}
+                quality={100}
+                className="rounded-sm md:rounded-lg"
+              />
             </div>
           )}
-        </div>
+          <div ref={contentRef} className="relative z-10 flex-1 md:w-1/2 lg:pl-12">
+            <DialogHeader className="sticky top-0 bg-black/50 pb-4 pt-8 text-left backdrop-blur-sm">
+              <DialogTitle className="text-2xl md:text-3xl">{title}</DialogTitle>
+              {role && <p className="text-md mt-2 text-gray-500">{role}</p>}
+              {email && (
+                <p className="mt-2 text-sm text-primary">
+                  <a href={`mailto:${email}`}>{email}</a>
+                </p>
+              )}
+            </DialogHeader>
+
+            {bio && (
+              <div className="prose prose-sm prose-p:text-white prose-headings:text-white text-white">
+                {typeof bio === 'string' ? (
+                  <p className="pb-2">{bio}</p>
+                ) : (
+                  <PortableTextRenderer value={bio} />
+                )}
+              </div>
+            )}
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
