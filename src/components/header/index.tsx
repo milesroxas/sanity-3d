@@ -13,7 +13,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef } from 'react';
 
-gsap.registerPlugin(useGSAP, ScrollTrigger);
+// Register only the ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
 
 interface HeaderProps {
   nav: SanityNav;
@@ -26,6 +27,7 @@ export default function Header({ nav, settings }: HeaderProps) {
 
   const headerRef = useRef<HTMLDivElement>(null);
   const navContainerRef = useRef<HTMLDivElement>(null);
+  const logoRef = useRef<HTMLAnchorElement>(null);
 
   // External stores
   const { otherMarkersVisible, setSelectedScene } = useLogoMarkerStore();
@@ -47,19 +49,30 @@ export default function Header({ nav, settings }: HeaderProps) {
     }
   }, [isExperiencePage, pathname, setExperiencePage, setSelectedScene]);
 
-  // GSAP animation functions
+  // GSAP animations, including logo fade on scroll
   const { contextSafe } = useGSAP(() => {
-    if (!headerRef.current || !navContainerRef.current) return;
-
-    if (!isExperiencePage) {
+    // Reset header/nav visibility when not on the experience page
+    if (headerRef.current && navContainerRef.current && !isExperiencePage) {
       gsap.killTweensOf([headerRef.current, navContainerRef.current]);
       gsap.set([headerRef.current, navContainerRef.current], {
         opacity: 1,
         pointerEvents: 'auto',
       });
-
       setHeaderVisible(true);
       setNavVisible(true);
+    }
+
+    // Fade out the logo as you scroll down
+    if (logoRef.current && headerRef.current) {
+      gsap.to(logoRef.current, {
+        opacity: 0,
+        scrollTrigger: {
+          trigger: headerRef.current,
+          start: 'top top',
+          end: '+=200', // adjust this value to control fade distance
+          scrub: true,
+        },
+      });
     }
   }, [isExperiencePage, setHeaderVisible, setNavVisible]);
 
@@ -112,8 +125,6 @@ export default function Header({ nav, settings }: HeaderProps) {
           setNavVisible(true);
         },
       });
-
-      // Ensure main content is also clickable
       gsap.set('main', { pointerEvents: 'auto' });
     }, [setNavVisible])
   );
@@ -154,6 +165,7 @@ export default function Header({ nav, settings }: HeaderProps) {
             href="/"
             aria-label="Home page"
             className="absolute left-1/2 top-1/2 w-12 -translate-x-1/2 -translate-y-1/2"
+            ref={logoRef}
           >
             {logo?.asset?._id && (
               <Image
