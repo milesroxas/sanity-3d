@@ -42,9 +42,15 @@ export default function Logo({ settings }: { settings: SETTINGS_QUERYResult }) {
         40
       }
       title={settings.siteName || ""}
-      placeholder={logoToUse?.asset?.metadata?.lqip ? "blur" : undefined}
+      placeholder={
+        logoToUse?.asset?.metadata?.lqip &&
+        logoToUse?.asset?.mimeType !== "image/svg+xml"
+          ? "blur"
+          : undefined
+      }
       blurDataURL={logoToUse?.asset?.metadata?.lqip || undefined}
       quality={100}
+      priority
     />
   ) : (
     <span className="text-lg font-semibold tracking-tighter">

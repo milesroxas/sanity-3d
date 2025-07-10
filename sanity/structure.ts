@@ -5,6 +5,7 @@ import {
   User,
   ListCollapse,
   Quote,
+  Menu,
   Settings,
 } from "lucide-react";
 
@@ -56,6 +57,15 @@ export const structure = (S: any, context: any) =>
         context,
       }),
       S.divider(),
+      S.listItem()
+        .title("Navigation")
+        .icon(Menu)
+        .child(
+          S.editor()
+            .id("navigation")
+            .schemaType("navigation")
+            .documentId("navigation")
+        ),
       S.listItem()
         .title("Settings")
         .icon(Settings)
