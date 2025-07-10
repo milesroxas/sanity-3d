@@ -13,8 +13,15 @@ import { NavItem } from "@/types";
 import Logo from "@/components/logo";
 import { useState } from "react";
 import { AlignRight } from "lucide-react";
+import { SETTINGS_QUERYResult } from "@/sanity.types";
 
-export default function MobileNav({ navItems }: { navItems: NavItem[] }) {
+export default function MobileNav({
+  navItems,
+  settings,
+}: {
+  navItems: NavItem[];
+  settings: SETTINGS_QUERYResult;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -30,7 +37,7 @@ export default function MobileNav({ navItems }: { navItems: NavItem[] }) {
       <SheetContent>
         <SheetHeader>
           <div className="mx-auto">
-            <Logo />
+            <Logo settings={settings} />
           </div>
           <div className="sr-only">
             <SheetTitle>Main Navigation</SheetTitle>
