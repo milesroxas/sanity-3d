@@ -1,6 +1,6 @@
 import type { PreviewProps } from "sanity";
 import { Flex, Text } from "@sanity/ui";
-import YouTubePlayer from "react-player/youtube";
+import ReactPlayer from "react-player";
 import { SquarePlay } from "lucide-react";
 
 export function YouTubePreview(props: PreviewProps) {
@@ -9,7 +9,7 @@ export function YouTubePreview(props: PreviewProps) {
   return (
     <Flex padding={3} align="center" justify="center">
       {typeof videoId === "string" ? (
-        <YouTubePlayer url={`https://www.youtube.com/watch?v=${videoId}`} />
+        <ReactPlayer src={`https://www.youtube.com/watch?v=${videoId}`} />
       ) : (
         <Flex align="center" justify="center">
           <SquarePlay />
