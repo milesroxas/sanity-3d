@@ -7,14 +7,23 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
-import { NavItem } from "@/types";
+import { cn } from "@/lib/utils";
 import Logo from "@/components/logo";
 import { useState } from "react";
 import { AlignRight } from "lucide-react";
+import { SETTINGS_QUERYResult, NAVIGATION_QUERYResult } from "@/sanity.types";
 
-export default function MobileNav({ navItems }: { navItems: NavItem[] }) {
+type SanityLink = NonNullable<NAVIGATION_QUERYResult[0]["links"]>[number];
+
+export default function MobileNav({
+  navigation,
+  settings,
+}: {
+  navigation: NAVIGATION_QUERYResult;
+  settings: SETTINGS_QUERYResult;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -30,7 +39,7 @@ export default function MobileNav({ navItems }: { navItems: NavItem[] }) {
       <SheetContent>
         <SheetHeader>
           <div className="mx-auto">
-            <Logo />
+            <Logo settings={settings} />
           </div>
           <div className="sr-only">
             <SheetTitle>Main Navigation</SheetTitle>
@@ -40,21 +49,25 @@ export default function MobileNav({ navItems }: { navItems: NavItem[] }) {
         <div className="pt-10 pb-20">
           <div className="container">
             <ul className="list-none text-center space-y-3">
-              <>
-                {navItems.map((navItem) => (
-                  <li key={navItem.label}>
-                    <Link
-                      onClick={() => setOpen(false)}
-                      href={navItem.href}
-                      target={navItem.target ? "_blank" : undefined}
-                      rel={navItem.target ? "noopener noreferrer" : undefined}
-                      className="hover:text-decoration-none hover:opacity-50 text-lg"
-                    >
-                      {navItem.label}
-                    </Link>
-                  </li>
-                ))}
-              </>
+              {navigation[0]?.links?.map((navItem: SanityLink) => (
+                <li key={navItem._key}>
+                  <Link
+                    onClick={() => setOpen(false)}
+                    href={navItem.href || "#"}
+                    target={navItem.target ? "_blank" : undefined}
+                    rel={navItem.target ? "noopener noreferrer" : undefined}
+                    className={cn(
+                      buttonVariants({
+                        variant: navItem.buttonVariant || "default",
+                      }),
+                      navItem.buttonVariant === "ghost" &&
+                        "hover:text-decoration-none hover:opacity-50 text-lg p-0 h-auto hover:bg-transparent"
+                    )}
+                  >
+                    {navItem.title}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

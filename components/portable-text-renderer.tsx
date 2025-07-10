@@ -102,7 +102,7 @@ const portableTextComponents: PortableTextProps["components"] = {
       const target = isExternal ? "_blank" : undefined;
       return (
         <Link
-          href={value?.href}
+          href={value?.href || "#"}
           target={target}
           rel={target ? "noopener" : undefined}
           style={{ textDecoration: "underline" }}

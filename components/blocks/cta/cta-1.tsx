@@ -60,7 +60,7 @@ export default function Cta1({
                   asChild
                 >
                   <Link
-                    href={link.href as string}
+                    href={link.href || "#"}
                     target={link.target ? "_blank" : undefined}
                     rel={link.target ? "noopener" : undefined}
                   >

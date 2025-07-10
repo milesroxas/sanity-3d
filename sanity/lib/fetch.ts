@@ -1,5 +1,7 @@
 import { sanityFetch } from "@/sanity/lib/live";
 import { PAGE_QUERY, PAGES_SLUGS_QUERY } from "@/sanity/queries/page";
+import { NAVIGATION_QUERY } from "@/sanity/queries/navigation";
+import { SETTINGS_QUERY } from "@/sanity/queries/settings";
 import {
   POST_QUERY,
   POSTS_QUERY,
@@ -11,6 +13,8 @@ import {
   POST_QUERYResult,
   POSTS_QUERYResult,
   POSTS_SLUGS_QUERYResult,
+  NAVIGATION_QUERYResult,
+  SETTINGS_QUERYResult,
 } from "@/sanity.types";
 
 export const fetchSanityPageBySlug = async ({
@@ -68,3 +72,20 @@ export const fetchSanityPostsStaticParams =
 
     return data;
   };
+
+export const fetchSanityNavigation =
+  async (): Promise<NAVIGATION_QUERYResult> => {
+    const { data } = await sanityFetch({
+      query: NAVIGATION_QUERY,
+    });
+
+    return data;
+  };
+
+export const fetchSanitySettings = async (): Promise<SETTINGS_QUERYResult> => {
+  const { data } = await sanityFetch({
+    query: SETTINGS_QUERY,
+  });
+
+  return data;
+};

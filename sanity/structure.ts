@@ -1,5 +1,13 @@
 import { orderableDocumentListDeskItem } from "@sanity/orderable-document-list";
-import { Files, BookA, User, ListCollapse, Quote } from "lucide-react";
+import {
+  Files,
+  BookA,
+  User,
+  ListCollapse,
+  Quote,
+  Menu,
+  Settings,
+} from "lucide-react";
 
 export const structure = (S: any, context: any) =>
   S.list()
@@ -48,4 +56,23 @@ export const structure = (S: any, context: any) =>
         S,
         context,
       }),
+      S.divider(),
+      S.listItem()
+        .title("Navigation")
+        .icon(Menu)
+        .child(
+          S.editor()
+            .id("navigation")
+            .schemaType("navigation")
+            .documentId("navigation")
+        ),
+      S.listItem()
+        .title("Settings")
+        .icon(Settings)
+        .child(
+          S.editor()
+            .id("settings")
+            .schemaType("settings")
+            .documentId("settings")
+        ),
     ]);

@@ -1,4 +1,5 @@
 import { groq } from "next-sanity";
+import { linkQuery } from "./shared/link";
 
 // @sanity-typegen-ignore
 export const sectionHeaderQuery = groq`
@@ -12,6 +13,8 @@ export const sectionHeaderQuery = groq`
     tagLine,
     title,
     description,
-    link,
+    link{
+      ${linkQuery}
+    },
   }
 `;

@@ -1,4 +1,5 @@
 import { groq } from "next-sanity";
+import { imageQuery } from "../shared/image";
 
 // @sanity-typegen-ignore
 export const splitImageQuery = groq`
@@ -6,19 +7,7 @@ export const splitImageQuery = groq`
     _type,
     _key,
     image{
-      asset->{
-        _id,
-        url,
-        mimeType,
-        metadata {
-          lqip,
-          dimensions {
-            width,
-            height
-          }
-        }
-      },
-      alt
+      ${imageQuery}
     },
   }
 `;

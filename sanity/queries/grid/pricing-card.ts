@@ -1,4 +1,5 @@
 import { groq } from "next-sanity";
+import { linkQuery } from "../shared/link";
 
 // @sanity-typegen-ignore
 export const pricingCardQuery = groq`
@@ -10,6 +11,8 @@ export const pricingCardQuery = groq`
     price,
     list[],
     excerpt,
-    link,
+    link{
+      ${linkQuery}
+    },
   }
 `;

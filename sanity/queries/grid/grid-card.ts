@@ -1,4 +1,6 @@
 import { groq } from "next-sanity";
+import { imageQuery } from "../shared/image";
+import { linkQuery } from "../shared/link";
 
 // @sanity-typegen-ignore
 export const gridCardQuery = groq`
@@ -8,21 +10,10 @@ export const gridCardQuery = groq`
     title,
     excerpt,
     image{
-      ...,
-      asset->{
-        _id,
-        url,
-        mimeType,
-        metadata {
-          lqip,
-          dimensions {
-            width,
-            height
-          }
-        }
-      },
-      alt
+      ${imageQuery}
     },
-    link,
+    link{
+      ${linkQuery}
+    },
   }
 `;

@@ -1,41 +1,15 @@
 import { groq } from "next-sanity";
+import { imageQuery } from "./shared/image";
+import { bodyQuery } from "./shared/body";
 
 export const POST_QUERY = groq`*[_type == "post" && slug.current == $slug][0]{
     title,
     slug,
     image{
-      ...,
-      asset->{
-        _id,
-        url,
-        mimeType,
-        metadata {
-          lqip,
-          dimensions {
-            width,
-            height
-          }
-        }
-      },
-      alt
+      ${imageQuery}
     },
     body[]{
-      ...,
-      _type == "image" => {
-        ...,
-        asset->{
-          _id,
-          url,
-          mimeType,
-          metadata {
-            lqip,
-            dimensions {
-              width,
-              height
-            }
-          }
-        }
-      }
+      ${bodyQuery}
     },
     author->{
       name,
@@ -80,19 +54,7 @@ export const POSTS_QUERY = groq`*[_type == "post" && defined(slug)] | order(_cre
     slug,
     excerpt,
     image{
-      asset->{
-        _id,
-        url,
-        mimeType,
-        metadata {
-          lqip,
-          dimensions {
-            width,
-            height
-          }
-        }
-      },
-      alt
+      ${imageQuery}
     },
 }`;
 

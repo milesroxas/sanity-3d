@@ -1,18 +1,32 @@
 import Link from "next/link";
-import { NavItem } from "@/types";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { NAVIGATION_QUERYResult } from "@/sanity.types";
 
-export default function DesktopNav({ navItems }: { navItems: NavItem[] }) {
+type SanityLink = NonNullable<NAVIGATION_QUERYResult[0]["links"]>[number];
+
+export default function DesktopNav({
+  navigation,
+}: {
+  navigation: NAVIGATION_QUERYResult;
+}) {
   return (
     <div className="hidden xl:flex items-center gap-7 text-primary">
-      {navItems.map((navItem) => (
+      {navigation[0]?.links?.map((navItem: SanityLink) => (
         <Link
-          key={navItem.label}
-          href={navItem.href}
+          key={navItem._key}
+          href={navItem.href || "#"}
           target={navItem.target ? "_blank" : undefined}
           rel={navItem.target ? "noopener noreferrer" : undefined}
-          className="transition-colors hover:text-foreground/80 text-foreground/60 text-sm"
+          className={cn(
+            buttonVariants({
+              variant: navItem.buttonVariant || "default",
+            }),
+            navItem.buttonVariant === "ghost" &&
+              "transition-colors hover:text-foreground/80 text-foreground/60 text-sm p-0 h-auto hover:bg-transparent"
+          )}
         >
-          {navItem.label}
+          {navItem.title}
         </Link>
       ))}
     </div>
