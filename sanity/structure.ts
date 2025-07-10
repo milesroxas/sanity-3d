@@ -55,6 +55,7 @@ export const structure = (S: any, context: any) =>
         S,
         context,
       }),
+      S.divider(),
       S.listItem()
         .title("Settings")
         .icon(Settings)
