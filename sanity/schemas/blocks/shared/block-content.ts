@@ -29,19 +29,40 @@ export default defineType({
         ],
         annotations: [
           {
-            title: "URL",
             name: "link",
             type: "object",
+            title: "Link",
             fields: [
               {
-                title: "URL",
+                name: "isExternal",
+                type: "boolean",
+                title: "Is External",
+                initialValue: false,
+              },
+              {
+                name: "internalLink",
+                type: "reference",
+                title: "Internal Link",
+                to: [{ type: "page" }, { type: "post" }],
+                hidden: ({ parent }) => parent?.isExternal,
+              },
+              {
                 name: "href",
+                title: "href",
                 type: "url",
+                hidden: ({ parent }) => !parent?.isExternal,
                 validation: (Rule) =>
                   Rule.uri({
                     allowRelative: true,
                     scheme: ["http", "https", "mailto", "tel"],
                   }),
+              },
+              {
+                name: "target",
+                type: "boolean",
+                title: "Open in new tab",
+                initialValue: false,
+                hidden: ({ parent }) => !parent?.isExternal,
               },
             ],
           },

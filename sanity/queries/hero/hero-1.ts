@@ -1,4 +1,7 @@
 import { groq } from "next-sanity";
+import { linkQuery } from "../shared/link";
+import { imageQuery } from "../shared/image";
+import { bodyQuery } from "../shared/body";
 
 // @sanity-typegen-ignore
 export const hero1Query = groq`
@@ -8,39 +11,13 @@ export const hero1Query = groq`
     tagLine,
     title,
     body[]{
-      ...,
-      _type == "image" => {
-        ...,
-        asset->{
-          _id,
-          url,
-          mimeType,
-          metadata {
-            lqip,
-            dimensions {
-              width,
-              height
-            }
-          }
-        }
-      }
+      ${bodyQuery}
     },
     image{
-      ...,
-      asset->{
-        _id,
-        url,
-        mimeType,
-        metadata {
-          lqip,
-          dimensions {
-            width,
-            height
-          }
-        }
-      },
-      alt
+      ${imageQuery}
     },
-    links,
+    links[]{
+      ${linkQuery}
+    },
   }
 `;

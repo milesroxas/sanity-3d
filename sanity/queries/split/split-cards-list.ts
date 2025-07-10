@@ -1,4 +1,5 @@
 import { groq } from "next-sanity";
+import { bodyQuery } from "../shared/body";
 
 // @sanity-typegen-ignore
 export const splitCardsListQuery = groq`
@@ -9,22 +10,7 @@ export const splitCardsListQuery = groq`
       tagLine,
       title,
       body[]{
-        ...,
-        _type == "image" => {
-          ...,
-          asset->{
-            _id,
-            url,
-            mimeType,
-            metadata {
-              lqip,
-              dimensions {
-                width,
-                height
-              }
-            }
-          }
-        }
+        ${bodyQuery}
       },
     },
   }

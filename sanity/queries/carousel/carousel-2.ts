@@ -1,4 +1,6 @@
 import { groq } from "next-sanity";
+import { imageQuery } from "../shared/image";
+import { bodyQuery } from "../shared/body";
 
 // @sanity-typegen-ignore
 export const carousel2Query = groq`
@@ -12,37 +14,10 @@ export const carousel2Query = groq`
       name,
       title,
       image{
-        asset->{
-          _id,
-          url,
-          mimeType,
-          metadata {
-            lqip,
-            dimensions {
-              width,
-              height
-            }
-          }
-        },
-        alt
+        ${imageQuery}
       },
       body[]{
-        ...,
-        _type == "image" => {
-          ...,
-          asset->{
-            _id,
-            url,
-            mimeType,
-            metadata {
-              lqip,
-              dimensions {
-                width,
-                height
-              }
-            }
-          }
-        }
+        ${bodyQuery}
       },
       rating,
     },

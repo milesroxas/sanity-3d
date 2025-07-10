@@ -36,7 +36,7 @@ export default function Hero2({ tagLine, title, body, links }: Hero2Props) {
               asChild
             >
               <Link
-                href={link.href as string}
+                href={link.href || "#"}
                 target={link.target ? "_blank" : undefined}
                 rel={link.target ? "noopener" : undefined}
               >
