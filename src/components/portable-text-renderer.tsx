@@ -75,14 +75,22 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
         },
       },
       block: createBlockComponents({
-        normal: ({ children }) => <p className="w-full max-w-full">{children}</p>,
-        largeText: ({ children }) => <p className="mb-12 w-full max-w-full text-lg">{children}</p>,
-        h1: ({ children }) => <h1 className="mb-4 mt-4">{children}</h1>,
-        h2: ({ children }) => <h2 className="mb-4 mt-4">{children}</h2>,
-        h3: ({ children }) => <h3 className="mb-2 mt-4">{children}</h3>,
-        h4: ({ children }) => <h4 className="mb-1 mt-4">{children}</h4>,
-        h5: ({ children }) => <h5 className="mb-1 mt-4">{children}</h5>,
+        normal: ({ children }) => <p className="mb-6 mt-2 w-full max-w-full">{children}</p>,
+        largeText: ({ children }) => (
+          <p className="mb-12 w-full max-w-full text-xl font-medium">{children}</p>
+        ),
+        h1: ({ children }) => <h1 className="mb-6 mt-4">{children}</h1>,
+        h2: ({ children }) => <h2 className="mb-6 mt-4">{children}</h2>,
+        h3: ({ children }) => <h3 className="mb-2 mt-12 font-bold">{children}</h3>,
+        h4: ({ children }) => <h4 className="mb-4 mt-4">{children}</h4>,
+        h5: ({ children }) => <h5 className="mb-2 mt-4">{children}</h5>,
+        blockquote: ({ children }) => (
+          <blockquote className="mb-4 w-full max-w-full border-l-4 border-primary pl-4">
+            {children}
+          </blockquote>
+        ),
       }),
+
       marks: {
         link: ({ value, children }) => {
           // Extract href using our utility function
@@ -150,7 +158,7 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
             style={{
               paddingLeft: '1.5rem',
               marginBottom: '1rem',
-              listStylePosition: 'inside',
+              listStylePosition: 'outside',
             }}
           >
             {children}
@@ -162,7 +170,7 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
             style={{
               paddingLeft: '1.5rem',
               marginBottom: '1rem',
-              listStylePosition: 'inside',
+              listStylePosition: 'outside',
             }}
           >
             {children}
@@ -202,7 +210,7 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
       list: {
         bullet: ({ children }) => (
           <ul
-            className="list-disc text-sm md:text-base"
+            className="mb-6 list-disc text-sm md:text-base"
             style={{
               paddingLeft: '1rem',
               marginBottom: '0.75rem',

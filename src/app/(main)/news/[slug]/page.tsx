@@ -1,19 +1,14 @@
-import { notFound } from "next/navigation";
-import Breadcrumbs from "@/components/ui/breadcrumbs";
-import PostHero from "@/components/ui/post/hero";
-import { BreadcrumbLink } from "@/types";
-import PortableTextRenderer from "@/components/portable-text-renderer";
-import {
-  fetchSanityPostBySlug,
-  fetchSanityPostsStaticParams,
-} from "../actions";
-import { generatePageMetadata } from "@/lib/metadata";
+import PortableTextRenderer from '@/components/portable-text-renderer';
+import Breadcrumbs from '@/components/ui/breadcrumbs';
+import PostHero from '@/components/ui/post/hero';
+import { generatePageMetadata } from '@/lib/metadata';
+import { BreadcrumbLink } from '@/types';
+import { notFound } from 'next/navigation';
+import { fetchSanityPostBySlug, fetchSanityPostsStaticParams } from '../actions';
 
-export const dynamic = "force-static";
+export const dynamic = 'force-static';
 
-export async function generateMetadata(props: {
-  params: Promise<{ slug: string }>;
-}) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
   const post = await fetchSanityPostBySlug({ slug: params.slug });
 
@@ -27,14 +22,12 @@ export async function generateMetadata(props: {
 export async function generateStaticParams() {
   const posts = await fetchSanityPostsStaticParams();
 
-  return posts.map((post) => ({
+  return posts.map(post => ({
     slug: post.slug.current,
   }));
 }
 
-export default async function PostPage(props: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function PostPage(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
   const post = await fetchSanityPostBySlug(params);
 
@@ -45,16 +38,16 @@ export default async function PostPage(props: {
   const links: BreadcrumbLink[] = post
     ? [
         {
-          label: "Home",
-          href: "/",
+          label: 'Home',
+          href: '/',
         },
         {
-          label: "Blog",
-          href: "/blog",
+          label: 'News',
+          href: '/news',
         },
         {
           label: post.title as string,
-          href: "#",
+          href: `#`,
         },
       ]
     : [];
@@ -62,7 +55,7 @@ export default async function PostPage(props: {
   return (
     <section>
       <div className="container py-16 xl:py-20">
-        <article className="max-w-3xl mx-auto">
+        <article className="mx-auto max-w-3xl">
           <Breadcrumbs links={links} />
           <PostHero {...post} />
           {post.body && <PortableTextRenderer value={post.body} />}
