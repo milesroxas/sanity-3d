@@ -39,6 +39,9 @@ interface Hero1Props {
       filename: string;
     };
   };
+  videoOptions?: {
+    hideControls: boolean;
+  };
   mediaType?: 'image' | 'video';
   links: Sanity.Link[];
   _key: string;
@@ -50,6 +53,7 @@ export default function Hero1({
   body,
   image,
   video,
+  videoOptions,
   mediaType = 'image',
   links,
   _key,
@@ -88,11 +92,12 @@ export default function Hero1({
     }
   }, [playbackMode]);
 
+  // Update the handleMouseEnter callback to check hideControls
   const handleMouseEnter = useCallback(() => {
-    if (mediaType === 'video' && playbackMode === 'preview') {
+    if (mediaType === 'video' && playbackMode === 'preview' && !videoOptions?.hideControls) {
       hoverTimeoutRef.current = setTimeout(() => setShowPlayButton(true), HOVER_DELAY);
     }
-  }, [mediaType, playbackMode]);
+  }, [mediaType, playbackMode, videoOptions?.hideControls]);
 
   const handleMouseLeave = useCallback(() => {
     if (hoverTimeoutRef.current) {
@@ -224,8 +229,8 @@ export default function Hero1({
       return (
         <div
           className="media-content relative h-96 w-full md:absolute md:inset-0 md:h-full"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          onMouseEnter={videoOptions?.hideControls ? undefined : handleMouseEnter}
+          onMouseLeave={videoOptions?.hideControls ? undefined : handleMouseLeave}
         >
           <MuxPlayer
             ref={playerRef}
@@ -258,7 +263,7 @@ export default function Hero1({
             nohotkeys={playbackMode === 'preview'}
           />
 
-          {playbackMode === 'preview' && (
+          {playbackMode === 'preview' && !videoOptions?.hideControls && (
             <>
               <div
                 className={`absolute inset-0 bg-black transition-opacity duration-300 ease-in-out ${

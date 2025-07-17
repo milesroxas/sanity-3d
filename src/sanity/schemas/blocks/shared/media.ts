@@ -58,6 +58,20 @@ export const media = defineType({
       type: 'mux.video',
       hidden: ({ parent }) => parent?.mediaType !== 'video',
     }),
+    defineField({
+      name: 'videoOptions',
+      title: 'Video Options',
+      type: 'object',
+      hidden: ({ parent }) => parent?.mediaType !== 'video',
+      fields: [
+        defineField({
+          name: 'showControls',
+          title: 'Show Controls',
+          type: 'boolean',
+          initialValue: true,
+        }),
+      ],
+    }),
     orderRankField({ type: 'media' }),
   ],
 });

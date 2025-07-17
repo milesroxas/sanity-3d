@@ -11,6 +11,9 @@ export const splitVideoQuery = groq`
           assetId,
           filename,
         }
+    },
+    videoOptions{
+      hideControls
     }
   }
 `;

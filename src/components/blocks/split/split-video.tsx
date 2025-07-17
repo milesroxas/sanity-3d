@@ -24,6 +24,9 @@ export interface SplitVideoProps {
       filename: string;
     };
   };
+  videoOptions?: {
+    hideControls: boolean;
+  };
   blurDataURL?: string;
   aspectRatio?: number;
   previewDuration?: number;
@@ -36,6 +39,7 @@ const DEFAULT_PREVIEW_DURATION = 4;
 
 export default function SplitVideo({
   video,
+  videoOptions,
   blurDataURL: preGeneratedBlur,
   aspectRatio: preGeneratedRatio,
   previewDuration = DEFAULT_PREVIEW_DURATION,
@@ -70,10 +74,10 @@ export default function SplitVideo({
   }, [playbackMode, previewDuration]);
 
   const handleMouseEnter = useCallback(() => {
-    if (playbackMode === 'preview') {
+    if (playbackMode === 'preview' && !videoOptions?.hideControls) {
       hoverTimeoutRef.current = setTimeout(() => setShowPlayButton(true), HOVER_DELAY);
     }
-  }, [playbackMode]);
+  }, [playbackMode, videoOptions?.hideControls]);
 
   const handleMouseLeave = useCallback(() => {
     if (hoverTimeoutRef.current) {
@@ -127,8 +131,8 @@ export default function SplitVideo({
     <div
       className="group relative max-h-[25rem] w-full overflow-hidden rounded-md sm:max-h-[30rem] md:max-h-[25rem] lg:h-full"
       style={{ aspectRatio: preGeneratedRatio || '16/9' }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={videoOptions?.hideControls ? undefined : handleMouseEnter}
+      onMouseLeave={videoOptions?.hideControls ? undefined : handleMouseLeave}
     >
       <MuxPlayer
         ref={playerRef}
@@ -158,7 +162,7 @@ export default function SplitVideo({
         nohotkeys={playbackMode === 'preview'}
       />
 
-      {playbackMode === 'preview' && (
+      {playbackMode === 'preview' && !videoOptions?.hideControls && (
         <>
           <div
             className={`absolute inset-0 bg-black transition-opacity duration-300 ease-in-out ${

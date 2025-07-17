@@ -60,6 +60,20 @@ export default defineType({
       hidden: ({ parent }) => parent?.mediaType !== 'video',
     }),
     defineField({
+      name: 'videoOptions',
+      title: 'Video Options',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'hideControls',
+          title: 'Hide Controls',
+          type: 'boolean',
+          initialValue: false,
+        }),
+      ],
+      hidden: ({ parent }) => parent?.mediaType !== 'video',
+    }),
+    defineField({
       name: 'links',
       type: link.name,
       validation: (rule: any) => rule.max(2),

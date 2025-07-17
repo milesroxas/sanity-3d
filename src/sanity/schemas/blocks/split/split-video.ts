@@ -12,6 +12,19 @@ export default defineType({
       name: 'video',
       type: 'mux.video',
     }),
+    defineField({
+      name: 'videoOptions',
+      title: 'Video Options',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'hideControls',
+          title: 'Hide Controls',
+          type: 'boolean',
+          initialValue: false,
+        }),
+      ],
+    }),
   ],
   preview: {
     select: {

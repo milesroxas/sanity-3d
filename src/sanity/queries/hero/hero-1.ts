@@ -38,6 +38,9 @@ export const hero1Query = groq`
         status
       }
     },
+    videoOptions{
+      hideControls
+    },
     links[] {
       ...,
       _type == 'pageLink' => {
