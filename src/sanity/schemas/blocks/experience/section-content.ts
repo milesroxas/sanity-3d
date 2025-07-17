@@ -20,7 +20,7 @@ export default defineType({
     defineField({
       name: 'blocks',
       type: 'array',
-      of: [{ type: 'experience-carousel' }, { type: 'expanded-body' }],
+      of: [{ type: 'experience-carousel' }, { type: 'expanded-body' }, { type: 'media' }],
     }),
     defineField({
       name: 'links',

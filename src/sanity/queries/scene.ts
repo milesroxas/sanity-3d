@@ -102,6 +102,37 @@ export const SCENE_QUERY = groq`
         services->{_id, _type, title, slug}
       },
     },
+          },
+          _type == "media" => {
+            ...,
+            title,
+            mediaType,
+            alt,
+            image {
+              asset->{
+                _id,
+                url,
+                metadata {
+                  lqip,
+                  dimensions {
+                    width,
+                    height
+                  }
+                }
+              }
+            },
+            video {
+              asset-> {
+                _id,
+                playbackId,
+                assetId,
+                filename,
+                status
+              }
+            },
+            videoOptions{
+              showControls
+            }
           }
         }
       }

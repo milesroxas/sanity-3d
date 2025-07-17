@@ -17,6 +17,7 @@ export default defineType({
       title: 'Expanded Body',
       type: 'block-content',
     }),
+
     defineField({
       name: 'links',
       type: link.name,

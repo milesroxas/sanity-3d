@@ -16,6 +16,7 @@ import CtaTeam from './cta/cta-team';
 import ExpandedContent from './experience/content';
 import ExpandedBody from './experience/expanded-body';
 import ExperienceCarousel from './experience/experience-carousel';
+import Media from './experience/media';
 
 const componentMap: { [key: string]: React.ComponentType<any> } = {
   heroOne: Hero1,
@@ -36,6 +37,7 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   'section-content': ExpandedContent,
   'experience-carousel': ExperienceCarousel,
   'expanded-body': ExpandedBody,
+  media: Media,
 };
 
 export default function Blocks({ blocks }: { blocks?: Sanity.Block[] }) {

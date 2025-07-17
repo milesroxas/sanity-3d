@@ -19,6 +19,9 @@ export const mediaQuery = groq`
         status
       }
     },
+    videoOptions{
+      showControls
+    },
     orderRank
   }
 `;
