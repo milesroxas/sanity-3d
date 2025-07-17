@@ -93,7 +93,7 @@ function PoiMarker({
         ref={hitboxRef}
         visible={otherMarkersVisible}
         position={[markerPosition[0], markerPosition[1], markerPosition[2]]}
-        scale={[22, 22, 22]}
+        scale={[15, 15, 15]}
         onClick={otherMarkersVisible ? handleClick : undefined}
         onPointerEnter={otherMarkersVisible ? handlePointerEnter : undefined}
         onPointerLeave={otherMarkersVisible ? handlePointerLeave : undefined}
@@ -117,19 +117,21 @@ function PoiMarker({
               color="#36A837"
               intensity={isHovered && otherMarkersVisible ? 100 : 0}
             />
-            <LogoMarker isHovered={isHovered} position={[0, 0, 0]} scale={0.65} opacity={opacity} />
+            <LogoMarker isHovered={isHovered} position={[0, 0, 0]} scale={0.7} opacity={opacity} />
           </group>
 
           {/* HTML element positioned below the marker */}
           <group position={[0, -5, 0]}>
             <Html
-              transform
-              distanceFactor={15}
+              distanceFactor={30}
               zIndexRange={[100, 0]}
+              occlude={false}
+              prepend
+              center
               style={{
                 width: 'auto',
                 minWidth: '200px',
-                pointerEvents: otherMarkersVisible ? 'auto' : 'none',
+                pointerEvents: 'none',
                 opacity: opacity,
                 transition: 'opacity 0.6s ease-in-out',
               }}
@@ -141,22 +143,17 @@ function PoiMarker({
                   backgroundColor: 'rgba(34, 197, 94, 0.8)',
                   transition: 'all 400ms cubic-bezier(0.4, 0, 0.2, 1)',
                   transformOrigin: 'center center',
-                  cursor: otherMarkersVisible ? 'pointer' : 'default',
+                  cursor: 'default',
                   opacity: opacity,
                   touchAction: 'none',
                   minWidth: '200px',
                   whiteSpace: 'nowrap',
+                  pointerEvents: 'none',
                 }}
-                onMouseEnter={handlePointerEnter}
-                onMouseLeave={handlePointerLeave}
-                onClick={handleClick}
-                onTouchStart={handlePointerEnter}
-                onTouchEnd={handleClick}
-                onTouchCancel={handlePointerLeave}
               >
                 <h3
                   ref={textRef}
-                  className="text-center text-3xl font-bold text-white lg:text-8xl"
+                  className="text-center text-6xl font-bold text-white lg:text-8xl"
                   style={{
                     transition: 'transform 400ms cubic-bezier(0.4, 0, 0.2, 1)',
                     transformOrigin: 'center center',
