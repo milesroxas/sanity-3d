@@ -50,10 +50,10 @@ function PoiMarker({
     if (isHovered && otherMarkersVisible) {
       containerRef.current.style.backgroundColor = 'rgba(74, 222, 128, 0.8)';
       containerRef.current.style.transform = 'scale(1.25)';
-      textRef.current.style.transform = 'scale(1.5)';
+      textRef.current.style.transform = 'scale(1)';
     } else {
       containerRef.current.style.backgroundColor = 'rgba(34, 197, 94, 0.8)';
-      containerRef.current.style.transform = 'scale(1)';
+      containerRef.current.style.transform = 'scale(1.125)';
       textRef.current.style.transform = 'scale(1)';
     }
 
@@ -92,8 +92,8 @@ function PoiMarker({
       <mesh
         ref={hitboxRef}
         visible={otherMarkersVisible}
-        position={[markerPosition[0], markerPosition[1] + 5, markerPosition[2]]}
-        scale={[5, 5, 5]}
+        position={[markerPosition[0], markerPosition[1], markerPosition[2]]}
+        scale={[22, 22, 22]}
         onClick={otherMarkersVisible ? handleClick : undefined}
         onPointerEnter={otherMarkersVisible ? handlePointerEnter : undefined}
         onPointerLeave={otherMarkersVisible ? handlePointerLeave : undefined}
@@ -117,7 +117,7 @@ function PoiMarker({
               color="#36A837"
               intensity={isHovered && otherMarkersVisible ? 100 : 0}
             />
-            <LogoMarker isHovered={isHovered} position={[0, 0, 0]} scale={0.5} opacity={opacity} />
+            <LogoMarker isHovered={isHovered} position={[0, 0, 0]} scale={0.65} opacity={opacity} />
           </group>
 
           {/* HTML element positioned below the marker */}
@@ -156,7 +156,7 @@ function PoiMarker({
               >
                 <h3
                   ref={textRef}
-                  className="text-center text-2xl font-bold text-white lg:text-6xl"
+                  className="text-center text-3xl font-bold text-white lg:text-8xl"
                   style={{
                     transition: 'transform 400ms cubic-bezier(0.4, 0, 0.2, 1)',
                     transformOrigin: 'center center',
