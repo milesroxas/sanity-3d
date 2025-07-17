@@ -53,37 +53,37 @@ export default function TeamModal({
     };
   }, [isOpen, lenis]);
 
-  // 2) Add a global "wheel" listener on document whenever the modal is open.
-  //    If the wheel event does NOT occur inside our <ScrollArea>, preventDefault().
-  useEffect(() => {
-    if (!isOpen) return;
+  // // 2) Add a global "wheel" listener on document whenever the modal is open.
+  // //    If the wheel event does NOT occur inside our <ScrollArea>, preventDefault().
+  // useEffect(() => {
+  //   if (!isOpen) return;
 
-    const handleGlobalWheel = (e: WheelEvent) => {
-      // If the event target is somewhere inside the scroll area, do nothing.
-      if (scrollAreaRef.current?.contains(e.target as Node)) {
-        return;
-      }
-      // Otherwise, prevent any scrolling on the background
-      e.preventDefault();
-    };
+  //   const handleGlobalWheel = (e: WheelEvent) => {
+  //     // If the event target is somewhere inside the scroll area, do nothing.
+  //     if (scrollAreaRef.current?.contains(e.target as Node)) {
+  //       return;
+  //     }
+  //     // Otherwise, prevent any scrolling on the background
+  //     e.preventDefault();
+  //   };
 
-    document.addEventListener('wheel', handleGlobalWheel, { passive: false, capture: true });
-    return () => {
-      document.removeEventListener('wheel', handleGlobalWheel, { capture: true });
-    };
-  }, [isOpen]);
+  //   document.addEventListener('wheel', handleGlobalWheel, { passive: false, capture: true });
+  //   return () => {
+  //     document.removeEventListener('wheel', handleGlobalWheel, { capture: true });
+  //   };
+  // }, [isOpen]);
 
-  // 3) Custom wheel handler for our scroll area to manage scrollPosition state
-  const handleWheel = (e: React.WheelEvent) => {
-    if (!scrollAreaRef.current) return;
-    const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-    if (!viewport) return;
+  // // 3) Custom wheel handler for our scroll area to manage scrollPosition state
+  // const handleWheel = (e: React.WheelEvent) => {
+  //   if (!scrollAreaRef.current) return;
+  //   const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+  //   if (!viewport) return;
 
-    const newPosition = scrollPosition + e.deltaY;
-    (viewport as HTMLElement).scrollTop = newPosition;
-    setScrollPosition(newPosition);
-    e.preventDefault();
-  };
+  //   const newPosition = scrollPosition + e.deltaY;
+  //   (viewport as HTMLElement).scrollTop = newPosition;
+  //   setScrollPosition(newPosition);
+  //   e.preventDefault();
+  // };
 
   // 4) GSAP fade‐in animation when modal opens
   useGSAP(
@@ -124,11 +124,11 @@ export default function TeamModal({
         size="full"
         className="max-h-[80vh] bg-black p-0 text-white lg:h-full"
         ref={modalRef}
-        onWheel={handleWheel}
+        // onWheel={handleWheel}
       >
         <ScrollArea
           ref={scrollAreaRef}
-          className="relative h-full w-full overflow-y-auto px-8 pb-12"
+          className="relative h-full w-full px-8 pb-12"
           onWheel={e => e.stopPropagation()}
         >
           {image && image.asset?._id && (

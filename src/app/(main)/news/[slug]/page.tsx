@@ -1,3 +1,4 @@
+import { Wrapper } from '@/app/(components)/wrapper';
 import PortableTextRenderer from '@/components/portable-text-renderer';
 import Breadcrumbs from '@/components/ui/breadcrumbs';
 import PostHero from '@/components/ui/post/hero';
@@ -53,14 +54,16 @@ export default async function PostPage(props: { params: Promise<{ slug: string }
     : [];
 
   return (
-    <section>
-      <div className="container py-16 xl:py-20">
-        <article className="mx-auto max-w-3xl">
-          <Breadcrumbs links={links} />
-          <PostHero {...post} />
-          {post.body && <PortableTextRenderer value={post.body} />}
-        </article>
-      </div>
-    </section>
+    <Wrapper lenis={{}}>
+      <section>
+        <div className="container py-16 xl:py-20">
+          <article className="mx-auto max-w-3xl">
+            <Breadcrumbs links={links} />
+            <PostHero {...post} />
+            {post.body && <PortableTextRenderer value={post.body} />}
+          </article>
+        </div>
+      </section>
+    </Wrapper>
   );
 }

@@ -108,7 +108,7 @@ export default function TeamPageClient({
             direction: 'bottom',
           }}
         >
-          <div className="grid grid-cols-1 items-start gap-12 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-1 items-start gap-12 overflow-x-hidden px-8 py-12 md:grid-cols-3 lg:grid-cols-4">
             {teamMembers.map((teamMember, index) => (
               <div
                 key={teamMember.slug?.current || index}
