@@ -1,9 +1,7 @@
 'use client';
 
-import { useBlockScrollTrigger } from '@/hooks/useBlockScrollTrigger';
 import { urlFor } from '@/sanity/lib/image';
 import { createBlurUp } from '@mux/blurup';
-import gsap from 'gsap';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -50,8 +48,6 @@ export default function Media({
   videoOptions,
   _key,
 }: MediaProps) {
-  const { blockRef, createScrollTrigger, runAnimations } = useBlockScrollTrigger(_key);
-
   // Video-specific state
   const [blurDataURL, setBlurDataURL] = useState<string | null>(null);
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode>('preview');
@@ -60,6 +56,7 @@ export default function Media({
 
   const playerRef = useRef<MuxPlayerElement>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -124,19 +121,6 @@ export default function Media({
       }
     };
   }, []);
-
-  useEffect(() => {
-    const container = blockRef.current;
-    if (!container || !blockRef.current) return;
-
-    runAnimations(() => {
-      gsap.fromTo(
-        container,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
-      );
-    });
-  }, [blockRef, runAnimations]);
 
   const renderMedia = () => {
     if (mediaType === 'video' && video?.asset?.playbackId) {
@@ -253,7 +237,7 @@ export default function Media({
   };
 
   return (
-    <div ref={blockRef} className="relative aspect-video w-full overflow-hidden rounded-md">
+    <div ref={containerRef} className="relative aspect-video w-full overflow-hidden rounded-md">
       {renderMedia()}
     </div>
   );
