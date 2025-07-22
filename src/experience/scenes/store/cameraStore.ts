@@ -1,5 +1,5 @@
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
-import { animateCameraMovement } from '@/experience/utils/animationUtils';
+import gsap from 'gsap';
 import { Vector3 } from 'three';
 import { create } from 'zustand';
 
@@ -51,12 +51,12 @@ interface CameraStore {
 
 export const INITIAL_POSITIONS = {
   mainIntro: {
-    position: new Vector3(-16.4, 300, 160),
-    target: new Vector3(-20.15, 10, 50),
+    position: new Vector3(-606.4, 120, 80),
+    target: new Vector3(-20.15, 50, 0),
   },
   main: {
-    position: new Vector3(-16.4, 85.39, 239.66),
-    target: new Vector3(-20.15, 18, -1.06),
+    position: new Vector3(-16.4, 45, 250),
+    target: new Vector3(-20.15, 22, -1.06),
   },
 } as const;
 
@@ -159,7 +159,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
 
   setSelectedPoi: poi => set({ selectedPoi: poi }),
 
-  // Animation
+  // Animation using GSAP instead of animationUtils
   startCameraTransition: (startPos, endPos, startTarget, endTarget) => {
     // Force clean state for the intro animation
     set({
@@ -168,33 +168,81 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       isLoading: false,
     });
 
-    animateCameraMovement(
-      startPos,
-      endPos,
-      startTarget,
-      endTarget,
-      (position, target) => {
-        // Update the store with the new position and target
-        set({ position, target });
-      },
-      {
-        duration: 4000,
-        onComplete: () => {
-          set({
-            isAnimating: false,
-            position: endPos.clone(),
-            target: endTarget.clone(),
-            previousPosition: startPos.clone(),
-            previousTarget: startTarget.clone(),
-          });
+    // Create proxy objects for GSAP to animate
+    const positionProxy = {
+      x: startPos.x,
+      y: startPos.y,
+      z: startPos.z,
+    };
 
-          setTimeout(() => {
-            if (!get) return;
-            set({ controlType: get().state === 'main' ? 'Map' : 'CameraControls' });
-            useLogoMarkerStore.getState().setOtherMarkersVisible(true);
-          }, 100);
-        },
-      }
+    const targetProxy = {
+      x: startTarget.x,
+      y: startTarget.y,
+      z: startTarget.z,
+    };
+
+    // Performance optimization: Use a single Vector3 instance for updates
+    const newPosition = new Vector3();
+    const newTarget = new Vector3();
+
+    // Create a GSAP timeline for better control
+    const tl = gsap.timeline({
+      onUpdate: () => {
+        // Update the store with the new position and target during animation
+        // Reuse Vector3 instances instead of creating new ones each frame
+        newPosition.set(positionProxy.x, positionProxy.y, positionProxy.z);
+        newTarget.set(targetProxy.x, targetProxy.y, targetProxy.z);
+        set({ position: newPosition, target: newTarget });
+      },
+      onComplete: () => {
+        // Use the final values directly to avoid unnecessary object creation
+        newPosition.copy(endPos);
+        newTarget.copy(endTarget);
+
+        set({
+          isAnimating: false,
+          position: newPosition,
+          target: newTarget,
+          previousPosition: startPos.clone(),
+          previousTarget: startTarget.clone(),
+        });
+
+        // Use requestAnimationFrame instead of setTimeout for better timing
+        requestAnimationFrame(() => {
+          if (!get) return;
+          set({ controlType: get().state === 'main' ? 'Map' : 'CameraControls' });
+          useLogoMarkerStore.getState().setOtherMarkersVisible(true);
+        });
+      },
+    });
+
+    // Add animations to the timeline with performance optimizations
+    tl.to(
+      positionProxy,
+      {
+        x: endPos.x,
+        y: endPos.y,
+        z: endPos.z,
+        duration: 7,
+        ease: 'power2.inOut',
+        overwrite: 'auto', // Prevents conflicting animations
+        lazy: false, // Improves accuracy for 3D animations
+      },
+      0
+    );
+
+    tl.to(
+      targetProxy,
+      {
+        x: endTarget.x,
+        y: endTarget.y,
+        z: endTarget.z,
+        duration: 7,
+        ease: 'power2.inOut',
+        overwrite: 'auto',
+        lazy: false,
+      },
+      0
     );
   },
 
