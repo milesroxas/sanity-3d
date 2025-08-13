@@ -246,10 +246,6 @@ export function MainSceneCameraSystem() {
       const currentPosition = cameraRef.current.position;
       const currentTarget = controlsRef.current.target;
 
-      // Store original values before applying constraints
-      const originalPosition = currentPosition.clone();
-      const originalTarget = currentTarget.clone();
-
       // Apply constraints
       currentPosition.x = MathUtils.clamp(
         currentPosition.x,
@@ -267,10 +263,8 @@ export function MainSceneCameraSystem() {
         BOUNDARY_LIMITS.maxZ
       );
 
-      // Only sync to store if position actually changed due to constraints
-      if (!originalPosition.equals(currentPosition) || !originalTarget.equals(currentTarget)) {
-        syncCameraPosition(currentPosition, currentTarget);
-      }
+      // Always sync current camera state to the store (debounced)
+      syncCameraPosition(currentPosition, currentTarget);
 
       isUpdatingRef.current = false;
     }, 32), // At least 30fps

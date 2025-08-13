@@ -255,56 +255,48 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
       // First, fade out all markers
       setOtherMarkersVisible(false);
 
-      // Store the exact camera state before we do anything else
-      const currentPosition = camera.position.clone();
-      const currentTarget = new Vector3();
+      // Store the exact camera state from the live Three camera to avoid any store debounce lag
+      const startPosition = camera.position.clone();
+      const startTarget = new Vector3();
+      camera.getWorldDirection(startTarget);
+      startTarget.multiplyScalar(100).add(startPosition);
+      setInitialCameraState(startPosition, startTarget);
 
-      // Get exact point camera is looking at
-      camera.getWorldDirection(currentTarget);
-      currentTarget.multiplyScalar(100).add(currentPosition);
+      // Create target vectors for where we want to animate TO
+      const targetPos = new Vector3(
+        poi.mainSceneCameraPosition.x,
+        poi.mainSceneCameraPosition.y,
+        poi.mainSceneCameraPosition.z
+      );
 
-      // Store these values immediately
-      setInitialCameraState(currentPosition, currentTarget);
+      const targetLookAt = new Vector3(
+        poi.mainSceneCameraTarget.x,
+        poi.mainSceneCameraTarget.y,
+        poi.mainSceneCameraTarget.z
+      );
 
-      // Wait for markers to fade out before starting camera animation
-      safeSetTimeout(() => {
-        // Now we can proceed with the animation setup
+      setControlType('Disabled');
+      setIsAnimating(true);
 
-        // Create target vectors for where we want to animate TO
-        const targetPos = new Vector3(
-          poi.mainSceneCameraPosition.x,
-          poi.mainSceneCameraPosition.y,
-          poi.mainSceneCameraPosition.z
-        );
-
-        const targetLookAt = new Vector3(
-          poi.mainSceneCameraTarget.x,
-          poi.mainSceneCameraTarget.y,
-          poi.mainSceneCameraTarget.z
-        );
-
-        setControlType('Disabled');
-        setIsAnimating(true);
-
-        animationFrameRef.current = animateCameraMovement(
-          currentPosition,
-          targetPos,
-          currentTarget,
-          targetLookAt,
-          (position, target) => {
-            syncCameraPosition(position, target);
+      // Start camera animation immediately; marker fade runs in parallel
+      animationFrameRef.current = animateCameraMovement(
+        startPosition,
+        targetPos,
+        startTarget,
+        targetLookAt,
+        (nextPosition, nextTarget) => {
+          syncCameraPosition(nextPosition, nextTarget);
+        },
+        {
+          duration: 2000,
+          onComplete: () => {
+            setIsAnimating(false);
+            if (poi.slug?.current) {
+              fetchAndSetScene(poi.slug.current);
+            }
           },
-          {
-            duration: 2000,
-            onComplete: () => {
-              setIsAnimating(false);
-              if (poi.slug?.current) {
-                fetchAndSetScene(poi.slug.current);
-              }
-            },
-          }
-        );
-      }, 600);
+        }
+      );
     },
     [
       camera,
@@ -316,7 +308,6 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
       setOtherMarkersVisible,
       clearAnimationFrame,
       clearAllTimeouts,
-      safeSetTimeout,
     ]
   );
 
@@ -334,7 +325,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     setControlType('Disabled');
     setIsAnimating(true);
 
-    // Get the current camera state
+    // Get the current camera state from live Three camera for exactness
     const startPos = camera.position.clone();
     const startTarget = new Vector3();
     camera.getWorldDirection(startTarget);
