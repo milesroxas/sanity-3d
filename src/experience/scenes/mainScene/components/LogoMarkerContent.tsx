@@ -171,7 +171,7 @@ export default function LogoMarkerContent() {
       {isContentVisible && (
         <div
           ref={drawerRef}
-          className="fixed left-0 top-0 z-20 flex h-full w-full max-w-md flex-col bg-background shadow-xl backdrop-blur-md md:max-w-lg"
+          className="fixed left-0 top-0 z-20 flex h-full w-full flex-col bg-background shadow-xl backdrop-blur-md md:w-[35vw] md:min-w-[400px]"
         >
           {/* Header with title that changes based on scroll */}
           <div className="sticky top-0 z-10 flex items-center justify-between overflow-hidden bg-background/95 pb-2 pl-6 pr-6 pt-2 backdrop-blur-sm">

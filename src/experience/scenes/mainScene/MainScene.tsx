@@ -9,24 +9,26 @@ import { Buildings } from './compositions/Buildings';
 import { Environment } from './compositions/Environment';
 import { Props } from './compositions/Props';
 import { Vehicles } from './compositions/Vehicles';
+import { useRenderProfile } from './hooks/useDeviceProfile';
 
 interface MainSceneProps {
   scene: Sanity.Scene;
 }
 
 const MainScene = forwardRef<any, MainSceneProps>(({ scene }, ref) => {
+  const profile = useRenderProfile();
   return (
     <>
       <MainSceneCameraSystem />
       <TempFloor position={[0, -0.05, 0]} />
       <Effects />
-      <Environment />
+      {profile.includeEnvironment && <Environment />}
 
       <Buildings />
-      <Props />
+      {profile.includeProps && <Props />}
       <Vehicles />
 
-      <LogoMarkers scene={scene} />
+      {profile.includeLogoMarkers && <LogoMarkers scene={scene} />}
     </>
   );
 });

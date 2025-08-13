@@ -5,6 +5,7 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { usePathname } from 'next/navigation';
 import { useRef } from 'react';
+import { LinkButton } from '../shared/link-button';
 
 export default function PreFooter() {
   const pathname = usePathname();
@@ -96,12 +97,17 @@ export default function PreFooter() {
           </div>
           <div className="mx-auto grid max-w-prose grid-cols-1 gap-2 lg:w-auto lg:grid-cols-2">
             <Button className="w-full whitespace-normal py-4">Request a Proposal</Button>
-            <Button
-              className="w-full whitespace-normal py-4 text-primary hover:text-green-400"
-              variant="ghost"
-            >
-              Enter Experience
-            </Button>
+            <LinkButton
+              link={{
+                _type: 'customLink',
+                _key: 'prefooter-experience',
+                title: 'Enter Experience',
+                href: '/experience',
+                target: false,
+                buttonVariant: 'ghost',
+              }}
+              className="w-full whitespace-normal py-4"
+            />
           </div>
         </div>
       </div>
