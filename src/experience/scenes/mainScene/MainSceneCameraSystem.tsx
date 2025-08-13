@@ -283,6 +283,10 @@ export function MainSceneCameraSystem() {
         ref={cameraRef}
         makeDefault
         position={[position.x, position.y, position.z]}
+        onUpdate={(cam: any) => {
+          // Ensure the default camera is looking at the current target on mount/update
+          cam.lookAt(target.x, target.y, target.z);
+        }}
       />
       {isDevelopment && showTargetCube.showTargetCube && (
         <Box

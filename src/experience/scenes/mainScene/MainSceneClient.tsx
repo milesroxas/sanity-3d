@@ -3,7 +3,7 @@ import { useR3F } from '@/experience/providers/R3FContext';
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useState } from 'react';
 import LogoMarkerContent from './components/LogoMarkerContent';
 import MainScene from './MainScene';
 // Style to prevent scrollbars
@@ -20,7 +20,8 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
 
   const memoizedScene = useMemo(() => scene, [scene._id]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // Synchronously set camera store to intro before paint to avoid first-frame flashes
     resetToInitial();
 
     setIsReady(false);

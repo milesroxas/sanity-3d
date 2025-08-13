@@ -19,7 +19,8 @@ export default function LogoMarkerContent() {
     setShouldAnimateBack,
     setOtherMarkersVisible,
   } = useLogoMarkerStore();
-  const { title, blocks, isVisible, closeExpandedContent } = useExpandedContentStore();
+  const { title, blocks, isVisible, setExpandedContent, closeExpandedContent } =
+    useExpandedContentStore();
 
   // Refs
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -32,11 +33,6 @@ export default function LogoMarkerContent() {
   const [headerTitle, setHeaderTitle] = useState('Security Services');
   const [previousTitle, setPreviousTitle] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
-  const [expandedContent, setExpandedContent] = useState<{
-    title: string;
-    content: any[];
-    blocks?: Sanity.Block[];
-  } | null>(null);
 
   // GSAP animation for entry
   useEffect(() => {
@@ -152,7 +148,7 @@ export default function LogoMarkerContent() {
         setContentVisible(false);
         setShouldAnimateBack(true);
         setOtherMarkersVisible(false);
-        setExpandedContent(null);
+        closeExpandedContent();
       },
     });
   };
@@ -232,15 +228,51 @@ export default function LogoMarkerContent() {
             </div>
           )}
 
-          {/* Fixed bottom button using LinkButton component */}
-          {selectedScene.links && selectedScene.links.length > 0 && (
+          {/* Fixed bottom action area: primary expanded content button and/or link */}
+          {(selectedScene.mainExpandedBody ||
+            (selectedScene.links && selectedScene.links.length > 0)) && (
             <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-center bg-background pb-4 pl-6 pr-6 pt-4">
-              <LinkButton
-                link={selectedScene.links[0]}
-                className="w-full"
-                size="default"
-                onClick={closeExpandedContent}
-              />
+              <div className="flex w-full gap-3">
+                {/* Expanded content button */}
+                {selectedScene.mainExpandedBody && (
+                  <Button
+                    className={
+                      selectedScene.replaceMainLinkWithExpanded || !selectedScene.links?.length
+                        ? 'w-full'
+                        : 'w-1/2'
+                    }
+                    onClick={() => {
+                      const eb = selectedScene.mainExpandedBody;
+                      const overlayBlocks = [
+                        {
+                          _type: 'expanded-body',
+                          _key: 'main-expanded',
+                          body: eb?.body || [],
+                          links: eb?.links || [],
+                        },
+                      ] as unknown as Sanity.Block[];
+                      setExpandedContent(
+                        eb?.title || selectedScene.title || 'Details',
+                        overlayBlocks
+                      );
+                    }}
+                  >
+                    {selectedScene.mainExpandedBody.title || 'Learn more'}
+                  </Button>
+                )}
+
+                {/* Main link button (optional) */}
+                {!selectedScene.replaceMainLinkWithExpanded &&
+                  selectedScene.links &&
+                  selectedScene.links.length > 0 && (
+                    <LinkButton
+                      link={selectedScene.links[0]}
+                      className={selectedScene.mainExpandedBody ? 'w-1/2' : 'w-full'}
+                      size="default"
+                      onClick={closeExpandedContent}
+                    />
+                  )}
+              </div>
             </div>
           )}
         </div>

@@ -62,6 +62,22 @@ export default defineType({
       group: 'content',
     }),
     defineField({
+      name: 'mainExpandedBody',
+      title: 'Primary Expanded Content',
+      description: 'Optional: Content to open in an overlay from the main logo marker button',
+      type: 'expanded-body',
+      group: 'content',
+    }),
+    defineField({
+      name: 'replaceMainLinkWithExpanded',
+      title: 'Replace Main Link with Expanded Content Button',
+      description:
+        'If enabled, the expanded content button will replace the primary link button. If disabled and both are set, both buttons will show side-by-side.',
+      type: 'boolean',
+      initialValue: false,
+      group: 'content',
+    }),
+    defineField({
       name: 'pointsOfInterest',
       type: 'array',
       description: 'Points of interest in this scene',

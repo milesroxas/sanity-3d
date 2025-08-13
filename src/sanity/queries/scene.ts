@@ -137,6 +137,42 @@ export const SCENE_QUERY = groq`
         }
       }
     },
+    mainExpandedBody{
+      ...,
+      body[]{
+        ...,
+        _type == "image" => {
+          ...,
+          asset->{
+            _id,
+            url,
+            mimeType,
+            metadata {
+              lqip,
+              dimensions {
+                width,
+                height
+              }
+            }
+          }
+        }
+      },
+      links[] {
+        ...,
+        _type == 'pageLink' => {
+          ...,
+          page->{_id, _type, title, slug}
+        },
+        _type == 'customLink' => {
+          ...
+        },
+        _type == 'servicesLink' => {
+          ...,
+          services->{_id, _type, title, slug}
+        }
+      }
+    },
+    replaceMainLinkWithExpanded,
     links[] {
       ...,
       _type == 'pageLink' => {

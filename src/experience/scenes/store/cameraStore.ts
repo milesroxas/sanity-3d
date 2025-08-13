@@ -320,15 +320,13 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       previousTarget: null,
     });
 
-    // Give the camera a moment to update before starting animation
-    setTimeout(() => {
-      set({ isLoading: false });
-      get().startCameraTransition(
-        startPos,
-        INITIAL_POSITIONS.main.position,
-        startTarget,
-        INITIAL_POSITIONS.main.target
-      );
-    }, 50);
+    // Start transition immediately without timeouts
+    set({ isLoading: false });
+    get().startCameraTransition(
+      startPos,
+      INITIAL_POSITIONS.main.position,
+      startTarget,
+      INITIAL_POSITIONS.main.target
+    );
   },
 }));

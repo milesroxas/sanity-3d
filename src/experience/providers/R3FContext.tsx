@@ -1,4 +1,5 @@
 'use client';
+import { INITIAL_POSITIONS } from '@/experience/scenes/store/cameraStore';
 import { PerformanceMonitor } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { createContext, ReactNode, Suspense, useContext, useState } from 'react';
@@ -28,7 +29,26 @@ export function R3FProvider({ children }: { children: ReactNode }) {
         <div className="fixed inset-0 z-40 overflow-hidden transition-opacity duration-1000 ease-in-out">
           <Loading />
           <Canvas
-            camera={{ far: 1000 }}
+            camera={{
+              position: [
+                INITIAL_POSITIONS.mainIntro.position.x,
+                INITIAL_POSITIONS.mainIntro.position.y,
+                INITIAL_POSITIONS.mainIntro.position.z,
+              ],
+              far: 1000,
+            }}
+            onCreated={({ camera }) => {
+              camera.position.set(
+                INITIAL_POSITIONS.mainIntro.position.x,
+                INITIAL_POSITIONS.mainIntro.position.y,
+                INITIAL_POSITIONS.mainIntro.position.z
+              );
+              camera.lookAt(
+                INITIAL_POSITIONS.mainIntro.target.x,
+                INITIAL_POSITIONS.mainIntro.target.y,
+                INITIAL_POSITIONS.mainIntro.target.z
+              );
+            }}
             gl={{
               antialias: true,
             }}

@@ -97,6 +97,14 @@ declare global {
       readonly _type: 'scenes';
       body?: any[];
       links?: Link[];
+      mainExpandedBody?: {
+        _type: 'expanded-body';
+        _key?: string;
+        title?: string;
+        body?: any[];
+        links?: Link[];
+      } | null;
+      replaceMainLinkWithExpanded?: boolean;
       mainSceneMarkerPosition?: {
         x: number;
         y: number;
