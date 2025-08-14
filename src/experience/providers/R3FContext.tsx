@@ -91,7 +91,10 @@ export function R3FProvider({ children }: { children: ReactNode }) {
         <div className="absolute z-50 mx-auto">{children}</div>
 
         {/* Canvas positioned behind the UI */}
-        <div className="fixed inset-0 z-40 overflow-hidden transition-opacity duration-1000 ease-in-out">
+        <div 
+          className="fixed inset-0 z-40 overflow-hidden transition-opacity duration-1000 ease-in-out"
+          data-r3f-container
+        >
           <Loading />
           <Canvas
             dpr={dynamicDpr}
@@ -142,9 +145,6 @@ export function R3FProvider({ children }: { children: ReactNode }) {
             </PerformanceMonitor>
           </Canvas>
         </div>
-
-        {/* Portal container for modals - non-interactive by default */}
-        <div id="modal-portal" className="fixed inset-0 z-40" style={{ pointerEvents: 'none' }} />
       </div>
     </R3FContext.Provider>
   );
