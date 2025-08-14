@@ -7,31 +7,18 @@ import { useLandingCameraStore } from './store/landingCameraStore';
 
 interface LandingWrapperProps {
   textureVideo: Sanity.Media;
-  modalVideo: Sanity.Media;
-  portalRef: React.MutableRefObject<HTMLElement | null>;
   children?: React.ReactNode;
 }
 
-export default function LandingWrapper({
-  children,
-  textureVideo,
-  modalVideo,
-  portalRef,
-}: LandingWrapperProps) {
+export default function LandingWrapper({ children, textureVideo }: LandingWrapperProps) {
   const { setR3FContent } = useR3F();
   const { setCamera, setAnimating, reset, setHasAnimated } = useLandingCameraStore();
   const hasInitializedRef = useRef(false);
 
   // Memoize the landing scene component with stable props
   const landingSceneComponent = useMemo(() => {
-    return (
-      <LandingScene
-        modalVideo={modalVideo?.video}
-        textureVideo={textureVideo?.video}
-        portalRef={portalRef}
-      />
-    );
-  }, [modalVideo?.video, textureVideo?.video, portalRef]);
+    return <LandingScene textureVideo={textureVideo?.video} />;
+  }, [textureVideo?.video]);
 
   // Setup and cleanup effect
   useEffect(() => {
@@ -70,23 +57,6 @@ export default function LandingWrapper({
       hasInitializedRef.current = false;
     };
   }, [setR3FContent, setCamera, setAnimating, reset, landingSceneComponent]);
-
-  // Separate effect for portal management to avoid triggering scene remounts
-  useEffect(() => {
-    if (portalRef.current) {
-      portalRef.current.style.pointerEvents = 'none';
-    }
-  }, []);
-
-  // Ensure the portal is visible but non-interactive when returning to the landing scene
-  useEffect(() => {
-    // Check if we're returning to the scene (hasAnimated is true)
-    if (useLandingCameraStore.getState().hasAnimated && portalRef.current) {
-      // Make sure the portal is visible
-      portalRef.current.style.opacity = '1';
-      portalRef.current.style.pointerEvents = 'none';
-    }
-  }, [portalRef]);
 
   return (
     <div className="pointer-events-none absolute inset-0 h-screen w-screen">

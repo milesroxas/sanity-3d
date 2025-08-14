@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTF } from 'three-stdlib';
+<<<<<<< Updated upstream
 import { useDebugControls } from '../config/controls/debugControls';
 import { usePlayerControls } from '../config/controls/playerControls';
 import { useLandingCameraStore } from '../store/landingCameraStore';
@@ -17,6 +18,9 @@ const MuxPlayer = dynamic(() => import('@mux/mux-player-react'), {
     </div>
   ),
 });
+=======
+import VideoModal from '../components/VideoModal';
+>>>>>>> Stashed changes
 
 type GLTFResult = GLTF & {
   nodes: {

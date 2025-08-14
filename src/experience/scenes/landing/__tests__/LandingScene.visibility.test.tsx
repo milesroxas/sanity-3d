@@ -93,8 +93,7 @@ vi.mock('@/experience/scenes/store/logoMarkerStore', () => ({
 import LandingScene from '../LandingScene';
 
 function Wrapper() {
-  const portalRef = { current: document.createElement('div') } as any;
-  return <LandingScene modalVideo={undefined} textureVideo={undefined} portalRef={portalRef} />;
+  return <LandingScene textureVideo={undefined} />;
 }
 
 describe('LandingScene content visibility', () => {

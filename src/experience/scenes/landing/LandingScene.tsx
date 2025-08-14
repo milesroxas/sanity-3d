@@ -35,18 +35,23 @@ import { useResponsiveConfig, useResponsiveTextStyles } from './hooks/useRespons
 import { useLandingCameraStore } from './store/landingCameraStore';
 
 interface LandingSceneProps {
-  modalVideo: Sanity.Video | undefined;
   textureVideo: Sanity.Video | undefined;
-  portalRef: React.MutableRefObject<HTMLElement | null>;
 }
 
-const LandingScene = memo(({ modalVideo, textureVideo, portalRef }: LandingSceneProps) => {
+const LandingScene = memo(({ textureVideo }: LandingSceneProps) => {
   const router = useRouter();
   const { size } = useThree();
   const { contextSafe } = useGSAP();
 
   // Store state
-  const { isAnimating, setAnimating, hasAnimated, setHasAnimated } = useLandingCameraStore();
+  const {
+    isAnimating,
+    setAnimating,
+    hasAnimated,
+    setHasAnimated,
+    isVideoPlaying,
+    mouseTrackingEnabled,
+  } = useLandingCameraStore();
 
   // Refs
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
@@ -351,7 +356,7 @@ const LandingScene = memo(({ modalVideo, textureVideo, portalRef }: LandingScene
         visibility: 'hidden',
       });
     }
-  }, [portalRef, setHasAnimated]);
+  }, [setHasAnimated]);
 
   // Trigger entrance animation when ready
   useEffect(() => {
@@ -376,7 +381,7 @@ const LandingScene = memo(({ modalVideo, textureVideo, portalRef }: LandingScene
     };
   }, [cleanupTimeline]);
 
-  // Camera mouse follow animation
+  // Camera mouse follow animation with smooth video transitions
   useFrame((state, delta) => {
     if (!cameraRef.current || isAnimating || !hasAnimated) return;
 
@@ -384,18 +389,36 @@ const LandingScene = memo(({ modalVideo, textureVideo, portalRef }: LandingScene
     mousePosition.current.x = state.mouse.x;
     mousePosition.current.y = state.mouse.y;
 
-    // Calculate damping
-    const dampingMultiplier = isHoveringUI.current ? MOUSE_CONFIG.uiDampingFactor : 1;
+    // Calculate damping with UI and video considerations
+    let dampingMultiplier = 1;
+
+    if (isHoveringUI.current) {
+      dampingMultiplier = MOUSE_CONFIG.uiDampingFactor;
+    }
+
+    // When video is playing, gradually reduce mouse influence for smooth transition
+    if (isVideoPlaying) {
+      dampingMultiplier *= 0.1; // Much stronger damping when video is active
+    }
+
+    // If mouse tracking is disabled, smoothly return to center
+    if (!mouseTrackingEnabled) {
+      dampingMultiplier = 0.02; // Very slow return to center
+      // Target zero offset when tracking is disabled
+      mousePosition.current.x = 0;
+      mousePosition.current.y = 0;
+    }
+
     const effectiveDamping = currentConfig.mouseDamping * dampingMultiplier;
     const lerpFactor = 1 - Math.exp(-effectiveDamping * 60 * delta);
 
     // Apply camera offset with damping
+    const targetInfluence = mouseTrackingEnabled ? currentConfig.mouseInfluence : 0;
+
     cameraOffset.current.x +=
-      (mousePosition.current.x * currentConfig.mouseInfluence - cameraOffset.current.x) *
-      lerpFactor;
+      (mousePosition.current.x * targetInfluence - cameraOffset.current.x) * lerpFactor;
     cameraOffset.current.y +=
-      (mousePosition.current.y * currentConfig.mouseInfluence * 0.5 - cameraOffset.current.y) *
-      lerpFactor;
+      (mousePosition.current.y * targetInfluence * 0.5 - cameraOffset.current.y) * lerpFactor;
 
     // Update camera position
     cameraRef.current.position.set(
@@ -470,9 +493,7 @@ const LandingScene = memo(({ modalVideo, textureVideo, portalRef }: LandingScene
       <Billboard
         position={positions.billboard.position}
         scale={positions.billboard.scale}
-        modalVideo={modalVideo}
         textureVideo={textureVideo}
-        portalRef={portalRef}
       />
     </group>
   );
