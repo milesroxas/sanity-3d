@@ -53,11 +53,15 @@ export function Billboard({
 
   useCursor(hovered);
 
+  // Stable material that only updates when texture changes
   const billboardMaterial = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
+    const material = new THREE.MeshStandardMaterial({
       map: texture,
       toneMapped: false,
     });
+    // Prevent material updates from triggering renders
+    material.needsUpdate = false;
+    return material;
   }, [texture]);
 
   useEffect(() => {
@@ -87,6 +91,21 @@ export function Billboard({
 
   const { nodes, materials } = useGLTF('/models/landing/billboard.glb') as unknown as GLTFResult;
 
+  // Toggle the modal portal interactivity only when the modal is shown
+  useEffect(() => {
+    const container = portalRef?.current;
+    if (!container) return;
+    if (showModal) {
+      container.style.pointerEvents = 'auto';
+    } else {
+      container.style.pointerEvents = 'none';
+    }
+    return () => {
+      // Ensure we always revert to non-interactive when unmounting/closing
+      container.style.pointerEvents = 'none';
+    };
+  }, [showModal, portalRef]);
+
   return (
     <>
       {showModal && portalRef?.current && (
@@ -101,6 +120,7 @@ export function Billboard({
               zIndex: 1000,
               background: 'rgba(0, 0, 0, 0.85)',
               backdropFilter: 'blur(8px)',
+              pointerEvents: 'auto',
             }}
           >
             <VideoModal video={modalVideo} onClose={() => setShowModal(false)} />

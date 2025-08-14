@@ -34,38 +34,42 @@ import { MOUSE_CONFIG } from './config/mouseConfig';
 import { useResponsiveConfig, useResponsiveTextStyles } from './hooks/useResponsiveConfig';
 import { useLandingCameraStore } from './store/landingCameraStore';
 
-const LandingScene = ({
-  modalVideo,
-  textureVideo,
-  portalRef,
-}: {
+interface LandingSceneProps {
   modalVideo: Sanity.Video | undefined;
   textureVideo: Sanity.Video | undefined;
   portalRef: React.MutableRefObject<HTMLElement | null>;
-}) => {
-  const { isAnimating, setAnimating, hasAnimated, setHasAnimated } = useLandingCameraStore();
+}
+
+const LandingScene = memo(({ modalVideo, textureVideo, portalRef }: LandingSceneProps) => {
   const router = useRouter();
-  const cameraRef = useRef<ThreePerspectiveCamera>(null);
   const { size } = useThree();
+  const { contextSafe } = useGSAP();
 
-  const entranceTimelineRef = useRef<gsap.core.Timeline | null>(null);
+  // Store state
+  const { isAnimating, setAnimating, hasAnimated, setHasAnimated } = useLandingCameraStore();
 
+  // Refs
+  const cameraRef = useRef<ThreePerspectiveCamera>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-
-  const { progress, active } = useProgress();
-  // Consider loaded when loaders are inactive or progress is effectively complete
-  const isLoaded = !active || progress >= 99.5;
-
-  const responsiveConfig = useResponsiveConfig();
-  const textStyles = useResponsiveTextStyles();
-
+  const entranceTimelineRef = useRef<gsap.core.Timeline | null>(null);
+  const animationStartedRef = useRef(false);
   const mousePosition = useRef({ x: 0, y: 0 });
   const cameraOffset = useRef({ x: 0, y: 0 });
   const isHoveringUI = useRef(false);
 
+  // Progress tracking
+  const { progress, active } = useProgress();
+  const isLoaded = !active || progress >= 99.5;
+
+  // Responsive configuration
+  const responsiveConfig = useResponsiveConfig();
+  const textStyles = useResponsiveTextStyles();
+
+  // Debug controls
   const { enabled: debugEnabled } = useDebugControls();
   useSceneInfoControls(size.width, size.height, hasAnimated && !isAnimating);
 
+  // Camera controls
   const {
     positionX: cameraPositionX,
     positionY: cameraPositionY,
@@ -81,11 +85,15 @@ const LandingScene = ({
     MOUSE_CONFIG.influence,
     MOUSE_CONFIG.dampingFactor
   );
+
+  // Main content controls
   const {
     positionX: mainContentPositionX,
     positionY: mainContentPositionY,
     positionZ: mainContentPositionZ,
   } = useMainContentControls(responsiveConfig.mainContent.position);
+
+  // Billboard controls
   const {
     positionX: billboardPositionX,
     positionY: billboardPositionY,
@@ -93,6 +101,7 @@ const LandingScene = ({
     scale: billboardScale,
   } = useBillboardControls(responsiveConfig.billboard.position, responsiveConfig.billboard.scale);
 
+  // Stable configuration - only update when debug mode changes or responsive config changes
   const currentConfig = useMemo(() => {
     if (debugEnabled) {
       return {
@@ -118,127 +127,115 @@ const LandingScene = ({
     };
   }, [
     debugEnabled,
-    cameraPositionX,
-    cameraPositionY,
-    cameraPositionZ,
-    cameraTargetX,
-    cameraTargetY,
-    cameraTargetZ,
-    mainContentPositionX,
-    mainContentPositionY,
-    mainContentPositionZ,
-    billboardPositionX,
-    billboardPositionY,
-    billboardPositionZ,
-    billboardScale,
-
-    mouseInfluence,
-    mouseDamping,
     responsiveConfig,
+    // Only include debug controls when debug is enabled
+    ...(debugEnabled
+      ? [
+          cameraPositionX,
+          cameraPositionY,
+          cameraPositionZ,
+          cameraTargetX,
+          cameraTargetY,
+          cameraTargetZ,
+          mainContentPositionX,
+          mainContentPositionY,
+          mainContentPositionZ,
+          billboardPositionX,
+          billboardPositionY,
+          billboardPositionZ,
+          billboardScale,
+          mouseInfluence,
+          mouseDamping,
+        ]
+      : []),
   ]);
-  const positions = useMemo(
-    () => ({
-      camera: new Vector3(
-        currentConfig.camera.position.x,
-        currentConfig.camera.position.y,
-        currentConfig.camera.position.z
-      ),
-      target: new Vector3(
-        currentConfig.camera.target.x,
-        currentConfig.camera.target.y,
-        currentConfig.camera.target.z
-      ),
-      mainContent: new Vector3(
-        currentConfig.mainContent.position.x,
-        currentConfig.mainContent.position.y,
-        currentConfig.mainContent.position.z
-      ),
+
+  // Stable position objects - prevent recreation on every frame
+  const positions = useMemo(() => {
+    const cameraPos = new Vector3(
+      currentConfig.camera.position.x,
+      currentConfig.camera.position.y,
+      currentConfig.camera.position.z
+    );
+    const targetPos = new Vector3(
+      currentConfig.camera.target.x,
+      currentConfig.camera.target.y,
+      currentConfig.camera.target.z
+    );
+    const mainContentPos = new Vector3(
+      currentConfig.mainContent.position.x,
+      currentConfig.mainContent.position.y,
+      currentConfig.mainContent.position.z
+    );
+    const billboardPos = new Vector3(
+      currentConfig.billboard.position.x,
+      currentConfig.billboard.position.y,
+      currentConfig.billboard.position.z
+    );
+
+    return {
+      camera: cameraPos,
+      target: targetPos,
+      mainContent: mainContentPos,
       billboard: {
-        position: new Vector3(
-          currentConfig.billboard.position.x,
-          currentConfig.billboard.position.y,
-          currentConfig.billboard.position.z
-        ),
+        position: billboardPos,
         scale: currentConfig.billboard.scale,
       },
-    }),
-    [currentConfig]
+    };
+  }, [currentConfig]);
+
+  // Fixed main content position that doesn't change after initialization
+  const [mainContentPosition] = useState(
+    () =>
+      new Vector3(
+        responsiveConfig.mainContent.position.x,
+        responsiveConfig.mainContent.position.y,
+        responsiveConfig.mainContent.position.z
+      )
   );
 
-  const [mainContentPosition] = useState(() => positions.mainContent.clone());
-
-  // Immediately set hasAnimated to true if it was already true in the store
-  // This ensures content is visible when navigating back
-  useEffect(() => {
-    if (useLandingCameraStore.getState().hasAnimated && !hasAnimated) {
-      setHasAnimated(true);
-    }
-  }, [hasAnimated, setHasAnimated]);
-
-  // Cleanup GSAP timeline on unmount
-  useEffect(() => {
-    return () => {
-      if (entranceTimelineRef.current) {
-        entranceTimelineRef.current.kill();
-        entranceTimelineRef.current = null;
-      }
-    };
-  }, []);
-
+  // Mouse event handlers
   const handleMouseEnterUI = useCallback(() => {
     isHoveringUI.current = true;
   }, []);
+
   const handleMouseLeaveUI = useCallback(() => {
     isHoveringUI.current = false;
   }, []);
 
-  const { contextSafe } = useGSAP();
+  // Clean up GSAP timeline function
+  const cleanupTimeline = useCallback(() => {
+    if (entranceTimelineRef.current) {
+      entranceTimelineRef.current.kill();
+      entranceTimelineRef.current = null;
+    }
+  }, []);
 
-  // Track if intro animation has been started to avoid duplicate triggers
-  const hasStartedRef = useRef(false);
-
-  // Update the setContentVisibility function
-  const setContentVisibility = useCallback(
-    (visible: boolean) => {
-      const contentEl = contentRef.current as HTMLElement | null;
-      const portalEl = portalRef.current as HTMLElement | null;
-      if (contentEl) {
-        gsap.set(contentEl, { opacity: visible ? 1 : 0, y: visible ? 0 : 20 });
-      }
-      if (portalEl) {
-        // Ensure interactivity when content is visible
-        portalEl.style.pointerEvents = visible ? 'auto' : 'none';
-      }
-    },
-    [portalRef]
-  );
-
-  // Removed effect that force-set visibility on hasAnimated to avoid interrupting GSAP reveal
-
-  // 2. Modify handleEnter to use the helper function for initial setup
+  // Entrance animation
   const handleEnter = contextSafe(() => {
-    if (!cameraRef.current || isAnimating) return;
-    if (hasStartedRef.current) return;
+    if (!cameraRef.current || animationStartedRef.current || isAnimating) return;
 
-    hasStartedRef.current = true;
+    animationStartedRef.current = true;
+    setAnimating(true);
+    cleanupTimeline();
+
     const tl = gsap.timeline({
       onComplete: () => {
         setHasAnimated(true);
         setAnimating(false);
+        entranceTimelineRef.current = null;
       },
     });
 
     entranceTimelineRef.current = tl;
-    setAnimating(true);
 
-    // Prepare content for animation (hide it first)
-    setContentVisibility(false);
-
-    // Animate camera (stabilize DPR during first seconds via store flag)
+    // Set initial camera position
     const startPosition = positions.camera.clone();
     startPosition.z += 200;
     startPosition.y += 50;
     cameraRef.current.position.copy(startPosition);
+
+    // Camera animation
     tl.to(cameraRef.current.position, {
       ...positions.camera,
       duration: 4.5,
@@ -246,29 +243,37 @@ const LandingScene = ({
       onUpdate: () => cameraRef.current?.lookAt(positions.target),
     });
 
-    // Animate content immediately after camera reaches its final position
-    const contentEl = contentRef.current as HTMLElement | null;
-    if (contentEl) gsap.killTweensOf(contentEl);
-    if (contentEl) {
-      tl.fromTo(
-        contentEl,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 1.0, ease: 'power2.out', overwrite: 'auto' }
+    // Content animation - simplified and more reliable
+    if (contentRef.current) {
+      // Set initial state
+      gsap.set(contentRef.current, {
+        opacity: 0,
+        y: 20,
+        visibility: 'visible', // Ensure visibility is set
+      });
+
+      // Animate in
+      tl.to(
+        contentRef.current,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.0,
+          ease: 'power2.out',
+        },
+        '-=1' // Start 1 second before camera animation ends
       );
     }
 
-    tl.play();
+    // Portal interactivity handled centrally in wrapper
   });
 
-  // 3. Modify handleExit to use consistent animation approach
+  // Exit animation
   const handleExit = contextSafe(() => {
     if (isAnimating) return;
-    setAnimating(true);
 
-    if (entranceTimelineRef.current) {
-      entranceTimelineRef.current.kill();
-      entranceTimelineRef.current = null;
-    }
+    setAnimating(true);
+    cleanupTimeline();
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -287,24 +292,17 @@ const LandingScene = ({
 
     // Animate content out
     if (contentRef.current) {
-      tl.to(
-        contentRef.current,
-        {
-          opacity: 0,
-          y: -20,
-          duration: 0.6,
-          ease: 'power2.in',
-        },
-        0
-      );
+      tl.to(contentRef.current, {
+        opacity: 0,
+        y: -20,
+        duration: 0.6,
+        ease: 'power2.in',
+      });
     }
 
-    // Do not animate the portal container; only fade content
-
-    // Camera animations (unchanged)
+    // Camera exit animation
     if (cameraRef.current) {
-      const startTarget = positions.target.clone();
-      const endTarget = startTarget.clone().add(new Vector3(0, 300, 0));
+      const exitTarget = positions.target.clone();
 
       tl.to(
         cameraRef.current.position,
@@ -313,70 +311,93 @@ const LandingScene = ({
           duration: 2.5,
           ease: 'power2.in',
         },
-        0.8
+        0.3
       );
 
       tl.to(
-        startTarget,
+        exitTarget,
         {
-          y: endTarget.y,
+          y: exitTarget.y + 300,
           duration: 2.5,
           ease: 'power2.in',
-          onUpdate: () => cameraRef.current?.lookAt(startTarget),
+          onUpdate: () => cameraRef.current?.lookAt(exitTarget),
         },
-        0.8
+        0.3
       );
     }
-
-    tl.play();
   });
 
-  // 1. Add an initialization effect that runs once on mount (before paint to avoid flash)
+  // Initialize content visibility based on store state
   useLayoutEffect(() => {
-    // Ensure initial visibility is correctly set to prevent flashes and style conflicts
+    if (!contentRef.current) return;
+
     const alreadyAnimated = useLandingCameraStore.getState().hasAnimated;
-    setContentVisibility(alreadyAnimated);
-  }, [setContentVisibility]);
 
-  // Robust intro trigger: prefer readiness, but guarantee a visible UI via RAF fallback
+    if (alreadyAnimated) {
+      // If already animated, show content immediately
+      gsap.set(contentRef.current, {
+        opacity: 1,
+        y: 0,
+        visibility: 'visible',
+      });
+      // Portal interactivity handled centrally in wrapper
+      animationStartedRef.current = true;
+      setHasAnimated(true);
+    } else {
+      // Hide content initially for animation
+      gsap.set(contentRef.current, {
+        opacity: 0,
+        y: 20,
+        visibility: 'hidden',
+      });
+    }
+  }, [portalRef, setHasAnimated]);
+
+  // Trigger entrance animation when ready
   useEffect(() => {
-    if (hasStartedRef.current || hasAnimated || isAnimating) return;
-    let rafId: number;
-    const startAt = performance.now();
-    const loop = (now: number) => {
-      // Start as soon as camera exists and page is visible
-      if (!hasStartedRef.current && cameraRef.current && !document.hidden) {
+    // Skip if already animated or currently animating
+    if (animationStartedRef.current || hasAnimated) return;
+
+    // Wait for camera to be ready and scene to be loaded
+    if (cameraRef.current && isLoaded) {
+      // Small delay to ensure everything is properly mounted
+      const timer = setTimeout(() => {
         handleEnter();
-        return;
-      }
-      // Hard fallback: ensure UI is not invisible after ~1.5s
-      if (!hasStartedRef.current && now - startAt > 1500) {
-        setContentVisibility(true);
-        // Allow enter to still run later without double-animating content
-        return;
-      }
-      rafId = requestAnimationFrame(loop);
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLoaded, hasAnimated, handleEnter]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      cleanupTimeline();
     };
-    rafId = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafId);
-  }, [hasAnimated, isAnimating, handleEnter, setContentVisibility]);
+  }, [cleanupTimeline]);
 
-  // Remove setTimeout fallback to avoid timer-induced flakiness
-
+  // Camera mouse follow animation
   useFrame((state, delta) => {
     if (!cameraRef.current || isAnimating || !hasAnimated) return;
 
+    // Update mouse position
     mousePosition.current.x = state.mouse.x;
     mousePosition.current.y = state.mouse.y;
+
+    // Calculate damping
     const dampingMultiplier = isHoveringUI.current ? MOUSE_CONFIG.uiDampingFactor : 1;
     const effectiveDamping = currentConfig.mouseDamping * dampingMultiplier;
     const lerpFactor = 1 - Math.exp(-effectiveDamping * 60 * delta);
+
+    // Apply camera offset with damping
     cameraOffset.current.x +=
       (mousePosition.current.x * currentConfig.mouseInfluence - cameraOffset.current.x) *
       lerpFactor;
     cameraOffset.current.y +=
       (mousePosition.current.y * currentConfig.mouseInfluence * 0.5 - cameraOffset.current.y) *
       lerpFactor;
+
+    // Update camera position
     cameraRef.current.position.set(
       positions.camera.x + cameraOffset.current.x,
       positions.camera.y + cameraOffset.current.y,
@@ -385,14 +406,13 @@ const LandingScene = ({
     cameraRef.current.lookAt(positions.target);
   });
 
-  // Remove legacy visibility side-effects that could interfere with GSAP sequencing
-
   return (
     <group>
       <Effects />
       <SceneEnvironment />
       <DesertModels />
       <AnimatedClouds />
+
       <VehiclesInstances useSharedMaterial={false}>
         <vehicles.AnimatedPlane pathOffset={0.85} scale={0.3} />
       </VehiclesInstances>
@@ -418,7 +438,7 @@ const LandingScene = ({
           style={{
             pointerEvents: 'auto',
             zIndex: 30,
-            scale: 2.5,
+            transform: 'scale(2.5)',
           }}
         >
           <div
@@ -426,7 +446,10 @@ const LandingScene = ({
             className={`${textStyles.containerWidth} text-white`}
             onMouseEnter={handleMouseEnterUI}
             onMouseLeave={handleMouseLeaveUI}
-            style={{ zIndex: 30, opacity: 0, transform: 'translateY(20px)' }}
+            style={{
+              zIndex: 30,
+              // Initial styles will be overridden by GSAP
+            }}
           >
             <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>
               With over 38 years of experience, O'Linn Security Inc. offers comprehensive security
@@ -453,9 +476,8 @@ const LandingScene = ({
       />
     </group>
   );
-};
+});
 
 LandingScene.displayName = 'LandingScene';
 
-// Memoize the component to prevent unnecessary re-renders
-export default memo(LandingScene);
+export default LandingScene;

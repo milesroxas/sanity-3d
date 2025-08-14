@@ -2,7 +2,16 @@
 import { INITIAL_POSITIONS, useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { AdaptiveEvents, PerformanceMonitor } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import { createContext, ReactNode, Suspense, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  Suspense,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import * as THREE from 'three';
 import { Loading } from '../components/Loading';
 import { useLandingCameraStore } from '../scenes/landing/store/landingCameraStore';
@@ -16,21 +25,59 @@ const R3FContext = createContext<R3FContextType | null>(null);
 
 export function R3FProvider({ children }: { children: ReactNode }) {
   const [r3fContent, setR3FContent] = useState<ReactNode>(null);
-  const { dprFactor, declined } = usePerfStore();
+  const { dprFactor, declined, reset } = usePerfStore();
   const isAnimating = useCameraStore(state => state.isAnimating);
   const isLandingAnimating = useLandingCameraStore(state => state.isAnimating);
 
+  // Cleanup performance store on unmount
+  useEffect(() => {
+    return () => {
+      reset();
+    };
+  }, [reset]);
+
+  // Ref to track stable DPR and prevent oscillation
+  const stableDprRef = useRef<number>(
+    typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1
+  );
+  const lastStableDprUpdateRef = useRef<number>(0);
+
   const dynamicDpr = useMemo(() => {
     const base = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
-    // While the intro camera is animating, freeze DPR to a stable value derived from base
+    const now = Date.now();
+
+    // While any camera is animating, use a completely stable DPR to prevent jitter
     if (isAnimating || isLandingAnimating) {
+      // Use a cached stable value based on device capabilities
       const frozen = Math.max(1, Math.min(2, base));
-      return Math.round(frozen * 2) / 2; // half-step granularity
+      const stabilized = Math.round(frozen * 2) / 2; // half-step granularity
+      stableDprRef.current = stabilized;
+      lastStableDprUpdateRef.current = now;
+      return stabilized;
     }
-    // After animation ends, allow adaptive scaling
-    const scaled = base * (declined ? 0.9 : 1) * (dprFactor || 1);
+
+    // Apply hysteresis: only update if enough time has passed since last animation
+    const timeSinceLastUpdate = now - lastStableDprUpdateRef.current;
+    if (timeSinceLastUpdate < 3000) {
+      // 3 second cooldown after animations
+      return stableDprRef.current;
+    }
+
+    // Calculate new DPR with performance factors
+    const perfMultiplier = declined ? 0.85 : 1; // Less aggressive reduction
+    const factorMultiplier = Math.max(0.75, Math.min(1.1, dprFactor)); // Constrain factor range
+    const scaled = base * perfMultiplier * factorMultiplier;
     const clamped = Math.max(1, Math.min(2, scaled));
-    return Math.round(clamped * 4) / 4;
+    const rounded = Math.round(clamped * 4) / 4; // quarter-step granularity
+
+    // Only update stable ref if the change is significant (hysteresis)
+    const change = Math.abs(rounded - stableDprRef.current);
+    if (change > 0.2) {
+      stableDprRef.current = rounded;
+      lastStableDprUpdateRef.current = now;
+    }
+
+    return stableDprRef.current;
   }, [dprFactor, declined, isAnimating, isLandingAnimating]);
 
   return (
@@ -82,9 +129,9 @@ export function R3FProvider({ children }: { children: ReactNode }) {
             }}
           >
             <PerformanceMonitor
-              ms={200}
-              iterations={3}
-              factor={0.85}
+              ms={1000}
+              iterations={5}
+              factor={0.9}
               onDecline={() => usePerfStore.getState().setDeclined(true)}
               onIncline={() => usePerfStore.getState().setDeclined(false)}
               onChange={({ factor }) => usePerfStore.getState().setDprFactor(factor)}
@@ -96,8 +143,8 @@ export function R3FProvider({ children }: { children: ReactNode }) {
           </Canvas>
         </div>
 
-        {/* Portal container for modals */}
-        <div id="modal-portal" className="fixed inset-0 z-40" />
+        {/* Portal container for modals - non-interactive by default */}
+        <div id="modal-portal" className="fixed inset-0 z-40" style={{ pointerEvents: 'none' }} />
       </div>
     </R3FContext.Provider>
   );

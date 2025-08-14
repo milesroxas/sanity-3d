@@ -12,9 +12,12 @@ import {
 function DebugInstances() {
   const instances = useStreetPropsInstances();
 
+  // Log only on mount, not every frame
   useEffect(() => {
-    console.log('Street props instances:', instances);
-  }, [instances]);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Street props instances loaded:', Object.keys(instances).length, 'types');
+    }
+  }, []); // Remove instances dependency to prevent spam
 
   return null;
 }

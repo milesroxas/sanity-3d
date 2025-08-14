@@ -23,7 +23,8 @@ src/experience
 ### Core architecture
 
 - **Provider and Canvas**: `providers/R3FContext.tsx` exposes `R3FProvider` and `useR3F()` to mount an app-wide `<Canvas>` behind regular React UI. The provider renders:
-  - A fixed `<Canvas>` with Drei `PerformanceMonitor` wired to `scenes/store/perfStore.ts`.
+  - A fixed `<Canvas>` with advanced `PerformanceMonitor` wired to `scenes/store/perfStore.ts` for stable, non-jittery performance management.
+  - Dynamic Device Pixel Ratio (DPR) calculation with hysteresis and animation-aware freezing to prevent oscillation.
   - A high-Z UI layer for React DOM.
   - A portal container for modal overlays.
   - The 3D scene is injected dynamically via `setR3FContent`.
@@ -121,15 +122,16 @@ useEffect(() => {
   };
 }, [setR3FContent, setSelectedScene, resetToInitial, isLoading, memoizedScene]);
 ```
-  - `MainScene.tsx`: Adds `MainSceneCameraSystem`, `TempFloor`, `Effects`, then mounts `Environment`, `Buildings`, `Props`, `Vehicles`, and `LogoMarkers`.
-  - `MainSceneCameraSystem.tsx`: Owns the default `PerspectiveCamera` and Drei `MapControls` when interactive. Synchronizes position/target with `scenes/store/cameraStore.ts`, applies movement boundaries and angle constraints, and exposes development-only Leva debug controls.
-  - Compositions:
-    - `compositions/Environment.tsx`: Drei `Environment` (HDR/preset via Leva) plus `MountainInstances` and `NatureInstances` using Blender-export JSON from `data/`.
-    - `compositions/Buildings.tsx`: `SmallBldgsInstances`, `HousesInstances`, `CityBldgsInstances`, `ConstructionInstances`, plus base model groups `CompanyBldgs` and `FestivalBuildings`.
-    - `compositions/Props.tsx`: `FencesInstances`, `StreetPropsInstances`, `ScenePropsInstances`, plus `Billboard`.
-    - `compositions/Vehicles.tsx`: Static vehicles from JSON and animated vehicles from `animations/vehicles`.
 
-    Data-driven instancing (from `src/experience/scenes/mainScene/compositions/Buildings.tsx`):
+- `MainScene.tsx`: Adds `MainSceneCameraSystem`, `TempFloor`, `Effects`, then mounts `Environment`, `Buildings`, `Props`, `Vehicles`, and `LogoMarkers`.
+- `MainSceneCameraSystem.tsx`: Owns the default `PerspectiveCamera` and Drei `MapControls` when interactive. Synchronizes position/target with `scenes/store/cameraStore.ts`, applies movement boundaries and angle constraints, and exposes development-only Leva debug controls.
+- Compositions:
+  - `compositions/Environment.tsx`: Drei `Environment` (HDR/preset via Leva) plus `MountainInstances` and `NatureInstances` using Blender-export JSON from `data/`.
+  - `compositions/Buildings.tsx`: `SmallBldgsInstances`, `HousesInstances`, `CityBldgsInstances`, `ConstructionInstances`, plus base model groups `CompanyBldgs` and `FestivalBuildings`.
+  - `compositions/Props.tsx`: `FencesInstances`, `StreetPropsInstances`, `ScenePropsInstances`, plus `Billboard`.
+  - `compositions/Vehicles.tsx`: Static vehicles from JSON and animated vehicles from `animations/vehicles`.
+
+  Data-driven instancing (from `src/experience/scenes/mainScene/compositions/Buildings.tsx`):
 
 ```tsx
 <HousesInstances>
@@ -146,11 +148,12 @@ useEffect(() => {
   <vehicles.AnimatedPlane pathOffset={0.3} scale={0.8} />
 </VehiclesInstances>
 ```
-  - Markers and content:
-    - `components/LogoMarkers.tsx`: Floating 3D markers with HTML labels. Animates camera to POI, fetches Sanity scene content, manages visibility and hover state, and restores camera when closing.
-    - `components/LogoMarkerContent.tsx` and `components/MarkerContentOverlay.tsx`: GSAP-powered drawer/overlay to display Sanity-driven content and blocks.
 
-    Marker click camera animation (from `src/experience/scenes/mainScene/components/LogoMarkers.tsx`):
+- Markers and content:
+  - `components/LogoMarkers.tsx`: Floating 3D markers with HTML labels. Animates camera to POI, fetches Sanity scene content, manages visibility and hover state, and restores camera when closing.
+  - `components/LogoMarkerContent.tsx` and `components/MarkerContentOverlay.tsx`: GSAP-powered drawer/overlay to display Sanity-driven content and blocks.
+
+  Marker click camera animation (from `src/experience/scenes/mainScene/components/LogoMarkers.tsx`):
 
 ```tsx
 animationFrameRef.current = animateCameraMovement(
@@ -196,17 +199,30 @@ cameraStore.startCameraTransition(
 );
 ```
 
-- `scenes/store/perfStore.ts`: Receives performance signals from Drei `PerformanceMonitor` (declined FPS, DPR factor). Consumers can reduce cost under degraded conditions.
+- `scenes/store/perfStore.ts`: Advanced performance monitoring store with debounced updates and intelligent threshold detection. Features:
+  - **Debounced Performance Changes**: 2-second debounce delay prevents rapid oscillation between performance states.
+  - **Minimum Change Threshold**: Only updates DPR factor when change is ≥ 0.15 to prevent micro-adjustments.
+  - **Timeout Management**: Proper cleanup of debounce timeouts to prevent memory leaks.
+  - **Reset Functionality**: Clean reset method for component unmounting and state cleanup.
+
+  The store receives signals from Drei `PerformanceMonitor` and consumers can reduce cost under degraded conditions.
 
   Usage in animations (from `src/experience/animations/vehicles/components/AnimatedCar.tsx`):
 
 ```tsx
 const declined = usePerfStore(state => state.declined);
-{!declined && (
-  <Truck
-    animation={{ path: SHARED_PATH_POINTS, speed: 8, loop: true, pathOffset: (pathOffset + 0.75) % 1 }}
-  />
-)}
+{
+  !declined && (
+    <Truck
+      animation={{
+        path: SHARED_PATH_POINTS,
+        speed: 8,
+        loop: true,
+        pathOffset: (pathOffset + 0.75) % 1,
+      }}
+    />
+  );
+}
 ```
 
 - `scenes/store/logoMarkerStore.ts`: Manages selected Sanity scene, drawer visibility, load state, initial camera restore data, hover/visibility for markers, and `fetchAndSetScene(slug)`.
@@ -254,6 +270,9 @@ return (
 
 ```tsx
 <PerformanceMonitor
+  ms={1000}
+  iterations={5}
+  factor={0.9}
   onDecline={() => usePerfStore.getState().setDeclined(true)}
   onIncline={() => usePerfStore.getState().setDeclined(false)}
   onChange={({ factor }) => usePerfStore.getState().setDprFactor(factor)}
@@ -270,6 +289,88 @@ return (
 
 - `effects/` composes `Fog`, animated `Clouds`, and `PostProcessing`. Mounted early in `MainScene` to apply globally.
 
+### Performance Monitoring System
+
+The experience includes a robust performance monitoring system designed to maintain smooth animations and prevent jittery DPR (Device Pixel Ratio) changes.
+
+#### Key Features
+
+- **Stable DPR Management**: Uses hysteresis and animation-aware freezing to prevent oscillation
+- **Debounced Updates**: 2-second debounce delay prevents rapid performance state changes
+- **Animation-First Design**: Completely stable DPR during camera animations
+- **Memory Safe**: Proper timeout cleanup prevents memory leaks
+
+#### DPR Calculation Strategy
+
+The `R3FProvider` implements a sophisticated DPR calculation that:
+
+1. **Animation Freeze**: During camera animations (`isAnimating` or `isLandingAnimating`), DPR is frozen to a stable value based on device capabilities
+2. **Hysteresis**: After animations end, a 3-second cooldown period prevents immediate DPR changes
+3. **Threshold Gating**: Only updates when changes are significant (>0.2) to prevent micro-adjustments
+4. **Constrained Ranges**: Performance multiplier (0.85-1.0) and factor range (0.75-1.1) prevent extreme values
+
+```tsx
+// Dynamic DPR with hysteresis (from R3FContext.tsx)
+const dynamicDpr = useMemo(() => {
+  const base = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+
+  // Stable DPR during animations
+  if (isAnimating || isLandingAnimating) {
+    const stabilized = Math.round(Math.max(1, Math.min(2, base)) * 2) / 2;
+    return stabilized;
+  }
+
+  // Hysteresis: 3-second cooldown after animations
+  if (timeSinceLastUpdate < 3000) {
+    return stableDprRef.current;
+  }
+
+  // Gradual adaptation with constraints
+  const perfMultiplier = declined ? 0.85 : 1;
+  const factorMultiplier = Math.max(0.75, Math.min(1.1, dprFactor));
+  // ... additional logic
+}, [dprFactor, declined, isAnimating, isLandingAnimating]);
+```
+
+#### Performance Store Implementation
+
+The `perfStore` includes sophisticated debouncing to prevent rapid oscillation:
+
+```tsx
+// Debounced performance updates (from perfStore.ts)
+const DEBOUNCE_DELAY = 2000; // 2 seconds
+const MIN_FACTOR_CHANGE = 0.15; // Minimum significant change
+
+setDprFactor: dprFactor => {
+  const change = Math.abs(current - dprFactor);
+  if (change < MIN_FACTOR_CHANGE) return; // Ignore small changes
+
+  // Debounce to prevent jitter
+  const newTimeoutId = window.setTimeout(() => {
+    set({ dprFactor, lastChangeTime: now, debounceTimeoutId: null });
+  }, DEBOUNCE_DELAY);
+};
+```
+
+#### PerformanceMonitor Configuration
+
+Updated to be less aggressive and more stable:
+
+- **Measurement Window**: Increased from 200ms to 1000ms for stable readings
+- **Iterations**: Increased from 3 to 5 for better accuracy
+- **Factor Threshold**: Raised from 0.85 to 0.9 for less aggressive reduction
+
+#### Testing
+
+The performance monitoring system includes comprehensive unit tests (`scenes/store/__tests__/perfStore.test.ts`) that verify:
+
+- Debouncing behavior for both declined state and DPR factor changes
+- Minimum change thresholds to prevent micro-adjustments
+- Proper timeout cleanup and memory leak prevention
+- Reset functionality for component lifecycle management
+
+Run tests with: `pnpm test perfStore`
+
 ### Loading and performance
 
 - `components/Loading.tsx` listens to Drei `useProgress` and coordinates:
@@ -277,9 +378,9 @@ return (
   - Fades in/out with GSAP and triggers the intro camera transition from `mainIntro` to `main` via the camera store.
   - Re-enables controls after transitions complete.
 
-- The provider’s `PerformanceMonitor` updates `perfStore` (declined/DPR factor). Consumers (e.g., animated vehicles) can react to reduce load.
+- The provider's advanced `PerformanceMonitor` updates `perfStore` with debounced performance signals. Consumers (e.g., animated vehicles) can react to reduce load under degraded conditions.
 
- Device-aware rendering (from `src/experience/scenes/mainScene/hooks/useDeviceProfile.ts`):
+Device-aware rendering (from `src/experience/scenes/mainScene/hooks/useDeviceProfile.ts`):
 
 ```tsx
 export function useRenderProfile(): RenderProfile {
@@ -326,6 +427,9 @@ return (
 - Prefer `useSharedMaterial` for single-material meshes; disable it when a model relies on special materials (e.g., decals).
 - Keep large placements in JSON and render via `InstancesFrom*` with batching (`batchSize`) for memory and render stability.
 - Avoid toggling store flags during camera animations; use the camera store actions which handle debouncing and control-mode transitions.
+- **Performance Monitoring**: The system automatically handles DPR stability during animations. Avoid manual DPR adjustments or frequent performance state changes.
+- **Animation-Aware Components**: Check animation states (`isAnimating`, `isLandingAnimating`) before triggering performance-sensitive operations.
+- **Cleanup**: Always use the `reset()` method from `perfStore` when unmounting components to prevent memory leaks from debounce timeouts.
 - Development-only controls (Leva) are hidden in production via `NEXT_PUBLIC_SITE_ENV`.
 
 ### Reference docs
@@ -333,5 +437,3 @@ return (
 - `docs/core/INSTANCING.md` — Performance-focused instancing system
 - `docs/core/SCENE_COMPOSITION.md` — Composition pattern and scene organization
 - `utils/README.md` — Materials and shadows utilities
-
-

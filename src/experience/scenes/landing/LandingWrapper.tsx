@@ -22,7 +22,7 @@ export default function LandingWrapper({
   const { setCamera, setAnimating, reset, setHasAnimated } = useLandingCameraStore();
   const hasInitializedRef = useRef(false);
 
-  // Memoize the landing scene component to prevent unnecessary re-renders
+  // Memoize the landing scene component with stable props
   const landingSceneComponent = useMemo(() => {
     return (
       <LandingScene
@@ -31,7 +31,7 @@ export default function LandingWrapper({
         portalRef={portalRef}
       />
     );
-  }, [modalVideo, textureVideo, portalRef]);
+  }, [modalVideo?.video, textureVideo?.video, portalRef]);
 
   // Setup and cleanup effect
   useEffect(() => {
@@ -71,12 +71,20 @@ export default function LandingWrapper({
     };
   }, [setR3FContent, setCamera, setAnimating, reset, landingSceneComponent]);
 
-  // Add this effect to ensure the portal is visible when returning to the landing scene
+  // Separate effect for portal management to avoid triggering scene remounts
+  useEffect(() => {
+    if (portalRef.current) {
+      portalRef.current.style.pointerEvents = 'none';
+    }
+  }, []);
+
+  // Ensure the portal is visible but non-interactive when returning to the landing scene
   useEffect(() => {
     // Check if we're returning to the scene (hasAnimated is true)
     if (useLandingCameraStore.getState().hasAnimated && portalRef.current) {
       // Make sure the portal is visible
       portalRef.current.style.opacity = '1';
+      portalRef.current.style.pointerEvents = 'none';
     }
   }, [portalRef]);
 

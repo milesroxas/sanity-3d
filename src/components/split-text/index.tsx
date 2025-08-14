@@ -46,7 +46,9 @@ export const SplitText = forwardRef<GSAPSplitText | undefined, SplitTextProps>(
     useEffect(() => {
       if (!elementRef.current) return;
 
-      replaceFromNode(fallbackRef.current, '-', '‑');
+      if (fallbackRef.current) {
+        replaceFromNode(fallbackRef.current, '-', '‑');
+      }
 
       const ignored = Array.from(
         elementRef.current.querySelectorAll<HTMLElement>('[data-ignore-split-text]')
@@ -79,9 +81,15 @@ export const SplitText = forwardRef<GSAPSplitText | undefined, SplitTextProps>(
           <span
             className={s.fallback}
             ref={node => {
-              if (!node) return;
-              setRectRef(node);
-              fallbackRef.current = node;
+              // Handle both mounting and unmounting cases
+              if (node && node instanceof HTMLElement) {
+                setRectRef(node);
+                fallbackRef.current = node;
+              } else if (!node) {
+                // Properly handle unmounting by passing null to cleanup observer
+                setRectRef(null);
+                fallbackRef.current = null!;
+              }
             }}
           >
             {children}
