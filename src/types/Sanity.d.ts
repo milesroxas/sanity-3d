@@ -189,6 +189,7 @@ declare global {
     type Media = SanityDocument<{
       title: string;
       file: File;
+      video?: Video;
     }>;
     type Settings = SanityDocument<{
       logo: Image;

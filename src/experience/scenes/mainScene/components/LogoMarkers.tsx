@@ -189,7 +189,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
 
   // Refs to track animation frames and timeouts for cleanup
   const animationFrameRef = useRef<number | (() => void) | null>(null);
-  const timeoutRefs = useRef<Array<NodeJS.Timeout>>([]);
+  const timeoutRefs = useRef<Array<ReturnType<typeof setTimeout>>>([]);
 
   // Helper to safely set timeouts that we can clean up
   const safeSetTimeout = useCallback((callback: () => void, delay: number) => {

@@ -23,9 +23,9 @@ type GLTFResult = GLTF & {
 interface BillboardProps {
   position?: THREE.Vector3;
   scale?: number;
-  modalVideo?: any;
-  textureVideo?: any;
-  portalRef?: React.RefObject<HTMLDivElement>;
+  modalVideo?: Sanity.Video | undefined;
+  textureVideo?: Sanity.Video | undefined;
+  portalRef?: React.MutableRefObject<HTMLElement | null>;
 }
 
 export function Billboard({
@@ -90,7 +90,7 @@ export function Billboard({
   return (
     <>
       {showModal && portalRef?.current && (
-        <Html portal={portalRef}>
+        <Html portal={portalRef as unknown as React.RefObject<HTMLElement>}>
           <div
             style={{
               position: 'fixed',

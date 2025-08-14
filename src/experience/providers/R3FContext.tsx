@@ -23,7 +23,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
   const dynamicDpr = useMemo(() => {
     const base = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
     // While the intro camera is animating, freeze DPR to a stable value derived from base
-    if (isAnimating) {
+    if (isAnimating || isLandingAnimating) {
       const frozen = Math.max(1, Math.min(2, base));
       return Math.round(frozen * 2) / 2; // half-step granularity
     }
@@ -97,7 +97,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
         </div>
 
         {/* Portal container for modals */}
-        <div id="modal-portal" className="pointer-events-none fixed inset-0 z-40" />
+        <div id="modal-portal" className="fixed inset-0 z-40" />
       </div>
     </R3FContext.Provider>
   );

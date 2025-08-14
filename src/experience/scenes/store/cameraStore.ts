@@ -147,11 +147,14 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       // If we're turning loading off, do it immediately and ensure controls are re-enabled
       if (!isLoading) {
         set({ isLoading });
-        setTimeout(() => {
-          if (get().state === 'main' && !get().isAnimating) {
-            set({ controlType: 'Map' });
-          }
-        }, 150);
+        // Allow next frame(s) to settle before enabling controls
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (get().state === 'main' && !get().isAnimating) {
+              set({ controlType: 'Map' });
+            }
+          });
+        });
       } else {
         // When turning loading on, we can set it directly
         set({ isLoading });

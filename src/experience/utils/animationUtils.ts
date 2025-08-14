@@ -32,11 +32,11 @@ export const animateCameraMovement = (
 ): CleanupCallback => {
   const { duration = 2000, easing = cubicEasing, onComplete } = options;
 
-  const startTime = Date.now();
+  const startTime = performance.now();
   let animationFrameId: number | null = null;
 
   const animate = () => {
-    const now = Date.now();
+    const now = performance.now();
     const elapsed = now - startTime;
     const progress = Math.min(elapsed / duration, 1);
 

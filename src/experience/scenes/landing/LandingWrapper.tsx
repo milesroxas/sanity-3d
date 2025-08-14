@@ -8,7 +8,7 @@ import { useLandingCameraStore } from './store/landingCameraStore';
 interface LandingWrapperProps {
   textureVideo: Sanity.Media;
   modalVideo: Sanity.Media;
-  portalRef: any;
+  portalRef: React.MutableRefObject<HTMLElement | null>;
   children?: React.ReactNode;
 }
 
@@ -26,8 +26,8 @@ export default function LandingWrapper({
   const landingSceneComponent = useMemo(() => {
     return (
       <LandingScene
-        modalVideo={(modalVideo as any)?.video}
-        textureVideo={(textureVideo as any)?.video}
+        modalVideo={modalVideo?.video}
+        textureVideo={textureVideo?.video}
         portalRef={portalRef}
       />
     );

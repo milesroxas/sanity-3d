@@ -39,9 +39,9 @@ const LandingScene = ({
   textureVideo,
   portalRef,
 }: {
-  modalVideo: any;
-  textureVideo: any;
-  portalRef: any;
+  modalVideo: Sanity.Video | undefined;
+  textureVideo: Sanity.Video | undefined;
+  portalRef: React.MutableRefObject<HTMLElement | null>;
 }) => {
   const { isAnimating, setAnimating, hasAnimated, setHasAnimated } = useLandingCameraStore();
   const router = useRouter();
@@ -49,8 +49,6 @@ const LandingScene = ({
   const { size } = useThree();
 
   const entranceTimelineRef = useRef<gsap.core.Timeline | null>(null);
-  const hasInitializedRef = useRef(false);
-  const visibilityChangeRef = useRef(false);
 
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -177,31 +175,15 @@ const LandingScene = ({
     }
   }, [hasAnimated, setHasAnimated]);
 
-  // Add cleanup for GSAP timeline and handle visibility changes
+  // Cleanup GSAP timeline on unmount
   useEffect(() => {
-    // Handle visibility change to prevent re-animations when switching tabs
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        // Page is now hidden
-        visibilityChangeRef.current = true;
-      } else if (visibilityChangeRef.current && hasAnimated) {
-        // Page is now visible again and we've already animated
-        // Don't trigger animations again
-        visibilityChangeRef.current = false;
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
     return () => {
-      // Kill GSAP timeline to prevent memory leaks
       if (entranceTimelineRef.current) {
         entranceTimelineRef.current.kill();
         entranceTimelineRef.current = null;
       }
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [hasAnimated]);
+  }, []);
 
   const handleMouseEnterUI = useCallback(() => {
     isHoveringUI.current = true;
@@ -215,25 +197,21 @@ const LandingScene = ({
   // Track if intro animation has been started to avoid duplicate triggers
   const hasStartedRef = useRef(false);
 
-  // Add a ref to track if we've initialized visibility
-  const hasInitializedVisibilityRef = useRef(false);
-
   // Update the setContentVisibility function
-  const setContentVisibility = useCallback((visible: boolean) => {
-    const portalEl = portalRef.current as HTMLElement | null;
-    const contentEl = contentRef.current as HTMLElement | null;
-
-    if (portalEl) {
-      gsap.set(portalEl, { opacity: visible ? 1 : 0 });
-      if (visible) {
-        hasInitializedVisibilityRef.current = true;
+  const setContentVisibility = useCallback(
+    (visible: boolean) => {
+      const contentEl = contentRef.current as HTMLElement | null;
+      const portalEl = portalRef.current as HTMLElement | null;
+      if (contentEl) {
+        gsap.set(contentEl, { opacity: visible ? 1 : 0, y: visible ? 0 : 20 });
       }
-    }
-
-    if (contentEl) {
-      gsap.set(contentEl, { opacity: visible ? 1 : 0, y: visible ? 0 : 20 });
-    }
-  }, []);
+      if (portalEl) {
+        // Ensure interactivity when content is visible
+        portalEl.style.pointerEvents = visible ? 'auto' : 'none';
+      }
+    },
+    [portalRef]
+  );
 
   // Removed effect that force-set visibility on hasAnimated to avoid interrupting GSAP reveal
 
@@ -247,7 +225,6 @@ const LandingScene = ({
       onComplete: () => {
         setHasAnimated(true);
         setAnimating(false);
-        hasInitializedRef.current = true;
       },
     });
 
@@ -270,12 +247,8 @@ const LandingScene = ({
     });
 
     // Animate content immediately after camera reaches its final position
-    const portalEl = portalRef.current as HTMLElement | null;
     const contentEl = contentRef.current as HTMLElement | null;
-    if (portalEl || contentEl) gsap.killTweensOf([portalEl, contentEl]);
-    if (portalEl) {
-      tl.fromTo(portalEl, { opacity: 0 }, { opacity: 1, duration: 0.3, overwrite: 'auto' });
-    }
+    if (contentEl) gsap.killTweensOf(contentEl);
     if (contentEl) {
       tl.fromTo(
         contentEl,
@@ -326,17 +299,7 @@ const LandingScene = ({
       );
     }
 
-    if (portalRef.current) {
-      tl.to(
-        portalRef.current,
-        {
-          opacity: 0,
-          duration: 0.6,
-          ease: 'power2.in',
-        },
-        0.6
-      );
-    }
+    // Do not animate the portal container; only fade content
 
     // Camera animations (unchanged)
     if (cameraRef.current) {
@@ -375,32 +338,30 @@ const LandingScene = ({
     setContentVisibility(alreadyAnimated);
   }, [setContentVisibility]);
 
-  // 2. Update your existing useEffect to avoid race conditions
+  // Robust intro trigger: prefer readiness, but guarantee a visible UI via RAF fallback
   useEffect(() => {
-    // Initial animation trigger when assets and camera are ready
     if (hasStartedRef.current || hasAnimated || isAnimating) return;
     let rafId: number;
-    const tick = () => {
-      if (!hasStartedRef.current && isLoaded && cameraRef.current && !document.hidden) {
+    const startAt = performance.now();
+    const loop = (now: number) => {
+      // Start as soon as camera exists and page is visible
+      if (!hasStartedRef.current && cameraRef.current && !document.hidden) {
         handleEnter();
-      } else if (!hasStartedRef.current && !hasAnimated) {
-        rafId = requestAnimationFrame(tick);
+        return;
       }
+      // Hard fallback: ensure UI is not invisible after ~1.5s
+      if (!hasStartedRef.current && now - startAt > 1500) {
+        setContentVisibility(true);
+        // Allow enter to still run later without double-animating content
+        return;
+      }
+      rafId = requestAnimationFrame(loop);
     };
-    rafId = requestAnimationFrame(tick);
+    rafId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafId);
-  }, [isLoaded, hasAnimated, isAnimating, handleEnter]);
+  }, [hasAnimated, isAnimating, handleEnter, setContentVisibility]);
 
-  // Fallback: start intro after a short delay if loaders don't fire expected events
-  useEffect(() => {
-    if (hasAnimated || isAnimating || hasStartedRef.current) return;
-    const fallback = setTimeout(() => {
-      if (!document.hidden && !hasStartedRef.current && !hasAnimated && !isAnimating) {
-        requestAnimationFrame(handleEnter);
-      }
-    }, 1200);
-    return () => clearTimeout(fallback);
-  }, [hasAnimated, isAnimating, handleEnter]);
+  // Remove setTimeout fallback to avoid timer-induced flakiness
 
   useFrame((state, delta) => {
     if (!cameraRef.current || isAnimating || !hasAnimated) return;
@@ -453,7 +414,6 @@ const LandingScene = ({
           center
           position={mainContentPosition}
           transform
-          portal={portalRef}
           prepend
           style={{
             pointerEvents: 'auto',

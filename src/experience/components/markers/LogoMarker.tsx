@@ -183,7 +183,7 @@ export function LogoMarker(props: LogoMarkerProps) {
         animationStarted.current = true;
       }
 
-      // Hide group after full fade out
+      // Hide group after full fade out to avoid flicker and pointer flashes
       tl.eventCallback('onComplete', () => {
         if (groupRef.current) {
           setChildrenRenderOrder(0);

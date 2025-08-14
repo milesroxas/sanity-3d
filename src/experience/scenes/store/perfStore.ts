@@ -17,12 +17,16 @@ export const usePerfStore = create<PerfState>(set => ({
   dprFactor: 1,
 
   setDeclined: declined => {
-    console.log('[perfStore] declined →', declined);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[perfStore] declined →', declined);
+    }
     set({ declined });
   },
 
   setDprFactor: dprFactor => {
-    console.log('[perfStore] dprFactor →', dprFactor);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[perfStore] dprFactor →', dprFactor);
+    }
     set({ dprFactor });
   },
 }));
