@@ -35,6 +35,7 @@ export function LogoMarker(props: LogoMarkerProps) {
   const prevOpacity = useRef(0);
   const isFirst = useRef(true);
   const animationStarted = useRef(false);
+  const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
   const baseScale = useMemo(() => (typeof scale === 'number' ? scale : scale[0]), [scale]);
   const targetScale = useMemo(
@@ -44,68 +45,181 @@ export function LogoMarker(props: LogoMarkerProps) {
 
   // ensure transparent flag and depthWrite stay in sync
   const syncMaterialProps = useCallback((mats: THREE.Material[]) => {
-    mats.forEach(mat => {
+    mats.forEach(rawMat => {
+      const mat = rawMat as THREE.Material & {
+        depthTest?: boolean;
+        side?: THREE.Side;
+      };
       mat.transparent = mat.opacity < 1;
-      mat.depthWrite = mat.opacity >= 1;
-      mat.blending = mat.opacity < 1 ? THREE.NormalBlending : THREE.NoBlending;
+      const isOpaque = mat.opacity >= 1;
+      mat.depthWrite = isOpaque;
+      // During fade, draw over the scene to avoid sorting/self-occlusion artifacts
+      mat.depthTest = isOpaque;
+      // Avoid backface popping for thin geometry
+      mat.side = THREE.DoubleSide;
+      mat.blending = THREE.NormalBlending;
+    });
+  }, []);
+
+  // Clone materials per instance to avoid cross-instance interference
+  const localMaterials = useMemo(() => {
+    return {
+      ['Logo.001']: materials['Logo.001'].clone(),
+      ['Material.002']: materials['Material.002'].clone(),
+      ['Material.004']: materials['Material.004'].clone(),
+    } as GLTFResult['materials'];
+  }, [materials]);
+
+  const materialsArray = useMemo(() => Object.values(localMaterials), [localMaterials]);
+
+  const setChildrenRenderOrder = useCallback((order: number) => {
+    if (!groupRef.current) return;
+    groupRef.current.traverse(obj => {
+      const mesh = obj as THREE.Mesh;
+      if ((mesh as any).isMesh) {
+        mesh.renderOrder = order;
+      }
     });
   }, []);
 
   // Initialize materials with opacity 0 on first mount
   useEffect(() => {
     if (isFirst.current) {
-      const mats = Object.values(materials);
+      const mats = materialsArray;
       mats.forEach(mat => {
         mat.opacity = 0;
         mat.transparent = true;
       });
       syncMaterialProps(mats);
     }
-  }, [materials, syncMaterialProps]);
+  }, [materialsArray, syncMaterialProps]);
 
   useGSAP(
     () => {
       if (!groupRef.current) return;
-      const mats = Object.values(materials);
+
+      // Kill any prior timeline/tweens to prevent competing animations
+      if (timelineRef.current) {
+        timelineRef.current.kill();
+        timelineRef.current = null;
+      }
+      gsap.killTweensOf([
+        groupRef.current.rotation,
+        groupRef.current.position,
+        groupRef.current.scale,
+      ]);
+      gsap.killTweensOf(materialsArray);
 
       // Only start animations when opacity changes from 0 to a positive value
       // or when hover state changes while visible
       const shouldAnimate =
         (isFirst.current && opacity > 0) ||
         (!isFirst.current && prevOpacity.current !== opacity) ||
-        (opacity > 0 && !animationStarted.current);
+        (opacity > 0 && !animationStarted.current) ||
+        opacity > 0; // allow hover transforms to respond while visible
 
-      if (shouldAnimate) {
-        const tl = gsap.timeline({ defaults: { duration: 0.6, ease: 'power2.inOut' } });
+      if (!shouldAnimate) return;
 
-        // fade tween on mount or whenever opacity changes
+      const tl = gsap.timeline({
+        defaults: { duration: 0.6, ease: 'power2.inOut', overwrite: 'auto' },
+      });
+
+      // Fade materials
+      tl.to(
+        materialsArray,
+        {
+          opacity,
+          onUpdate: () => syncMaterialProps(materialsArray),
+          onComplete: () => syncMaterialProps(materialsArray),
+        },
+        0
+      );
+      prevOpacity.current = opacity;
+
+      // Adjust render order so the marker draws on top while fading
+      if (groupRef.current) {
+        const fading = opacity > 0 && opacity < 1;
+        setChildrenRenderOrder(fading ? 999 : 0);
+        // Ensure the group is visible before fading in
+        if (opacity > 0) {
+          groupRef.current.visible = true;
+        }
+      }
+
+      // Hover transforms only when visible
+      if (opacity > 0) {
         tl.to(
-          mats,
+          groupRef.current.rotation,
           {
-            opacity,
-            onUpdate: () => syncMaterialProps(mats),
+            y: isHovered ? Math.PI * 2 : 0,
+            duration: isHovered ? 0.8 : 0.6,
+            ease: 'power2.inOut',
+            overwrite: 'auto',
+            onComplete: () => {
+              // normalize rotation after full spin to avoid large values accumulation
+              if (groupRef.current) {
+                groupRef.current.rotation.y = isHovered ? 0 : 0;
+              }
+            },
           },
           0
         );
-        prevOpacity.current = opacity;
-
-        // hover transforms
-        if (opacity > 0) {
-          tl.to(groupRef.current.rotation, { y: isHovered ? Math.PI * 2 : 0 }, 0);
-          tl.to(groupRef.current.position, { y: isHovered ? 0.5 : 0 }, 0);
-          tl.to(groupRef.current.scale, { x: targetScale, y: targetScale, z: targetScale }, 0);
-          animationStarted.current = true;
-        }
-
-        isFirst.current = false;
+        tl.to(
+          groupRef.current.position,
+          { y: isHovered ? 0.5 : 0, ease: 'power2.inOut', overwrite: 'auto' },
+          0
+        );
+        tl.to(
+          groupRef.current.scale,
+          {
+            x: targetScale,
+            y: targetScale,
+            z: targetScale,
+            ease: 'power2.inOut',
+            overwrite: 'auto',
+          },
+          0
+        );
+        animationStarted.current = true;
       }
+
+      // Hide group after full fade out
+      tl.eventCallback('onComplete', () => {
+        if (groupRef.current) {
+          setChildrenRenderOrder(0);
+          if (opacity === 0) {
+            groupRef.current.visible = false;
+          }
+        }
+      });
+
+      timelineRef.current = tl;
+      isFirst.current = false;
     },
     {
       scope: groupRef,
-      dependencies: [materials, opacity, isHovered, targetScale],
-      revertOnUpdate: false, // we manage our own reset logic
+      dependencies: [materialsArray, opacity, isHovered, targetScale],
+      revertOnUpdate: true,
     }
   );
+
+  // Ensure all tweens are cleaned on unmount
+  useEffect(() => {
+    return () => {
+      if (timelineRef.current) {
+        timelineRef.current.kill();
+        timelineRef.current = null;
+      }
+      if (groupRef.current) {
+        gsap.killTweensOf([
+          groupRef.current.rotation,
+          groupRef.current.position,
+          groupRef.current.scale,
+        ]);
+      }
+      gsap.killTweensOf(materialsArray);
+    };
+  }, [materialsArray]);
 
   // reset transforms on unmount or scale change
   useEffect(() => {
@@ -125,19 +239,19 @@ export function LogoMarker(props: LogoMarkerProps) {
           castShadow
           receiveShadow
           geometry={nodes.Mesh006.geometry}
-          material={materials['Logo.001']}
+          material={localMaterials['Logo.001']}
         />
         <mesh
           castShadow
           receiveShadow
           geometry={nodes.Mesh006_1.geometry}
-          material={materials['Material.002']}
+          material={localMaterials['Material.002']}
         />
         <mesh
           castShadow
           receiveShadow
           geometry={nodes.Mesh006_2.geometry}
-          material={materials['Material.004']}
+          material={localMaterials['Material.004']}
         />
       </group>
     </group>

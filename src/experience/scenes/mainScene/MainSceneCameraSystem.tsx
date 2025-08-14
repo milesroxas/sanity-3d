@@ -281,6 +281,8 @@ export function MainSceneCameraSystem() {
           // Ensure the default camera is looking at the current target on mount/update
           cam.lookAt(target.x, target.y, target.z);
         }}
+        // Slightly narrower fov reduces geometric aliasing during motion
+        fov={45}
       />
       {isDevelopment && showTargetCube.showTargetCube && (
         <Box

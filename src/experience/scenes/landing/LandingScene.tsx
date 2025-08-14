@@ -16,7 +16,7 @@ import { INITIAL_POSITIONS, useCameraStore } from '@/experience/scenes/store/cam
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { useRouter } from 'next/navigation';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { PerspectiveCamera as ThreePerspectiveCamera, Vector3 } from 'three';
 import { Billboard } from './components/Billboard';
 import { Effects } from './components/Effects';
@@ -54,8 +54,9 @@ const LandingScene = ({
 
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const { progress } = useProgress();
-  const isLoaded = progress === 100;
+  const { progress, active } = useProgress();
+  // Consider loaded when loaders are inactive or progress is effectively complete
+  const isLoaded = !active || progress >= 99.5;
 
   const responsiveConfig = useResponsiveConfig();
   const textStyles = useResponsiveTextStyles();
@@ -211,44 +212,37 @@ const LandingScene = ({
 
   const { contextSafe } = useGSAP();
 
+  // Track if intro animation has been started to avoid duplicate triggers
+  const hasStartedRef = useRef(false);
+
   // Add a ref to track if we've initialized visibility
   const hasInitializedVisibilityRef = useRef(false);
 
   // Update the setContentVisibility function
   const setContentVisibility = useCallback((visible: boolean) => {
-    if (!contentRef.current) return;
+    const portalEl = portalRef.current as HTMLElement | null;
+    const contentEl = contentRef.current as HTMLElement | null;
 
-    // Set portal visibility
-    if (portalRef.current) {
-      portalRef.current.style.opacity = visible ? '1' : '0';
-
-      // Mark that we've initialized visibility
+    if (portalEl) {
+      gsap.set(portalEl, { opacity: visible ? 1 : 0 });
       if (visible) {
         hasInitializedVisibilityRef.current = true;
       }
     }
 
-    // Set content visibility
-    contentRef.current.style.opacity = visible ? '1' : '0';
-    contentRef.current.style.transform = visible ? 'translateY(0)' : 'translateY(20px)';
+    if (contentEl) {
+      gsap.set(contentEl, { opacity: visible ? 1 : 0, y: visible ? 0 : 20 });
+    }
   }, []);
 
-  // Add an effect to check portal readiness
-  useEffect(() => {
-    // If we need to show content but haven't initialized visibility yet
-    if (
-      !hasInitializedVisibilityRef.current &&
-      (hasAnimated || useLandingCameraStore.getState().hasAnimated) &&
-      portalRef.current
-    ) {
-      setContentVisibility(true);
-    }
-  }, [hasAnimated, setContentVisibility]);
+  // Removed effect that force-set visibility on hasAnimated to avoid interrupting GSAP reveal
 
   // 2. Modify handleEnter to use the helper function for initial setup
   const handleEnter = contextSafe(() => {
     if (!cameraRef.current || isAnimating) return;
+    if (hasStartedRef.current) return;
 
+    hasStartedRef.current = true;
     const tl = gsap.timeline({
       onComplete: () => {
         setHasAnimated(true);
@@ -263,39 +257,32 @@ const LandingScene = ({
     // Prepare content for animation (hide it first)
     setContentVisibility(false);
 
-    // Animate camera
+    // Animate camera (stabilize DPR during first seconds via store flag)
     const startPosition = positions.camera.clone();
     startPosition.z += 200;
     startPosition.y += 50;
     cameraRef.current.position.copy(startPosition);
     tl.to(cameraRef.current.position, {
       ...positions.camera,
-      duration: 5,
+      duration: 4.5,
       ease: 'power2.out',
       onUpdate: () => cameraRef.current?.lookAt(positions.target),
     });
 
-    tl.addLabel('contentStart', 3);
-
-    // Animate content
-    tl.add(() => {
-      if (portalRef.current) {
-        gsap.to(portalRef.current, {
-          opacity: 1,
-          duration: 0.3,
-        });
-      }
-
-      if (contentRef.current) {
-        gsap.to(contentRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 1.0,
-          ease: 'power2.out',
-          delay: 0.1,
-        });
-      }
-    }, 'contentStart');
+    // Animate content immediately after camera reaches its final position
+    const portalEl = portalRef.current as HTMLElement | null;
+    const contentEl = contentRef.current as HTMLElement | null;
+    if (portalEl || contentEl) gsap.killTweensOf([portalEl, contentEl]);
+    if (portalEl) {
+      tl.fromTo(portalEl, { opacity: 0 }, { opacity: 1, duration: 0.3, overwrite: 'auto' });
+    }
+    if (contentEl) {
+      tl.fromTo(
+        contentEl,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 1.0, ease: 'power2.out', overwrite: 'auto' }
+      );
+    }
 
     tl.play();
   });
@@ -381,46 +368,39 @@ const LandingScene = ({
     tl.play();
   });
 
-  // 1. Add an initialization effect that runs once on mount
-  useEffect(() => {
-    // Set initial visibility based on hasAnimated state
-    if (useLandingCameraStore.getState().hasAnimated) {
-      // Use a small timeout to ensure the portal ref is ready
-      const timer = setTimeout(() => {
-        if (portalRef.current) {
-          portalRef.current.style.opacity = '1';
-        }
-        if (contentRef.current) {
-          contentRef.current.style.opacity = '1';
-          contentRef.current.style.transform = 'translateY(0)';
-        }
-      }, 50);
-
-      return () => clearTimeout(timer);
-    }
-  }, []);
+  // 1. Add an initialization effect that runs once on mount (before paint to avoid flash)
+  useLayoutEffect(() => {
+    // Ensure initial visibility is correctly set to prevent flashes and style conflicts
+    const alreadyAnimated = useLandingCameraStore.getState().hasAnimated;
+    setContentVisibility(alreadyAnimated);
+  }, [setContentVisibility]);
 
   // 2. Update your existing useEffect to avoid race conditions
   useEffect(() => {
-    // Initial animation trigger
-    if (isLoaded && !hasAnimated && !isAnimating && !document.hidden) {
-      requestAnimationFrame(handleEnter);
-      return;
-    }
+    // Initial animation trigger when assets and camera are ready
+    if (hasStartedRef.current || hasAnimated || isAnimating) return;
+    let rafId: number;
+    const tick = () => {
+      if (!hasStartedRef.current && isLoaded && cameraRef.current && !document.hidden) {
+        handleEnter();
+      } else if (!hasStartedRef.current && !hasAnimated) {
+        rafId = requestAnimationFrame(tick);
+      }
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [isLoaded, hasAnimated, isAnimating, handleEnter]);
 
-    // Force show content if we've already animated
-    const shouldShowContent =
-      isLoaded && (hasAnimated || useLandingCameraStore.getState().hasAnimated) && !isAnimating;
-
-    if (shouldShowContent) {
-      // Use a small timeout to ensure the portal ref is ready
-      const timer = setTimeout(() => {
-        setContentVisibility(true);
-      }, 50);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isLoaded, hasAnimated, isAnimating, handleEnter, setContentVisibility]);
+  // Fallback: start intro after a short delay if loaders don't fire expected events
+  useEffect(() => {
+    if (hasAnimated || isAnimating || hasStartedRef.current) return;
+    const fallback = setTimeout(() => {
+      if (!document.hidden && !hasStartedRef.current && !hasAnimated && !isAnimating) {
+        requestAnimationFrame(handleEnter);
+      }
+    }, 1200);
+    return () => clearTimeout(fallback);
+  }, [hasAnimated, isAnimating, handleEnter]);
 
   useFrame((state, delta) => {
     if (!cameraRef.current || isAnimating || !hasAnimated) return;
@@ -444,21 +424,7 @@ const LandingScene = ({
     cameraRef.current.lookAt(positions.target);
   });
 
-  // Add this effect at the top level of your component
-  useEffect(() => {
-    // Ensure portal is visible when component mounts if we've already animated
-    if (useLandingCameraStore.getState().hasAnimated && portalRef?.current) {
-      portalRef.current.style.opacity = '1';
-    }
-
-    // This will run when the component unmounts
-    return () => {
-      // Make sure portal is visible when unmounting (for when we return)
-      if (portalRef?.current) {
-        portalRef.current.style.opacity = '1';
-      }
-    };
-  }, []);
+  // Remove legacy visibility side-effects that could interfere with GSAP sequencing
 
   return (
     <group>
@@ -477,7 +443,7 @@ const LandingScene = ({
         fov={30}
         near={0.1}
         far={10000}
-        position={positions.camera}
+        position={hasAnimated ? positions.camera : undefined}
       />
 
       <ambientLight intensity={0.05} />
@@ -500,14 +466,7 @@ const LandingScene = ({
             className={`${textStyles.containerWidth} text-white`}
             onMouseEnter={handleMouseEnterUI}
             onMouseLeave={handleMouseLeaveUI}
-            style={{
-              opacity: hasAnimated || useLandingCameraStore.getState().hasAnimated ? 1 : 0,
-              transform:
-                hasAnimated || useLandingCameraStore.getState().hasAnimated
-                  ? 'translateY(0)'
-                  : 'translateY(20px)',
-              zIndex: 30,
-            }}
+            style={{ zIndex: 30, opacity: 0, transform: 'translateY(20px)' }}
           >
             <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>
               With over 38 years of experience, O'Linn Security Inc. offers comprehensive security

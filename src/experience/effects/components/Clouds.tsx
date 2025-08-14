@@ -76,7 +76,8 @@ export const AnimatedClouds = memo(() => {
   // Animation logic - this runs every frame but doesn't cause re-renders
   useFrame((_, delta) => {
     if (cloudsRef.current) {
-      cloudsRef.current.position.x += delta * 0.8;
+      // Reduced speed for lower CPU during intro
+      cloudsRef.current.position.x += delta * 0.3;
 
       // Reset position when clouds move too far right
       if (cloudsRef.current.position.x > 200) {
@@ -87,7 +88,7 @@ export const AnimatedClouds = memo(() => {
 
   // Ultra minimal render function with no calculations or object creation
   return (
-    <group ref={cloudsRef} position={[-40, 0, 0]}>
+    <group ref={cloudsRef} position={[-40, 0, 0]} frustumCulled={true}>
       {PrebuiltCloudsWrapper}
     </group>
   );

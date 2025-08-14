@@ -26,7 +26,8 @@ const MainScene = forwardRef<any, MainSceneProps>(({ scene }, ref) => {
 
       <Buildings />
       {profile.includeProps && <Props />}
-      <Vehicles />
+      {/* Optionally omit animated vehicles on mobile profile for intro perf */}
+      {profile.includeAnimatedVehicles && <Vehicles />}
 
       {profile.includeLogoMarkers && <LogoMarkers scene={scene} />}
     </>

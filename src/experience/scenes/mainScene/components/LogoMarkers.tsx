@@ -94,18 +94,17 @@ function PoiMarker({
         visible={otherMarkersVisible}
         position={[markerPosition[0], markerPosition[1], markerPosition[2]]}
         scale={[15, 15, 15]}
-        onClick={otherMarkersVisible ? handleClick : undefined}
+        // Use a minimal, non-duplicated pointer handler set to avoid double-trigger jitter
         onPointerEnter={otherMarkersVisible ? handlePointerEnter : undefined}
         onPointerLeave={otherMarkersVisible ? handlePointerLeave : undefined}
-        onPointerDown={otherMarkersVisible ? handlePointerEnter : undefined}
-        onPointerUp={otherMarkersVisible ? handleClick : undefined}
-        onPointerOut={otherMarkersVisible ? handlePointerLeave : undefined}
+        onClick={otherMarkersVisible ? handleClick : undefined}
       >
         <boxGeometry args={[1, 1, 1]} />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
-      <Float speed={10} rotationIntensity={0} floatIntensity={1} floatingRange={[-0.1, 0.1]}>
+      {/* reduce Float workload slightly during intro; still visible */}
+      <Float speed={4} rotationIntensity={0} floatIntensity={0.6} floatingRange={[-0.08, 0.08]}>
         <group position={markerPosition}>
           {/* Logo marker with light */}
           <group position={[0, 0, 0]}>
@@ -115,7 +114,7 @@ function PoiMarker({
               width={20}
               height={20}
               color="#36A837"
-              intensity={isHovered && otherMarkersVisible ? 100 : 0}
+              intensity={isHovered && otherMarkersVisible ? 80 : 0}
             />
             <LogoMarker isHovered={isHovered} position={[0, 0, 0]} scale={0.7} opacity={opacity} />
           </group>

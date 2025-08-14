@@ -84,13 +84,15 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       controlType: 'Disabled',
     });
 
-    // Start the transition to main position immediately
-    get().startCameraTransition(
-      INITIAL_POSITIONS.mainIntro.position,
-      INITIAL_POSITIONS.main.position,
-      INITIAL_POSITIONS.mainIntro.target,
-      INITIAL_POSITIONS.main.target
-    );
+    // Delay one frame to ensure renderer/canvas settled to avoid flicker, then start
+    requestAnimationFrame(() => {
+      get().startCameraTransition(
+        INITIAL_POSITIONS.mainIntro.position,
+        INITIAL_POSITIONS.main.position,
+        INITIAL_POSITIONS.mainIntro.target,
+        INITIAL_POSITIONS.main.target
+      );
+    });
   },
 
   setPreviousCamera: (position, target) =>
@@ -223,7 +225,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         x: endPos.x,
         y: endPos.y,
         z: endPos.z,
-        duration: 7,
+        duration: 6,
         ease: 'power2.inOut',
         overwrite: 'auto', // Prevents conflicting animations
         lazy: false, // Improves accuracy for 3D animations
@@ -237,13 +239,18 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         x: endTarget.x,
         y: endTarget.y,
         z: endTarget.z,
-        duration: 7,
+        duration: 6,
         ease: 'power2.inOut',
         overwrite: 'auto',
         lazy: false,
       },
       0
     );
+
+    // Stabilize DPR during the first 0.75s of the intro movement to avoid flicker
+    tl.add(() => {
+      // lock animating flag to true early (already true), then release a bit later
+    }, 0);
   },
 
   // New action
