@@ -20,25 +20,42 @@ export default async function Page({ searchParams }: PageProps) {
   const resolvedSearchParams = await searchParams;
   const isRootPath = Object.keys(resolvedSearchParams).length === 0;
 
-  // Fetch texture video for landing page
-  const textureVideo = await client.fetch(`
-    *[_id == "f57be663-ee9a-4412-a976-b15f0f6b6654"][0]{
-      _id,
-      title,
-      mediaType,
-      video{
-        asset->{
-          _id,
-          playbackId,
-          assetId,
-          filename
+  // Fetch both videos for landing page
+  const [textureVideo, modalVideo] = await Promise.all([
+    client.fetch(`
+      *[_id == "f57be663-ee9a-4412-a976-b15f0f6b6654"][0]{
+        _id,
+        title,
+        mediaType,
+        video{
+          asset->{
+            _id,
+            playbackId,
+            assetId,
+            filename
+          }
         }
       }
-    }
-  `);
+    `),
+    client.fetch(`
+      *[_id == "9e88d329-c760-473b-9124-b8bcf3e7c611"][0]{
+        _id,
+        title,
+        mediaType,
+        video{
+          asset->{
+            _id,
+            playbackId,
+            assetId,
+            filename
+          }
+        }
+      }
+    `),
+  ]);
 
   if (isRootPath) {
-    return <LandingPage textureVideo={textureVideo} />;
+    return <LandingPage textureVideo={textureVideo} modalVideo={modalVideo} />;
   }
 
   const page = await fetchSanityPageBySlug({ slug: 'index' });

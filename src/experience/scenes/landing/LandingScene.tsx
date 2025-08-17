@@ -36,9 +36,10 @@ import { useLandingCameraStore } from './store/landingCameraStore';
 
 interface LandingSceneProps {
   textureVideo: Sanity.Video | undefined;
+  modalVideo: Sanity.Video | undefined;
 }
 
-const LandingScene = memo(({ textureVideo }: LandingSceneProps) => {
+const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
   const router = useRouter();
   const { size } = useThree();
   const { contextSafe } = useGSAP();
@@ -494,6 +495,7 @@ const LandingScene = memo(({ textureVideo }: LandingSceneProps) => {
         position={positions.billboard.position}
         scale={positions.billboard.scale}
         textureVideo={textureVideo}
+        modalVideo={modalVideo}
       />
     </group>
   );

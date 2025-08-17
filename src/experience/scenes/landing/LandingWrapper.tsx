@@ -7,18 +7,23 @@ import { useLandingCameraStore } from './store/landingCameraStore';
 
 interface LandingWrapperProps {
   textureVideo: Sanity.Media;
+  modalVideo: Sanity.Media;
   children?: React.ReactNode;
 }
 
-export default function LandingWrapper({ children, textureVideo }: LandingWrapperProps) {
+export default function LandingWrapper({
+  children,
+  textureVideo,
+  modalVideo,
+}: LandingWrapperProps) {
   const { setR3FContent } = useR3F();
-  const { setCamera, setAnimating, reset, setHasAnimated } = useLandingCameraStore();
+  const { setCamera, setAnimating, reset } = useLandingCameraStore();
   const hasInitializedRef = useRef(false);
 
-  // Memoize the landing scene component with stable props
+  // Memoize the landing scene component with all required props
   const landingSceneComponent = useMemo(() => {
-    return <LandingScene textureVideo={textureVideo?.video} />;
-  }, [textureVideo?.video]);
+    return <LandingScene textureVideo={textureVideo?.video} modalVideo={modalVideo?.video} />;
+  }, [textureVideo?.video, modalVideo?.video]);
 
   // Setup and cleanup effect
   useEffect(() => {

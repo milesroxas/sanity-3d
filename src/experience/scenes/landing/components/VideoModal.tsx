@@ -1,81 +1,92 @@
 import { X } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { useCallback, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useVideoModalStore } from '../store/videoModalStore';
 
-interface VideoModalProps {
-  video?: Sanity.Video;
-  onClose?: () => void;
-}
+const MuxPlayer = dynamic(() => import('@mux/mux-player-react'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center bg-black">
+      <div className="text-gray-400">Loading video...</div>
+    </div>
+  ),
+});
 
-export default function VideoModal({ video, onClose }: VideoModalProps) {
-  const MuxPlayer = dynamic(() => import('@mux/mux-player-react'), {
-    ssr: false, // Avoid SSR hydration issues
-    loading: () => (
-      <div className="flex h-full w-full items-center justify-center rounded-md bg-black">
-        <div className="text-gray-400">Loading video...</div>
-      </div>
-    ),
-  });
+export default function FullscreenVideoModal() {
+  const { isOpen, video, closeModal } = useVideoModalStore();
+  const [mounted, setMounted] = useState(false);
 
-  const handleClose = useCallback(() => {
-    if (onClose) onClose();
-  }, [onClose]);
-
-  // Handle escape key
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleClose();
-      }
-    };
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [handleClose]);
+  useEffect(() => {
+    if (isOpen) {
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
 
-  // Prevent backdrop click from bubbling
-  const handleBackdropClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (e.target === e.currentTarget) {
-        handleClose();
-      }
-    },
-    [handleClose]
-  );
+      // Handle escape key
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          closeModal();
+        }
+      };
 
-  return (
+      document.addEventListener('keydown', handleEscape);
+
+      return () => {
+        document.body.style.overflow = 'unset';
+        document.removeEventListener('keydown', handleEscape);
+      };
+    }
+  }, [isOpen, closeModal]);
+
+  if (!mounted || !isOpen) {
+    return null;
+  }
+
+  const modalContent = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm"
-      onClick={handleBackdropClick}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm"
+      onClick={closeModal}
     >
-      <div className="relative max-w-[90vw] overflow-hidden rounded-lg bg-black shadow-2xl">
-        <div className="relative aspect-video w-full">
-          {video?.asset?.playbackId && (
-            <MuxPlayer
-              playbackId={video.asset.playbackId}
-              metadata={{
-                videoTitle: video.asset.filename || 'Landing Page Video',
-              }}
-              theme="dark"
-              autoPlay
-              poster=""
-              preload="auto"
-              style={{
-                height: '100%',
-                width: '100%',
-              }}
-            />
-          )}
+      <div
+        className="relative aspect-video w-[95vw] max-w-6xl overflow-hidden rounded-lg bg-black shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button
+          onClick={closeModal}
+          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/70 text-white backdrop-blur-sm transition-all hover:bg-white hover:text-black focus:outline-none focus:ring-2 focus:ring-white/50"
+          aria-label="Close video"
+        >
+          <X size={20} />
+        </button>
 
-          <button
-            onClick={handleClose}
-            className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-colors hover:bg-white hover:text-black"
-            aria-label="Close video"
-          >
-            <X size={18} />
-          </button>
+        {/* Video Player */}
+        <div className="h-full w-full">
+          <MuxPlayer
+            playbackId={video?.asset?.playbackId}
+            metadata={{
+              videoTitle: video?.asset?.filename || 'Video',
+            }}
+            theme="dark"
+            autoPlay
+            poster=""
+            preload="auto"
+            streamType="on-demand"
+            style={{
+              height: '100%',
+              width: '100%',
+            }}
+          />
         </div>
       </div>
     </div>
   );
+
+  // Portal to document.body to escape R3F context completely
+  return createPortal(modalContent, document.body);
 }
