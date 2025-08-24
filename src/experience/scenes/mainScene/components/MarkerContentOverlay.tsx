@@ -113,7 +113,7 @@ export default function MarkerContentOverlay({
               '='
             )
             .to(titleRef.current, {
-              opacity: 1,
+              opacity: 0.75,
               y: 0,
               duration: 0.3,
               ease: 'power2.inOut',
@@ -162,7 +162,7 @@ export default function MarkerContentOverlay({
             .to(
               titleRef.current,
               {
-                opacity: 1,
+                opacity: 0.75,
                 x: 0,
                 duration: 0.3,
                 ease: 'power2.inOut',
@@ -309,10 +309,10 @@ export default function MarkerContentOverlay({
       <div className="pointer-events-none fixed inset-0 z-40" ref={overlayRef}>
         <div className="pointer-events-auto absolute inset-0 flex flex-col rounded-none bg-background">
           <div
-            className="sticky top-0 z-10 flex items-center justify-between rounded-none bg-background/90 p-4"
+            className="sticky top-0 z-10 flex items-center justify-between rounded-none bg-background/15 p-4"
             ref={contentRef}
           >
-            <h2 className="text-lg font-bold text-secondary" ref={titleRef}>
+            <h2 className="text-lg font-bold text-secondary/50" ref={titleRef}>
               {title}
             </h2>
             <Button
@@ -355,8 +355,8 @@ export default function MarkerContentOverlay({
           ref={overlayRef}
           className="pointer-events-auto flex h-full max-h-[90vh] w-full max-w-3xl flex-col bg-background shadow-xl md:rounded-lg"
         >
-          <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-lg bg-background/95 p-6 pb-4 backdrop-blur-sm">
-            <h2 className="text-xl font-bold text-secondary" ref={titleRef}>
+          <div className="container sticky top-0 z-10 flex items-center justify-between rounded-t-lg bg-background/15 p-6 pb-0 backdrop-blur-sm">
+            <h2 className="text-xl font-bold opacity-75" ref={titleRef}>
               {title}
             </h2>
             <Button
@@ -369,7 +369,7 @@ export default function MarkerContentOverlay({
               <X />
             </Button>
           </div>
-          <ScrollArea className="flex-1 rounded-b-lg">
+          <ScrollArea className="container flex-1 rounded-b-lg bg-background">
             <div className="px-6" ref={contentRef}>
               {blocks && blocks.length > 0 ? (
                 <div className="flex flex-col gap-4" ref={blocksRef}>

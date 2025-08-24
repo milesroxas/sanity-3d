@@ -215,7 +215,7 @@ export default function LogoMarkerContent() {
                   {selectedScene.title}
                 </h3>
                 {selectedScene.body && (
-                  <div className="flex-1 text-secondary">
+                  <div className="flex-1">
                     <PortableTextRenderer value={selectedScene.body} variant="drawer" />
                   </div>
                 )}

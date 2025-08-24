@@ -9,7 +9,7 @@ interface ExpandedBodyProps {
 
 export default function ExpandedBody({ body, links }: ExpandedBodyProps) {
   return (
-    <div className="text-sm">
+    <div className="pb-12 text-base">
       {body && <PortableTextRenderer value={body} />}
 
       {links && (
