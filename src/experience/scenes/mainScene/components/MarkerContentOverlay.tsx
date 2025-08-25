@@ -359,34 +359,32 @@ export default function MarkerContentOverlay({
       <div className="flex flex-1 items-center justify-center">
         <div
           ref={overlayRef}
-          className="pointer-events-auto flex h-full max-h-[90vh] w-full max-w-3xl flex-col bg-background shadow-xl md:rounded-lg"
+          className="pointer-events-auto flex h-full max-h-[90vh] max-w-[700px] flex-col bg-background/75 shadow-xl backdrop-blur-lg md:rounded-lg"
         >
-          <div className="sticky top-0 z-10 rounded-t-lg bg-background/15 px-4 pb-0 pt-6 shadow-sm backdrop-blur-sm">
-            <div className="container flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleClose}
-                className="text-primary hover:bg-primary/10 [&_svg]:!size-6"
-                ref={closeRef}
-              >
-                <PanelLeftClose />
-              </Button>
-              <h2 className="text-xl opacity-75" ref={titleRef}>
-                {title}
-              </h2>
+          <div className="sticky top-0 z-10 rounded-t-lg bg-background/15 pb-3 pt-4 shadow-sm backdrop-blur-sm">
+            <div className="relative flex items-center px-12 lg:px-14">
+              <div className="border-l-2 border-primary pl-3" ref={titleRef}>
+                <h3 className="text-lg font-medium leading-none text-primary lg:text-xl lg:leading-none">
+                  {title}
+                </h3>
+              </div>
+              <div className="absolute left-1 top-1/2 -translate-y-1/2 lg:left-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleClose}
+                  className="text-primary hover:bg-primary/10 [&_svg]:!size-6 [&_svg]:!stroke-2"
+                  ref={closeRef}
+                >
+                  <PanelLeftClose />
+                </Button>
+              </div>
             </div>
           </div>
-          <ScrollArea
-            className={cn(
-              'container flex-1 rounded-b-lg bg-background',
-
-              '[&_[data-radix-scroll-area-scrollbar][data-orientation=vertical]]:w-1.5'
-            )}
-          >
+          <ScrollArea className={cn('flex-1 rounded-b-lg px-4 lg:px-8')}>
             <div className="px-6" ref={contentRef}>
               {blocks && blocks.length > 0 && (
-                <div className="flex flex-col gap-4" ref={blocksRef}>
+                <div className="flex flex-col gap-4 pt-4 lg:pt-8" ref={blocksRef}>
                   <Blocks blocks={blocks} />
                 </div>
               )}

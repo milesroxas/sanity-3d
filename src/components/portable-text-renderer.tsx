@@ -249,7 +249,7 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
           </p>
         ),
         largeText: ({ children }) => (
-          <p className="mb-4 w-full max-w-full text-xs font-medium text-muted">{children}</p>
+          <p className="mb-4 w-full max-w-full text-xs text-muted">{children}</p>
         ),
         h1: ({ children }) => <h1 className="text-xl font-bold">{children}</h1>,
         h2: ({ children }) => <h2 className="text-xl font-bold">{children}</h2>,
