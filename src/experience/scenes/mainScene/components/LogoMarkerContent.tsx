@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useExpandedContentStore } from '@/experience/scenes/store/expandedContentStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import { cn } from '@/lib/utils';
 import gsap from 'gsap';
-import { X } from 'lucide-react';
+import { ArrowRight, PanelLeftOpen, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import MarkerContentOverlay from './MarkerContentOverlay';
 
@@ -167,7 +168,7 @@ export default function LogoMarkerContent() {
       {isContentVisible && (
         <div
           ref={drawerRef}
-          className="fixed left-0 top-0 z-20 flex h-full w-full flex-col bg-background shadow-xl backdrop-blur-md md:w-[35vw] md:min-w-[400px]"
+          className="fixed left-0 top-0 z-20 flex h-full w-full flex-col bg-background shadow-xl backdrop-blur-md md:w-[35vw] md:min-w-[400px] lg:w-[40vw] lg:min-w-[450px]"
         >
           {/* Header with title that changes based on scroll */}
           <div className="sticky top-0 z-10 flex items-center justify-between overflow-hidden bg-background/95 pb-2 pl-6 pr-6 pt-2 backdrop-blur-sm">
@@ -236,11 +237,14 @@ export default function LogoMarkerContent() {
                 {/* Expanded content button */}
                 {selectedScene.mainExpandedBody && (
                   <Button
-                    className={
+                    variant="default"
+                    size="lg"
+                    className={cn(
+                      'h-12 text-xl font-bold',
                       selectedScene.replaceMainLinkWithExpanded || !selectedScene.links?.length
                         ? 'w-full'
-                        : 'w-1/2'
-                    }
+                        : 'w-1/2 lg:w-1/3'
+                    )}
                     onClick={() => {
                       const eb = selectedScene.mainExpandedBody;
                       const overlayBlocks = [
@@ -257,7 +261,8 @@ export default function LogoMarkerContent() {
                       );
                     }}
                   >
-                    {selectedScene.mainExpandedBody.title || 'Learn more'}
+                    <span className="truncate">Expand to Learn More</span>
+                    <PanelLeftOpen className="mr-2" />
                   </Button>
                 )}
 
@@ -267,10 +272,15 @@ export default function LogoMarkerContent() {
                   selectedScene.links.length > 0 && (
                     <LinkButton
                       link={selectedScene.links[0]}
-                      className={selectedScene.mainExpandedBody ? 'w-1/2' : 'w-full'}
+                      className={cn(
+                        'h-12 text-xl font-bold',
+                        selectedScene.mainExpandedBody ? 'w-1/2' : 'w-full'
+                      )}
                       size="default"
+                      icon={ArrowRight}
+                      iconPosition="right"
                       onClick={closeExpandedContent}
-                    />
+                    ></LinkButton>
                   )}
               </div>
             </div>

@@ -2,9 +2,10 @@ import Blocks from '@/components/blocks';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import { cn } from '@/lib/utils';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { X } from 'lucide-react';
+import { PanelLeftClose, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 interface MarkerContentOverlayProps {
@@ -159,6 +160,16 @@ export default function MarkerContentOverlay({
               },
               '-=0.4'
             )
+
+            .to(
+              closeRef.current,
+              {
+                opacity: 1,
+                duration: 0.2,
+                ease: 'power2.out',
+              },
+              '-=0.1'
+            )
             .to(
               titleRef.current,
               {
@@ -188,12 +199,7 @@ export default function MarkerContentOverlay({
                 ease: 'power2.inOut',
               },
               '-=0.6'
-            )
-            .to(closeRef.current, {
-              opacity: 1,
-              duration: 0.8,
-              ease: 'power2.out',
-            });
+            );
         }
       } else if (shouldAnimate) {
         // Handle close animation
@@ -271,6 +277,11 @@ export default function MarkerContentOverlay({
             duration: 0.2,
             ease: 'power2.in',
           })
+            .to(closeRef.current, {
+              opacity: 0,
+              duration: 0.2,
+              ease: 'power2.in',
+            })
             .to(titleRef.current, {
               opacity: 0,
               duration: 0.2,
@@ -286,11 +297,6 @@ export default function MarkerContentOverlay({
               x: -200,
               duration: 0.3,
               ease: 'power2.inOut',
-            })
-            .to(closeRef.current, {
-              opacity: 0,
-              duration: 0.3,
-              ease: 'power2.in',
             });
         }
       }
@@ -325,7 +331,7 @@ export default function MarkerContentOverlay({
               <X />
             </Button>
           </div>
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1 [&>[data-radix-scroll-area-scrollbar]]:w-1.5">
             <div className="p-4">
               {blocks && blocks.length > 0 ? (
                 <div className="flex flex-col gap-4" ref={blocksRef}>
@@ -355,27 +361,35 @@ export default function MarkerContentOverlay({
           ref={overlayRef}
           className="pointer-events-auto flex h-full max-h-[90vh] w-full max-w-3xl flex-col bg-background shadow-xl md:rounded-lg"
         >
-          <div className="container sticky top-0 z-10 flex items-center justify-between rounded-t-lg bg-background/15 p-6 pb-0 backdrop-blur-sm">
-            <h2 className="text-xl font-bold opacity-75" ref={titleRef}>
-              {title}
-            </h2>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleClose}
-              className="text-primary hover:bg-primary/10 [&_svg]:!size-6"
-              ref={closeRef}
-            >
-              <X />
-            </Button>
+          <div className="sticky top-0 z-10 rounded-t-lg bg-background/15 px-4 pb-0 pt-6 shadow-sm backdrop-blur-sm">
+            <div className="container flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleClose}
+                className="text-primary hover:bg-primary/10 [&_svg]:!size-6"
+                ref={closeRef}
+              >
+                <PanelLeftClose />
+              </Button>
+              <h2 className="text-xl opacity-75" ref={titleRef}>
+                {title}
+              </h2>
+            </div>
           </div>
-          <ScrollArea className="container flex-1 rounded-b-lg bg-background">
+          <ScrollArea
+            className={cn(
+              'container flex-1 rounded-b-lg bg-background',
+
+              '[&_[data-radix-scroll-area-scrollbar][data-orientation=vertical]]:w-1.5'
+            )}
+          >
             <div className="px-6" ref={contentRef}>
-              {blocks && blocks.length > 0 ? (
+              {blocks && blocks.length > 0 && (
                 <div className="flex flex-col gap-4" ref={blocksRef}>
                   <Blocks blocks={blocks} />
                 </div>
-              ) : null}
+              )}
             </div>
           </ScrollArea>
         </div>

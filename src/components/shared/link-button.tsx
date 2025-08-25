@@ -1,21 +1,28 @@
 'use client';
-// components/ui/link-button.tsx
-import { Button } from '@/components/ui/button';
+
+import { Button, type ButtonProps } from '@/components/ui/button';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
+import type { LucideIcon } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { stegaClean } from 'next-sanity';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
-interface LinkButtonProps {
-  link: Sanity.Link;
-  variant?: 'default' | 'secondary' | 'link' | 'destructive' | 'outline' | 'ghost';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
+type IconPosition = 'left' | 'right';
+
+interface CommonLinkProps extends Omit<ButtonProps, 'children'> {
+  icon?: LucideIcon;
+  iconPosition?: IconPosition;
+  onClick?: () => void;
   className?: string;
-  index?: number; // for fallback keys
-  onClick?: () => void; // Add onClick handler prop
+}
+
+interface LinkButtonProps extends CommonLinkProps {
+  link: Sanity.Link;
+  index?: number;
 }
 
 export function LinkButton({
@@ -23,26 +30,23 @@ export function LinkButton({
   variant,
   size = 'default',
   className,
-  index = 0,
   onClick,
+  icon: Icon,
+  iconPosition = 'left',
+  ...buttonProps
 }: LinkButtonProps) {
   const { setSelectedScene } = useLogoMarkerStore();
   const pathname = usePathname();
 
-  // Reset marker states whenever navigating away from experience page
+  // Keep your existing experience-page reset behavior
   useEffect(() => {
     const isExperiencePage = pathname === '/experience' || pathname.startsWith('/experience/');
-
     if (!isExperiencePage) {
-      // Ensure main content is clickable
-      gsap.set('main', {
-        opacity: 1,
-        pointerEvents: 'auto',
-      });
-
-      // Make header and nav visible
-      const header = document.querySelector('header') as HTMLElement;
-      const nav = document.querySelector('header > div > div > div') as HTMLElement;
+      gsap.set('main', { opacity: 1, pointerEvents: 'auto' });
+      setSelectedScene(null);
+      // If you still need header/nav explicit resets, add them here
+      const header = document.querySelector('header') as HTMLElement | null;
+      const nav = document.querySelector('header > div > div > div') as HTMLElement | null;
       if (header && nav) {
         gsap.to([header, nav], {
           opacity: 1,
@@ -54,121 +58,85 @@ export function LinkButton({
           },
         });
       }
-
-      // Reset selected scene
-      setSelectedScene(null);
     }
   }, [pathname, setSelectedScene]);
 
   if (!link) return null;
 
-  // Handle page links
+  const render = (title: string, EffectiveIcon?: LucideIcon) => (
+    <>
+      {EffectiveIcon && iconPosition === 'left' && <EffectiveIcon />}
+      <span>{title}</span>
+      {EffectiveIcon && iconPosition === 'right' && <EffectiveIcon />}
+    </>
+  );
+
+  // Page link
   if (link._type === 'pageLink') {
     const pageLink = link as Sanity.PageLink;
     if (!pageLink.page?.slug?.current) return null;
-
-    // Use variant from link data if no override is provided
-    const buttonVariant = variant || stegaClean(pageLink.buttonVariant);
+    const buttonVariant = variant ?? stegaClean(pageLink.buttonVariant);
+    const title = pageLink.title;
 
     return (
-      <Button variant={buttonVariant} size={size} className={className} asChild>
+      <Button asChild variant={buttonVariant} size={size} className={className} {...buttonProps}>
         <Link
           href={`/${pageLink.page.slug.current}`}
-          onClick={e => {
-            // Trigger header visibility before navigation
+          onClick={() => {
             window.dispatchEvent(new CustomEvent('forceNavVisible'));
-
-            // Force immediate styles for header visibility
-            const header = document.querySelector('header') as HTMLElement;
-            const nav = document.querySelector('header > div > div > div') as HTMLElement;
-            if (header && nav) {
-              header.style.opacity = '1';
-              nav.style.opacity = '1';
-              header.style.pointerEvents = 'auto';
-              nav.style.pointerEvents = 'auto';
-            }
-
-            // Call the custom onClick if provided
             onClick?.();
           }}
         >
-          {pageLink.title}
+          {render(title, Icon)}
         </Link>
       </Button>
     );
   }
 
+  // Services link
   if (link._type === 'servicesLink') {
     const servicesLink = link as Sanity.ServicesLink;
     if (!servicesLink.services?.slug?.current) return null;
-
-    // Use variant from link data if no override is provided
-    const buttonVariant = variant || stegaClean(servicesLink.buttonVariant);
+    const buttonVariant = variant ?? stegaClean(servicesLink.buttonVariant);
+    const title = servicesLink.title;
 
     return (
-      <Button variant={buttonVariant} size={size} className={className} asChild>
+      <Button asChild variant={buttonVariant} size={size} className={className} {...buttonProps}>
         <Link
           href={`/services/${servicesLink.services.slug.current}`}
-          onClick={e => {
-            // Trigger header visibility before navigation
+          onClick={() => {
             window.dispatchEvent(new CustomEvent('forceNavVisible'));
-
-            // Force immediate styles for header visibility
-            const header = document.querySelector('header') as HTMLElement;
-            const nav = document.querySelector('header > div > div > div') as HTMLElement;
-            if (header && nav) {
-              header.style.opacity = '1';
-              nav.style.opacity = '1';
-              header.style.pointerEvents = 'auto';
-              nav.style.pointerEvents = 'auto';
-            }
-
-            // Call the custom onClick if provided
             onClick?.();
           }}
         >
-          {servicesLink.title}
+          {render(title, Icon)}
         </Link>
       </Button>
     );
   }
 
-  // Handle custom links
+  // Custom link
   if (link._type === 'customLink') {
     const customLink = link as Sanity.CustomLink;
+    const isExternal = Boolean(customLink.target);
+    const EffectiveIcon: LucideIcon | undefined = Icon ?? (isExternal ? ExternalLink : undefined);
+    const buttonVariant = variant ?? stegaClean(customLink.buttonVariant);
+    const title = customLink.title;
+
     return (
-      <Button
-        variant={variant ? stegaClean(variant) : stegaClean(customLink.buttonVariant)}
-        size={size}
-        className={className}
-        asChild
-      >
+      <Button asChild variant={buttonVariant} size={size} className={className} {...buttonProps}>
         <Link
           href={customLink.href}
-          target={customLink.target ? '_blank' : undefined}
-          rel={customLink.target ? 'noopener' : undefined}
-          onClick={e => {
-            // Only apply these effects for internal links (not external)
-            if (!customLink.target) {
-              // Trigger header visibility before navigation
+          target={isExternal ? '_blank' : undefined}
+          rel={isExternal ? 'noopener' : undefined}
+          onClick={() => {
+            if (!isExternal) {
               window.dispatchEvent(new CustomEvent('forceNavVisible'));
-
-              // Force immediate styles for header visibility
-              const header = document.querySelector('header') as HTMLElement;
-              const nav = document.querySelector('header > div > div > div') as HTMLElement;
-              if (header && nav) {
-                header.style.opacity = '1';
-                nav.style.opacity = '1';
-                header.style.pointerEvents = 'auto';
-                nav.style.pointerEvents = 'auto';
-              }
             }
-
-            // Call the custom onClick if provided
             onClick?.();
           }}
         >
-          {customLink.title}
+          {render(title, EffectiveIcon)}
         </Link>
       </Button>
     );
@@ -177,14 +145,10 @@ export function LinkButton({
   return null;
 }
 
-interface LinkButtonsProps {
+interface LinkButtonsProps extends CommonLinkProps {
   links: Sanity.Link[];
-  variant?: 'default' | 'secondary' | 'link' | 'destructive' | 'outline' | 'ghost';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
-  className?: string;
   containerClassName?: string;
   direction?: 'row' | 'column';
-  onClick?: () => void; // Add onClick handler prop
 }
 
 export function LinkButtons({
@@ -195,6 +159,9 @@ export function LinkButtons({
   containerClassName,
   direction = 'row',
   onClick,
+  icon,
+  iconPosition = 'left',
+  ...buttonProps
 }: LinkButtonsProps) {
   if (!links || links.length === 0) return null;
 
@@ -212,8 +179,10 @@ export function LinkButtons({
           variant={variant}
           size={size}
           className={className}
-          index={index}
           onClick={onClick}
+          icon={icon}
+          iconPosition={iconPosition}
+          {...buttonProps}
         />
       ))}
     </div>
