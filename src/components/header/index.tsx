@@ -47,6 +47,14 @@ export default function Header({ nav, settings }: HeaderProps) {
     if (pathname === '/experience') {
       setSelectedScene(null);
     }
+
+    // Refresh ScrollTrigger on route change to ensure proper initialization
+    // This is especially important when navigating between pages with different scroll contexts
+    const refreshTimer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+
+    return () => clearTimeout(refreshTimer);
   }, [isExperiencePage, pathname, setExperiencePage, setSelectedScene]);
 
   // GSAP animations, including logo fade on scroll
@@ -62,19 +70,32 @@ export default function Header({ nav, settings }: HeaderProps) {
       setNavVisible(true);
     }
 
-    // Fade out the logo as you scroll down
-    if (logoRef.current && headerRef.current) {
-      gsap.to(logoRef.current, {
-        opacity: 0,
-        scrollTrigger: {
-          trigger: headerRef.current,
-          start: 'top top',
-          end: '+=200', // adjust this value to control fade distance
-          scrub: true,
-        },
+    // Clean up any existing ScrollTriggers before creating new ones
+    ScrollTrigger.getAll().forEach(st => {
+      if (st.trigger === headerRef.current || st.trigger === logoRef.current) {
+        st.kill();
+      }
+    });
+
+    // Fade out the logo as you scroll down - only on non-landing and non-experience pages
+    if (logoRef.current && headerRef.current && !isLandingPage && !isExperiencePage) {
+      // Add a small delay to ensure Lenis is initialized
+      gsap.delayedCall(0.1, () => {
+        if (logoRef.current && headerRef.current) {
+          gsap.to(logoRef.current, {
+            opacity: 0,
+            scrollTrigger: {
+              trigger: headerRef.current,
+              start: 'top top',
+              end: '+=200', // adjust this value to control fade distance
+              scrub: true,
+              refreshPriority: -1, // Lower priority to run after other ScrollTriggers
+            },
+          });
+        }
       });
     }
-  }, [isExperiencePage, setHeaderVisible, setNavVisible]);
+  }, [isExperiencePage, isLandingPage, setHeaderVisible, setNavVisible, pathname]);
 
   const showHeader = contextSafe(
     useCallback(() => {
