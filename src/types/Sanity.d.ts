@@ -102,8 +102,10 @@ declare global {
         _key?: string;
         title?: string;
         body?: any[];
+        blocks?: Block[];
         links?: Link[];
       } | null;
+
       replaceMainLinkWithExpanded?: boolean;
       mainSceneMarkerPosition?: {
         x: number;

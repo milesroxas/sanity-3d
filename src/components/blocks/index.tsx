@@ -17,6 +17,7 @@ import ExpandedContent from './experience/content';
 import ExpandedBody from './experience/expanded-body';
 import ExperienceCarousel from './experience/experience-carousel';
 import Media from './experience/media';
+import TextBlock from './experience/text-block';
 
 const componentMap: { [key: string]: React.ComponentType<any> } = {
   heroOne: Hero1,
@@ -37,15 +38,26 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   'section-content': ExpandedContent,
   'experience-carousel': ExperienceCarousel,
   'expanded-body': ExpandedBody,
+  'text-block': TextBlock,
   media: Media,
 };
 
 export default function Blocks({ blocks }: { blocks?: Sanity.Block[] }) {
+  // Add safety check for blocks
+  if (!blocks || !Array.isArray(blocks)) {
+    return null;
+  }
+
   return (
     <>
-      {blocks?.map((block: Sanity.Block, index: number) => {
-        const Component = componentMap[block._type];
+      {blocks.map((block: Sanity.Block, index: number) => {
+        // Add safety check for block
+        if (!block || typeof block !== 'object') {
+          console.warn('Invalid block at index:', index, block);
+          return null;
+        }
 
+        const Component = componentMap[block._type];
         const blockKey = block._key || `block-${block._type}-${index}`;
 
         if (!Component) {

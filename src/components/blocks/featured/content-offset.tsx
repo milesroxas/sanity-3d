@@ -269,6 +269,7 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
                     links={links.slice(0, 2)}
                     containerClassName="mt-6"
                     direction="row"
+                    className={isDark ? 'text-white' : 'text-black'}
                   />
                 )}
               </div>

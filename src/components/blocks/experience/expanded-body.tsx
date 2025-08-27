@@ -1,18 +1,21 @@
-import PortableTextRenderer from '@/components/portable-text-renderer';
+import Blocks from '@/components/blocks';
 import { LinkButtons } from '@/components/shared/link-button';
-import { PortableTextBlock } from 'next-sanity';
 
 interface ExpandedBodyProps {
-  body: PortableTextBlock[];
-  links: Sanity.Link[];
+  blocks?: Sanity.Block[];
+  links?: Sanity.Link[];
 }
 
-export default function ExpandedBody({ body, links }: ExpandedBodyProps) {
+export default function ExpandedBody({ blocks, links }: ExpandedBodyProps) {
   return (
     <div className="pb-12 text-base">
-      {body && <PortableTextRenderer value={body} />}
+      {blocks && Array.isArray(blocks) && blocks.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <Blocks blocks={blocks} />
+        </div>
+      )}
 
-      {links && (
+      {links && Array.isArray(links) && links.length > 0 && (
         <div className="mt-4 flex w-full max-w-md gap-3">
           {links.slice(0, 2).map((link, index) => (
             <LinkButtons

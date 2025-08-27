@@ -77,6 +77,7 @@ export default defineType({
       initialValue: false,
       group: 'content',
     }),
+
     defineField({
       name: 'mainSceneMarkerPosition',
       title: 'Main Scene Marker Position',

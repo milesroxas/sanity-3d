@@ -8,16 +8,10 @@ export default defineType({
   icon: Text,
   fields: [
     defineField({
-      name: 'title',
-      title: 'Title',
-      type: 'string',
+      name: 'blocks',
+      type: 'array',
+      of: [{ type: 'text-block' }, { type: 'experience-carousel' }, { type: 'media' }],
     }),
-    defineField({
-      name: 'body',
-      title: 'Expanded Body',
-      type: 'block-content',
-    }),
-
     defineField({
       name: 'links',
       type: link.name,
@@ -25,11 +19,8 @@ export default defineType({
     }),
   ],
   preview: {
-    select: {
-      title: 'title',
-    },
-    prepare({ title }) {
-      return { title: title || 'Expanded Body' };
+    prepare() {
+      return { title: 'Expanded Body' };
     },
   },
 });

@@ -34,6 +34,7 @@ import gridRow from './schemas/blocks/grid/grid-row';
 import expandedBody from './schemas/blocks/experience/expanded-body';
 import experienceCarousel from './schemas/blocks/experience/section-carousel';
 import sectionContent from './schemas/blocks/experience/section-content';
+import textBlock from './schemas/blocks/experience/text-block';
 
 // Hero blocks
 import hero1 from './schemas/blocks/hero/hero-1';
@@ -119,6 +120,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     experienceCarousel,
     sectionContent,
     expandedBody,
+    textBlock,
 
     // singleton
     settings,

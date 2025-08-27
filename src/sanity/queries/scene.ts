@@ -70,24 +70,6 @@ export const SCENE_QUERY = groq`
           ...,
           _type == "expanded-body" => {
             ...,
-            body[]{
-              ...,
-              _type == "image" => {
-                ...,
-                asset->{
-                  _id,
-                  url,
-                  mimeType,
-                  metadata {
-                    lqip,
-                    dimensions {
-                      width,
-                      height
-                    }
-                  }
-                }
-              }
-            }, 
             links[] {
       ...,
       _type == 'pageLink' => {
@@ -139,21 +121,75 @@ export const SCENE_QUERY = groq`
     },
     mainExpandedBody{
       ...,
-      body[]{
+      blocks[] {
         ...,
-        _type == "image" => {
+        _type == "experience-carousel" => {
           ...,
-          asset->{
-            _id,
-            url,
-            mimeType,
-            metadata {
-              lqip,
-              dimensions {
-                width,
-                height
+          images[] {
+            ...,
+            asset->{
+              _id,
+              url,
+              metadata {
+                lqip,
+                dimensions {
+                  width,
+                  height
+                }
               }
             }
+          }
+        },
+        _type == "text-block" => {
+          ...,
+          content[]{
+            ...,
+            _type == "image" => {
+              ...,
+              asset->{
+                _id,
+                url,
+                mimeType,
+                metadata {
+                  lqip,
+                  dimensions {
+                    width,
+                    height
+                  }
+                }
+              }
+            }
+          }
+        },
+        _type == "media" => {
+          ...,
+          title,
+          mediaType,
+          alt,
+          image {
+            asset->{
+              _id,
+              url,
+              metadata {
+                lqip,
+                dimensions {
+                  width,
+                  height
+                }
+              }
+            }
+          },
+          video {
+            asset-> {
+              _id,
+              playbackId,
+              assetId,
+              filename,
+              status
+            }
+          },
+          videoOptions{
+            showControls
           }
         }
       },

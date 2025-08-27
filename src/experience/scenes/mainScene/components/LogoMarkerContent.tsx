@@ -247,18 +247,18 @@ export default function LogoMarkerContent() {
                     )}
                     onClick={() => {
                       const eb = selectedScene.mainExpandedBody;
+
+                      // Use mainExpandedBody as a single block with enhanced blocks support
                       const overlayBlocks = [
                         {
                           _type: 'expanded-body',
                           _key: 'main-expanded',
-                          body: eb?.body || [],
+                          blocks: eb?.blocks || [],
                           links: eb?.links || [],
                         },
                       ] as unknown as Sanity.Block[];
-                      setExpandedContent(
-                        eb?.title || selectedScene.title || 'Details',
-                        overlayBlocks
-                      );
+
+                      setExpandedContent(selectedScene.title || 'Details', overlayBlocks);
                     }}
                   >
                     <span className="truncate">Expand to Learn More</span>
