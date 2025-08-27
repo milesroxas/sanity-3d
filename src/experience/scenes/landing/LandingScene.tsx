@@ -62,6 +62,8 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
   const mousePosition = useRef({ x: 0, y: 0 });
   const cameraOffset = useRef({ x: 0, y: 0 });
   const isHoveringUI = useRef(false);
+  const lastValidMousePosition = useRef({ x: 0, y: 0 });
+  const isPageVisible = useRef(true);
 
   // Progress tracking
   const { progress, active } = useProgress();
@@ -374,6 +376,24 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
     }
   }, [isLoaded, hasAnimated, handleEnter]);
 
+  // Handle page visibility changes to prevent mouse/camera glitches during focus changes
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const wasVisible = isPageVisible.current;
+      isPageVisible.current = !document.hidden;
+
+      // When becoming visible again, preserve the last known good mouse position
+      if (!wasVisible && isPageVisible.current) {
+        // Restore mouse position to prevent camera jumps
+        mousePosition.current.x = lastValidMousePosition.current.x;
+        mousePosition.current.y = lastValidMousePosition.current.y;
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -385,9 +405,18 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
   useFrame((state, delta) => {
     if (!cameraRef.current || isAnimating || !hasAnimated) return;
 
-    // Update mouse position
-    mousePosition.current.x = state.mouse.x;
-    mousePosition.current.y = state.mouse.y;
+    // Only update mouse position when page is visible to prevent focus/blur glitches
+    if (isPageVisible.current) {
+      // Store current mouse position as the last valid position
+      lastValidMousePosition.current.x = state.mouse.x;
+      lastValidMousePosition.current.y = state.mouse.y;
+
+      // Update working mouse position
+      mousePosition.current.x = state.mouse.x;
+      mousePosition.current.y = state.mouse.y;
+    }
+    // When page is not visible, keep using the last valid mouse position
+    // This prevents camera jumps when returning to the tab
 
     // Calculate damping with UI and video considerations
     let dampingMultiplier = 1;
@@ -407,6 +436,11 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
       // Target zero offset when tracking is disabled
       mousePosition.current.x = 0;
       mousePosition.current.y = 0;
+    }
+
+    // When page is not visible, apply extra damping to prevent drift
+    if (!isPageVisible.current) {
+      dampingMultiplier *= 0.5; // Slower camera movements when tab is not active
     }
 
     const effectiveDamping = currentConfig.mouseDamping * dampingMultiplier;

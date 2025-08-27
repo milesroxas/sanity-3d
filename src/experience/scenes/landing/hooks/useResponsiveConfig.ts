@@ -1,5 +1,5 @@
 import { useThree } from '@react-three/fiber';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface Vec3 {
   x: number;
@@ -64,20 +64,56 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
   },
 };
 
-// Custom hook for responsive configuration
+// Custom hook for responsive configuration with hysteresis
 export function useResponsiveConfig(): ResponsiveConfig {
   const { size, viewport } = useThree();
 
+  // Use refs to store stable values with hysteresis
+  const stableBreakpointRef = useRef<'mobile' | 'tablet' | 'desktop'>('desktop');
+  const stableViewportWidthRef = useRef<number>(0);
+  const lastUpdateTimeRef = useRef<number>(0);
+
   return useMemo(() => {
-    const isMobile = size.width < 768;
-    const isTablet = size.width >= 768 && size.width < 1024;
+    const now = Date.now();
+    const timeSinceLastUpdate = now - lastUpdateTimeRef.current;
+
+    // Apply hysteresis to breakpoint detection (add buffer zones)
+    const currentBreakpoint = stableBreakpointRef.current;
+    let newBreakpoint: 'mobile' | 'tablet' | 'desktop';
+
+    // Add 32px buffer zones to prevent oscillation
+    if (currentBreakpoint === 'mobile') {
+      newBreakpoint = size.width < 800 ? 'mobile' : size.width < 1056 ? 'tablet' : 'desktop';
+    } else if (currentBreakpoint === 'tablet') {
+      newBreakpoint = size.width < 736 ? 'mobile' : size.width < 1056 ? 'tablet' : 'desktop';
+    } else {
+      newBreakpoint = size.width < 736 ? 'mobile' : size.width < 992 ? 'tablet' : 'desktop';
+    }
+
+    // Only update breakpoint if it actually changed
+    if (newBreakpoint !== currentBreakpoint) {
+      stableBreakpointRef.current = newBreakpoint;
+      lastUpdateTimeRef.current = now;
+    }
+
+    // Apply hysteresis to viewport width changes (for mobile billboard positioning)
+    const viewportWidthChange = Math.abs(viewport.width - stableViewportWidthRef.current);
+    const isLargeViewportChange = viewportWidthChange > 0.5; // Significant change
+    const isStableViewportUpdate = !document.hidden && timeSinceLastUpdate > 50;
+    const shouldUpdateViewport = isLargeViewportChange || isStableViewportUpdate;
+
+    if (shouldUpdateViewport && viewportWidthChange > 0.02) {
+      stableViewportWidthRef.current = viewport.width;
+      lastUpdateTimeRef.current = now;
+    }
 
     let config: ResponsiveConfig;
+    const currentViewportWidth = stableViewportWidthRef.current || viewport.width;
 
-    if (isMobile) {
+    if (stableBreakpointRef.current === 'mobile') {
       config = structuredClone(RESPONSIVE_CONFIGS.mobile);
-      config.billboard.position.x = viewport.width * -0.2;
-    } else if (isTablet) {
+      config.billboard.position.x = currentViewportWidth * -0.2;
+    } else if (stableBreakpointRef.current === 'tablet') {
       config = structuredClone(RESPONSIVE_CONFIGS.tablet);
     } else {
       config = structuredClone(RESPONSIVE_CONFIGS.desktop);
@@ -87,16 +123,68 @@ export function useResponsiveConfig(): ResponsiveConfig {
   }, [size.width, viewport.width]);
 }
 
-// Helper hook for text styles based on screen size
+// Helper hook for text styles based on screen size with hysteresis
 export function useResponsiveTextStyles() {
   const { size } = useThree();
 
-  return useMemo(
-    () => ({
-      textSize: size.width < 768 ? 'text-lg' : 'text-2xl',
+  // Use ref to store stable breakpoint and last update time
+  const stableBreakpointRef = useRef<'mobile' | 'tablet' | 'desktop'>('desktop');
+  const lastUpdateTimeRef = useRef<number>(0);
+  const [, forceUpdate] = useState({});
+
+  // Stable styles that only change when breakpoint changes
+  const stableStyles = useMemo(() => {
+    const breakpoint = stableBreakpointRef.current;
+    return {
+      textSize: breakpoint === 'mobile' ? 'text-lg' : 'text-2xl',
       containerWidth:
-        size.width < 768 ? 'w-[280px]' : size.width < 1024 ? 'w-[400px]' : 'w-[500px]',
-    }),
-    [size.width]
-  );
+        breakpoint === 'mobile' ? 'w-[280px]' : breakpoint === 'tablet' ? 'w-[400px]' : 'w-[500px]',
+    };
+  }, [stableBreakpointRef.current]);
+
+  // Monitor size changes with intelligent hysteresis
+  useEffect(() => {
+    const now = Date.now();
+    const timeSinceLastUpdate = now - lastUpdateTimeRef.current;
+
+    // Apply hysteresis logic
+    const currentBreakpoint = stableBreakpointRef.current;
+    let newBreakpoint: 'mobile' | 'tablet' | 'desktop';
+
+    if (currentBreakpoint === 'mobile') {
+      newBreakpoint = size.width < 800 ? 'mobile' : size.width < 1056 ? 'tablet' : 'desktop';
+    } else if (currentBreakpoint === 'tablet') {
+      newBreakpoint = size.width < 736 ? 'mobile' : size.width < 1056 ? 'tablet' : 'desktop';
+    } else {
+      newBreakpoint = size.width < 736 ? 'mobile' : size.width < 992 ? 'tablet' : 'desktop';
+    }
+
+    const isBreakpointChange = newBreakpoint !== currentBreakpoint;
+
+    if (isBreakpointChange) {
+      // For legitimate breakpoint changes, check if this might be a focus/blur glitch
+      const isLikelyFocusGlitch = document.hidden || timeSinceLastUpdate < 50;
+
+      // Always allow updates for:
+      // 1. Large changes (likely intentional resize)
+      // 2. When page is visible and enough time has passed
+      // 3. When breakpoint crosses major boundaries (mobile<->desktop)
+      const sizeChange = Math.abs(size.width - (lastUpdateTimeRef.current || size.width));
+      const isLargeChange = sizeChange > 100; // Increased threshold for major changes
+      const isMajorBreakpointChange =
+        (currentBreakpoint === 'mobile' && newBreakpoint === 'desktop') ||
+        (currentBreakpoint === 'desktop' && newBreakpoint === 'mobile');
+      const isStableUpdate = !document.hidden && timeSinceLastUpdate > 100;
+
+      if (isLargeChange || isMajorBreakpointChange || (isStableUpdate && !isLikelyFocusGlitch)) {
+        stableBreakpointRef.current = newBreakpoint;
+        lastUpdateTimeRef.current = now;
+
+        // Force a re-render to update the styles
+        forceUpdate({});
+      }
+    }
+  }, [size.width]);
+
+  return stableStyles;
 }

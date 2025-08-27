@@ -29,6 +29,18 @@ export function R3FProvider({ children }: { children: ReactNode }) {
   const isAnimating = useCameraStore(state => state.isAnimating);
   const isLandingAnimating = useLandingCameraStore(state => state.isAnimating);
 
+  // Track page visibility to prevent performance monitoring during focus changes
+  const [isPageVisible, setIsPageVisible] = useState(true);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsPageVisible(!document.hidden);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
   // Cleanup performance store on unmount
   useEffect(() => {
     return () => {
@@ -46,8 +58,8 @@ export function R3FProvider({ children }: { children: ReactNode }) {
     const base = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
     const now = Date.now();
 
-    // While any camera is animating, use a completely stable DPR to prevent jitter
-    if (isAnimating || isLandingAnimating) {
+    // While any camera is animating or page is not visible, use a completely stable DPR
+    if (isAnimating || isLandingAnimating || !isPageVisible) {
       // Use a cached stable value based on device capabilities
       const frozen = Math.max(1, Math.min(2, base));
       const stabilized = Math.round(frozen * 2) / 2; // half-step granularity
@@ -59,7 +71,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
     // Apply hysteresis: only update if enough time has passed since last animation
     const timeSinceLastUpdate = now - lastStableDprUpdateRef.current;
     if (timeSinceLastUpdate < 3000) {
-      // 3 second cooldown after animations
+      // 3 second cooldown after animations or visibility changes
       return stableDprRef.current;
     }
 
@@ -78,7 +90,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
     }
 
     return stableDprRef.current;
-  }, [dprFactor, declined, isAnimating, isLandingAnimating]);
+  }, [dprFactor, declined, isAnimating, isLandingAnimating, isPageVisible]);
 
   return (
     <R3FContext.Provider
@@ -91,7 +103,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
         <div className="absolute z-50 mx-auto">{children}</div>
 
         {/* Canvas positioned behind the UI */}
-        <div 
+        <div
           className="fixed inset-0 z-40 overflow-hidden transition-opacity duration-1000 ease-in-out"
           data-r3f-container
         >
