@@ -190,7 +190,6 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
     };
   }, [currentConfig]);
 
-  // Fixed main content position that doesn't change after initialization
   const [mainContentPosition] = useState(
     () =>
       new Vector3(
@@ -472,7 +471,6 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
             onMouseLeave={handleMouseLeaveUI}
             style={{
               zIndex: 30,
-              // Initial styles will be overridden by GSAP
             }}
           >
             <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>

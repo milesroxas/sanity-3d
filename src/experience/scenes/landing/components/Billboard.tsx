@@ -181,7 +181,7 @@ export function Billboard({ position, scale = 1, modalVideo, textureVideo }: Bil
         >
           {/* Play icon when hovering and player not shown */}
           {hovered && !showPlayer && (
-            <Html position={[0, 0, 0]} center>
+            <Html position={[-3, 0, 0]} center>
               <div className="flex items-center justify-center">
                 <PlayCircle size={48} className="animate-pulse text-white" />
               </div>
