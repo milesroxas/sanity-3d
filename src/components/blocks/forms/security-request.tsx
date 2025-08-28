@@ -1,5 +1,6 @@
 'use client';
 
+import Calendar23 from '@/components/calendar-23';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -11,6 +12,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import SectionContainer, { ISectionPadding } from '@/components/ui/section-container';
 import {
   Select,
@@ -194,103 +196,106 @@ export default function SecurityRequestForm({
     fileInputRef.current?.click();
   }, []);
 
-  const handleFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+  const handleFileChange = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
 
-    // Security limits
-    const MAX_FILES_PER_UPLOAD = 5;
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-    const MAX_TOTAL_FILES = 5;
+      // Security limits
+      const MAX_FILES_PER_UPLOAD = 5;
+      const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+      const MAX_TOTAL_FILES = 5;
 
-    // Check if adding these files would exceed the total limit
-    if (uploadedFiles.length + files.length > MAX_TOTAL_FILES) {
-      toast.error(`Maximum ${MAX_TOTAL_FILES} files allowed per form`);
-      return;
-    }
+      // Check if adding these files would exceed the total limit
+      if (uploadedFiles.length + files.length > MAX_TOTAL_FILES) {
+        toast.error(`Maximum ${MAX_TOTAL_FILES} files allowed per form`);
+        return;
+      }
 
-    // Check if too many files selected at once
-    if (files.length > MAX_FILES_PER_UPLOAD) {
-      toast.error(`Please select no more than ${MAX_FILES_PER_UPLOAD} files at once`);
-      return;
-    }
+      // Check if too many files selected at once
+      if (files.length > MAX_FILES_PER_UPLOAD) {
+        toast.error(`Please select no more than ${MAX_FILES_PER_UPLOAD} files at once`);
+        return;
+      }
 
-    // Validate file sizes before upload
-    const oversizedFiles = Array.from(files).filter(file => file.size > MAX_FILE_SIZE);
-    if (oversizedFiles.length > 0) {
-      toast.error(
-        `Files too large: ${oversizedFiles.map(f => f.name).join(', ')}. Maximum size is 5MB per file.`
-      );
-      return;
-    }
+      // Validate file sizes before upload
+      const oversizedFiles = Array.from(files).filter(file => file.size > MAX_FILE_SIZE);
+      if (oversizedFiles.length > 0) {
+        toast.error(
+          `Files too large: ${oversizedFiles.map(f => f.name).join(', ')}. Maximum size is 5MB per file.`
+        );
+        return;
+      }
 
-    // Validate file types
-    const allowedTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'image/webp',
-    ];
-    const invalidFiles = Array.from(files).filter(file => !allowedTypes.includes(file.type));
-    if (invalidFiles.length > 0) {
-      toast.error(
-        `Invalid file types: ${invalidFiles.map(f => f.name).join(', ')}. Only PDF, DOC, DOCX, and images are allowed.`
-      );
-      return;
-    }
+      // Validate file types
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+      ];
+      const invalidFiles = Array.from(files).filter(file => !allowedTypes.includes(file.type));
+      if (invalidFiles.length > 0) {
+        toast.error(
+          `Invalid file types: ${invalidFiles.map(f => f.name).join(', ')}. Only PDF, DOC, DOCX, and images are allowed.`
+        );
+        return;
+      }
 
-    setIsUploading(true);
-    const uploadPromises = Array.from(files).map(async file => {
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
+      setIsUploading(true);
+      const uploadPromises = Array.from(files).map(async file => {
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
 
-        const response = await fetch('/api/upload-to-sanity', {
-          method: 'POST',
-          body: formData,
-        });
+          const response = await fetch('/api/upload-to-sanity', {
+            method: 'POST',
+            body: formData,
+          });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `Failed to upload ${file.name}`);
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Failed to upload ${file.name}`);
+          }
+
+          const data = await response.json();
+          return {
+            name: file.name,
+            url: data.asset.url,
+            assetId: data.asset._id,
+            size: data.asset.size,
+          };
+        } catch (error) {
+          console.error(`Upload error for ${file.name}:`, error);
+          toast.error(`Failed to upload ${file.name}`);
+          return null;
         }
+      });
 
-        const data = await response.json();
-        return {
-          name: file.name,
-          url: data.asset.url,
-          assetId: data.asset._id,
-          size: data.asset.size,
-        };
+      try {
+        const results = await Promise.all(uploadPromises);
+        const successfulUploads = results.filter(Boolean) as UploadedFile[];
+
+        if (successfulUploads.length > 0) {
+          setUploadedFiles(prev => [...prev, ...successfulUploads]);
+          toast.success(`Successfully uploaded ${successfulUploads.length} file(s)`);
+        }
       } catch (error) {
-        console.error(`Upload error for ${file.name}:`, error);
-        toast.error(`Failed to upload ${file.name}`);
-        return null;
+        console.error('File upload error:', error);
+        toast.error('Some files failed to upload');
+      } finally {
+        setIsUploading(false);
+        // Reset the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       }
-    });
-
-    try {
-      const results = await Promise.all(uploadPromises);
-      const successfulUploads = results.filter(Boolean) as UploadedFile[];
-
-      if (successfulUploads.length > 0) {
-        setUploadedFiles(prev => [...prev, ...successfulUploads]);
-        toast.success(`Successfully uploaded ${successfulUploads.length} file(s)`);
-      }
-    } catch (error) {
-      console.error('File upload error:', error);
-      toast.error('Some files failed to upload');
-    } finally {
-      setIsUploading(false);
-      // Reset the file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  }, [uploadedFiles]);
+    },
+    [uploadedFiles]
+  );
 
   const removeFile = useCallback((index: number) => {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index));
@@ -299,7 +304,6 @@ export default function SecurityRequestForm({
   const handleFormSubmit = useCallback(
     async (data: FormData) => {
       try {
-        // In a real implementation, you would send this to your API
         const response = await fetch('/api/security-request', {
           method: 'POST',
           headers: {
@@ -314,9 +318,7 @@ export default function SecurityRequestForm({
 
         if (response.ok) {
           const result = await response.json();
-          const message = result.requestId
-            ? `${successMessage} Your request ID is: ${result.requestId}`
-            : successMessage;
+          const message = result.requestId ? `${successMessage}` : successMessage;
           toast.success(message);
           form.reset();
           setUploadedFiles([]);
@@ -359,15 +361,17 @@ export default function SecurityRequestForm({
 
   return (
     <SectionContainer color={color} padding={sectionPadding}>
-      <div className="mx-auto max-w-4xl">
-        {title && <h2 className="mb-4 text-3xl font-bold">{title}</h2>}
-        {description && <p className="mb-8 text-lg text-muted-foreground">{description}</p>}
+      <div className="mx-auto max-w-3xl py-12">
+        <div className="mb-24 max-w-xl">
+          {title && <h2 className="mb-4 text-3xl font-bold">{title}</h2>}
+          {description && <p className="mb-8 text-xl text-muted-foreground">{description}</p>}
+        </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-12">
             {/* Contact Information */}
             <div className="space-y-6">
-              <h3 className="text-xl font-semibold">1️⃣ Contact Information</h3>
+              <h3 className="text-xl font-semibold">Contact Information</h3>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -432,27 +436,35 @@ export default function SecurityRequestForm({
                 render={() => (
                   <FormItem>
                     <FormLabel>Preferred Contact Method *</FormLabel>
-                    <div className="flex flex-wrap gap-4">
+                    <div className="flex flex-wrap gap-3">
                       {contactMethodOptions.map(option => (
                         <FormField
                           key={option.id}
                           control={form.control}
                           name="preferredContactMethod"
                           render={({ field }) => (
-                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(option.id as any)}
-                                  onCheckedChange={checked => {
-                                    return checked
-                                      ? field.onChange([...field.value, option.id])
-                                      : field.onChange(
-                                          field.value?.filter(value => value !== option.id)
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal">{option.label}</FormLabel>
+                            <FormItem className="space-y-0">
+                              <div className="flex items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50">
+                                <FormControl>
+                                  <Checkbox
+                                    id={`preferred-${option.id}`}
+                                    checked={field.value?.includes(option.id as any)}
+                                    onCheckedChange={checked => {
+                                      return checked
+                                        ? field.onChange([...(field.value || []), option.id])
+                                        : field.onChange(
+                                            (field.value || []).filter(value => value !== option.id)
+                                          );
+                                    }}
+                                  />
+                                </FormControl>
+                                <Label
+                                  htmlFor={`preferred-${option.id}`}
+                                  className="cursor-pointer font-normal"
+                                >
+                                  {option.label}
+                                </Label>
+                              </div>
                             </FormItem>
                           )}
                         />
@@ -466,7 +478,7 @@ export default function SecurityRequestForm({
 
             {/* Service Location */}
             <div className="space-y-6">
-              <h3 className="text-xl font-semibold">2️⃣ Service Location</h3>
+              <h3 className="text-xl font-semibold">Service Location</h3>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -512,7 +524,7 @@ export default function SecurityRequestForm({
 
             {/* Service Details */}
             <div className="space-y-6">
-              <h3 className="text-xl font-semibold">3️⃣ Service Details</h3>
+              <h3 className="text-xl font-semibold">Service Details</h3>
 
               <FormField
                 control={form.control}
@@ -520,27 +532,35 @@ export default function SecurityRequestForm({
                 render={() => (
                   <FormItem>
                     <FormLabel>What type of security are you interested in? *</FormLabel>
-                    <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
                       {securityTypeOptions.map(option => (
                         <FormField
                           key={option.id}
                           control={form.control}
                           name="securityTypes"
                           render={({ field }) => (
-                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(option.id as any)}
-                                  onCheckedChange={checked => {
-                                    return checked
-                                      ? field.onChange([...field.value, option.id])
-                                      : field.onChange(
-                                          field.value?.filter(value => value !== option.id)
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal">{option.label}</FormLabel>
+                            <FormItem className="space-y-0">
+                              <div className="flex items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50">
+                                <FormControl>
+                                  <Checkbox
+                                    id={`stype-${option.id}`}
+                                    checked={field.value?.includes(option.id as any)}
+                                    onCheckedChange={checked => {
+                                      return checked
+                                        ? field.onChange([...(field.value || []), option.id])
+                                        : field.onChange(
+                                            (field.value || []).filter(value => value !== option.id)
+                                          );
+                                    }}
+                                  />
+                                </FormControl>
+                                <Label
+                                  htmlFor={`stype-${option.id}`}
+                                  className="cursor-pointer font-normal"
+                                >
+                                  {option.label}
+                                </Label>
+                              </div>
                             </FormItem>
                           )}
                         />
@@ -551,35 +571,28 @@ export default function SecurityRequestForm({
                 )}
               />
 
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="estimatedStartDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Estimated Start Date *</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="date" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="estimatedEndDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Estimated End Date</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="date" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="estimatedStartDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Service Dates *</FormLabel>
+                    <FormControl>
+                      <div>
+                        <Calendar23
+                          from={field.value || undefined}
+                          to={form.watch('estimatedEndDate') || undefined}
+                          onChange={({ from, to }) => {
+                            field.onChange(from ?? '');
+                            form.setValue('estimatedEndDate', to ?? '');
+                          }}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -641,7 +654,7 @@ export default function SecurityRequestForm({
 
             {/* Site/Project/Event Details */}
             <div className="space-y-6">
-              <h3 className="text-xl font-semibold">4️⃣ Site/Project/Event Details</h3>
+              <h3 className="text-xl font-semibold">Site/Project/Event Details</h3>
 
               <FormField
                 control={form.control}
@@ -720,7 +733,7 @@ export default function SecurityRequestForm({
 
             {/* Additional Information */}
             <div className="space-y-6">
-              <h3 className="text-xl font-semibold">5️⃣ Additional Information</h3>
+              <h3 className="text-xl font-semibold">Additional Information</h3>
 
               <FormField
                 control={form.control}
@@ -742,28 +755,36 @@ export default function SecurityRequestForm({
                 render={() => (
                   <FormItem>
                     <FormLabel>Will patrols be required?</FormLabel>
-                    <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
                       {patrolOptions.map(option => (
                         <FormField
                           key={option.id}
                           control={form.control}
                           name="patrolRequirements"
                           render={({ field }) => (
-                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(option.id as any)}
-                                  onCheckedChange={checked => {
-                                    const currentValue = field.value || [];
-                                    return checked
-                                      ? field.onChange([...currentValue, option.id])
-                                      : field.onChange(
-                                          currentValue.filter(value => value !== option.id)
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal">{option.label}</FormLabel>
+                            <FormItem className="space-y-0">
+                              <div className="flex items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50">
+                                <FormControl>
+                                  <Checkbox
+                                    id={`patrol-${option.id}`}
+                                    checked={field.value?.includes(option.id as any)}
+                                    onCheckedChange={checked => {
+                                      const currentValue = field.value || [];
+                                      return checked
+                                        ? field.onChange([...currentValue, option.id])
+                                        : field.onChange(
+                                            currentValue.filter(value => value !== option.id)
+                                          );
+                                    }}
+                                  />
+                                </FormControl>
+                                <Label
+                                  htmlFor={`patrol-${option.id}`}
+                                  className="cursor-pointer font-normal"
+                                >
+                                  {option.label}
+                                </Label>
+                              </div>
                             </FormItem>
                           )}
                         />
@@ -791,7 +812,7 @@ export default function SecurityRequestForm({
 
             {/* Budget & Preferences */}
             <div className="space-y-6">
-              <h3 className="text-xl font-semibold">6️⃣ Budget & Preferences</h3>
+              <h3 className="text-xl font-semibold">Budget & Preferences</h3>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <FormField
@@ -837,7 +858,7 @@ export default function SecurityRequestForm({
 
             {/* Upload Section */}
             <div className="space-y-6">
-              <h3 className="text-xl font-semibold">7️⃣ Upload Section</h3>
+              <h3 className="text-xl font-semibold">Upload Section</h3>
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -919,7 +940,7 @@ export default function SecurityRequestForm({
 
             {/* Agreement & Submission */}
             <div className="space-y-6">
-              <h3 className="text-xl font-semibold">8️⃣ Agreement & Submission</h3>
+              <h3 className="text-xl font-semibold">Agreement & Submission</h3>
 
               <FormField
                 control={form.control}
@@ -927,13 +948,20 @@ export default function SecurityRequestForm({
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                     <FormControl>
-                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                      <Checkbox
+                        id="agreement-consent"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm font-normal">
+                      <Label
+                        htmlFor="agreement-consent"
+                        className="cursor-pointer text-sm font-normal"
+                      >
                         I acknowledge that submitting this form does not guarantee services until a
                         formal contract is signed. *
-                      </FormLabel>
+                      </Label>
                       <FormMessage />
                     </div>
                   </FormItem>
