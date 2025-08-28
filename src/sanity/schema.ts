@@ -9,6 +9,7 @@ import scenes from './schemas/documents/scenes';
 import services from './schemas/documents/services';
 import team from './schemas/documents/team';
 import testimonial from './schemas/documents/testimonial';
+import securityRequestDoc from './schemas/documents/security-request';
 
 // Schema UI shared objects
 import blockContent from './schemas/blocks/shared/block-content';
@@ -25,6 +26,7 @@ import video from './schemas/blocks/shared/video';
 import faqs from './schemas/blocks/faqs';
 import featuredContentOffset from './schemas/blocks/featured/content-offset';
 import newsletter from './schemas/blocks/forms/newsletter';
+import securityRequest from './schemas/blocks/forms/security-request';
 import gridCard from './schemas/blocks/grid/grid-card';
 import gridPost from './schemas/blocks/grid/grid-post';
 import gridRow from './schemas/blocks/grid/grid-row';
@@ -77,6 +79,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     category,
     faq,
     testimonial,
+    securityRequestDoc,
     scenes,
     services,
     legal,
@@ -112,6 +115,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     logoCloud1,
     faqs,
     newsletter,
+    securityRequest,
     largeCallout,
     featuredContentOffset,
     ctaTeam,

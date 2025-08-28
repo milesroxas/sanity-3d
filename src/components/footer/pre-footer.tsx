@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { usePathname } from 'next/navigation';
@@ -96,7 +95,17 @@ export default function PreFooter() {
             </p>
           </div>
           <div className="mx-auto grid max-w-prose grid-cols-1 gap-2 lg:w-auto lg:grid-cols-2">
-            <Button className="w-full whitespace-normal py-4">Request a Proposal</Button>
+            <LinkButton
+              link={{
+                _type: 'customLink',
+                _key: 'prefooter-request-proposal',
+                title: 'Request a Proposal',
+                href: '/contact',
+                target: false,
+                buttonVariant: 'default',
+              }}
+              className="w-full whitespace-normal py-4"
+            />
             <LinkButton
               link={{
                 _type: 'customLink',

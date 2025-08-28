@@ -9,6 +9,7 @@ import {
   Menu,
   Quote,
   Settings,
+  Shield,
   User,
   UsersRound,
 } from 'lucide-react';
@@ -46,6 +47,15 @@ export const structure = (S: any, context: any) =>
         S,
         context,
       }),
+      S.divider(),
+      S.listItem()
+        .title('Security Requests')
+        .icon(Shield)
+        .child(
+          S.documentTypeList('securityRequest')
+            .title('Security Requests')
+            .defaultOrdering([{ field: '_createdAt', direction: 'desc' }])
+        ),
       S.divider(),
       S.listItem()
         .title('Scenes')

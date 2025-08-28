@@ -2,6 +2,7 @@ import Carousel1 from '@/components/blocks/carousel/carousel-1';
 import Carousel2 from '@/components/blocks/carousel/carousel-2';
 import Cta1 from '@/components/blocks/cta/cta-1';
 import FeaturedContentOffset from '@/components/blocks/featured/content-offset';
+import SecurityRequestForm from '@/components/blocks/forms/security-request';
 import GridRow from '@/components/blocks/grid/grid-row';
 import Hero1 from '@/components/blocks/hero/hero-1';
 import Hero2 from '@/components/blocks/hero/hero-2';
@@ -33,6 +34,7 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   'logo-cloud-1': LogoCloud1,
   faqs: FAQs,
   'form-newsletter': FormNewsletter,
+  'form-security-request': SecurityRequestForm,
   'large-callout': LargeCallout,
   'featured-content-offset': FeaturedContentOffset,
   'section-content': ExpandedContent,

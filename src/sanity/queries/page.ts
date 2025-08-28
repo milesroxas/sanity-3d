@@ -6,6 +6,7 @@ import { ctaTeamQuery } from './cta/cta-team';
 import { faqsQuery } from './faqs';
 import { featuredContentOffsetQuery } from './featured/content-offset';
 import { formNewsletterQuery } from './forms/newsletter';
+import { formSecurityRequestQuery } from './forms/security-request';
 import { gridRowQuery } from './grid/grid-row';
 import { hero1Query } from './hero/hero-1';
 import { hero2Query } from './hero/hero-2';
@@ -32,6 +33,7 @@ export const PAGE_QUERY = groq`
       ${logoCloud1Query}
       ${faqsQuery}
       ${formNewsletterQuery}
+      ${formSecurityRequestQuery}
     },
     meta_title,
     meta_description,

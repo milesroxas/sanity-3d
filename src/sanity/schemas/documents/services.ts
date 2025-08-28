@@ -54,6 +54,7 @@ export default defineType({
         { type: 'faqs' },
         { type: 'form-newsletter' },
         { type: 'cta-team' },
+        { type: 'form-security-request' },
       ],
     }),
     defineField({
