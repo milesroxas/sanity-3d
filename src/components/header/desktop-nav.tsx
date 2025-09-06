@@ -25,8 +25,7 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
   const rightPanelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLDivElement>(null);
   const mainLinksRef = useRef<HTMLDivElement>(null);
-  const experienceTextRef = useRef<HTMLDivElement>(null);
-  const experienceImageRef = useRef<HTMLDivElement>(null);
+  // We'll target multiple experience cards via CSS classes
   const contactSectionRef = useRef<HTMLDivElement>(null);
 
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
@@ -39,8 +38,8 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
       rightPanel: rightPanelRef.current,
       closeButton: closeButtonRef.current,
       mainLinks: mainLinksRef.current?.querySelectorAll('a'),
-      experienceText: experienceTextRef.current,
-      experienceImage: experienceImageRef.current?.querySelector('img'),
+      experienceTexts: leftPanelRef.current?.querySelectorAll('.experience-text'),
+      experienceImages: leftPanelRef.current?.querySelectorAll('.experience-image'),
       contactSection: contactSectionRef.current,
     };
 
@@ -60,18 +59,17 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
       gsap.set(elements.closeButton, { scale: 0.7, opacity: 0 });
     }
 
-    const animatableElements = [
-      elements.mainLinks,
-      elements.experienceText,
-      elements.contactSection,
-    ].filter(Boolean);
-
-    if (animatableElements.length > 0) {
-      gsap.set(animatableElements, { opacity: 0, y: 20 });
+    if (elements.mainLinks && elements.mainLinks.length > 0) {
+      gsap.set(elements.mainLinks, { opacity: 0, y: 20 });
     }
-
-    if (elements.experienceImage) {
-      gsap.set(elements.experienceImage, { scale: 1.25, opacity: 0 });
+    if (elements.experienceTexts && elements.experienceTexts.length > 0) {
+      gsap.set(elements.experienceTexts, { opacity: 0, y: 20 });
+    }
+    if (elements.contactSection) {
+      gsap.set(elements.contactSection, { opacity: 0, y: 20 });
+    }
+    if (elements.experienceImages && elements.experienceImages.length > 0) {
+      gsap.set(elements.experienceImages, { scale: 1.25, opacity: 0 });
     }
 
     return elements;
@@ -130,27 +128,29 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
       );
     }
 
-    if (elements.experienceText) {
+    if (elements.experienceTexts && elements.experienceTexts.length > 0) {
       tl.to(
-        elements.experienceText,
+        elements.experienceTexts,
         {
           opacity: 1,
           y: 0,
           duration: ANIMATION_CONFIG.durations.elementFade,
+          stagger: 0.1,
           ease: ANIMATION_CONFIG.easing.easeOut,
         },
         '<+0.1'
       );
     }
 
-    // 4. Scale in experience image
-    if (elements.experienceImage) {
+    // 4. Scale in experience images
+    if (elements.experienceImages && elements.experienceImages.length > 0) {
       tl.to(
-        elements.experienceImage,
+        elements.experienceImages,
         {
           scale: 1,
           opacity: 1,
           duration: ANIMATION_CONFIG.durations.imageScale,
+          stagger: 0.1,
           ease: ANIMATION_CONFIG.easing.easeOut,
         },
         '<'
@@ -166,7 +166,7 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
           duration: ANIMATION_CONFIG.durations.elementFade,
           ease: ANIMATION_CONFIG.easing.easeOut,
         },
-        elements.experienceImage ? '-=0.3' : '-=0.1'
+        elements.experienceImages && elements.experienceImages.length > 0 ? '-=0.3' : '-=0.1'
       );
     }
 
@@ -194,8 +194,8 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
       rightPanel: rightPanelRef.current,
       closeButton: closeButtonRef.current,
       mainLinks: mainLinksRef.current?.querySelectorAll('a'),
-      experienceText: experienceTextRef.current,
-      experienceImage: experienceImageRef.current?.querySelector('img'),
+      experienceTexts: leftPanelRef.current?.querySelectorAll('.experience-text'),
+      experienceImages: leftPanelRef.current?.querySelectorAll('.experience-image'),
       contactSection: contactSectionRef.current,
     };
 
@@ -250,9 +250,9 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
       );
     }
 
-    if (elements.experienceImage) {
+    if (elements.experienceImages && elements.experienceImages.length > 0) {
       tl.to(
-        elements.experienceImage,
+        elements.experienceImages,
         {
           y: 20,
           opacity: 0,
@@ -263,7 +263,13 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
       );
     }
 
-    const experienceTargets = [elements.experienceText, elements.leftPanel].filter(Boolean);
+    const experienceTargets: (Element | gsap.TweenTarget)[] = [];
+    if (elements.experienceTexts && elements.experienceTexts.length > 0) {
+      experienceTargets.push(elements.experienceTexts);
+    }
+    if (elements.leftPanel) {
+      experienceTargets.push(elements.leftPanel);
+    }
     if (experienceTargets.length > 0) {
       tl.to(
         experienceTargets,
@@ -273,7 +279,7 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
           duration: 0.3,
           ease: ANIMATION_CONFIG.easing.easeIn,
         },
-        elements.experienceImage ? '<' : '+=0.05'
+        elements.experienceImages && elements.experienceImages.length > 0 ? '<' : '+=0.05'
       );
     }
 
@@ -329,8 +335,6 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
       rightPanelRef,
       closeButtonRef,
       mainLinksRef,
-      experienceTextRef,
-      experienceImageRef,
       contactSectionRef,
     },
   };
@@ -430,29 +434,48 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
           <div className="flex h-screen w-full flex-row justify-between gap-12 overflow-clip md:items-center">
             {/* Experience Panel */}
             <div ref={refs.leftPanelRef} className="relative h-full w-1/2">
-              <Link href="/experience" className="block h-full w-full">
-                <div
-                  ref={refs.experienceTextRef}
-                  className="relative z-50 flex w-full flex-col items-center py-32 text-4xl font-light uppercase" // text-center might be useful
+              <div className="grid h-full grid-rows-3 gap-12 p-12">
+                {/* Experience Card 1 (2/3 height) */}
+                <Link
+                  href="/experience"
+                  className="experience-card group relative row-span-2 block h-full w-full overflow-hidden rounded-lg"
                 >
-                  View Experience
-                </div>
-                <div className="absolute inset-0 m-12">
-                  <div
-                    ref={refs.experienceImageRef}
-                    className="relative h-full w-full overflow-hidden rounded-lg"
-                  >
-                    <Image
-                      src="/images/fpo-nav.jpg"
-                      alt="experience fpo image"
-                      fill
-                      sizes="50vw"
-                      priority
-                      className="object-cover"
-                    />
+                  <Image
+                    src="/images/fpo-nav.jpg"
+                    alt="Experience preview"
+                    fill
+                    sizes="50vw"
+                    priority
+                    className="experience-image object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/20 transition-colors duration-300 group-hover:bg-black/10" />
+                  <div className="absolute inset-x-0 bottom-0 p-8">
+                    <div className="experience-text text-4xl font-light uppercase tracking-wide">
+                      View Experience
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+                {/* Experience Card 2 (1/3 height) */}
+                <Link
+                  href="/contact"
+                  className="experience-card group relative block h-full w-full overflow-hidden rounded-lg"
+                >
+                  <Image
+                    src="/images/fpo-nav.jpg"
+                    alt="Experience preview"
+                    fill
+                    sizes="50vw"
+                    priority
+                    className="experience-image object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/20 transition-colors duration-300 group-hover:bg-black/10" />
+                  <div className="absolute inset-x-0 bottom-0 p-8">
+                    <div className="experience-text text-4xl font-light uppercase tracking-wide">
+                      Request Security Proposal
+                    </div>
+                  </div>
+                </Link>
+              </div>
             </div>
 
             {/* Navigation Panel */}

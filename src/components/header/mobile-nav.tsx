@@ -15,7 +15,9 @@ import { urlFor } from '@/sanity/lib/image';
 import { AlignRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { LinkButton } from '../shared/link-button';
+import { useStore } from '@/lib/store';
 
 interface SanityLogo {
   asset: any; // Sanity asset reference
@@ -64,6 +66,9 @@ export default function MobileNav({
   settings?: SanitySettings;
 }) {
   const [open, setOpen] = useState(false);
+  const [contentReady, setContentReady] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const setIsNavOpened = useStore(state => state.setIsNavOpened);
 
   // Reset experience stores
   const resetCameraStore = useCameraStore(state => state.reset);
@@ -121,6 +126,43 @@ export default function MobileNav({
     };
   };
 
+  // Lock background scroll while open, without breaking inner scroll
+  useEffect(() => {
+    if (!open) return;
+    const previous = {
+      bodyOverflow: document.body.style.overflow,
+      bodyOverscroll: (document.body.style as any).overscrollBehaviorY,
+    };
+    document.body.style.overflow = 'hidden';
+    (document.body.style as any).overscrollBehaviorY = 'none';
+
+    return () => {
+      document.body.style.overflow = previous.bodyOverflow;
+      (document.body.style as any).overscrollBehaviorY = previous.bodyOverscroll || '';
+    };
+  }, [open]);
+
+  // Defer content reveal until after the panel mostly slides in
+  useEffect(() => {
+    let timer: number | undefined;
+    if (open) {
+      setContentReady(false);
+      timer = window.setTimeout(() => setContentReady(true), 700); // match majority of open animation
+    } else {
+      setContentReady(false);
+    }
+    return () => {
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [open]);
+
+  // Let global Lenis provider know nav open state, so it can stop/start smoothly
+  useEffect(() => {
+    setIsNavOpened(open);
+  }, [open, setIsNavOpened]);
+
+  // Rely on CSS overscroll behavior and body lock; avoid JS preventing default which can block scrolling
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -128,8 +170,11 @@ export default function MobileNav({
           <AlignRight />
         </Button>
       </SheetTrigger>
-      <SheetContent className="overflow-y-auto border-none bg-black/50 text-white backdrop-blur-sm">
-        <SheetHeader>
+      <SheetContent
+        side="right"
+        className="flex h-dvh max-h-dvh flex-col overflow-hidden border-none bg-background/90 text-foreground backdrop-blur-xl px-4 sm:px-6 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] data-[state=open]:duration-1000 data-[state=closed]:duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform"
+      >
+        <SheetHeader className="text-right">
           <div className="ml-auto mr-6">
             {nav.logo?.asset?._id && (
               <Image
@@ -146,7 +191,17 @@ export default function MobileNav({
             <SheetDescription>Navigate to the website pages</SheetDescription>
           </div>
         </SheetHeader>
-        <div className="flex flex-col gap-8 pb-20 pt-10">
+        {/* Scrollable content area */}
+        <div
+          ref={scrollRef}
+          data-lenis-prevent
+          data-lenis-prevent-wheel
+          data-lenis-prevent-touch
+          className={`flex min-h-0 flex-1 flex-col gap-8 pb-36 pt-6 overflow-y-auto overscroll-y-contain touch-pan-y transition-opacity transition-transform duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
+            contentReady ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
+          }`}
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
           <div className="container">
             {/* Company Links */}
             <div className="mb-8">
@@ -163,7 +218,7 @@ export default function MobileNav({
                         href={link.href}
                         target={link.target ? '_blank' : undefined}
                         rel={link.target ? 'noopener noreferrer' : undefined}
-                        className="hover:text-decoration-none text-lg hover:opacity-50"
+                        className="text-xl font-light tracking-wide transition-opacity hover:opacity-60"
                       >
                         {link.label}
                       </Link>
@@ -189,7 +244,7 @@ export default function MobileNav({
                           href={link.href}
                           target={link.target ? '_blank' : undefined}
                           rel={link.target ? 'noopener noreferrer' : undefined}
-                          className="hover:text-decoration-none text-lg hover:opacity-50"
+                          className="text-xl font-light tracking-wide transition-opacity hover:opacity-60"
                         >
                           {link.label}
                         </Link>
@@ -213,7 +268,7 @@ export default function MobileNav({
                     src="/images/fpo-nav.jpg"
                     alt="experience preview"
                     fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                   />
                 </div>
               </Link>
@@ -271,9 +326,35 @@ export default function MobileNav({
             {/* Social Links */}
             {settings?.social && (
               <div className="mt-8 flex justify-end">
-                <SocialLinks social={settings.social} iconClassName="h-5 w-5" />
+                <SocialLinks
+                  social={settings.social}
+                  iconClassName="h-5 w-5 text-foreground/70 transition-colors hover:text-foreground"
+                />
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Fixed bottom CTA */}
+        <div
+          className={`absolute inset-x-0 bottom-0 z-[60] border-t border-border bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 transition-opacity duration-500 ${
+            contentReady ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+        >
+          <div className="mx-auto max-w-screen-sm">
+            <LinkButton
+              link={{
+                _type: 'customLink',
+                _key: 'mobile-nav-request-security-proposal',
+                title: 'Request Security Proposal',
+                href: '/contact',
+                target: false,
+                buttonVariant: 'default',
+              }}
+              onClick={() => setOpen(false)}
+              className="w-full text-base"
+              size="lg"
+            />
           </div>
         </div>
       </SheetContent>

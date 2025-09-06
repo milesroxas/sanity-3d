@@ -13,24 +13,29 @@ interface LenisProps extends Omit<ReactLenisProps, 'ref'> {
   options: LenisOptions;
 }
 
+// A child component inside ReactLenis so useLenis() is within the provider
+function LenisController() {
+  const lenis = useLenis();
+  const isNavOpened = useStore(state => state.isNavOpened);
+
+  useEffect(() => {
+    if (!lenis) return;
+    if (isNavOpened) lenis.stop();
+    else lenis.start();
+  }, [isNavOpened, lenis]);
+
+  return null;
+}
+
 export function Lenis({ root, options }: LenisProps) {
   const lenisRef = useRef<LenisRef>(null);
-  const isNavOpened = useStore(state => state.isNavOpened);
-  const lenis = useLenis();
 
+  // Drive Lenis via Tempus RAF
   useTempus((time: number) => {
     if (lenisRef.current?.lenis) {
       lenisRef.current.lenis.raf(time);
     }
   });
-
-  useEffect(() => {
-    if (isNavOpened) {
-      lenis?.stop();
-    } else {
-      lenis?.start();
-    }
-  }, [isNavOpened, lenis]);
 
   return (
     <ReactLenis
@@ -41,9 +46,12 @@ export function Lenis({ root, options }: LenisProps) {
         lerp: options?.lerp ?? 0.125,
         autoRaf: false,
         anchors: true,
+        // Prevent Lenis from taking over specific tooling layers
         prevent: (node: Element | null) =>
           node?.nodeName === 'VERCEL-LIVE-FEEDBACK' || node?.id === 'theatrejs-studio-root',
       }}
-    />
+    >
+      <LenisController />
+    </ReactLenis>
   );
 }
