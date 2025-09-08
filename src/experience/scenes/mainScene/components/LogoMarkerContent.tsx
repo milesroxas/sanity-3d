@@ -8,7 +8,7 @@ import { useExpandedContentStore } from '@/experience/scenes/store/expandedConte
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
-import { ArrowRight, PanelLeftOpen, X } from 'lucide-react';
+import { ArrowRight, FileText, PanelLeftOpen, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import MarkerContentOverlay from './MarkerContentOverlay';
 
@@ -154,6 +154,39 @@ export default function LogoMarkerContent() {
     });
   };
 
+  // Helper: open overlay with provided blocks and title
+  const openOverlay = (overlayTitle: string, overlayBlocks: Sanity.Block[]) => {
+    setExpandedContent(overlayTitle, overlayBlocks);
+  };
+
+  // Helper: build overlay blocks from mainExpandedBody
+  const buildExpandedBodyOverlayBlocks = (eb: Sanity.Scene['mainExpandedBody']) => {
+    return [
+      {
+        _type: 'expanded-body',
+        _key: 'main-expanded',
+        blocks: eb?.blocks || [],
+        links: eb?.links || [],
+      },
+    ] as unknown as Sanity.Block[];
+  };
+
+  // Helper: open security request form overlay
+  const openSecurityRequestOverlay = () => {
+    const overlayBlocks = [
+      {
+        _type: 'form-security-request',
+        _key: 'security-request',
+        // Styling for overlay context
+        colorVariant: 'transparent',
+        padding: 'none',
+        direction: 'both',
+        variant: 'overlay',
+      },
+    ] as unknown as Sanity.Block[];
+    openOverlay('Security Request', overlayBlocks);
+  };
+
   // Also add an effect to sync the expanded content with logo marker visibility:
   useEffect(() => {
     if (!isContentVisible) {
@@ -229,62 +262,56 @@ export default function LogoMarkerContent() {
             </div>
           )}
 
-          {/* Fixed bottom action area: primary expanded content button and/or link */}
-          {(selectedScene.mainExpandedBody ||
-            (selectedScene.links && selectedScene.links.length > 0)) && (
-            <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-center bg-background pb-4 pl-6 pr-6 pt-4">
-              <div className="flex w-full gap-3">
-                {/* Expanded content button */}
-                {selectedScene.mainExpandedBody && (
-                  <Button
-                    variant="default"
-                    size="lg"
-                    className={cn(
-                      'h-12 text-xl font-bold',
-                      selectedScene.replaceMainLinkWithExpanded || !selectedScene.links?.length
-                        ? 'w-full'
-                        : 'w-1/2 lg:w-1/3'
+          {/* Fixed bottom action area: left = Security Request; right = Link or Expanded */}
+          <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-center bg-background pb-4 pl-6 pr-6 pt-4">
+            <div className="flex w-full gap-3">
+              {(() => {
+                const hasRightAction = Boolean(selectedScene.links && selectedScene.links.length > 0) ||
+                  Boolean(selectedScene.mainExpandedBody);
+                return (
+                  <>
+                    {/* Left: Always show Security Request Form trigger */}
+                    <Button
+                      variant="default"
+                      size="lg"
+                      className={cn('h-12 text-xl font-bold', hasRightAction ? 'w-1/2' : 'w-full')}
+                      onClick={openSecurityRequestOverlay}
+                    >
+                      <FileText className="mr-2" />
+                      <span className="truncate">Request Security</span>
+                    </Button>
+
+                    {/* Right: Prefer main link; fallback to expanded content */}
+                    {hasRightAction && (
+                      selectedScene.links && selectedScene.links.length > 0 ? (
+                        <LinkButton
+                          link={selectedScene.links[0]}
+                          className={cn('h-12 w-1/2 text-xl font-bold')}
+                          size="default"
+                          icon={ArrowRight}
+                          iconPosition="right"
+                          onClick={closeExpandedContent}
+                        />
+                      ) : (
+                        <Button
+                          variant="default"
+                          size="lg"
+                          className={cn('h-12 w-1/2 text-xl font-bold')}
+                          onClick={() => {
+                            const overlayBlocks = buildExpandedBodyOverlayBlocks(selectedScene.mainExpandedBody);
+                            openOverlay(selectedScene.title || 'Details', overlayBlocks);
+                          }}
+                        >
+                          <span className="truncate">Expand to Learn More</span>
+                          <PanelLeftOpen className="mr-2" />
+                        </Button>
+                      )
                     )}
-                    onClick={() => {
-                      const eb = selectedScene.mainExpandedBody;
-
-                      // Use mainExpandedBody as a single block with enhanced blocks support
-                      const overlayBlocks = [
-                        {
-                          _type: 'expanded-body',
-                          _key: 'main-expanded',
-                          blocks: eb?.blocks || [],
-                          links: eb?.links || [],
-                        },
-                      ] as unknown as Sanity.Block[];
-
-                      setExpandedContent(selectedScene.title || 'Details', overlayBlocks);
-                    }}
-                  >
-                    <span className="truncate">Expand to Learn More</span>
-                    <PanelLeftOpen className="mr-2" />
-                  </Button>
-                )}
-
-                {/* Main link button (optional) */}
-                {!selectedScene.replaceMainLinkWithExpanded &&
-                  selectedScene.links &&
-                  selectedScene.links.length > 0 && (
-                    <LinkButton
-                      link={selectedScene.links[0]}
-                      className={cn(
-                        'h-12 text-xl font-bold',
-                        selectedScene.mainExpandedBody ? 'w-1/2' : 'w-full'
-                      )}
-                      size="default"
-                      icon={ArrowRight}
-                      iconPosition="right"
-                      onClick={closeExpandedContent}
-                    ></LinkButton>
-                  )}
-              </div>
+                  </>
+                );
+              })()}
             </div>
-          )}
+          </div>
         </div>
       )}
       {isVisible && title && (

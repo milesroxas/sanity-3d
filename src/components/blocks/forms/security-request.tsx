@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FileText, Loader2, Upload, X } from 'lucide-react';
 import { stegaClean } from 'next-sanity';
@@ -46,6 +47,7 @@ interface SecurityRequestFormProps {
   submitButtonText?: string;
   successMessage?: string;
   notificationEmail?: string;
+  variant?: 'default' | 'overlay';
 }
 
 // Form validation schema
@@ -140,6 +142,7 @@ export default function SecurityRequestForm({
   submitButtonText = 'Submit Request',
   successMessage = "Thank you for your security request. We'll contact you within 24 hours.",
   notificationEmail,
+  variant = 'default',
 }: Partial<SecurityRequestFormProps>) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
@@ -179,18 +182,29 @@ export default function SecurityRequestForm({
 
   // Use useMemo for stable values to prevent hydration mismatches
   const color = useMemo(() => {
-    return colorVariant ? stegaClean(colorVariant) : 'background';
-  }, [colorVariant]);
+    // In overlay variant, prefer transparent background by default
+    const raw = colorVariant ? stegaClean(colorVariant) : 'background';
+    return variant === 'overlay' ? raw || 'transparent' : raw;
+  }, [colorVariant, variant]);
 
   // Combine padding and direction into ISectionPadding object
   const sectionPadding: ISectionPadding | undefined = useMemo(() => {
+    // For overlay variant, default to no extra vertical padding unless explicitly set
+    if (variant === 'overlay') {
+      const p = padding ? stegaClean(padding) : 'none';
+      const d = direction ? stegaClean(direction) : 'both';
+      return {
+        padding: p as ISectionPadding['padding'],
+        direction: d as ISectionPadding['direction'],
+      };
+    }
     return padding && direction
       ? {
           padding: stegaClean(padding),
           direction: stegaClean(direction),
         }
       : undefined;
-  }, [padding, direction]);
+  }, [padding, direction, variant]);
 
   const handleFileUpload = useCallback(() => {
     fileInputRef.current?.click();
@@ -359,235 +373,274 @@ export default function SecurityRequestForm({
     { id: 'other', label: 'Other' },
   ];
 
-  return (
-    <SectionContainer color={color} padding={sectionPadding}>
-      <div className="mx-auto max-w-3xl py-12">
-        <div className="mb-24 max-w-xl">
-          {title && <h2 className="mb-4 text-3xl font-bold">{title}</h2>}
-          {description && <p className="mb-8 text-xl text-muted-foreground">{description}</p>}
-        </div>
+  const content = (
+    <div
+      className={cn(
+        'mx-auto',
+        variant === 'overlay'
+          ? 'w-full rounded-lg bg-white/50 p-6 md:p-8'
+          : 'max-w-3xl py-12'
+      )}
+    >
+      <div className={cn('max-w-xl', variant === 'overlay' ? 'mb-6' : 'mb-24')}>
+        {title && <h2 className="mb-4 text-3xl font-bold">{title}</h2>}
+        {description && <p className="mb-8 text-xl text-muted-foreground">{description}</p>}
+      </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-12">
-            {/* Contact Information */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold">Contact Information</h3>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name *</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Enter your full name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="companyName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Company / HOA / Event Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Optional" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phoneNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number *</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="tel" placeholder="(555) 123-4567" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="emailAddress"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address *</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="email" placeholder="you@example.com" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-12">
+          {/* Contact Information */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold">Contact Information</h3>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="fullName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name *</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter your full name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
-                name="preferredContactMethod"
-                render={() => (
+                name="companyName"
+                render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Preferred Contact Method *</FormLabel>
-                    <div className="flex flex-wrap gap-3">
-                      {contactMethodOptions.map(option => (
-                        <FormField
-                          key={option.id}
-                          control={form.control}
-                          name="preferredContactMethod"
-                          render={({ field }) => (
-                            <FormItem className="space-y-0">
-                              <div className="flex items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50">
-                                <FormControl>
-                                  <Checkbox
-                                    id={`preferred-${option.id}`}
-                                    checked={field.value?.includes(option.id as any)}
-                                    onCheckedChange={checked => {
-                                      return checked
-                                        ? field.onChange([...(field.value || []), option.id])
-                                        : field.onChange(
-                                            (field.value || []).filter(value => value !== option.id)
-                                          );
-                                    }}
-                                  />
-                                </FormControl>
-                                <Label
-                                  htmlFor={`preferred-${option.id}`}
-                                  className="cursor-pointer font-normal"
-                                >
-                                  {option.label}
-                                </Label>
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-                      ))}
+                    <FormLabel>Company / HOA / Event Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Optional" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phoneNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number *</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="tel" placeholder="(555) 123-4567" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="emailAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address *</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="email" placeholder="you@example.com" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="preferredContactMethod"
+              render={() => (
+                <FormItem>
+                  <FormLabel>Preferred Contact Method *</FormLabel>
+                  <div className="flex flex-wrap gap-3">
+                    {contactMethodOptions.map(option => (
+                      <FormField
+                        key={option.id}
+                        control={form.control}
+                        name="preferredContactMethod"
+                        render={({ field }) => (
+                          <FormItem className="space-y-0">
+                            <div className="flex items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50">
+                              <FormControl>
+                                <Checkbox
+                                  id={`preferred-${option.id}`}
+                                  checked={field.value?.includes(option.id as any)}
+                                  onCheckedChange={checked => {
+                                    return checked
+                                      ? field.onChange([...(field.value || []), option.id])
+                                      : field.onChange(
+                                          (field.value || []).filter(value => value !== option.id)
+                                        );
+                                  }}
+                                />
+                              </FormControl>
+                              <Label
+                                htmlFor={`preferred-${option.id}`}
+                                className="cursor-pointer font-normal"
+                              >
+                                {option.label}
+                              </Label>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                    ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Service Location */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold">Service Location</h3>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="siteAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Site Name or Address *</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter site address" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="locationType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Type of Location *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select location type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="hoa-residential">HOA/Residential</SelectItem>
+                        <SelectItem value="retail-commercial">Retail/Commercial</SelectItem>
+                        <SelectItem value="hotel-resort">Hotel/Resort</SelectItem>
+                        <SelectItem value="construction-site">Construction Site</SelectItem>
+                        <SelectItem value="event-festival">Event/Festival</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Service Details */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold">Service Details</h3>
+
+            <FormField
+              control={form.control}
+              name="securityTypes"
+              render={() => (
+                <FormItem>
+                  <FormLabel>What type of security are you interested in? *</FormLabel>
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                    {securityTypeOptions.map(option => (
+                      <FormField
+                        key={option.id}
+                        control={form.control}
+                        name="securityTypes"
+                        render={({ field }) => (
+                          <FormItem className="space-y-0">
+                            <div className="flex items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50">
+                              <FormControl>
+                                <Checkbox
+                                  id={`stype-${option.id}`}
+                                  checked={field.value?.includes(option.id as any)}
+                                  onCheckedChange={checked => {
+                                    return checked
+                                      ? field.onChange([...(field.value || []), option.id])
+                                      : field.onChange(
+                                          (field.value || []).filter(value => value !== option.id)
+                                        );
+                                  }}
+                                />
+                              </FormControl>
+                              <Label
+                                htmlFor={`stype-${option.id}`}
+                                className="cursor-pointer font-normal"
+                              >
+                                {option.label}
+                              </Label>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                    ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="estimatedStartDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Service Dates *</FormLabel>
+                  <FormControl>
+                    <div>
+                      <Calendar23
+                        from={field.value || undefined}
+                        to={form.watch('estimatedEndDate') || undefined}
+                        onChange={({ from, to }) => {
+                          field.onChange(from ?? '');
+                          form.setValue('estimatedEndDate', to ?? '');
+                        }}
+                      />
                     </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            {/* Service Location */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold">Service Location</h3>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="siteAddress"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Site Name or Address *</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Enter site address" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <FormField
+              control={form.control}
+              name="daysHoursCoverage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Days & Hours of Coverage Needed *</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder="e.g., Mon–Fri overnight 10 PM–6 AM"
+                      rows={3}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <FormField
-                  control={form.control}
-                  name="locationType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Type of Location *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select location type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="hoa-residential">HOA/Residential</SelectItem>
-                          <SelectItem value="retail-commercial">Retail/Commercial</SelectItem>
-                          <SelectItem value="hotel-resort">Hotel/Resort</SelectItem>
-                          <SelectItem value="construction-site">Construction Site</SelectItem>
-                          <SelectItem value="event-festival">Event/Festival</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Service Details */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold">Service Details</h3>
-
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <FormField
                 control={form.control}
-                name="securityTypes"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>What type of security are you interested in? *</FormLabel>
-                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-                      {securityTypeOptions.map(option => (
-                        <FormField
-                          key={option.id}
-                          control={form.control}
-                          name="securityTypes"
-                          render={({ field }) => (
-                            <FormItem className="space-y-0">
-                              <div className="flex items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50">
-                                <FormControl>
-                                  <Checkbox
-                                    id={`stype-${option.id}`}
-                                    checked={field.value?.includes(option.id as any)}
-                                    onCheckedChange={checked => {
-                                      return checked
-                                        ? field.onChange([...(field.value || []), option.id])
-                                        : field.onChange(
-                                            (field.value || []).filter(value => value !== option.id)
-                                          );
-                                    }}
-                                  />
-                                </FormControl>
-                                <Label
-                                  htmlFor={`stype-${option.id}`}
-                                  className="cursor-pointer font-normal"
-                                >
-                                  {option.label}
-                                </Label>
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="estimatedStartDate"
+                name="totalGuardsNeeded"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Service Dates *</FormLabel>
+                    <FormLabel>Total Number of Guards Needed *</FormLabel>
                     <FormControl>
-                      <div>
-                        <Calendar23
-                          from={field.value || undefined}
-                          to={form.watch('estimatedEndDate') || undefined}
-                          onChange={({ from, to }) => {
-                            field.onChange(from ?? '');
-                            form.setValue('estimatedEndDate', to ?? '');
-                          }}
-                        />
-                      </div>
+                      <Input {...field} type="number" min="1" placeholder="1" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -596,108 +649,10 @@ export default function SecurityRequestForm({
 
               <FormField
                 control={form.control}
-                name="daysHoursCoverage"
+                name="serviceType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Days & Hours of Coverage Needed *</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        placeholder="e.g., Mon–Fri overnight 10 PM–6 AM"
-                        rows={3}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="totalGuardsNeeded"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Total Number of Guards Needed *</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="number" min="1" placeholder="1" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="serviceType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Is this an ongoing or one-time service? *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="ongoing">Ongoing</SelectItem>
-                          <SelectItem value="one-time">One-time</SelectItem>
-                          <SelectItem value="not-sure">Not Sure</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Site/Project/Event Details */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold">Site/Project/Event Details</h3>
-
-              <FormField
-                control={form.control}
-                name="siteDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Brief Description of Site or Event *</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        placeholder="Describe the property, event, or location that needs security"
-                        rows={4}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="securityConcerns"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Known security concerns or recent incidents?</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        placeholder="Optional: Describe any specific security concerns"
-                        rows={3}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="currentProvider"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Are you currently using another security provider? *</FormLabel>
+                    <FormLabel>Is this an ongoing or one-time service? *</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -705,277 +660,351 @@ export default function SecurityRequestForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="yes">Yes</SelectItem>
-                        <SelectItem value="no">No</SelectItem>
+                        <SelectItem value="ongoing">Ongoing</SelectItem>
+                        <SelectItem value="one-time">One-time</SelectItem>
+                        <SelectItem value="not-sure">Not Sure</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+            </div>
+          </div>
 
-              {watchCurrentProvider === 'yes' && (
-                <FormField
-                  control={form.control}
-                  name="currentProviderName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name of Current Provider</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Enter provider name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          {/* Site/Project/Event Details */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold">Site/Project/Event Details</h3>
+
+            <FormField
+              control={form.control}
+              name="siteDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Brief Description of Site or Event *</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder="Describe the property, event, or location that needs security"
+                      rows={4}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
 
-            {/* Additional Information */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold">Additional Information</h3>
+            <FormField
+              control={form.control}
+              name="securityConcerns"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Known security concerns or recent incidents?</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder="Optional: Describe any specific security concerns"
+                      rows={3}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
+            <FormField
+              control={form.control}
+              name="currentProvider"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Are you currently using another security provider? *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="yes">Yes</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {watchCurrentProvider === 'yes' && (
               <FormField
                 control={form.control}
-                name="specialCertifications"
+                name="currentProviderName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Special certifications or clearances required?</FormLabel>
+                    <FormLabel>Name of Current Provider</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="e.g., Armed guards, CPR certified, etc." />
+                      <Input {...field} placeholder="Enter provider name" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+            )}
+          </div>
 
-              <FormField
-                control={form.control}
-                name="patrolRequirements"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>Will patrols be required?</FormLabel>
-                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-                      {patrolOptions.map(option => (
-                        <FormField
-                          key={option.id}
-                          control={form.control}
-                          name="patrolRequirements"
-                          render={({ field }) => (
-                            <FormItem className="space-y-0">
-                              <div className="flex items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50">
-                                <FormControl>
-                                  <Checkbox
-                                    id={`patrol-${option.id}`}
-                                    checked={field.value?.includes(option.id as any)}
-                                    onCheckedChange={checked => {
-                                      const currentValue = field.value || [];
-                                      return checked
-                                        ? field.onChange([...currentValue, option.id])
-                                        : field.onChange(
-                                            currentValue.filter(value => value !== option.id)
-                                          );
-                                    }}
-                                  />
-                                </FormControl>
-                                <Label
-                                  htmlFor={`patrol-${option.id}`}
-                                  className="cursor-pointer font-normal"
-                                >
-                                  {option.label}
-                                </Label>
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {/* Additional Information */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold">Additional Information</h3>
 
-              <FormField
-                control={form.control}
-                name="onsiteContact"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>On-site contact name & phone</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Name and phone number" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="specialCertifications"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Special certifications or clearances required?</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="e.g., Armed guards, CPR certified, etc." />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            {/* Budget & Preferences */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold">Budget & Preferences</h3>
-
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="budgetRange"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Target budget range</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Optional" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="hearAboutUs"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>How did you hear about O'Linn Security? *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="referral">Referral</SelectItem>
-                          <SelectItem value="online-search">Online Search</SelectItem>
-                          <SelectItem value="returning-client">Returning Client</SelectItem>
-                          <SelectItem value="social-media">Social Media</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Upload Section */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold">Upload Section</h3>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <FormLabel>Upload any site maps, layouts, or photos</FormLabel>
-                  <span className="text-xs text-muted-foreground">
-                    {uploadedFiles.length}/5 files
-                  </span>
-                </div>
-
-                {/* Upload Area */}
-                <div
-                  className={`flex items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors ${
-                    uploadedFiles.length >= 5
-                      ? 'cursor-not-allowed border-muted-foreground/10 bg-muted/20'
-                      : isUploading
-                        ? 'cursor-wait border-primary bg-primary/5'
-                        : 'cursor-pointer border-muted-foreground/25 hover:border-muted-foreground/50'
-                  }`}
-                  onClick={uploadedFiles.length < 5 ? handleFileUpload : undefined}
-                >
-                  <div className="text-center">
-                    {isUploading ? (
-                      <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-                    ) : (
-                      <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
-                    )}
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {uploadedFiles.length >= 5
-                        ? 'Maximum file limit reached'
-                        : isUploading
-                          ? 'Uploading files...'
-                          : 'Click to upload files or drag and drop'}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      PDF, DOC, JPG, PNG • Max 5 files • 5MB each
-                    </p>
-                  </div>
-                </div>
-
-                {/* File List */}
-                {uploadedFiles.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Uploaded Files:</p>
-                    <div className="space-y-2">
-                      {uploadedFiles.map((file, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between rounded-md border bg-background p-3"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <FileText className="h-4 w-4 text-muted-foreground" />
-                            <span className="truncate text-sm">{file.name}</span>
-                          </div>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeFile(index)}
-                            className="h-8 w-8 p-0"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </div>
-            </div>
-
-            {/* Agreement & Submission */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold">Agreement & Submission</h3>
-
-              <FormField
-                control={form.control}
-                name="agreementConsent"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        id="agreement-consent"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
+            <FormField
+              control={form.control}
+              name="patrolRequirements"
+              render={() => (
+                <FormItem>
+                  <FormLabel>Will patrols be required?</FormLabel>
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                    {patrolOptions.map(option => (
+                      <FormField
+                        key={option.id}
+                        control={form.control}
+                        name="patrolRequirements"
+                        render={({ field }) => (
+                          <FormItem className="space-y-0">
+                            <div className="flex items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50">
+                              <FormControl>
+                                <Checkbox
+                                  id={`patrol-${option.id}`}
+                                  checked={field.value?.includes(option.id as any)}
+                                  onCheckedChange={checked => {
+                                    const currentValue = field.value || [];
+                                    return checked
+                                      ? field.onChange([...currentValue, option.id])
+                                      : field.onChange(
+                                          currentValue.filter(value => value !== option.id)
+                                        );
+                                  }}
+                                />
+                              </FormControl>
+                              <Label
+                                htmlFor={`patrol-${option.id}`}
+                                className="cursor-pointer font-normal"
+                              >
+                                {option.label}
+                              </Label>
+                            </div>
+                          </FormItem>
+                        )}
                       />
+                    ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="onsiteContact"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>On-site contact name & phone</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Name and phone number" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Budget & Preferences */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold">Budget & Preferences</h3>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="budgetRange"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Target budget range</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Optional" />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <Label
-                        htmlFor="agreement-consent"
-                        className="cursor-pointer text-sm font-normal"
-                      >
-                        I acknowledge that submitting this form does not guarantee services until a
-                        formal contract is signed. *
-                      </Label>
-                      <FormMessage />
-                    </div>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto" size="lg">
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {submitButtonText}
-              </Button>
+              <FormField
+                control={form.control}
+                name="hearAboutUs"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>How did you hear about O'Linn Security? *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="referral">Referral</SelectItem>
+                        <SelectItem value="online-search">Online Search</SelectItem>
+                        <SelectItem value="returning-client">Returning Client</SelectItem>
+                        <SelectItem value="social-media">Social Media</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-          </form>
-        </Form>
-      </div>
+          </div>
+
+          {/* Upload Section */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold">Upload Section</h3>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <FormLabel>Upload any site maps, layouts, or photos</FormLabel>
+                <span className="text-xs text-muted-foreground">
+                  {uploadedFiles.length}/5 files
+                </span>
+              </div>
+
+              {/* Upload Area */}
+              <div
+                className={`flex items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors ${
+                  uploadedFiles.length >= 5
+                    ? 'cursor-not-allowed border-muted-foreground/10 bg-muted/20'
+                    : isUploading
+                      ? 'cursor-wait border-primary bg-primary/5'
+                      : 'cursor-pointer border-muted-foreground/25 hover:border-muted-foreground/50'
+                }`}
+                onClick={uploadedFiles.length < 5 ? handleFileUpload : undefined}
+              >
+                <div className="text-center">
+                  {isUploading ? (
+                    <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                  ) : (
+                    <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
+                  )}
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {uploadedFiles.length >= 5
+                      ? 'Maximum file limit reached'
+                      : isUploading
+                        ? 'Uploading files...'
+                        : 'Click to upload files or drag and drop'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    PDF, DOC, JPG, PNG • Max 5 files • 5MB each
+                  </p>
+                </div>
+              </div>
+
+              {/* File List */}
+              {uploadedFiles.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Uploaded Files:</p>
+                  <div className="space-y-2">
+                    {uploadedFiles.map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between rounded-md border bg-background p-3"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                          <span className="truncate text-sm">{file.name}</span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFile(index)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </div>
+          </div>
+
+          {/* Agreement & Submission */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold">Agreement & Submission</h3>
+
+            <FormField
+              control={form.control}
+              name="agreementConsent"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      id="agreement-consent"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <Label
+                      htmlFor="agreement-consent"
+                      className="cursor-pointer text-sm font-normal"
+                    >
+                      I acknowledge that submitting this form does not guarantee services until a
+                      formal contract is signed. *
+                    </Label>
+                    <FormMessage />
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto" size="lg">
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {submitButtonText}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
+
+  if (variant === 'overlay') {
+    return content;
+  }
+
+  return (
+    <SectionContainer color={color} padding={sectionPadding}>
+      {content}
     </SectionContainer>
   );
 }
