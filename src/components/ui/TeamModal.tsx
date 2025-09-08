@@ -5,10 +5,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { urlFor } from '@/sanity/lib/image';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { useLenis } from 'lenis/react';
+ 
+import { useStore } from '@/lib/store';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogOverlay, DialogTitle } from './dialog';
+import { useEffect, useRef } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './dialog';
 
 interface TeamModalProps {
   title: string;
@@ -32,60 +33,37 @@ export default function TeamModal({
   const modalRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const lenis = useLenis();
+ 
+  const setIsNavOpened = useStore(state => state.setIsNavOpened);
 
-  // 1) Lock/unlock Lenis + body overflow based on isOpen
+  // Lock/unlock scroll: coordinate with global Lenis controller and body styles
   useEffect(() => {
     if (isOpen) {
-      lenis?.stop();
+      // Inform global Lenis controller to stop (mirrors MobileNav behavior)
+      setIsNavOpened(true);
+      // Lock body scroll and overscroll bounce on iOS
+      const prev = {
+        overflow: document.body.style.overflow,
+        overscroll: (document.body.style as any).overscrollBehaviorY,
+      };
       document.body.style.overflow = 'hidden';
+      (document.body.style as any).overscrollBehaviorY = 'none';
+
+      return () => {
+        (document.body.style as any).overscrollBehaviorY = prev.overscroll || '';
+        document.body.style.overflow = prev.overflow;
+        setIsNavOpened(false);
+      };
     } else {
-      lenis?.start();
+      // Ensure Lenis resumes when modal closes
+      setIsNavOpened(false);
       document.body.style.overflow = '';
     }
+  }, [isOpen, setIsNavOpened]);
 
-    return () => {
-      // In case the component unmounts while still open
-      lenis?.start();
-      document.body.style.overflow = '';
-    };
-  }, [isOpen, lenis]);
+  // Removed legacy wheel handlers in favor of native scroll with Lenis prevention flags
 
-  // // 2) Add a global "wheel" listener on document whenever the modal is open.
-  // //    If the wheel event does NOT occur inside our <ScrollArea>, preventDefault().
-  // useEffect(() => {
-  //   if (!isOpen) return;
-
-  //   const handleGlobalWheel = (e: WheelEvent) => {
-  //     // If the event target is somewhere inside the scroll area, do nothing.
-  //     if (scrollAreaRef.current?.contains(e.target as Node)) {
-  //       return;
-  //     }
-  //     // Otherwise, prevent any scrolling on the background
-  //     e.preventDefault();
-  //   };
-
-  //   document.addEventListener('wheel', handleGlobalWheel, { passive: false, capture: true });
-  //   return () => {
-  //     document.removeEventListener('wheel', handleGlobalWheel, { capture: true });
-  //   };
-  // }, [isOpen]);
-
-  // // 3) Custom wheel handler for our scroll area to manage scrollPosition state
-  // const handleWheel = (e: React.WheelEvent) => {
-  //   if (!scrollAreaRef.current) return;
-  //   const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-  //   if (!viewport) return;
-
-  //   const newPosition = scrollPosition + e.deltaY;
-  //   (viewport as HTMLElement).scrollTop = newPosition;
-  //   setScrollPosition(newPosition);
-  //   e.preventDefault();
-  // };
-
-  // 4) GSAP fade‐in animation when modal opens
+  // GSAP fade‐in animation when modal opens
   useGSAP(
     () => {
       if (!isOpen || !modalRef.current) return;
@@ -119,16 +97,17 @@ export default function TeamModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogOverlay className="bg-black/50" />
       <DialogContent
         size="full"
-        className="max-h-[80vh] bg-black p-0 text-white lg:h-full"
+        className="max-h-[80vh] bg-black p-0 text-white lg:h-full overflow-hidden"
         ref={modalRef}
-        // onWheel={handleWheel}
       >
         <ScrollArea
-          ref={scrollAreaRef}
-          className="relative h-full w-full px-8 pb-12"
+          data-lenis-prevent
+          data-lenis-prevent-wheel
+          data-lenis-prevent-touch
+          className="relative h-full w-full min-h-0 px-8 pb-12 touch-pan-y overscroll-y-contain"
+          style={{ WebkitOverflowScrolling: 'touch' }}
           onWheel={e => e.stopPropagation()}
         >
           {image && image.asset?._id && (

@@ -112,6 +112,14 @@
 }
 
 @layer components {
+  /* Hide the custom cursor on touch/coarse-pointer devices as a CSS fallback */
+  @media (hover: none), (pointer: coarse) {
+    .custom-cursor,
+    .custom-cursor-outer {
+      display: none !important;
+    }
+  }
+
   /* CSS */
   .button-21 {
     touch-action: manipulation;

@@ -8,21 +8,23 @@ export const CustomCursor = () => {
   const cursorOuterRef = useRef<HTMLDivElement>(null);
   const [enabled, setEnabled] = useState(false);
 
+  // Decide if the environment supports a fine, hoverable pointer (i.e., not mobile/touch)
   useEffect(() => {
-    // Detect devices capable of hover with a fine pointer (i.e., not touch)
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const hasFinePointer =
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-    // Only enable the custom cursor on devices with a fine pointer
-    if (!hasFinePointer || isTouchDevice) {
-      setEnabled(false);
-      return;
-    }
-    setEnabled(true);
+    setEnabled(!isTouchDevice && hasFinePointer);
+  }, []);
+
+  // When enabled, wire up animations and listeners
+  useEffect(() => {
+    if (!enabled) return;
 
     const cursor = cursorRef.current;
     const cursorOuter = cursorOuterRef.current;
-
     if (!cursor || !cursorOuter) return;
 
     // Initially hide cursors
@@ -110,7 +112,7 @@ export const CustomCursor = () => {
         el.removeEventListener('mouseleave', onInteractiveLeave);
       });
     };
-  }, []);
+  }, [enabled]);
 
   if (!enabled) return null;
 
@@ -118,11 +120,11 @@ export const CustomCursor = () => {
     <>
       <div
         ref={cursorRef}
-        className="pointer-events-none fixed z-50 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white mix-blend-difference transition-transform duration-200 ease-out"
+        className="custom-cursor pointer-events-none fixed z-50 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white mix-blend-difference transition-transform duration-200 ease-out"
       />
       <div
         ref={cursorOuterRef}
-        className="pointer-events-none fixed z-50 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white mix-blend-difference transition-transform duration-200 ease-out"
+        className="custom-cursor-outer pointer-events-none fixed z-50 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white mix-blend-difference transition-transform duration-200 ease-out"
       />
     </>
   );

@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -13,7 +14,7 @@ import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { useStore } from '@/lib/store';
 import { urlFor } from '@/sanity/lib/image';
-import { AlignRight } from 'lucide-react';
+import { AlignRight, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -174,8 +175,8 @@ export default function MobileNav({
         side="right"
         className="ease-[cubic-bezier(0.2,0.8,0.2,1)] flex h-dvh max-h-dvh flex-col overflow-hidden border-none bg-background/90 px-4 pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] text-foreground backdrop-blur-xl will-change-transform data-[state=closed]:duration-700 data-[state=open]:duration-1000 sm:px-6"
       >
-        <SheetHeader>
-          <div className="ml-auto mr-6 py-4">
+        <SheetHeader className="flex-row items-center justify-between space-y-0">
+          <div className="py-4">
             {nav.logo?.asset?._id && (
               <Image
                 src={urlFor(nav.logo.asset).url()}
@@ -185,6 +186,11 @@ export default function MobileNav({
               />
             )}
           </div>
+          <SheetClose asChild>
+            <Button aria-label="Close Menu" variant="ghost" size="lg" className="p-4">
+              <X className="h-6 w-6" />
+            </Button>
+          </SheetClose>
           <div className="sr-only">
             <SheetTitle>Main Navigation</SheetTitle>
             <SheetDescription>Navigate to the website pages</SheetDescription>
@@ -201,7 +207,7 @@ export default function MobileNav({
           }`}
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
-          <div className="container">
+          <div>
             {/* Company Links */}
             <div className="mb-8">
               <h3 className="mb-3 text-sm font-medium uppercase text-slate-400">Company</h3>
