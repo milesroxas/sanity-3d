@@ -462,7 +462,7 @@ export default function SecurityRequestForm({
                         name="preferredContactMethod"
                         render={({ field }) => (
                           <FormItem className="space-y-0">
-                            <label
+                            <Label
                               htmlFor={`preferred-${option.id}`}
                               className="flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50"
                             >
@@ -480,7 +480,7 @@ export default function SecurityRequestForm({
                                 />
                               </FormControl>
                               <span className="font-normal">{option.label}</span>
-                            </label>
+                            </Label>
                           </FormItem>
                         )}
                       />
@@ -556,7 +556,10 @@ export default function SecurityRequestForm({
                         name="securityTypes"
                         render={({ field }) => (
                           <FormItem className="space-y-0">
-                            <div className="flex items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50">
+                            <Label
+                              htmlFor={`stype-${option.id}`}
+                              className="flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50"
+                            >
                               <FormControl>
                                 <Checkbox
                                   id={`stype-${option.id}`}
@@ -570,13 +573,8 @@ export default function SecurityRequestForm({
                                   }}
                                 />
                               </FormControl>
-                              <Label
-                                htmlFor={`stype-${option.id}`}
-                                className="cursor-pointer font-normal"
-                              >
-                                {option.label}
-                              </Label>
-                            </div>
+                              <span className="font-normal">{option.label}</span>
+                            </Label>
                           </FormItem>
                         )}
                       />
@@ -779,7 +777,7 @@ export default function SecurityRequestForm({
                         name="patrolRequirements"
                         render={({ field }) => (
                           <FormItem className="space-y-0">
-                            <label
+                            <Label
                               htmlFor={`patrol-${option.id}`}
                               className="flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50"
                             >
@@ -798,7 +796,7 @@ export default function SecurityRequestForm({
                                 />
                               </FormControl>
                               <span className="font-normal">{option.label}</span>
-                            </label>
+                            </Label>
                           </FormItem>
                         )}
                       />
@@ -960,24 +958,24 @@ export default function SecurityRequestForm({
               control={form.control}
               name="agreementConsent"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      id="agreement-consent"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <Label
-                      htmlFor="agreement-consent"
-                      className="cursor-pointer text-sm font-normal"
-                    >
+                <FormItem className="space-y-0">
+                  <Label
+                    htmlFor="agreement-consent"
+                    className="flex cursor-pointer items-center gap-3"
+                  >
+                    <FormControl>
+                      <Checkbox
+                        id="agreement-consent"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <span className="text-sm font-normal leading-none">
                       I acknowledge that submitting this form does not guarantee services until a
                       formal contract is signed. *
-                    </Label>
-                    <FormMessage />
-                  </div>
+                    </span>
+                  </Label>
+                  <FormMessage />
                 </FormItem>
               )}
             />
