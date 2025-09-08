@@ -11,13 +11,13 @@ import {
 import SocialLinks from '@/components/ui/social-links';
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import { useStore } from '@/lib/store';
 import { urlFor } from '@/sanity/lib/image';
 import { AlignRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { LinkButton } from '../shared/link-button';
-import { useStore } from '@/lib/store';
 
 interface SanityLogo {
   asset: any; // Sanity asset reference
@@ -172,17 +172,16 @@ export default function MobileNav({
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="flex h-dvh max-h-dvh flex-col overflow-hidden border-none bg-background/90 text-foreground backdrop-blur-xl px-4 sm:px-6 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] data-[state=open]:duration-1000 data-[state=closed]:duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] will-change-transform"
+        className="ease-[cubic-bezier(0.2,0.8,0.2,1)] flex h-dvh max-h-dvh flex-col overflow-hidden border-none bg-background/90 px-4 pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] text-foreground backdrop-blur-xl will-change-transform data-[state=closed]:duration-700 data-[state=open]:duration-1000 sm:px-6"
       >
-        <SheetHeader className="text-right">
-          <div className="ml-auto mr-6">
+        <SheetHeader>
+          <div className="ml-auto mr-6 py-4">
             {nav.logo?.asset?._id && (
               <Image
                 src={urlFor(nav.logo.asset).url()}
                 alt={nav.logo.alt || ''}
-                width={80}
-                height={80}
-                className="w-[80%]"
+                width={40}
+                height={40}
               />
             )}
           </div>
@@ -197,18 +196,16 @@ export default function MobileNav({
           data-lenis-prevent
           data-lenis-prevent-wheel
           data-lenis-prevent-touch
-          className={`flex min-h-0 flex-1 flex-col gap-8 pb-36 pt-6 overflow-y-auto overscroll-y-contain touch-pan-y transition-opacity transition-transform duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
-            contentReady ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
+          className={`ease-[cubic-bezier(0.2,0.8,0.2,1)] flex min-h-0 flex-1 touch-pan-y flex-col gap-8 overflow-y-auto overscroll-y-contain pb-36 pt-6 transition-opacity transition-transform duration-500 ${
+            contentReady ? 'translate-x-0 opacity-100' : 'translate-x-2 opacity-0'
           }`}
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           <div className="container">
             {/* Company Links */}
             <div className="mb-8">
-              <h3 className="mb-3 text-right text-sm font-medium uppercase text-slate-400">
-                Company
-              </h3>
-              <ul className="list-none space-y-3 text-right">
+              <h3 className="mb-3 text-sm font-medium uppercase text-slate-400">Company</h3>
+              <ul className="list-none space-y-3">
                 {nav.companyLinks.map((navItem, index) => {
                   const link = getLink(navItem);
                   return (
@@ -231,10 +228,8 @@ export default function MobileNav({
             {/* Services Links */}
             {nav.services && nav.services.length > 0 && (
               <div className="mb-8">
-                <h3 className="mb-3 text-right text-sm font-medium uppercase text-slate-400">
-                  Services
-                </h3>
-                <ul className="list-none space-y-3 text-right">
+                <h3 className="mb-3 text-sm font-medium uppercase text-slate-400">Services</h3>
+                <ul className="list-none space-y-3">
                   {nav.services.map((service, index) => {
                     const link = getLink(service);
                     return (
@@ -260,9 +255,9 @@ export default function MobileNav({
               <Link
                 href="/experience"
                 onClick={handleExperienceClick}
-                className="group flex flex-col items-end"
+                className="group flex flex-col items-start"
               >
-                <h3 className="mb-3 text-right text-lg font-medium uppercase">View Experience</h3>
+                <h3 className="mb-3 text-lg font-medium uppercase">View Experience</h3>
                 <div className="relative h-40 w-full overflow-hidden rounded-lg">
                   <Image
                     src="/images/fpo-nav.jpg"
@@ -276,7 +271,7 @@ export default function MobileNav({
 
             {/* Contact Information */}
             {settings?.contact && (
-              <div className="mb-6 text-right">
+              <div className="mb-6">
                 <h3 className="mb-2 text-sm font-medium uppercase text-slate-400">Contact Us</h3>
                 <div className="flex flex-col gap-2">
                   {settings.contact.phone && (
@@ -300,7 +295,7 @@ export default function MobileNav({
             )}
 
             {/* Address and Hours */}
-            <div className="mb-6 text-right">
+            <div className="mb-6">
               {settings?.address && (
                 <div className="mb-4">
                   <h3 className="mb-2 text-sm font-medium uppercase text-slate-400">Location</h3>
@@ -325,7 +320,7 @@ export default function MobileNav({
 
             {/* Social Links */}
             {settings?.social && (
-              <div className="mt-8 flex justify-end">
+              <div className="mt-8 flex justify-start">
                 <SocialLinks
                   social={settings.social}
                   iconClassName="h-5 w-5 text-foreground/70 transition-colors hover:text-foreground"
@@ -337,8 +332,8 @@ export default function MobileNav({
 
         {/* Fixed bottom CTA */}
         <div
-          className={`absolute inset-x-0 bottom-0 z-[60] border-t border-border bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 transition-opacity duration-500 ${
-            contentReady ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          className={`absolute inset-x-0 bottom-0 z-[60] border-t border-border bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3 backdrop-blur transition-opacity duration-500 supports-[backdrop-filter]:bg-background/80 ${
+            contentReady ? 'opacity-100' : 'pointer-events-none opacity-0'
           }`}
         >
           <div className="mx-auto max-w-screen-sm">

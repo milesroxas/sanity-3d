@@ -1,19 +1,24 @@
 'use client';
 
 import gsap from 'gsap';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export const CustomCursor = () => {
   const cursorRef = useRef<HTMLDivElement>(null);
   const cursorOuterRef = useRef<HTMLDivElement>(null);
+  const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
-    // Check if device is touch-enabled (mobile/tablet)
+    // Detect devices capable of hover with a fine pointer (i.e., not touch)
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-    if (isTouchDevice) {
-      return; // Exit early for touch devices
+    // Only enable the custom cursor on devices with a fine pointer
+    if (!hasFinePointer || isTouchDevice) {
+      setEnabled(false);
+      return;
     }
+    setEnabled(true);
 
     const cursor = cursorRef.current;
     const cursorOuter = cursorOuterRef.current;
@@ -106,6 +111,8 @@ export const CustomCursor = () => {
       });
     };
   }, []);
+
+  if (!enabled) return null;
 
   return (
     <>
