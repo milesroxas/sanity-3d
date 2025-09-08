@@ -64,6 +64,7 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
   const isHoveringUI = useRef(false);
   const lastValidMousePosition = useRef({ x: 0, y: 0 });
   const isPageVisible = useRef(true);
+  const isPreExitStabilizingRef = useRef(false);
 
   // Progress tracking
   const { progress, active } = useProgress();
@@ -279,59 +280,71 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
   const handleExit = contextSafe(() => {
     if (isAnimating) return;
 
-    setAnimating(true);
-    cleanupTimeline();
+    // Begin pre-exit stabilization by quickly damping the mouse offset to zero
+    // and disabling mouse tracking so we don't capture any new movement during the transition.
+    // Use a short window to allow the offset to settle before animating the camera.
+    isPreExitStabilizingRef.current = true;
+    useLandingCameraStore.setState({ mouseTrackingEnabled: false });
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        const cameraStore = useCameraStore.getState();
-        cameraStore.setCamera(
-          INITIAL_POSITIONS.mainIntro.position.clone(),
-          INITIAL_POSITIONS.mainIntro.target.clone(),
-          'main'
-        );
-        cameraStore.setIsLoading(true);
-        router.push('/experience');
-      },
-    });
+    // Small delay to allow the stabilization to take effect before starting exit animation
+    setTimeout(() => {
+      if (isAnimating) return;
+      setAnimating(true);
+      isPreExitStabilizingRef.current = false;
 
-    entranceTimelineRef.current = tl;
+      cleanupTimeline();
 
-    // Animate content out
-    if (contentRef.current) {
-      tl.to(contentRef.current, {
-        opacity: 0,
-        y: -20,
-        duration: 0.6,
-        ease: 'power2.in',
+      const tl = gsap.timeline({
+        onComplete: () => {
+          const cameraStore = useCameraStore.getState();
+          cameraStore.setCamera(
+            INITIAL_POSITIONS.mainIntro.position.clone(),
+            INITIAL_POSITIONS.mainIntro.target.clone(),
+            'main'
+          );
+          cameraStore.setIsLoading(true);
+          router.push('/experience');
+        },
       });
-    }
 
-    // Camera exit animation
-    if (cameraRef.current) {
-      const exitTarget = positions.target.clone();
+      entranceTimelineRef.current = tl;
 
-      tl.to(
-        cameraRef.current.position,
-        {
-          y: '+=200',
-          duration: 2.5,
+      // Animate content out
+      if (contentRef.current) {
+        tl.to(contentRef.current, {
+          opacity: 0,
+          y: -20,
+          duration: 0.6,
           ease: 'power2.in',
-        },
-        0.3
-      );
+        });
+      }
 
-      tl.to(
-        exitTarget,
-        {
-          y: exitTarget.y + 300,
-          duration: 2.5,
-          ease: 'power2.in',
-          onUpdate: () => cameraRef.current?.lookAt(exitTarget),
-        },
-        0.3
-      );
-    }
+      // Camera exit animation
+      if (cameraRef.current) {
+        const exitTarget = positions.target.clone();
+
+        tl.to(
+          cameraRef.current.position,
+          {
+            y: '+=200',
+            duration: 2.5,
+            ease: 'power2.in',
+          },
+          0.3
+        );
+
+        tl.to(
+          exitTarget,
+          {
+            y: exitTarget.y + 300,
+            duration: 2.5,
+            ease: 'power2.in',
+            onUpdate: () => cameraRef.current?.lookAt(exitTarget),
+          },
+          0.3
+        );
+      }
+    }, 150);
   });
 
   // Initialize content visibility based on store state
@@ -430,10 +443,14 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
       dampingMultiplier *= 0.1; // Much stronger damping when video is active
     }
 
-    // If mouse tracking is disabled, smoothly return to center
-    if (!mouseTrackingEnabled) {
+    // Pre-exit stabilization: force a quicker return to center with stronger damping
+    if (isPreExitStabilizingRef.current) {
+      dampingMultiplier = MOUSE_CONFIG.exitDampingFactor;
+      mousePosition.current.x = 0;
+      mousePosition.current.y = 0;
+    } else if (!mouseTrackingEnabled) {
+      // If mouse tracking is disabled outside transitions, use a gentle return
       dampingMultiplier = 0.02; // Very slow return to center
-      // Target zero offset when tracking is disabled
       mousePosition.current.x = 0;
       mousePosition.current.y = 0;
     }
@@ -515,7 +532,12 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
               size="sm"
               variant="button21"
               onClick={handleExit}
-              className="relative text-white"
+          className="relative text-white"
+              onPointerDown={() => {
+                // Start dampening immediately on press to avoid any click jitter
+                isPreExitStabilizingRef.current = true;
+                useLandingCameraStore.setState({ mouseTrackingEnabled: false });
+              }}
             >
               ENTER EXPERIENCE
             </Button>

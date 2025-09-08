@@ -340,6 +340,60 @@ const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComple
   };
 };
 
+const useCardHoverAnimations = () => {
+  const experienceCardRef = useRef<HTMLAnchorElement>(null);
+  const securityCardRef = useRef<HTMLAnchorElement>(null);
+
+  const handleCardHover = useCallback(
+    (cardRef: React.RefObject<HTMLAnchorElement | null>, isHovering: boolean) => {
+      if (!cardRef.current) return;
+
+      const textElement = cardRef.current.querySelector('.experience-text');
+      if (!textElement) return;
+
+      if (isHovering) {
+        gsap.to(textElement, {
+          letterSpacing: '0.08em',
+          scale: 1.025,
+          transformOrigin: 'left center',
+          duration: 0.6,
+          ease: 'power2.out',
+        });
+      } else {
+        gsap.to(textElement, {
+          letterSpacing: '0.05em',
+          scale: 1,
+          transformOrigin: 'left center',
+          duration: 0.6,
+          ease: 'power2.out',
+        });
+      }
+    },
+    []
+  );
+
+  const handleExperienceHover = useCallback(
+    (isHovering: boolean) => {
+      handleCardHover(experienceCardRef, isHovering);
+    },
+    [handleCardHover]
+  );
+
+  const handleSecurityHover = useCallback(
+    (isHovering: boolean) => {
+      handleCardHover(securityCardRef, isHovering);
+    },
+    [handleCardHover]
+  );
+
+  return {
+    experienceCardRef,
+    securityCardRef,
+    handleExperienceHover,
+    handleSecurityHover,
+  };
+};
+
 const useMenuState = () => {
   const {
     isMenuOpen,
@@ -411,6 +465,8 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
   const { isOpen, shouldRender, openMenu, closeMenu, onCloseComplete } = useMenuState();
 
   const { refs } = useMenuAnimations(isOpen, shouldRender, onCloseComplete);
+  const { experienceCardRef, securityCardRef, handleExperienceHover, handleSecurityHover } =
+    useCardHoverAnimations();
 
   return (
     <>
@@ -437,8 +493,11 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
               <div className="grid h-full grid-rows-3 gap-12 p-12">
                 {/* Experience Card 1 (2/3 height) */}
                 <Link
+                  ref={experienceCardRef}
                   href="/experience"
-                  className="experience-card group relative row-span-2 block h-full w-full overflow-hidden rounded-lg"
+                  className="experience-card group relative row-span-2 block h-full w-full overflow-hidden rounded-lg hover:text-primary"
+                  onMouseEnter={() => handleExperienceHover(true)}
+                  onMouseLeave={() => handleExperienceHover(false)}
                 >
                   <Image
                     src="/images/fpo-nav.jpg"
@@ -448,27 +507,34 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
                     priority
                     className="experience-image object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-black/20 transition-colors duration-300 group-hover:bg-black/10" />
+                  <div className="absolute inset-0 bg-black/25 transition-colors duration-300 group-hover:bg-black/80" />
                   <div className="absolute inset-x-0 bottom-0 p-8">
                     <div className="experience-text text-4xl font-light uppercase tracking-wide">
                       View Experience
                     </div>
                   </div>
                 </Link>
-                {/* Experience Card 2 (1/3 height) */}
+                {/* Security Proposal Card (1/3 height) */}
                 <Link
+                  ref={securityCardRef}
                   href="/contact"
-                  className="experience-card group relative block h-full w-full overflow-hidden rounded-lg"
+                  className="experience-card group relative block h-full w-full overflow-hidden rounded-lg hover:text-primary"
+                  onMouseEnter={() => handleSecurityHover(true)}
+                  onMouseLeave={() => handleSecurityHover(false)}
                 >
-                  <Image
-                    src="/images/fpo-nav.jpg"
-                    alt="Experience preview"
-                    fill
-                    sizes="50vw"
-                    priority
-                    className="experience-image object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black/20 transition-colors duration-300 group-hover:bg-black/10" />
+                  <video
+                    className="experience-image pointer-events-none absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="auto"
+                    aria-hidden="true"
+                    poster="/images/fpo-nav.jpg"
+                  >
+                    <source src="/videos/intro-video-loop.mp4" type="video/mp4" />
+                  </video>
+                  <div className="absolute inset-0 bg-black/25 transition-colors duration-300 group-hover:bg-black/80" />
                   <div className="absolute inset-x-0 bottom-0 p-8">
                     <div className="experience-text text-4xl font-light uppercase tracking-wide">
                       Request Security Proposal
