@@ -1,6 +1,6 @@
 'use client';
 
-import { useStore } from '@/lib/store';
+import { useScrollLockStore } from '@/lib/store';
 import type { LenisOptions } from 'lenis';
 import 'lenis/dist/lenis.css';
 import type { LenisRef, LenisProps as ReactLenisProps } from 'lenis/react';
@@ -16,13 +16,13 @@ interface LenisProps extends Omit<ReactLenisProps, 'ref'> {
 // A child component inside ReactLenis so useLenis() is within the provider
 function LenisController() {
   const lenis = useLenis();
-  const isNavOpened = useStore(state => state.isNavOpened);
+  const isScrollLocked = useScrollLockStore(state => state.isScrollLocked);
 
   useEffect(() => {
     if (!lenis) return;
-    if (isNavOpened) lenis.stop();
+    if (isScrollLocked) lenis.stop();
     else lenis.start();
-  }, [isNavOpened, lenis]);
+  }, [isScrollLocked, lenis]);
 
   return null;
 }

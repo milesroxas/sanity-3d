@@ -12,12 +12,12 @@ import {
 import SocialLinks from '@/components/ui/social-links';
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
-import { useStore } from '@/lib/store';
+import { useOverlayScrollLock } from '@/hooks/useOverlayScrollLock';
 import { urlFor } from '@/sanity/lib/image';
 import { AlignRight, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { LinkButton } from '../shared/link-button';
 
 interface SanityLogo {
@@ -68,8 +68,14 @@ export default function MobileNav({
 }) {
   const [open, setOpen] = useState(false);
   const [contentReady, setContentReady] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const setIsNavOpened = useStore(state => state.setIsNavOpened);
+  const { scrollAreaProps } = useOverlayScrollLock(open, {
+    lockBody: true,
+    overscrollBehaviorY: 'none',
+    preventLenis: true,
+    stopWheelPropagation: true,
+    webkitMomentumScroll: true,
+  });
+  const { className: overlayClassName, ...overlayProps } = scrollAreaProps;
 
   // Reset experience stores
   const resetCameraStore = useCameraStore(state => state.reset);
@@ -127,21 +133,7 @@ export default function MobileNav({
     };
   };
 
-  // Lock background scroll while open, without breaking inner scroll
-  useEffect(() => {
-    if (!open) return;
-    const previous = {
-      bodyOverflow: document.body.style.overflow,
-      bodyOverscroll: (document.body.style as any).overscrollBehaviorY,
-    };
-    document.body.style.overflow = 'hidden';
-    (document.body.style as any).overscrollBehaviorY = 'none';
-
-    return () => {
-      document.body.style.overflow = previous.bodyOverflow;
-      (document.body.style as any).overscrollBehaviorY = previous.bodyOverscroll || '';
-    };
-  }, [open]);
+  // Body lock + Lenis handled by useOverlayScrollLock
 
   // Defer content reveal until after the panel mostly slides in
   useEffect(() => {
@@ -157,10 +149,7 @@ export default function MobileNav({
     };
   }, [open]);
 
-  // Let global Lenis provider know nav open state, so it can stop/start smoothly
-  useEffect(() => {
-    setIsNavOpened(open);
-  }, [open, setIsNavOpened]);
+  // Global scroll lock handled by useOverlayScrollLock
 
   // Rely on CSS overscroll behavior and body lock; avoid JS preventing default which can block scrolling
 
@@ -198,14 +187,10 @@ export default function MobileNav({
         </SheetHeader>
         {/* Scrollable content area */}
         <div
-          ref={scrollRef}
-          data-lenis-prevent
-          data-lenis-prevent-wheel
-          data-lenis-prevent-touch
-          className={`ease-[cubic-bezier(0.2,0.8,0.2,1)] flex min-h-0 flex-1 touch-pan-y flex-col gap-8 overflow-y-auto overscroll-y-contain pb-36 pt-6 transition-opacity transition-transform duration-500 ${
+          className={`ease-[cubic-bezier(0.2,0.8,0.2,1)] flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto pb-36 pt-6 transition-opacity transition-transform duration-500 ${
             contentReady ? 'translate-x-0 opacity-100' : 'translate-x-2 opacity-0'
-          }`}
-          style={{ WebkitOverflowScrolling: 'touch' }}
+          } ${overlayClassName || ''}`}
+          {...overlayProps}
         >
           <div>
             {/* Company Links */}

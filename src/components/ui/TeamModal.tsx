@@ -6,9 +6,9 @@ import { urlFor } from '@/sanity/lib/image';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
  
-import { useStore } from '@/lib/store';
+import { useOverlayScrollLock } from '@/hooks/useOverlayScrollLock';
 import Image from 'next/image';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './dialog';
 
 interface TeamModalProps {
@@ -34,32 +34,15 @@ export default function TeamModal({
   const imageRef = useRef<HTMLImageElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
  
-  const setIsNavOpened = useStore(state => state.setIsNavOpened);
-
-  // Lock/unlock scroll: coordinate with global Lenis controller and body styles
-  useEffect(() => {
-    if (isOpen) {
-      // Inform global Lenis controller to stop (mirrors MobileNav behavior)
-      setIsNavOpened(true);
-      // Lock body scroll and overscroll bounce on iOS
-      const prev = {
-        overflow: document.body.style.overflow,
-        overscroll: (document.body.style as any).overscrollBehaviorY,
-      };
-      document.body.style.overflow = 'hidden';
-      (document.body.style as any).overscrollBehaviorY = 'none';
-
-      return () => {
-        (document.body.style as any).overscrollBehaviorY = prev.overscroll || '';
-        document.body.style.overflow = prev.overflow;
-        setIsNavOpened(false);
-      };
-    } else {
-      // Ensure Lenis resumes when modal closes
-      setIsNavOpened(false);
-      document.body.style.overflow = '';
-    }
-  }, [isOpen, setIsNavOpened]);
+  // Centralized overlay scroll locking + scroll props
+  const { scrollAreaProps } = useOverlayScrollLock(isOpen, {
+    lockBody: true,
+    overscrollBehaviorY: 'none',
+    preventLenis: true,
+    stopWheelPropagation: true,
+    webkitMomentumScroll: true,
+  });
+  const { className: overlayClassName, ...overlayProps } = scrollAreaProps;
 
   // Removed legacy wheel handlers in favor of native scroll with Lenis prevention flags
 
@@ -103,12 +86,8 @@ export default function TeamModal({
         ref={modalRef}
       >
         <ScrollArea
-          data-lenis-prevent
-          data-lenis-prevent-wheel
-          data-lenis-prevent-touch
-          className="relative h-full w-full min-h-0 px-8 pb-12 touch-pan-y overscroll-y-contain"
-          style={{ WebkitOverflowScrolling: 'touch' }}
-          onWheel={e => e.stopPropagation()}
+          className={`relative h-full w-full min-h-0 px-8 pb-12 ${overlayClassName || ''}`}
+          {...overlayProps}
         >
           {image && image.asset?._id && (
             <div className="lg:max-w-1/3 pointer-events-none relative order-first aspect-square max-w-40 md:absolute md:bottom-0 md:right-[-2rem] md:-z-10 md:w-1/2 md:max-w-full lg:w-1/3">
