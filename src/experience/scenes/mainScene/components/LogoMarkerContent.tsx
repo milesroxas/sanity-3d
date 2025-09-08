@@ -8,7 +8,7 @@ import { useExpandedContentStore } from '@/experience/scenes/store/expandedConte
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
-import { ArrowRight, FileText, PanelLeftOpen, X } from 'lucide-react';
+import { ArrowRight, PanelLeftOpen, ShieldPlus, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import MarkerContentOverlay from './MarkerContentOverlay';
 
@@ -201,7 +201,7 @@ export default function LogoMarkerContent() {
       {isContentVisible && (
         <div
           ref={drawerRef}
-          className="fixed left-0 top-0 z-20 flex h-full w-full flex-col bg-background shadow-xl backdrop-blur-md md:w-[35vw] md:min-w-[400px] lg:w-[40vw] lg:min-w-[450px]"
+          className="fixed left-0 top-0 z-20 flex h-full w-full flex-col bg-background pb-16 shadow-xl backdrop-blur-md md:w-[35vw] md:min-w-[400px] lg:w-[40vw] lg:min-w-[450px]"
         >
           {/* Header with title that changes based on scroll */}
           <div className="sticky top-0 z-10 flex items-center justify-between overflow-hidden bg-background/95 pb-2 pl-6 pr-6 pt-2 backdrop-blur-sm">
@@ -263,50 +263,54 @@ export default function LogoMarkerContent() {
           )}
 
           {/* Fixed bottom action area: left = Security Request; right = Link or Expanded */}
-          <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-center bg-background pb-4 pl-6 pr-6 pt-4">
+          <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-center bg-white px-4 py-4 shadow-md shadow-slate-800">
             <div className="flex w-full gap-3">
               {(() => {
-                const hasRightAction = Boolean(selectedScene.links && selectedScene.links.length > 0) ||
+                const hasRightAction =
+                  Boolean(selectedScene.links && selectedScene.links.length > 0) ||
                   Boolean(selectedScene.mainExpandedBody);
                 return (
                   <>
                     {/* Left: Always show Security Request Form trigger */}
                     <Button
                       variant="default"
-                      size="lg"
-                      className={cn('h-12 text-xl font-bold', hasRightAction ? 'w-1/2' : 'w-full')}
+                      size="default"
+                      className={cn(
+                        'h-10 text-sm font-bold hover:shadow-md',
+                        hasRightAction ? 'w-1/2' : 'w-full'
+                      )}
                       onClick={openSecurityRequestOverlay}
                     >
-                      <FileText className="mr-2" />
+                      <ShieldPlus className="h-4 w-4" />
                       <span className="truncate">Request Security</span>
                     </Button>
 
                     {/* Right: Prefer main link; fallback to expanded content */}
-                    {hasRightAction && (
-                      selectedScene.links && selectedScene.links.length > 0 ? (
+                    {hasRightAction &&
+                      (selectedScene.links && selectedScene.links.length > 0 ? (
                         <LinkButton
                           link={selectedScene.links[0]}
-                          className={cn('h-12 w-1/2 text-xl font-bold')}
-                          size="default"
+                          className={cn('h-10 w-1/2 text-sm font-bold hover:shadow-md')}
                           icon={ArrowRight}
                           iconPosition="right"
                           onClick={closeExpandedContent}
                         />
                       ) : (
                         <Button
-                          variant="default"
-                          size="lg"
-                          className={cn('h-12 w-1/2 text-xl font-bold')}
+                          className={cn('h-10 w-1/2')}
+                          variant={isVisible ? 'inactive' : 'outline'}
+                          disabled={isVisible}
                           onClick={() => {
-                            const overlayBlocks = buildExpandedBodyOverlayBlocks(selectedScene.mainExpandedBody);
+                            const overlayBlocks = buildExpandedBodyOverlayBlocks(
+                              selectedScene.mainExpandedBody
+                            );
                             openOverlay(selectedScene.title || 'Details', overlayBlocks);
                           }}
                         >
-                          <span className="truncate">Expand to Learn More</span>
+                          <span className="truncate">Expand</span>
                           <PanelLeftOpen className="mr-2" />
                         </Button>
-                      )
-                    )}
+                      ))}
                   </>
                 );
               })()}

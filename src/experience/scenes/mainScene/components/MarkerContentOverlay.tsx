@@ -361,19 +361,18 @@ export default function MarkerContentOverlay({
           ref={overlayRef}
           className="pointer-events-auto flex h-full max-h-[90vh] max-w-[700px] flex-col bg-background/75 shadow-xl backdrop-blur-lg md:rounded-lg"
         >
-          <div className="sticky top-0 z-10 rounded-t-lg bg-background/15 pb-3 pt-4 shadow-sm backdrop-blur-sm">
+          <div className="sticky top-0 z-10 rounded-t-lg bg-background/15 pb-4 pt-4 shadow-sm backdrop-blur-sm">
             <div className="relative flex items-center px-12 lg:px-14">
-              <div className="border-l-2 border-primary pl-3" ref={titleRef}>
-                <h3 className="text-lg font-medium leading-none text-primary lg:text-xl lg:leading-none">
+              <div className="" ref={titleRef}>
+                <h3 className="text-lg font-medium leading-none text-muted-foreground lg:text-lg lg:leading-none">
                   {title}
                 </h3>
               </div>
               <div className="absolute left-1 top-1/2 -translate-y-1/2 lg:left-2">
                 <Button
-                  variant="ghost"
                   size="icon"
                   onClick={handleClose}
-                  className="text-primary hover:bg-primary/10 [&_svg]:!size-6 [&_svg]:!stroke-2"
+                  className="bg-primary/10 text-primary hover:bg-primary/80 hover:text-primary-foreground [&_svg]:!size-6 [&_svg]:!stroke-[1.75]"
                   ref={closeRef}
                 >
                   <PanelLeftClose />

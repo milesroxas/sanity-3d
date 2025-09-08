@@ -377,12 +377,10 @@ export default function SecurityRequestForm({
     <div
       className={cn(
         'mx-auto',
-        variant === 'overlay'
-          ? 'w-full rounded-lg bg-white/50 p-6 md:p-8'
-          : 'max-w-3xl py-12'
+        variant === 'overlay' ? 'w-full rounded-lg bg-white/50 p-6 md:p-8' : 'max-w-3xl py-12'
       )}
     >
-      <div className={cn('max-w-xl', variant === 'overlay' ? 'mb-6' : 'mb-24')}>
+      <div className={cn('max-w-xl', variant === 'overlay' ? 'hidden' : 'mb-24')}>
         {title && <h2 className="mb-4 text-3xl font-bold">{title}</h2>}
         {description && <p className="mb-8 text-xl text-muted-foreground">{description}</p>}
       </div>
@@ -464,7 +462,10 @@ export default function SecurityRequestForm({
                         name="preferredContactMethod"
                         render={({ field }) => (
                           <FormItem className="space-y-0">
-                            <div className="flex items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50">
+                            <label
+                              htmlFor={`preferred-${option.id}`}
+                              className="flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50"
+                            >
                               <FormControl>
                                 <Checkbox
                                   id={`preferred-${option.id}`}
@@ -478,13 +479,8 @@ export default function SecurityRequestForm({
                                   }}
                                 />
                               </FormControl>
-                              <Label
-                                htmlFor={`preferred-${option.id}`}
-                                className="cursor-pointer font-normal"
-                              >
-                                {option.label}
-                              </Label>
-                            </div>
+                              <span className="font-normal">{option.label}</span>
+                            </label>
                           </FormItem>
                         )}
                       />
@@ -783,7 +779,10 @@ export default function SecurityRequestForm({
                         name="patrolRequirements"
                         render={({ field }) => (
                           <FormItem className="space-y-0">
-                            <div className="flex items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50">
+                            <label
+                              htmlFor={`patrol-${option.id}`}
+                              className="flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50"
+                            >
                               <FormControl>
                                 <Checkbox
                                   id={`patrol-${option.id}`}
@@ -798,13 +797,8 @@ export default function SecurityRequestForm({
                                   }}
                                 />
                               </FormControl>
-                              <Label
-                                htmlFor={`patrol-${option.id}`}
-                                className="cursor-pointer font-normal"
-                              >
-                                {option.label}
-                              </Label>
-                            </div>
+                              <span className="font-normal">{option.label}</span>
+                            </label>
                           </FormItem>
                         )}
                       />
