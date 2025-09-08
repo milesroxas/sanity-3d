@@ -71,19 +71,22 @@ export const SCENE_QUERY = groq`
           _type == "expanded-body" => {
             ...,
             links[] {
-      ...,
-      _type == 'pageLink' => {
-        ...,
-        page->{_id, _type, title, slug}
-      },
-      _type == 'customLink' => {
-        ...
-      },
-      _type == 'servicesLink' => {
-        ...,
-        services->{_id, _type, title, slug}
-      },
-    },
+              ...,
+              _type == 'pageLink' => {
+                ...,
+                buttonVariant,
+                page->{_id, _type, title, slug}
+              },
+              _type == 'customLink' => {
+                ...,
+                buttonVariant
+              },
+              _type == 'servicesLink' => {
+                ...,
+                buttonVariant,
+                services->{_id, _type, title, slug}
+              },
+            },
           },
           _type == "media" => {
             ...,
@@ -197,13 +200,16 @@ export const SCENE_QUERY = groq`
         ...,
         _type == 'pageLink' => {
           ...,
+          buttonVariant,
           page->{_id, _type, title, slug}
         },
         _type == 'customLink' => {
-          ...
+          ...,
+          buttonVariant
         },
         _type == 'servicesLink' => {
           ...,
+          buttonVariant,
           services->{_id, _type, title, slug}
         }
       }
@@ -213,13 +219,16 @@ export const SCENE_QUERY = groq`
       ...,
       _type == 'pageLink' => {
         ...,
+        buttonVariant,
         page->{_id, _type, title, slug}
       },
       _type == 'customLink' => {
-        ...
+        ...,
+        buttonVariant
       },
       _type == 'servicesLink' => {
         ...,
+        buttonVariant,
         services->{_id, _type, title, slug}
       }
     },
@@ -267,19 +276,22 @@ export const SCENE_QUERY = groq`
           }
         },
         links[] {
-      ...,
-      _type == 'pageLink' => {
-        ...,
-        page->{_id, _type, title, slug}
-      },
-      _type == 'customLink' => {
-        ...
-      },
-      _type == 'servicesLink' => {
-        ...,
-        services->{_id, _type, title, slug}
-      }
-    },
+          ...,
+          _type == 'pageLink' => {
+            ...,
+            buttonVariant,
+            page->{_id, _type, title, slug}
+          },
+          _type == 'customLink' => {
+            ...,
+            buttonVariant
+          },
+          _type == 'servicesLink' => {
+            ...,
+            buttonVariant,
+            services->{_id, _type, title, slug}
+          }
+        },
         markerPosition {
           x,
           y,

@@ -1,5 +1,6 @@
 import Blocks from '@/components/blocks';
 import { LinkButtons } from '@/components/shared/link-button';
+import { ArrowRight } from 'lucide-react';
 
 interface ExpandedBodyProps {
   blocks?: Sanity.Block[];
@@ -23,7 +24,8 @@ export default function ExpandedBody({ blocks, links }: ExpandedBodyProps) {
               links={[link]}
               size="sm"
               direction="column"
-              variant={index === 0 ? 'secondary' : 'ghost'}
+              iconPosition="right"
+              icon={ArrowRight}
             />
           ))}
         </div>

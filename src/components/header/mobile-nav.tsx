@@ -162,7 +162,7 @@ export default function MobileNav({
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="ease-[cubic-bezier(0.2,0.8,0.2,1)] flex h-dvh max-h-dvh flex-col overflow-hidden border-none bg-background/90 px-4 pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] text-foreground backdrop-blur-xl will-change-transform data-[state=closed]:duration-700 data-[state=open]:duration-1000 sm:px-6"
+        className="[animation-timing-function:cubic-bezier(0.2,0.8,0.2,1)] [transition-timing-function:cubic-bezier(0.2,0.8,0.2,1)] flex h-dvh max-h-dvh flex-col overflow-hidden border-none bg-background/90 px-4 pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] text-foreground backdrop-blur-xl will-change-transform data-[state=closed]:duration-700 data-[state=open]:duration-1000 sm:px-6"
       >
         <SheetHeader className="flex-row items-center justify-between space-y-0">
           <div className="py-4">
@@ -187,7 +187,7 @@ export default function MobileNav({
         </SheetHeader>
         {/* Scrollable content area */}
         <div
-          className={`ease-[cubic-bezier(0.2,0.8,0.2,1)] flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto pb-36 pt-6 transition-opacity transition-transform duration-500 ${
+          className={`[transition-timing-function:cubic-bezier(0.2,0.8,0.2,1)] flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto pb-36 pt-6 transition-opacity transition-transform duration-500 ${
             contentReady ? 'translate-x-0 opacity-100' : 'translate-x-2 opacity-0'
           } ${overlayClassName || ''}`}
           {...overlayProps}
