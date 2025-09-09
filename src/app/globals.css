@@ -125,22 +125,14 @@
     /* Ensure media inside overlay scales down and fits container */
     .marker-overlay .block-wrapper[data-block-type="media"] mux-player {
       /* Ensure internal media uses contain to avoid cropping on small screens */
-      --media-object-fit: contain !important;
-      --media-object-position: center !important;
+      --media-object-fit: contain;
+      --media-object-position: center;
       /* Let the host be responsive within its aspect container */
       max-width: 100%;
     }
 
-    /* Apply same contain behavior for the drawer on mobile */
-    .marker-content .block-wrapper[data-block-type="media"] mux-player {
-      --media-object-fit: contain !important;
-      --media-object-position: center !important;
-      max-width: 100%;
-    }
-
-    /* Images inside overlay/drawer media blocks should contain instead of cover */
-    .marker-overlay .block-wrapper[data-block-type="media"] img,
-    .marker-content .block-wrapper[data-block-type="media"] img {
+    /* Images inside overlay media blocks should contain instead of cover */
+    .marker-overlay .block-wrapper[data-block-type="media"] img {
       max-width: 100%;
       height: auto;
       object-fit: contain;
