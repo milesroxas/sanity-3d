@@ -96,8 +96,8 @@ export default function MarkerContentOverlay({
           gsap.set(closeRef.current, { opacity: 0, x: 0 }); // Explicitly set x to 0
 
           // Now animate
-          gsap
-            .timeline()
+          const tl = gsap.timeline();
+          tl
             .to(overlayRef.current, {
               y: 0,
               duration: 0.5,
@@ -136,6 +136,17 @@ export default function MarkerContentOverlay({
               duration: 0.3,
               ease: 'power2.inOut',
             });
+
+          // Clear transforms after open to avoid iOS video paint bugs under transformed ancestors
+          tl.eventCallback('onComplete', () => {
+            gsap.set([
+              overlayRef.current,
+              titleRef.current,
+              contentRef.current,
+              blocksRef.current,
+              closeRef.current,
+            ], { clearProps: 'transform' });
+          });
         } else {
           // Desktop: fade in animation with timeline
           const tl = gsap.timeline();
@@ -327,7 +338,6 @@ export default function MarkerContentOverlay({
       <div
         className="marker-overlay pointer-events-none fixed inset-0 z-40"
         ref={overlayRef}
-        style={{ WebkitTransform: 'translateZ(0)', backfaceVisibility: 'hidden' as any }}
       >
         <div className="pointer-events-auto absolute inset-0 flex flex-col rounded-none bg-background">
           <div
