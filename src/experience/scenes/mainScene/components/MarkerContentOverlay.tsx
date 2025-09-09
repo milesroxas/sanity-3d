@@ -310,20 +310,25 @@ export default function MarkerContentOverlay({
 
   const margin = 16;
 
+  // Always call hooks at top-level; compute overlay scroll props for mobile
+  const { scrollAreaProps } = useOverlayScrollLock(isVisible && isMobile, {
+    lockBody: true,
+    overscrollBehaviorY: 'none',
+    preventLenis: true,
+    stopWheelPropagation: true,
+    webkitMomentumScroll: true,
+    className: 'touch-pan-y overscroll-y-contain',
+  });
+  const { className: overlayClassName = '', ...overlayProps } = scrollAreaProps as any;
+
   // Mobile layout: full screen overlay with slide-up animation
   if (isMobile) {
-    // Improve mobile scroll behavior and lock body when overlay is open
-    const { scrollAreaProps } = useOverlayScrollLock(isVisible, {
-      lockBody: true,
-      overscrollBehaviorY: 'none',
-      preventLenis: true,
-      stopWheelPropagation: true,
-      webkitMomentumScroll: true,
-      className: 'touch-pan-y overscroll-y-contain',
-    });
-    const { className: overlayClassName = '', ...overlayProps } = scrollAreaProps as any;
     return (
-      <div className="marker-overlay pointer-events-none fixed inset-0 z-40" ref={overlayRef}>
+      <div
+        className="marker-overlay pointer-events-none fixed inset-0 z-40"
+        ref={overlayRef}
+        style={{ WebkitTransform: 'translateZ(0)', backfaceVisibility: 'hidden' as any }}
+      >
         <div className="pointer-events-auto absolute inset-0 flex flex-col rounded-none bg-background">
           <div
             className="sticky top-0 z-10 flex items-center justify-between rounded-none bg-background/15 p-4"

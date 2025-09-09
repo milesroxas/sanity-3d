@@ -10,6 +10,7 @@ import gsap from 'gsap';
 import { ArrowRight, ArrowUpFromLine, PanelLeftOpen, ShieldPlus, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import MarkerContentOverlay from './MarkerContentOverlay';
+import { useMemo } from 'react';
 
 export default function LogoMarkerContent() {
   // Select only needed pieces from the stores to avoid unnecessary re-renders
@@ -210,6 +211,15 @@ export default function LogoMarkerContent() {
 
   if (!selectedScene) return null;
 
+  const memoBody = useMemo(() => {
+    if (!selectedScene?.body) return null;
+    return (
+      <div className="flex-1">
+        <PortableTextRenderer value={selectedScene.body} variant="drawer" />
+      </div>
+    );
+  }, [selectedScene?.body]);
+
   return (
     <>
       {isContentVisible && (
@@ -238,16 +248,16 @@ export default function LogoMarkerContent() {
           </div>
 
           {/* Unified content area with native scroll (prevents remounts and improves iOS perf) */}
-          <div className="flex-1 overflow-y-auto touch-pan-y overscroll-y-contain" ref={scrollRef}>
+          <div
+            className="flex-1 overflow-y-auto touch-pan-y overscroll-y-contain"
+            ref={scrollRef}
+            style={{ WebkitOverflowScrolling: 'touch', contain: 'paint', backfaceVisibility: 'hidden' as any }}
+          >
             <div ref={contentRef} className="flex flex-col p-6 pb-20 pt-4">
               <h3 className="mb-6 pr-8 text-lg font-bold text-secondary md:text-3xl">
                 {selectedScene.title}
               </h3>
-              {selectedScene.body && (
-                <div className="flex-1">
-                  <PortableTextRenderer value={selectedScene.body} variant="drawer" />
-                </div>
-              )}
+              {memoBody}
               {selectedScene.blocks && selectedScene.blocks.length > 0 ? (
                 <div className="flex flex-col gap-4">
                   <Blocks blocks={selectedScene.blocks} />

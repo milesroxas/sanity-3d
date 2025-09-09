@@ -1,3 +1,4 @@
+import React from 'react';
 import Carousel1 from '@/components/blocks/carousel/carousel-1';
 import Carousel2 from '@/components/blocks/carousel/carousel-2';
 import Cta1 from '@/components/blocks/cta/cta-1';
@@ -44,7 +45,7 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   media: Media,
 };
 
-export default function Blocks({ blocks }: { blocks?: Sanity.Block[] }) {
+function Blocks({ blocks }: { blocks?: Sanity.Block[] }) {
   // Add safety check for blocks
   if (!blocks || !Array.isArray(blocks)) {
     return null;
@@ -80,3 +81,19 @@ export default function Blocks({ blocks }: { blocks?: Sanity.Block[] }) {
     </>
   );
 }
+
+// Memoize to avoid unnecessary re-renders while scrolling
+export default React.memo(Blocks, (prev, next) => {
+  const a = prev.blocks;
+  const b = next.blocks;
+  if (a === b) return true;
+  if (!a || !b) return a === b;
+  if (a.length !== b.length) return false;
+  // Compare by block keys/types to avoid diffing when content identity is stable
+  for (let i = 0; i < a.length; i++) {
+    const ak = (a[i] as any)?._key || (a[i] as any)?._type;
+    const bk = (b[i] as any)?._key || (b[i] as any)?._type;
+    if (ak !== bk) return false;
+  }
+  return true;
+});
