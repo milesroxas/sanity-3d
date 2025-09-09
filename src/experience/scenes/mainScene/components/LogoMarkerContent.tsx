@@ -34,6 +34,9 @@ export default function LogoMarkerContent() {
   const [headerTitle, setHeaderTitle] = useState('Security Services');
   const [previousTitle, setPreviousTitle] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
+  const [activeOverlaySource, setActiveOverlaySource] = useState<'security' | 'expand' | null>(
+    null
+  );
 
   // GSAP animation for entry
   useEffect(() => {
@@ -184,6 +187,7 @@ export default function LogoMarkerContent() {
         variant: 'overlay',
       },
     ] as unknown as Sanity.Block[];
+    setActiveOverlaySource('security');
     openOverlay('Security Request', overlayBlocks);
   };
 
@@ -193,6 +197,13 @@ export default function LogoMarkerContent() {
       closeExpandedContent();
     }
   }, [isContentVisible, closeExpandedContent]);
+
+  // Reset which button is marked active when overlay hides
+  useEffect(() => {
+    if (!isVisible) {
+      setActiveOverlaySource(null);
+    }
+  }, [isVisible]);
 
   if (!selectedScene) return null;
 
@@ -282,10 +293,11 @@ export default function LogoMarkerContent() {
                   <>
                     {/* Left: Always show Security Request Form trigger */}
                     <Button
-                      variant="default"
+                      variant={isVisible && activeOverlaySource === 'security' ? 'inactive' : 'default'}
                       size="default"
+                      disabled={isVisible && activeOverlaySource === 'security'}
                       className={cn(
-                        'h-10 text-sm font-bold hover:shadow-md',
+                        'h-10 text-sm font-bold hover:shadow-lg hover:-translate-y-px active:translate-y-0',
                         hasRightAction ? 'w-1/2' : 'w-full'
                       )}
                       onClick={openSecurityRequestOverlay}
@@ -299,20 +311,27 @@ export default function LogoMarkerContent() {
                       (selectedScene.links && selectedScene.links.length > 0 ? (
                         <LinkButton
                           link={selectedScene.links[0]}
-                          className={cn('h-10 w-1/2 text-sm font-bold hover:shadow-md')}
+                          className={cn(
+                            'h-10 w-1/2 text-sm font-bold hover:shadow-lg hover:-translate-y-px active:translate-y-0'
+                          )}
                           icon={ArrowRight}
                           iconPosition="right"
                           onClick={closeExpandedContent}
                         />
                       ) : (
                         <Button
-                          className={cn('h-10 w-1/2')}
-                          variant={isVisible ? 'inactive' : 'outline'}
-                          disabled={isVisible}
+                          className={cn(
+                            'h-10 w-1/2 hover:shadow-lg hover:-translate-y-px active:translate-y-0'
+                          )}
+                          variant={
+                            isVisible && activeOverlaySource === 'expand' ? 'inactive' : 'outline'
+                          }
+                          disabled={isVisible && activeOverlaySource === 'expand'}
                           onClick={() => {
                             const overlayBlocks = buildExpandedBodyOverlayBlocks(
                               selectedScene.mainExpandedBody
                             );
+                            setActiveOverlaySource('expand');
                             openOverlay(selectedScene.title || 'Details', overlayBlocks);
                           }}
                         >
