@@ -17,7 +17,7 @@ export function Loading() {
   const hasAnimatedOutRef = useRef(false);
 
   const { setIsLoading } = useCameraStore();
-  const { setOtherMarkersVisible } = useLogoMarkerStore();
+  const setOtherMarkersVisible = useLogoMarkerStore(s => s.setOtherMarkersVisible);
 
   useEffect(() => {
     if (active) {

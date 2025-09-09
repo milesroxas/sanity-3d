@@ -7,6 +7,7 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { PanelLeftClose, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { useOverlayScrollLock } from '@/hooks/useOverlayScrollLock';
 
 interface MarkerContentOverlayProps {
   title: string;
@@ -30,7 +31,7 @@ export default function MarkerContentOverlay({
   const [logoMarkerWidth, setLogoMarkerWidth] = useState<number>(0);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
-  const { isContentVisible: isLogoMarkerVisible } = useLogoMarkerStore();
+  const isLogoMarkerVisible = useLogoMarkerStore(s => s.isContentVisible);
 
   // Check if we're on mobile and calculate LogoMarkerContent width
   useEffect(() => {
@@ -48,7 +49,7 @@ export default function MarkerContentOverlay({
     };
 
     checkMobileAndCalculateWidth();
-    window.addEventListener('resize', checkMobileAndCalculateWidth);
+    window.addEventListener('resize', checkMobileAndCalculateWidth, { passive: true });
 
     return () => {
       window.removeEventListener('resize', checkMobileAndCalculateWidth);
@@ -311,6 +312,16 @@ export default function MarkerContentOverlay({
 
   // Mobile layout: full screen overlay with slide-up animation
   if (isMobile) {
+    // Improve mobile scroll behavior and lock body when overlay is open
+    const { scrollAreaProps } = useOverlayScrollLock(isVisible, {
+      lockBody: true,
+      overscrollBehaviorY: 'none',
+      preventLenis: true,
+      stopWheelPropagation: true,
+      webkitMomentumScroll: true,
+      className: 'touch-pan-y overscroll-y-contain',
+    });
+    const { className: overlayClassName = '', ...overlayProps } = scrollAreaProps as any;
     return (
       <div className="marker-overlay pointer-events-none fixed inset-0 z-40" ref={overlayRef}>
         <div className="pointer-events-auto absolute inset-0 flex flex-col rounded-none bg-background">
@@ -331,10 +342,10 @@ export default function MarkerContentOverlay({
               <X />
             </Button>
           </div>
-          <ScrollArea className="flex-1 [&>[data-radix-scroll-area-scrollbar]]:w-1.5">
-            <div className="p-4">
+          <ScrollArea className={cn('flex-1 [&>[data-radix-scroll-area-scrollbar]]:w-1.5', overlayClassName)} {...overlayProps}>
+            <div className="p-4" ref={blocksRef}>
               {blocks && blocks.length > 0 ? (
-                <div className="flex flex-col gap-4" ref={blocksRef}>
+                <div className="flex flex-col gap-4">
                   <Blocks blocks={blocks} />
                 </div>
               ) : null}
@@ -359,7 +370,7 @@ export default function MarkerContentOverlay({
       <div className="flex flex-1 items-center justify-center">
         <div
           ref={overlayRef}
-          className="pointer-events-auto flex h-full max-h-[90vh] max-w-[700px] flex-col bg-background/75 shadow-xl backdrop-blur-lg md:rounded-lg"
+          className="pointer-events-auto flex h-full max-h-[90vh] max-w-[700px] flex-col bg-background/75 shadow-xl md:backdrop-blur-lg md:rounded-lg"
         >
           <div className="sticky top-0 z-10 rounded-t-lg bg-background/15 pb-4 pt-4 shadow-sm backdrop-blur-sm">
             <div className="relative flex items-center px-12 lg:px-14">

@@ -30,7 +30,8 @@ export default function Header({ nav, settings }: HeaderProps) {
   const logoRef = useRef<HTMLAnchorElement>(null);
 
   // External stores
-  const { otherMarkersVisible, setSelectedScene } = useLogoMarkerStore();
+  const otherMarkersVisible = useLogoMarkerStore(s => s.otherMarkersVisible);
+  const setSelectedScene = useLogoMarkerStore(s => s.setSelectedScene);
 
   // Navigation store
   const { setHeaderVisible, setNavVisible, setExperiencePage, closeMenu } = useNavigationStore();

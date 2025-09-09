@@ -3,7 +3,6 @@ import Blocks from '@/components/blocks';
 import PortableTextRenderer from '@/components/portable-text-renderer';
 import { LinkButton } from '@/components/shared/link-button';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useExpandedContentStore } from '@/experience/scenes/store/expandedContentStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { cn } from '@/lib/utils';
@@ -13,15 +12,18 @@ import { useEffect, useRef, useState } from 'react';
 import MarkerContentOverlay from './MarkerContentOverlay';
 
 export default function LogoMarkerContent() {
-  const {
-    selectedScene,
-    isContentVisible,
-    setContentVisible,
-    setShouldAnimateBack,
-    setOtherMarkersVisible,
-  } = useLogoMarkerStore();
-  const { title, blocks, isVisible, setExpandedContent, closeExpandedContent } =
-    useExpandedContentStore();
+  // Select only needed pieces from the stores to avoid unnecessary re-renders
+  const selectedScene = useLogoMarkerStore(s => s.selectedScene);
+  const isContentVisible = useLogoMarkerStore(s => s.isContentVisible);
+  const setContentVisible = useLogoMarkerStore(s => s.setContentVisible);
+  const setShouldAnimateBack = useLogoMarkerStore(s => s.setShouldAnimateBack);
+  const setOtherMarkersVisible = useLogoMarkerStore(s => s.setOtherMarkersVisible);
+
+  const title = useExpandedContentStore(s => s.title);
+  const blocks = useExpandedContentStore(s => s.blocks);
+  const isVisible = useExpandedContentStore(s => s.isVisible);
+  const setExpandedContent = useExpandedContentStore(s => s.setExpandedContent);
+  const closeExpandedContent = useExpandedContentStore(s => s.closeExpandedContent);
 
   // Refs
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -30,13 +32,20 @@ export default function LogoMarkerContent() {
   const titleRef = useRef<HTMLHeadingElement>(null);
 
   // State
-  const [hasOverflow, setHasOverflow] = useState(false);
+  // Track mobile to tune behavior and avoid expensive effects/classes
+  const [isMobile, setIsMobile] = useState(false);
   const [headerTitle, setHeaderTitle] = useState('Security Services');
   const [previousTitle, setPreviousTitle] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
   const [activeOverlaySource, setActiveOverlaySource] = useState<'security' | 'expand' | null>(
     null
   );
+
+  // Keep a ref of the current headerTitle to avoid re-binding scroll listeners
+  const headerTitleRef = useRef(headerTitle);
+  useEffect(() => {
+    headerTitleRef.current = headerTitle;
+  }, [headerTitle]);
 
   // GSAP animation for entry
   useEffect(() => {
@@ -60,25 +69,13 @@ export default function LogoMarkerContent() {
     }
   }, [isContentVisible]);
 
-  // Check for content overflow
+  // Track mobile state and update on resize (passive)
   useEffect(() => {
-    if (!contentRef.current) return;
-
-    const checkOverflow = () => {
-      if (contentRef.current) {
-        const hasScrollableContent =
-          contentRef.current.scrollHeight > contentRef.current.clientHeight;
-        setHasOverflow(hasScrollableContent);
-      }
-    };
-
-    // Check initially
-    checkOverflow();
-
-    // Re-check on window resize
-    window.addEventListener('resize', checkOverflow);
-    return () => window.removeEventListener('resize', checkOverflow);
-  }, [isContentVisible, selectedScene]);
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   // Animation for title change
   useEffect(() => {
@@ -110,35 +107,41 @@ export default function LogoMarkerContent() {
     );
   }, [headerTitle, previousTitle, isContentVisible]);
 
-  // Set up scroll event listener for title swap
+  // Set up scroll event listener for title swap with hysteresis and rAF throttle
   useEffect(() => {
     if (!isContentVisible) return;
+    const el = scrollRef.current;
+    if (!el) return;
 
-    const scrollElement = scrollRef.current;
-    if (!scrollElement) return;
+    let ticking = false;
+    const SHOW_THRESHOLD = 120; // reveal scene title after scrolling past
+    const HIDE_THRESHOLD = 60; // switch back sooner when scrolling up
 
-    const handleScroll = () => {
-      // Don't change if animation is in progress
-      if (isAnimating) return;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        if (isAnimating) return;
+        const top = el.scrollTop;
+        const next = top > SHOW_THRESHOLD ? selectedScene?.title || 'Security Services' : 'Security Services';
+        const current = headerTitleRef.current;
 
-      // Simple threshold check to swap titles
-      const newTitle =
-        scrollElement.scrollTop > 80
-          ? selectedScene?.title || 'Security Services'
-          : 'Security Services';
+        // Apply hysteresis when toggling back to default
+        if (current !== 'Security Services' && top > HIDE_THRESHOLD && next === 'Security Services') {
+          return;
+        }
 
-      if (newTitle !== headerTitle) {
-        setPreviousTitle(headerTitle);
-        setHeaderTitle(newTitle);
-      }
+        if (next !== current) {
+          setPreviousTitle(current);
+          setHeaderTitle(next);
+        }
+      });
     };
 
-    scrollElement.addEventListener('scroll', handleScroll);
-
-    return () => {
-      scrollElement.removeEventListener('scroll', handleScroll);
-    };
-  }, [isContentVisible, selectedScene, headerTitle, isAnimating]);
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [isContentVisible, selectedScene, isAnimating]);
 
   const handleClose = () => {
     if (!drawerRef.current) return;
@@ -212,10 +215,10 @@ export default function LogoMarkerContent() {
       {isContentVisible && (
         <div
           ref={drawerRef}
-          className="marker-content fixed left-0 top-0 z-20 flex h-full w-full flex-col bg-background pb-16 shadow-xl backdrop-blur-md md:w-[35vw] md:min-w-[400px] lg:w-[40vw] lg:min-w-[450px]"
+          className="marker-content fixed left-0 top-0 z-20 flex h-full w-full flex-col bg-background pb-16 shadow-xl will-change-transform md:backdrop-blur-md md:w-[35vw] md:min-w-[400px] lg:w-[40vw] lg:min-w-[450px]"
         >
           {/* Header with title that changes based on scroll */}
-          <div className="sticky top-0 z-10 flex items-center justify-between overflow-hidden bg-background/95 pb-2 pl-6 pr-6 pt-2 backdrop-blur-sm">
+          <div className="sticky top-0 z-10 flex items-center justify-between overflow-hidden bg-background/95 pb-2 pl-6 pr-6 pt-2 md:backdrop-blur-sm">
             <h2
               ref={titleRef}
               className={`text-sm font-bold uppercase ${
@@ -234,60 +237,32 @@ export default function LogoMarkerContent() {
             </Button>
           </div>
 
-          {/* Content area with scrollable content */}
-          {hasOverflow ? (
-            <div className="custom-scrollbar flex-1">
-              <ScrollArea className="h-full">
-                <div ref={contentRef} className="flex flex-col p-6 pb-20 pt-4">
-                  <h3 className="mb-6 pr-8 text-lg font-bold text-secondary md:text-3xl">
-                    {selectedScene.title}
-                  </h3>
-                  {selectedScene.body && (
-                    <div className="flex-1">
-                      <PortableTextRenderer value={selectedScene.body} variant="drawer" />
-                    </div>
-                  )}
-                  {selectedScene.blocks && selectedScene.blocks.length > 0 ? (
-                    <Blocks blocks={selectedScene.blocks} />
-                  ) : null}
+          {/* Unified content area with native scroll (prevents remounts and improves iOS perf) */}
+          <div className="flex-1 overflow-y-auto touch-pan-y overscroll-y-contain" ref={scrollRef}>
+            <div ref={contentRef} className="flex flex-col p-6 pb-20 pt-4">
+              <h3 className="mb-6 pr-8 text-lg font-bold text-secondary md:text-3xl">
+                {selectedScene.title}
+              </h3>
+              {selectedScene.body && (
+                <div className="flex-1">
+                  <PortableTextRenderer value={selectedScene.body} variant="drawer" />
                 </div>
-              </ScrollArea>
+              )}
+              {selectedScene.blocks && selectedScene.blocks.length > 0 ? (
+                <div className="flex flex-col gap-4">
+                  <Blocks blocks={selectedScene.blocks} />
+                </div>
+              ) : null}
             </div>
-          ) : (
-            <div className="flex-1 overflow-y-auto" ref={scrollRef}>
-              <div ref={contentRef} className="flex flex-col p-6 pb-20 pt-4">
-                <h3 className="mb-6 pr-8 text-lg font-bold text-secondary md:text-3xl">
-                  {selectedScene.title}
-                </h3>
-                {selectedScene.body && (
-                  <div className="flex-1">
-                    <PortableTextRenderer value={selectedScene.body} variant="drawer" />
-                  </div>
-                )}
-                {selectedScene.blocks && selectedScene.blocks.length > 0 ? (
-                  <div className="flex flex-col gap-4">
-                    <Blocks blocks={selectedScene.blocks} />
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          )}
+          </div>
 
           {/* Fixed bottom action area: left = Security Request; right = Link or Expanded */}
-          <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-center bg-white px-4 py-4 shadow-md shadow-slate-800">
+          <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-center bg-white px-4 py-4 shadow-md shadow-slate-800 will-change-transform">
             <div className="flex w-full gap-3">
               {(() => {
                 const hasRightAction =
                   Boolean(selectedScene.links && selectedScene.links.length > 0) ||
                   Boolean(selectedScene.mainExpandedBody);
-
-                // Debug logging
-                console.log('LogoMarkerContent Debug:', {
-                  hasLinks: Boolean(selectedScene.links && selectedScene.links.length > 0),
-                  hasMainExpandedBody: Boolean(selectedScene.mainExpandedBody),
-                  hasRightAction,
-                  selectedScene: selectedScene.title,
-                });
 
                 return (
                   <>

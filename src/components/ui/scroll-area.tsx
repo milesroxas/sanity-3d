@@ -6,19 +6,37 @@ import { cn } from '@/lib/utils';
 const ScrollArea = React.forwardRef<
   React.ComponentRef<typeof ScrollAreaPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
->(({ className, children, ...props }, ref) => (
-  <ScrollAreaPrimitive.Root
-    ref={ref}
-    className={cn('relative overflow-hidden', className)}
-    {...props}
-  >
-    <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
-      {children}
-    </ScrollAreaPrimitive.Viewport>
-    <ScrollBar />
-    <ScrollAreaPrimitive.Corner />
-  </ScrollAreaPrimitive.Root>
-));
+>(({ className, children, style, ...props }, ref) => {
+  // Forward touch momentum scrolling and lenis-prevent flags to the viewport to improve iOS performance
+  const viewportExtraProps: React.HTMLAttributes<HTMLDivElement> = {
+    style,
+  };
+
+  // Forward Lenis prevention attributes if provided
+  if ('data-lenis-prevent' in (props as any))
+    (viewportExtraProps as any)['data-lenis-prevent'] = (props as any)['data-lenis-prevent'];
+  if ('data-lenis-prevent-wheel' in (props as any))
+    (viewportExtraProps as any)['data-lenis-prevent-wheel'] = (props as any)['data-lenis-prevent-wheel'];
+  if ('data-lenis-prevent-touch' in (props as any))
+    (viewportExtraProps as any)['data-lenis-prevent-touch'] = (props as any)['data-lenis-prevent-touch'];
+
+  return (
+    <ScrollAreaPrimitive.Root
+      ref={ref}
+      className={cn('relative overflow-hidden', className)}
+      {...props}
+    >
+      <ScrollAreaPrimitive.Viewport
+        className="h-full w-full rounded-[inherit]"
+        {...viewportExtraProps}
+      >
+        {children}
+      </ScrollAreaPrimitive.Viewport>
+      <ScrollBar />
+      <ScrollAreaPrimitive.Corner />
+    </ScrollAreaPrimitive.Root>
+  );
+});
 ScrollArea.displayName = ScrollAreaPrimitive.Root.displayName;
 
 const ScrollBar = React.forwardRef<

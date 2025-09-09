@@ -35,7 +35,7 @@ export function LinkButton({
   iconPosition = 'left',
   ...buttonProps
 }: LinkButtonProps) {
-  const { setSelectedScene } = useLogoMarkerStore();
+  const setSelectedScene = useLogoMarkerStore(s => s.setSelectedScene);
   const pathname = usePathname();
 
   // Keep your existing experience-page reset behavior

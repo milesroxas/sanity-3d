@@ -13,7 +13,8 @@ const noScrollStyles = {
 };
 
 export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
-  const { selectedScene, setSelectedScene } = useLogoMarkerStore();
+  const selectedScene = useLogoMarkerStore(s => s.selectedScene);
+  const setSelectedScene = useLogoMarkerStore(s => s.setSelectedScene);
   const { setR3FContent } = useR3F();
   const [isReady, setIsReady] = useState(false);
   const { resetToInitial, isLoading } = useCameraStore();
