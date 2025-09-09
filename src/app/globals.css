@@ -115,8 +115,8 @@
   /* Ensure videos scale down nicely inside marker content on mobile */
   @media (max-width: 767px) {
     /* Scope to logo marker drawer and overlay */
-    .marker-content .block-wrapper[data-block-type="media"] > div,
-    .marker-overlay .block-wrapper[data-block-type="media"] > div {
+    .marker-content .block-wrapper[data-block-type='media'] > div,
+    .marker-overlay .block-wrapper[data-block-type='media'] > div {
       max-width: 480px;
       margin-left: auto;
       margin-right: auto;
@@ -132,8 +132,15 @@
       max-width: 100%;
       height: auto;
     }
+  }
 
-    
+  /* Ensure backdrop blur works properly - desktop only */
+  @media (min-width: 768px) {
+    .backdrop-blur-fix {
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+      isolation: isolate;
+    }
   }
 
   /* Hide the custom cursor on touch/coarse-pointer devices as a CSS fallback */
@@ -142,6 +149,14 @@
     .custom-cursor-outer {
       display: none !important;
     }
+  }
+
+  /* Subtle edge contrast via dual drop-shadows (no extra shapes) */
+  .custom-cursor,
+  .custom-cursor-outer {
+    filter:
+      drop-shadow(0 0 1px rgba(0, 0, 0, 0.45))
+      drop-shadow(0 0 1px rgba(255, 255, 255, 0.55));
   }
 
   /* CSS */

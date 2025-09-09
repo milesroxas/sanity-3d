@@ -557,6 +557,9 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
             onMouseLeave={handleMouseLeaveUI}
             style={{
               zIndex: 30,
+              opacity: 0,
+              visibility: 'hidden',
+              willChange: 'opacity, transform',
             }}
           >
             <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>
@@ -567,7 +570,7 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
               size="sm"
               variant="button21"
               onClick={handleExit}
-            className="relative text-white"
+              className="relative text-white"
             >
               ENTER EXPERIENCE
             </Button>

@@ -166,10 +166,12 @@ export default function LogoMarkerContent() {
     });
   };
 
-  // Handle escape key to close logo marker content
+  // Handle escape key to close logo marker content (lower priority)
   useEscapeKey({
     enabled: isContentVisible,
-    condition: !isAnimating,
+    // Disable drawer Escape while overlay is open
+    condition: !isAnimating && !isVisible,
+    priority: 0,
     onEscape: handleClose,
   });
 
@@ -265,7 +267,6 @@ export default function LogoMarkerContent() {
             ref={scrollRef}
             style={{
               WebkitOverflowScrolling: 'touch',
-              contain: 'paint',
               backfaceVisibility: 'hidden' as any,
             }}
           >

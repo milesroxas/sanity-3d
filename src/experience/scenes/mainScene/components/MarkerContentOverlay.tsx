@@ -73,6 +73,8 @@ export default function MarkerContentOverlay({
   useEscapeKey({
     enabled: isVisible,
     condition: !isAnimating,
+    // Ensure overlay closes before parent drawer
+    priority: 1,
     onEscape: handleClose,
   });
 

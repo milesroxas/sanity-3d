@@ -1,6 +1,6 @@
 import { Html, useCursor, useGLTF, useVideoTexture } from '@react-three/drei';
 import { useControls } from 'leva';
-import { Maximize2, PlayCircle, X } from 'lucide-react';
+import { PlayCircle } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useState } from 'react';
 import * as THREE from 'three';
@@ -224,32 +224,6 @@ export function Billboard({ position, scale = 1, modalVideo, textureVideo }: Bil
                   pointerEvents: 'auto',
                 }}
               >
-                {/* Controls overlay */}
-                <div className="pointer-events-none absolute left-0 top-0 z-10 w-full p-2">
-                  <div className="pointer-events-auto ml-auto flex w-fit items-center gap-2">
-                    <button
-                      aria-label="Open fullscreen"
-                      className="rounded bg-black/60 p-2 text-white transition hover:bg-black/80"
-                      onClick={e => {
-                        e.stopPropagation();
-                        openModal(modalVideo);
-                      }}
-                    >
-                      <Maximize2 size={16} />
-                    </button>
-                    <button
-                      aria-label="Close player"
-                      className="rounded bg-black/60 p-2 text-white transition hover:bg-black/80"
-                      onClick={e => {
-                        e.stopPropagation();
-                        setShowPlayer(false);
-                      }}
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                </div>
-
                 <div className="h-full w-full overflow-hidden rounded-md bg-black shadow-2xl">
                   <MuxPlayer
                     playbackId={modalVideo.asset.playbackId}

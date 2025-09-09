@@ -10,7 +10,7 @@ import {
 } from '@/store/navStore';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { MenuIcon } from 'lucide-react';
+import { MenuIcon, Play } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -631,7 +631,7 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
 
                       {/* Base hover overlay to mirror image card (preview only, non-interactive) */}
                       {playbackMode === 'preview' && (
-                        <div className="pointer-events-none absolute inset-0 bg-black/25 transition-colors duration-300 group-hover:bg-black/80" />
+                        <div className="pointer-events-none absolute inset-0 bg-black/25 transition-colors duration-300 group-hover:bg-black/50" />
                       )}
 
                       {playbackMode === 'preview' && (
@@ -644,39 +644,24 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
                             }`}
                             onClick={handlePlayClick}
                           />
-                          <div
+                          <button
                             className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ease-in-out ${
                               showPlayButton
                                 ? 'pointer-events-auto opacity-80'
                                 : 'pointer-events-none opacity-0'
                             }`}
                             style={{ zIndex: 10 }}
+                            onClick={handlePlayClick}
                           >
-                            <button
-                              className={`flex h-16 w-16 items-center justify-center rounded-full bg-primary shadow-lg transition-all duration-200 ease-in-out ${
-                                showPlayButton
-                                  ? 'scale-100 bg-opacity-80 hover:scale-110 hover:bg-opacity-100 hover:shadow-xl'
-                                  : 'scale-75 bg-opacity-0'
-                              }`}
-                              style={{
-                                backdropFilter: 'blur(4px)',
-                                transition:
-                                  'all 0.2s ease-in-out, backdrop-filter 0.2s ease-in-out',
-                              }}
-                              onClick={handlePlayClick}
+                            <div
+                              className="pointer-events-none flex h-16 w-16 items-center justify-center rounded-full bg-primary/40 shadow-lg backdrop-blur-sm"
                               aria-label="Play video"
                             >
-                              <svg
-                                className={`ml-1 h-6 w-6 text-gray-800 transition-opacity duration-300 ease-in-out ${
-                                  showPlayButton ? 'opacity-100' : 'opacity-0'
-                                }`}
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path d="M8 5v14l11-7z" />
-                              </svg>
-                            </button>
-                          </div>
+                              <Play
+                                className={`h-6 w-6 ${showPlayButton ? 'opacity-100' : 'opacity-0'}`}
+                              />
+                            </div>
+                          </button>
                         </>
                       )}
 

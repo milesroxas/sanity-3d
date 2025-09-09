@@ -6,6 +6,7 @@ import { animateCameraMovement } from '@/experience/utils/animationUtils';
 import { Float, Html, useCursor } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { useCallback, useEffect, useRef } from 'react';
+import { useCursorStore } from '@/components/ui/cursorStore';
 import * as THREE from 'three';
 import { Vector3 } from 'three';
 
@@ -70,16 +71,21 @@ function PoiMarker({
   const handlePointerEnter = () => {
     if (otherMarkersVisible) {
       setHoveredMarkerId(poi._id);
+      useCursorStore.getState().setHoveringInteractive(true);
     }
   };
 
   const handlePointerLeave = () => {
     setHoveredMarkerId(null);
+    useCursorStore.getState().setHoveringInteractive(false);
   };
 
   const handleClick = () => {
     if (otherMarkersVisible) {
       handleMarkerClick(poi);
+      // On click, briefly toggle to ensure cursor effect remains snappy
+      useCursorStore.getState().setHoveringInteractive(true);
+      setTimeout(() => useCursorStore.getState().setHoveringInteractive(false), 250);
     }
   };
 

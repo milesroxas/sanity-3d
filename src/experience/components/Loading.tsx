@@ -9,12 +9,19 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 export function Loading() {
   const { progress, active } = useProgress();
   const [isVisible, setIsVisible] = useState(false);
+  const [displayProgress, setDisplayProgress] = useState(0);
   const containerRef = useRef(null);
   const logoRef = useRef(null);
   const textRef = useRef(null);
   const progressBarRef = useRef(null);
+  const progressFillRef = useRef<HTMLDivElement | null>(null);
   const hasAnimatedInRef = useRef(false);
   const hasAnimatedOutRef = useRef(false);
+  const displayRef = useRef(0);
+  const targetRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const lastTsRef = useRef(0);
+  const lastTextUpdateRef = useRef(0);
 
   const { setIsLoading } = useCameraStore();
   const setOtherMarkersVisible = useLogoMarkerStore(s => s.setOtherMarkersVisible);
@@ -85,6 +92,10 @@ export function Loading() {
         hasAnimatedInRef.current = true;
         setIsLoading(true);
         setIsVisible(true);
+        // Reset smoothed progress for a new loading session
+        displayRef.current = 0;
+        targetRef.current = 0;
+        setDisplayProgress(0);
         if (logoRef.current) {
           gsap.set(logoRef.current, { opacity: 1 });
         }
@@ -112,6 +123,65 @@ export function Loading() {
     };
   }, [active, isVisible, animateIn, animateOut]);
 
+  // Update the target progress monotonically (never decreases)
+  useEffect(() => {
+    // Clamp live target to keep bar meaningful and stable
+    const liveTarget = Math.min(active ? Math.min(progress, 99.5) : 100, 100);
+    // Never allow the target to move backwards (monotonic)
+    targetRef.current = Math.max(targetRef.current, liveTarget);
+  }, [progress, active]);
+
+  // RAF-driven smoothing towards the target
+  useEffect(() => {
+    if (rafRef.current != null) return;
+
+    lastTsRef.current = typeof performance !== 'undefined' ? performance.now() : Date.now();
+
+    const tick = (ts: number) => {
+      const now = ts ?? (typeof performance !== 'undefined' ? performance.now() : Date.now());
+      const dt = Math.min(0.1, Math.max(0, (now - lastTsRef.current) / 1000)); // seconds, clamped
+      lastTsRef.current = now;
+
+      const target = targetRef.current;
+      let current = displayRef.current;
+
+      // Time-constant smoothing (EMA). Faster when finishing.
+      const tau = active ? 0.28 : 0.12; // seconds to cover ~63% of remaining distance
+      const alpha = 1 - Math.exp(-dt / tau);
+      current = current + (target - current) * alpha;
+
+      // Snap when close to avoid micro-jitter
+      if (Math.abs(target - current) < 0.05) current = target;
+
+      displayRef.current = current;
+
+      // Update the DOM width directly for smooth visual updates without frequent re-renders
+      if (progressFillRef.current) {
+        progressFillRef.current.style.width = `${current}%`;
+      }
+
+      // Throttle text/state updates to reduce React re-render frequency
+      if (now - lastTextUpdateRef.current > 80 || Math.abs(displayProgress - current) > 0.25) {
+        lastTextUpdateRef.current = now;
+        setDisplayProgress(current);
+      }
+
+      // Keep animating while loading is active or we haven't reached 100 yet
+      if (active || current < 100) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        rafRef.current = null;
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    };
+  }, [active]);
+
   return (
     <div
       ref={containerRef}
@@ -135,7 +205,7 @@ export function Loading() {
           className="text-xl font-medium text-primary"
           style={{ opacity: isVisible ? 1 : 0 }}
         >
-          Loading...({Math.round(progress)}%)
+          Loading...({Math.round(displayProgress)}%)
         </p>
         <div
           ref={progressBarRef}
@@ -143,8 +213,9 @@ export function Loading() {
           style={{ opacity: isVisible ? 1 : 0 }}
         >
           <div
-            className={`h-full bg-[#80DA7E] transition-all duration-300 ease-out ${!active ? 'bg-green-300' : ''}`}
-            style={{ width: `${progress}%` }}
+            ref={progressFillRef}
+            className={`h-full bg-[#80DA7E] transition-colors ${!active ? 'bg-green-300' : ''}`}
+            style={{ width: `${displayProgress}%` }}
           />
         </div>
       </div>
