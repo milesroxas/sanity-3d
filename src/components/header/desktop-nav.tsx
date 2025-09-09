@@ -466,7 +466,7 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
   const { contact, address, businessHours, social } = settings || {};
   const { isOpen, shouldRender, openMenu, closeMenu, onCloseComplete } = useMenuState();
 
-  const { refs } = useMenuAnimations(isOpen, shouldRender, onCloseComplete);
+  // We'll create the close-complete handler after defining resetVideoState below
   const { experienceCardRef, securityCardRef, handleExperienceHover, handleSecurityHover } =
     useCardHoverAnimations();
 
@@ -535,6 +535,26 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
     }
   }, []);
 
+  // Reset player/card state AFTER the close animation completes
+  const resetVideoState = useCallback(() => {
+    setPlaybackMode('preview');
+    setShowPlayButton(false);
+    if (playerRef.current) {
+      try {
+        playerRef.current.pause?.();
+        playerRef.current.currentTime = 0;
+      } catch {}
+    }
+  }, []);
+
+  // Ensure playback resets only after close animation completes
+  const handleMenuCloseComplete = useCallback(() => {
+    resetVideoState();
+    onCloseComplete();
+  }, [onCloseComplete, resetVideoState]);
+
+  const { refs } = useMenuAnimations(isOpen, shouldRender, handleMenuCloseComplete);
+
   return (
     <>
       <button onClick={openMenu} aria-label="Open menu" aria-expanded={isOpen}>
@@ -566,30 +586,45 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
                       onMouseEnter={handleMouseEnterVideo}
                       onMouseLeave={handleMouseLeaveVideo}
                     >
-                      <MuxPlayer
-                        ref={playerRef}
-                        playbackId={nav.experienceVideo.asset.playbackId}
-                        streamType="on-demand"
-                        muted={playbackMode === 'preview'}
-                        loop={playbackMode === 'preview'}
-                        autoPlay={true}
-                        paused={playbackMode === 'full' ? false : undefined}
-                        onTimeUpdate={handleTimeUpdate}
-                        onLoadedData={handleLoadedData}
-                        nohotkeys={playbackMode === 'preview'}
-                        style={
-                          {
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            objectPosition: 'center',
-                            ...(playbackMode === 'preview' && {
-                              '--controls': 'none',
-                              '--media-control-bar': 'none',
-                            }),
-                          } as React.CSSProperties
-                        }
-                      />
+                      {/* Wrapper matches the animated target used by the image card */}
+                      <div className="experience-image absolute inset-0 rounded-lg overflow-hidden transition-transform duration-700 ease-out group-hover:scale-105 will-change-transform">
+                        <MuxPlayer
+                          ref={playerRef}
+                          playbackId={nav.experienceVideo.asset.playbackId}
+                          streamType="on-demand"
+                          muted={playbackMode === 'preview'}
+                          loop={playbackMode === 'preview'}
+                          autoPlay={true}
+                          paused={playbackMode === 'full' ? false : undefined}
+                          onTimeUpdate={handleTimeUpdate}
+                          onLoadedData={handleLoadedData}
+                          nohotkeys={playbackMode === 'preview'}
+                          style={
+                            {
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              objectPosition: 'center',
+                              // Ensure internal media fills & clips within host
+                              '--media-object-fit': 'cover',
+                              '--media-object-position': 'center',
+                              '--media-border-radius': '0px',
+                              ...(playbackMode === 'preview' && {
+                                '--controls': 'none',
+                                '--media-control-bar': 'none',
+                              }),
+                            } as React.CSSProperties
+                          }
+                        />
+                      </div>
+
+                      {/* Base hover overlay to mirror image card (preview only, non-interactive) */}
+                      {playbackMode === 'preview' && (
+                        <div className="pointer-events-none absolute inset-0 bg-black/25 transition-colors duration-300 group-hover:bg-black/80" />
+                      )}
 
                       {playbackMode === 'preview' && (
                         <>
@@ -636,9 +671,7 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
                         </>
                       )}
 
-                      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] p-8">
-                        <div className="experience-text font-base text-3xl uppercase tracking-wide">Experience</div>
-                      </div>
+                      {/* Removed bottom label text for experience video card */}
                     </div>
                   </div>
                 ) : (
