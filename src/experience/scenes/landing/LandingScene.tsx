@@ -320,6 +320,34 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
 
     entranceTimelineRef.current = tl;
 
+    // Also fade out global UI (header/nav + custom cursor)
+    const headerEl = document.querySelector('header') as HTMLElement | null;
+    const navContainerEl = document.querySelector('header > div > div > div') as HTMLElement | null;
+    const cursorEls = Array.from(
+      document.querySelectorAll('.custom-cursor, .custom-cursor-outer')
+    ) as HTMLElement[];
+
+    const uiToFade: HTMLElement[] = [];
+    if (headerEl) uiToFade.push(headerEl);
+    if (navContainerEl) uiToFade.push(navContainerEl);
+    if (cursorEls.length) uiToFade.push(...cursorEls);
+
+    if (uiToFade.length) {
+      tl.to(
+        uiToFade,
+        {
+          opacity: 0,
+          duration: 0.4,
+          ease: 'power2.in',
+          onStart: () => {
+            if (headerEl) headerEl.style.pointerEvents = 'none';
+            if (navContainerEl) navContainerEl.style.pointerEvents = 'none';
+          },
+        },
+        0 // Start alongside content fade
+      );
+    }
+
     // Animate content out
     if (contentRef.current) {
       tl.to(contentRef.current, {
