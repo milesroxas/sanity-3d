@@ -15,6 +15,7 @@ interface LandingCameraStore {
   hasAnimated: boolean;
   isVideoPlaying: boolean; // New: tracks video player state
   mouseTrackingEnabled: boolean; // New: controls mouse tracking
+  cameraReady: boolean; // New: landing camera mounted and seeded
 
   // Actions
   setCamera: (position: Vector3, target: Vector3) => void;
@@ -22,6 +23,7 @@ interface LandingCameraStore {
   setHasAnimated: (hasAnimated: boolean) => void;
   setVideoPlaying: (isPlaying: boolean) => void; // New: video state control
   setMouseTracking: (enabled: boolean) => void; // New: mouse tracking control
+  setCameraReady: (ready: boolean) => void; // New: signal camera is ready
   reset: (preserveAnimatedState?: boolean) => void;
 }
 
@@ -32,6 +34,7 @@ export const useLandingCameraStore = create<LandingCameraStore>(set => ({
   hasAnimated: false,
   isVideoPlaying: false,
   mouseTrackingEnabled: true,
+  cameraReady: false,
 
   setCamera: (position, target) =>
     set({
@@ -47,6 +50,8 @@ export const useLandingCameraStore = create<LandingCameraStore>(set => ({
 
   setMouseTracking: enabled => set({ mouseTrackingEnabled: enabled }),
 
+  setCameraReady: ready => set({ cameraReady: ready }),
+
   reset: (preserveAnimatedState = false) =>
     set(state => {
       // Create the reset state
@@ -57,6 +62,7 @@ export const useLandingCameraStore = create<LandingCameraStore>(set => ({
         hasAnimated: preserveAnimatedState ? state.hasAnimated : false,
         isVideoPlaying: false,
         mouseTrackingEnabled: true,
+        cameraReady: false,
       };
 
       return resetState;

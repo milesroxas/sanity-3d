@@ -53,6 +53,7 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
     isVideoPlaying,
     mouseTrackingEnabled,
   } = useLandingCameraStore();
+  const setCameraReady = useLandingCameraStore(state => state.setCameraReady);
 
   // Refs
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
@@ -217,6 +218,28 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
       entranceTimelineRef.current = null;
     }
   }, []);
+
+  // Ensure camera has a sensible initial lookAt before animations
+  useLayoutEffect(() => {
+    if (cameraRef.current) {
+      cameraRef.current.position.copy(positions.camera);
+      cameraRef.current.lookAt(positions.target);
+    }
+    // We only depend on the numeric values to avoid stale refs while staying stable
+  }, [
+    positions.camera.x,
+    positions.camera.y,
+    positions.camera.z,
+    positions.target.x,
+    positions.target.y,
+    positions.target.z,
+  ]);
+
+  // Mark camera ready once seeded to prevent viewport seeding from using provider camera
+  useEffect(() => {
+    setCameraReady(true);
+    return () => setCameraReady(false);
+  }, [setCameraReady]);
 
   // Entrance animation
   const handleEnter = contextSafe(() => {
@@ -481,6 +504,8 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
         fov={30}
         near={0.1}
         far={10000}
+        // Seed initial camera placement to stabilize viewport-dependent math
+        position={[positions.camera.x, positions.camera.y, positions.camera.z]}
       />
 
       <ambientLight intensity={0.05} />

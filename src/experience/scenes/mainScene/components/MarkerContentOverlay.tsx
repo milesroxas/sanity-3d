@@ -312,7 +312,7 @@ export default function MarkerContentOverlay({
   // Mobile layout: full screen overlay with slide-up animation
   if (isMobile) {
     return (
-      <div className="pointer-events-none fixed inset-0 z-40" ref={overlayRef}>
+      <div className="marker-overlay pointer-events-none fixed inset-0 z-40" ref={overlayRef}>
         <div className="pointer-events-auto absolute inset-0 flex flex-col rounded-none bg-background">
           <div
             className="sticky top-0 z-10 flex items-center justify-between rounded-none bg-background/15 p-4"

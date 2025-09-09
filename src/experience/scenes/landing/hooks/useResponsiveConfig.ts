@@ -1,5 +1,8 @@
+'use client';
+
 import { useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLandingCameraStore } from '../store/landingCameraStore';
 
 interface Vec3 {
   x: number;
@@ -67,15 +70,18 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
 // Custom hook for responsive configuration with hysteresis
 export function useResponsiveConfig(): ResponsiveConfig {
   const { size, viewport } = useThree();
+  const { isAnimating, hasAnimated, cameraReady } = useLandingCameraStore();
 
   // Use refs to store stable values with hysteresis
   const stableBreakpointRef = useRef<'mobile' | 'tablet' | 'desktop'>('desktop');
   const stableViewportWidthRef = useRef<number>(0);
+  const initialViewportWidthRef = useRef<number | null>(null);
   const lastUpdateTimeRef = useRef<number>(0);
 
   return useMemo(() => {
     const now = Date.now();
     const timeSinceLastUpdate = now - lastUpdateTimeRef.current;
+    const freezeViewportUpdates = isAnimating && !hasAnimated;
 
     // Apply hysteresis to breakpoint detection (add buffer zones)
     const currentBreakpoint = stableBreakpointRef.current;
@@ -96,11 +102,18 @@ export function useResponsiveConfig(): ResponsiveConfig {
       lastUpdateTimeRef.current = now;
     }
 
+    // Seed an initial viewport width once (useful while the entrance animation runs)
+    if (cameraReady && initialViewportWidthRef.current === null && viewport.width > 0) {
+      initialViewportWidthRef.current = viewport.width;
+      stableViewportWidthRef.current = viewport.width;
+      lastUpdateTimeRef.current = now;
+    }
+
     // Apply hysteresis to viewport width changes (for mobile billboard positioning)
     const viewportWidthChange = Math.abs(viewport.width - stableViewportWidthRef.current);
     const isLargeViewportChange = viewportWidthChange > 0.5; // Significant change
     const isStableViewportUpdate = !document.hidden && timeSinceLastUpdate > 50;
-    const shouldUpdateViewport = isLargeViewportChange || isStableViewportUpdate;
+    const shouldUpdateViewport = !freezeViewportUpdates && (isLargeViewportChange || isStableViewportUpdate);
 
     if (shouldUpdateViewport && viewportWidthChange > 0.02) {
       stableViewportWidthRef.current = viewport.width;
@@ -108,11 +121,28 @@ export function useResponsiveConfig(): ResponsiveConfig {
     }
 
     let config: ResponsiveConfig;
-    const currentViewportWidth = stableViewportWidthRef.current || viewport.width;
+    // While animating the entrance, keep viewport width stable to avoid position snapping
+    const currentViewportWidth =
+      (freezeViewportUpdates && initialViewportWidthRef.current !== null)
+        ? initialViewportWidthRef.current
+        : (stableViewportWidthRef.current || viewport.width);
 
     if (stableBreakpointRef.current === 'mobile') {
       config = structuredClone(RESPONSIVE_CONFIGS.mobile);
-      config.billboard.position.x = currentViewportWidth * -0.2;
+
+      // Only use viewport-derived X when a valid viewport width is available
+      const hasViewportWidth =
+        initialViewportWidthRef.current !== null ||
+        stableViewportWidthRef.current > 0 ||
+        viewport.width > 0;
+
+      if (hasViewportWidth) {
+        const mobileX = currentViewportWidth * -0.2;
+        // Clamp within 45% of viewport width to avoid cut-offs
+        const minX = -0.45 * currentViewportWidth;
+        const maxX = 0.45 * currentViewportWidth;
+        config.billboard.position.x = Math.max(minX, Math.min(maxX, mobileX));
+      } // else: keep tuned default (2.4) until viewport is ready
     } else if (stableBreakpointRef.current === 'tablet') {
       config = structuredClone(RESPONSIVE_CONFIGS.tablet);
     } else {
@@ -120,7 +150,7 @@ export function useResponsiveConfig(): ResponsiveConfig {
     }
 
     return config;
-  }, [size.width, viewport.width]);
+  }, [size.width, viewport.width, isAnimating, hasAnimated, cameraReady]);
 }
 
 // Helper hook for text styles based on screen size with hysteresis

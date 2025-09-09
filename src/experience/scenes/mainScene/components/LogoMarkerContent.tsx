@@ -8,7 +8,7 @@ import { useExpandedContentStore } from '@/experience/scenes/store/expandedConte
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
-import { ArrowRight, PanelLeftOpen, ShieldPlus, X } from 'lucide-react';
+import { ArrowRight, ArrowUpFromLine, PanelLeftOpen, ShieldPlus, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import MarkerContentOverlay from './MarkerContentOverlay';
 
@@ -201,7 +201,7 @@ export default function LogoMarkerContent() {
       {isContentVisible && (
         <div
           ref={drawerRef}
-          className="fixed left-0 top-0 z-20 flex h-full w-full flex-col bg-background pb-16 shadow-xl backdrop-blur-md md:w-[35vw] md:min-w-[400px] lg:w-[40vw] lg:min-w-[450px]"
+          className="marker-content fixed left-0 top-0 z-20 flex h-full w-full flex-col bg-background pb-16 shadow-xl backdrop-blur-md md:w-[35vw] md:min-w-[400px] lg:w-[40vw] lg:min-w-[450px]"
         >
           {/* Header with title that changes based on scroll */}
           <div className="sticky top-0 z-10 flex items-center justify-between overflow-hidden bg-background/95 pb-2 pl-6 pr-6 pt-2 backdrop-blur-sm">
@@ -269,6 +269,15 @@ export default function LogoMarkerContent() {
                 const hasRightAction =
                   Boolean(selectedScene.links && selectedScene.links.length > 0) ||
                   Boolean(selectedScene.mainExpandedBody);
+
+                // Debug logging
+                console.log('LogoMarkerContent Debug:', {
+                  hasLinks: Boolean(selectedScene.links && selectedScene.links.length > 0),
+                  hasMainExpandedBody: Boolean(selectedScene.mainExpandedBody),
+                  hasRightAction,
+                  selectedScene: selectedScene.title,
+                });
+
                 return (
                   <>
                     {/* Left: Always show Security Request Form trigger */}
@@ -308,7 +317,8 @@ export default function LogoMarkerContent() {
                           }}
                         >
                           <span className="truncate">Expand</span>
-                          <PanelLeftOpen className="mr-2" />
+                          <ArrowUpFromLine className="mr-2 h-4 w-4 md:hidden" />
+                          <PanelLeftOpen className="mr-2 hidden md:block" />
                         </Button>
                       ))}
                   </>
