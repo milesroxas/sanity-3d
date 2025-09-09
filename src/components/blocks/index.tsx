@@ -45,7 +45,7 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   media: Media,
 };
 
-function Blocks({ blocks }: { blocks?: Sanity.Block[] }) {
+function Blocks({ blocks, renderContext }: { blocks?: Sanity.Block[]; renderContext?: string }) {
   // Add safety check for blocks
   if (!blocks || !Array.isArray(blocks)) {
     return null;
@@ -74,7 +74,7 @@ function Blocks({ blocks }: { blocks?: Sanity.Block[] }) {
             className="block-wrapper"
             data-block-type={block._type}
           >
-            <Component {...block} _key={blockKey} />
+            <Component {...block} _key={blockKey} renderContext={renderContext} />
           </div>
         );
       })}
@@ -86,6 +86,7 @@ function Blocks({ blocks }: { blocks?: Sanity.Block[] }) {
 export default React.memo(Blocks, (prev, next) => {
   const a = prev.blocks;
   const b = next.blocks;
+  if (prev.renderContext !== next.renderContext) return false;
   if (a === b) return true;
   if (!a || !b) return a === b;
   if (a.length !== b.length) return false;

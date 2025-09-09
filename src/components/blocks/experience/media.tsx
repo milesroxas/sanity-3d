@@ -4,7 +4,7 @@ import { urlFor } from '@/sanity/lib/image';
 import { createBlurUp } from '@mux/blurup';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 
 const MuxPlayer = dynamic(() => import('@mux/mux-player-react'), {
   ssr: false,
@@ -38,6 +38,7 @@ interface MediaProps {
     showControls: boolean;
   };
   _key: string;
+  renderContext?: string;
 }
 
 export default function Media({
@@ -47,6 +48,7 @@ export default function Media({
   video,
   videoOptions,
   _key,
+  renderContext,
 }: MediaProps) {
   // Video-specific state
   const [blurDataURL, setBlurDataURL] = useState<string | null>(null);
@@ -61,6 +63,8 @@ export default function Media({
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // No viewport observers; sizing is driven by renderContext and container classes
 
   // Generate video blur placeholder
   useEffect(() => {
@@ -153,18 +157,21 @@ export default function Media({
             onTimeUpdate={handleTimeUpdate}
             onLoadedData={handleLoadedData}
             playerInitTime={0}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center',
-              ...(playbackMode === 'preview' && {
-                '--controls': 'none',
-                '--media-control-bar': 'none',
-                '--media-object-fit': 'cover',
+            style={(() => {
+              const muxVars: Record<string, string> = {
+                '--media-object-fit': renderContext === 'overlay' ? 'contain' : 'cover',
                 '--media-object-position': 'center',
-              }),
-            }}
+              };
+              if (playbackMode === 'preview') {
+                muxVars['--controls'] = 'none';
+                muxVars['--media-control-bar'] = 'none';
+              }
+              return {
+                width: '100%',
+                height: '100%',
+                ...muxVars,
+              } as CSSProperties;
+            })()}
             nohotkeys={playbackMode === 'preview'}
           />
 
@@ -221,11 +228,11 @@ export default function Media({
     if (image && image.asset?._id) {
       return (
         <Image
-          className="h-full w-full object-cover"
+          className="object-cover"
           src={urlFor(image.asset).url()}
           alt={alt || ''}
-          width={image.asset?.metadata?.dimensions?.width || 800}
-          height={image.asset?.metadata?.dimensions?.height || 800}
+          fill
+          sizes="(max-width: 768px) 100vw, 700px"
           placeholder={image?.asset?.metadata?.lqip ? 'blur' : undefined}
           blurDataURL={image?.asset?.metadata?.lqip || ''}
           quality={100}

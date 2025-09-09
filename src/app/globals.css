@@ -122,32 +122,18 @@
       margin-right: auto;
     }
 
-    /* Ensure media inside overlay scales down and fits container */
-    .marker-overlay .block-wrapper[data-block-type="media"] mux-player {
-      /* Ensure internal media uses contain to avoid cropping on small screens */
-      --media-object-fit: contain;
-      --media-object-position: center;
-      /* Let the host be responsive within its aspect container */
-      max-width: 100%;
-    }
-
-    /* Images inside overlay media blocks should contain instead of cover */
-    .marker-overlay .block-wrapper[data-block-type="media"] img {
-      max-width: 100%;
-      height: auto;
-      object-fit: contain;
-    }
-
     /* Common embeds inside overlays/drawers */
     .marker-content mux-player,
+    .marker-overlay mux-player,
     .marker-content video,
-    .marker-content iframe,
     .marker-overlay video,
+    .marker-content iframe,
     .marker-overlay iframe {
       max-width: 100%;
       height: auto;
-      display: block;
     }
+
+    
   }
 
   /* Hide the custom cursor on touch/coarse-pointer devices as a CSS fallback */
