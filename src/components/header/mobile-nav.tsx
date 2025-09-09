@@ -162,7 +162,7 @@ export default function MobileNav({
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="[animation-timing-function:cubic-bezier(0.2,0.8,0.2,1)] [transition-timing-function:cubic-bezier(0.2,0.8,0.2,1)] flex h-dvh max-h-dvh flex-col overflow-hidden border-none bg-background/90 px-4 pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] text-foreground backdrop-blur-xl will-change-transform data-[state=closed]:duration-700 data-[state=open]:duration-1000 sm:px-6"
+        className="flex h-dvh max-h-dvh flex-col overflow-hidden border-none bg-background/90 px-4 pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] text-foreground backdrop-blur-xl will-change-transform [animation-timing-function:cubic-bezier(0.2,0.8,0.2,1)] [transition-timing-function:cubic-bezier(0.2,0.8,0.2,1)] data-[state=closed]:duration-700 data-[state=open]:duration-1000 sm:px-6"
       >
         <SheetHeader className="flex-row items-center justify-between space-y-0">
           <div className="py-4">
@@ -187,7 +187,7 @@ export default function MobileNav({
         </SheetHeader>
         {/* Scrollable content area */}
         <div
-          className={`[transition-timing-function:cubic-bezier(0.2,0.8,0.2,1)] flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto pb-36 pt-6 transition-opacity transition-transform duration-500 ${
+          className={`flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto pb-36 pt-6 transition-opacity transition-transform duration-500 [transition-timing-function:cubic-bezier(0.2,0.8,0.2,1)] ${
             contentReady ? 'translate-x-0 opacity-100' : 'translate-x-2 opacity-0'
           } ${overlayClassName || ''}`}
           {...overlayProps}
@@ -206,7 +206,7 @@ export default function MobileNav({
                         href={link.href}
                         target={link.target ? '_blank' : undefined}
                         rel={link.target ? 'noopener noreferrer' : undefined}
-                        className="text-xl font-light tracking-wide transition-opacity hover:opacity-60"
+                        className="text-lg font-light tracking-wide transition-opacity hover:opacity-60"
                       >
                         {link.label}
                       </Link>
@@ -230,7 +230,7 @@ export default function MobileNav({
                           href={link.href}
                           target={link.target ? '_blank' : undefined}
                           rel={link.target ? 'noopener noreferrer' : undefined}
-                          className="text-xl font-light tracking-wide transition-opacity hover:opacity-60"
+                          className="text-base font-light tracking-wide transition-opacity hover:opacity-60"
                         >
                           {link.label}
                         </Link>

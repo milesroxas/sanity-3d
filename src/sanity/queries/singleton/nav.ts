@@ -4,6 +4,14 @@ export const NAV_QUERY = groq`
   *[_type == "nav"][0] {
     _id,
     _type,
+    experienceVideo {
+      asset->{
+        _id,
+        playbackId,
+        assetId,
+        filename
+      }
+    },
     logo {
       asset->,
       alt

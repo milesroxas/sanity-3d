@@ -12,7 +12,9 @@ import gsap from 'gsap';
 import { MenuIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { usePathname } from 'next/navigation';
 
 interface DesktopNavProps {
   nav: SanityNav;
@@ -468,6 +470,71 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
   const { experienceCardRef, securityCardRef, handleExperienceHover, handleSecurityHover } =
     useCardHoverAnimations();
 
+  // Detect experience route
+  const pathname = usePathname();
+  const isExperienceRoute = pathname === '/experience' || pathname?.startsWith('/experience/');
+
+  // Mux Player (client-only) and state for videos used by the Billboard
+  type MuxPlayerElement = any;
+  const MuxPlayer = useMemo(
+    () =>
+      dynamic(() => import('@mux/mux-player-react'), {
+        ssr: false,
+        loading: () => (
+          <div className="flex h-full w-full items-center justify-center bg-black/90 text-white/80">
+            Loading video...
+          </div>
+        ),
+      }),
+    []
+  );
+
+  // No fetching here; use nav.experienceVideo provided from server NAV_QUERY
+
+  // Hover overlay & playback mode (similar to Hero 1 block)
+  type PlaybackMode = 'preview' | 'full';
+  const [playbackMode, setPlaybackMode] = useState<PlaybackMode>('preview');
+  const [showPlayButton, setShowPlayButton] = useState(false);
+  const playerRef = useRef<MuxPlayerElement>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleTimeUpdate = useCallback(() => {
+    if (playbackMode === 'preview' && playerRef.current) {
+      const currentTime = playerRef.current.currentTime;
+      if (currentTime >= 4) {
+        playerRef.current.currentTime = 0;
+      }
+    }
+  }, [playbackMode]);
+
+  const handleLoadedData = useCallback(() => {
+    if (playbackMode === 'preview' && playerRef.current) {
+      playerRef.current.currentTime = 0;
+    }
+  }, [playbackMode]);
+
+  const handleMouseEnterVideo = useCallback(() => {
+    if (playbackMode === 'preview') {
+      hoverTimeoutRef.current = setTimeout(() => setShowPlayButton(true), 200);
+    }
+  }, [playbackMode]);
+
+  const handleMouseLeaveVideo = useCallback(() => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setShowPlayButton(false);
+  }, []);
+
+  const handlePlayClick = useCallback(() => {
+    setPlaybackMode('full');
+    setShowPlayButton(false);
+    if (playerRef.current) {
+      try {
+        playerRef.current.currentTime = 0;
+        playerRef.current.play?.();
+      } catch {}
+    }
+  }, []);
+
   return (
     <>
       <button onClick={openMenu} aria-label="Open menu" aria-expanded={isOpen}>
@@ -491,30 +558,116 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
             {/* Experience Panel */}
             <div ref={refs.leftPanelRef} className="relative h-full w-1/2">
               <div className="grid h-full grid-rows-3 gap-12 p-12">
-                {/* Experience Card 1 (2/3 height) */}
-                <Link
-                  ref={experienceCardRef}
-                  href="/experience"
-                  className="experience-card group relative row-span-2 block h-full w-full overflow-hidden rounded-lg hover:text-primary"
-                  onMouseEnter={() => handleExperienceHover(true)}
-                  onMouseLeave={() => handleExperienceHover(false)}
-                >
-                  <Image
-                    src="/images/fpo-nav.jpg"
-                    alt="Experience preview"
-                    fill
-                    sizes="50vw"
-                    priority
-                    className="experience-image object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black/25 transition-colors duration-300 group-hover:bg-black/80" />
-                  <div className="absolute inset-x-0 bottom-0 p-8">
-                    <div className="experience-text text-4xl font-light uppercase tracking-wide">
-                      View Experience
+                {isExperienceRoute && nav?.experienceVideo?.asset?.playbackId ? (
+                  // Replace the Experience card with nav-selected video (row-span-2)
+                  <div className="relative row-span-2 h-full w-full overflow-hidden rounded-lg">
+                    <div
+                      className="group relative h-full w-full"
+                      onMouseEnter={handleMouseEnterVideo}
+                      onMouseLeave={handleMouseLeaveVideo}
+                    >
+                      <MuxPlayer
+                        ref={playerRef}
+                        playbackId={nav.experienceVideo.asset.playbackId}
+                        streamType="on-demand"
+                        muted={playbackMode === 'preview'}
+                        loop={playbackMode === 'preview'}
+                        autoPlay={true}
+                        paused={playbackMode === 'full' ? false : undefined}
+                        onTimeUpdate={handleTimeUpdate}
+                        onLoadedData={handleLoadedData}
+                        nohotkeys={playbackMode === 'preview'}
+                        style={
+                          {
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            objectPosition: 'center',
+                            ...(playbackMode === 'preview' && {
+                              '--controls': 'none',
+                              '--media-control-bar': 'none',
+                            }),
+                          } as React.CSSProperties
+                        }
+                      />
+
+                      {playbackMode === 'preview' && (
+                        <>
+                          <div
+                            className={`absolute inset-0 bg-black transition-opacity duration-300 ease-in-out ${
+                              showPlayButton
+                                ? 'pointer-events-auto opacity-50'
+                                : 'pointer-events-none opacity-0'
+                            }`}
+                            onClick={handlePlayClick}
+                          />
+                          <div
+                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ease-in-out ${
+                              showPlayButton
+                                ? 'pointer-events-auto opacity-80'
+                                : 'pointer-events-none opacity-0'
+                            }`}
+                            style={{ zIndex: 10 }}
+                          >
+                            <button
+                              className={`flex h-16 w-16 items-center justify-center rounded-full bg-primary shadow-lg transition-all duration-200 ease-in-out ${
+                                showPlayButton
+                                  ? 'scale-100 bg-opacity-80 hover:scale-110 hover:bg-opacity-100 hover:shadow-xl'
+                                  : 'scale-75 bg-opacity-0'
+                              }`}
+                              style={{
+                                backdropFilter: 'blur(4px)',
+                                transition: 'all 0.2s ease-in-out, backdrop-filter 0.2s ease-in-out',
+                              }}
+                              onClick={handlePlayClick}
+                              aria-label="Play video"
+                            >
+                              <svg
+                                className={`ml-1 h-6 w-6 text-gray-800 transition-opacity duration-300 ease-in-out ${
+                                  showPlayButton ? 'opacity-100' : 'opacity-0'
+                                }`}
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
+                            </button>
+                          </div>
+                        </>
+                      )}
+
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] p-8">
+                        <div className="experience-text font-base text-3xl uppercase tracking-wide">Experience</div>
+                      </div>
                     </div>
                   </div>
-                </Link>
-                {/* Security Proposal Card (1/3 height) */}
+                ) : (
+                  // Original Experience card (row-span-2)
+                  <Link
+                    ref={experienceCardRef}
+                    href="/experience"
+                    className="experience-card group relative row-span-2 block h-full w-full overflow-hidden rounded-lg hover:text-primary"
+                    onMouseEnter={() => handleExperienceHover(true)}
+                    onMouseLeave={() => handleExperienceHover(false)}
+                  >
+                    <Image
+                      src="/images/fpo-nav.jpg"
+                      alt="Experience preview"
+                      fill
+                      sizes="50vw"
+                      priority
+                      className="experience-image object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black/25 transition-colors duration-300 group-hover:bg-black/80" />
+                    <div className="absolute inset-x-0 bottom-0 p-8">
+                      <div className="experience-text font-base text-3xl uppercase tracking-wide">
+                        View Experience
+                      </div>
+                    </div>
+                  </Link>
+                )}
+
+                {/* Security Proposal Card (1/3 height) - always shown */}
                 <Link
                   ref={securityCardRef}
                   href="/contact"
@@ -536,7 +689,7 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
                   </video>
                   <div className="absolute inset-0 bg-black/25 transition-colors duration-300 group-hover:bg-black/80" />
                   <div className="absolute inset-x-0 bottom-0 p-8">
-                    <div className="experience-text text-4xl font-light uppercase tracking-wide">
+                    <div className="experience-text font-base text-3xl uppercase tracking-wide">
                       Request Security Proposal
                     </div>
                   </div>

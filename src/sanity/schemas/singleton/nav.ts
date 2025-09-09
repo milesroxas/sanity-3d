@@ -13,6 +13,13 @@ export default defineType({
   ],
   fields: [
     defineField({
+      name: 'experienceVideo',
+      title: 'Experience Nav Video',
+      type: 'mux.video',
+      description:
+        'Optional: Select a Mux video to preview in the desktop nav when on the Experience page. Uses a looping, muted preview with a play overlay, switching to full playback inline on click.',
+    }),
+    defineField({
       name: 'logo',
       title: 'Logo',
       type: 'image',

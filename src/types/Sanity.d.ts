@@ -226,6 +226,7 @@ declare global {
       companyLinks: Link[];
       services: Link[];
       legal: Link[];
+      experienceVideo?: Video;
     }>;
 
     type Author = SanityDocument<{
