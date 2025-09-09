@@ -58,10 +58,14 @@ export function R3FProvider({ children }: { children: ReactNode }) {
     const base = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
     const now = Date.now();
 
-    // While any camera is animating or page is not visible, freeze DPR at the last stable value
-    // to avoid abrupt changes right as transitions begin/end.
+    // While any camera is animating or page is not visible, use a completely stable DPR
     if (isAnimating || isLandingAnimating || !isPageVisible) {
-      return stableDprRef.current;
+      // Use a cached stable value based on device capabilities
+      const frozen = Math.max(1, Math.min(2, base));
+      const stabilized = Math.round(frozen * 2) / 2; // half-step granularity
+      stableDprRef.current = stabilized;
+      lastStableDprUpdateRef.current = now;
+      return stabilized;
     }
 
     // Apply hysteresis: only update if enough time has passed since last animation
