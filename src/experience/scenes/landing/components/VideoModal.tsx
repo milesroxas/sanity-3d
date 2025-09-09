@@ -1,3 +1,4 @@
+import { useEscapeKey } from '@/hooks/useEscapeKey';
 import { X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
@@ -27,21 +28,17 @@ export default function FullscreenVideoModal() {
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
 
-      // Handle escape key
-      const handleEscape = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          closeModal();
-        }
-      };
-
-      document.addEventListener('keydown', handleEscape);
-
       return () => {
         document.body.style.overflow = 'unset';
-        document.removeEventListener('keydown', handleEscape);
       };
     }
-  }, [isOpen, closeModal]);
+  }, [isOpen]);
+
+  // Handle escape key to close modal
+  useEscapeKey({
+    enabled: isOpen,
+    onEscape: closeModal,
+  });
 
   if (!mounted || !isOpen) {
     return null;

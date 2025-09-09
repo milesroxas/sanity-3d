@@ -27,6 +27,12 @@ export const CustomCursor = () => {
     const cursorOuter = cursorOuterRef.current;
     if (!cursor || !cursorOuter) return;
 
+    // Hide the native cursor globally while custom cursor is active
+    const styleEl = document.createElement('style');
+    styleEl.setAttribute('data-custom-cursor', 'true');
+    styleEl.textContent = `html, body, * { cursor: none !important; }`;
+    document.head.appendChild(styleEl);
+
     // Initially hide cursors
     gsap.set([cursor, cursorOuter], { opacity: 0 });
 
@@ -103,6 +109,9 @@ export const CustomCursor = () => {
 
     // Cleanup
     return () => {
+      // Restore native cursor
+      if (styleEl && styleEl.parentNode) styleEl.parentNode.removeChild(styleEl);
+
       window.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseleave', onMouseLeave);
       document.removeEventListener('mouseenter', onMouseEnter);
@@ -120,11 +129,11 @@ export const CustomCursor = () => {
     <>
       <div
         ref={cursorRef}
-        className="custom-cursor pointer-events-none fixed z-50 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white mix-blend-difference transition-transform duration-200 ease-out"
+        className="custom-cursor pointer-events-none fixed left-0 top-0 z-50 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white mix-blend-difference transition-transform duration-200 ease-out"
       />
       <div
         ref={cursorOuterRef}
-        className="custom-cursor-outer pointer-events-none fixed z-50 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white mix-blend-difference transition-transform duration-200 ease-out"
+        className="custom-cursor-outer pointer-events-none fixed left-0 top-0 z-50 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white mix-blend-difference transition-transform duration-200 ease-out"
       />
     </>
   );

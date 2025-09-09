@@ -1,5 +1,6 @@
 'use client';
 import SocialLinks from '@/components/ui/social-links';
+import { useEscapeKey } from '@/hooks/useEscapeKey';
 import {
   ANIMATION_CONFIG,
   getLinkData,
@@ -10,11 +11,11 @@ import {
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { MenuIcon } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface DesktopNavProps {
   nav: SanityNav;
@@ -453,6 +454,13 @@ const useMenuState = () => {
     }
   }, [isMenuOpen]);
 
+  // Handle escape key to close menu
+  useEscapeKey({
+    enabled: isMenuOpen,
+    condition: !isMenuAnimating,
+    onEscape: closeMenu,
+  });
+
   return {
     isOpen: isMenuOpen,
     shouldRender: shouldRenderMenu,
@@ -587,7 +595,7 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
                       onMouseLeave={handleMouseLeaveVideo}
                     >
                       {/* Wrapper matches the animated target used by the image card */}
-                      <div className="experience-image absolute inset-0 rounded-lg overflow-hidden transition-transform duration-700 ease-out group-hover:scale-105 will-change-transform">
+                      <div className="experience-image absolute inset-0 overflow-hidden rounded-lg transition-transform duration-700 ease-out will-change-transform group-hover:scale-105">
                         <MuxPlayer
                           ref={playerRef}
                           playbackId={nav.experienceVideo.asset.playbackId}
@@ -652,7 +660,8 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
                               }`}
                               style={{
                                 backdropFilter: 'blur(4px)',
-                                transition: 'all 0.2s ease-in-out, backdrop-filter 0.2s ease-in-out',
+                                transition:
+                                  'all 0.2s ease-in-out, backdrop-filter 0.2s ease-in-out',
                               }}
                               onClick={handlePlayClick}
                               aria-label="Play video"

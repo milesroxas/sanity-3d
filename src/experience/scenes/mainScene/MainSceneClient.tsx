@@ -1,4 +1,6 @@
 'use client';
+
+import { CustomCursor } from '@/components/ui/Cursor';
 import { useR3F } from '@/experience/providers/R3FContext';
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
@@ -45,39 +47,42 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
   }, [setR3FContent, setSelectedScene, resetToInitial, isLoading, memoizedScene]);
 
   return (
-    <div style={noScrollStyles}>
-      <AnimatePresence>
-        {!isReady && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'white',
-              zIndex: 1000,
-            }}
-          />
-        )}
-      </AnimatePresence>
+    <div>
+      <CustomCursor />
+      <div style={noScrollStyles}>
+        <AnimatePresence>
+          {!isReady && (
+            <motion.div
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'white',
+                zIndex: 1000,
+              }}
+            />
+          )}
+        </AnimatePresence>
 
-      {/* Logo marker content: Render only when ready and a scene is selected */}
-      <AnimatePresence>
-        {isReady && selectedScene && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <LogoMarkerContent />
-          </motion.div>
-        )}
-      </AnimatePresence>
+        {/* Logo marker content: Render only when ready and a scene is selected */}
+        <AnimatePresence>
+          {isReady && selectedScene && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <LogoMarkerContent />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

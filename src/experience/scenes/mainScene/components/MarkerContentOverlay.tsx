@@ -2,12 +2,13 @@ import Blocks from '@/components/blocks';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import { useEscapeKey } from '@/hooks/useEscapeKey';
+import { useOverlayScrollLock } from '@/hooks/useOverlayScrollLock';
 import { cn } from '@/lib/utils';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { PanelLeftClose, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { useOverlayScrollLock } from '@/hooks/useOverlayScrollLock';
 
 interface MarkerContentOverlayProps {
   title: string;
@@ -67,6 +68,13 @@ export default function MarkerContentOverlay({
   const handleClose = () => {
     setIsAnimating(true);
   };
+
+  // Handle escape key to close overlay
+  useEscapeKey({
+    enabled: isVisible,
+    condition: !isAnimating,
+    onEscape: handleClose,
+  });
 
   // GSAP animations using useGSAP hook
   useGSAP(
@@ -347,7 +355,10 @@ export default function MarkerContentOverlay({
               <X />
             </Button>
           </div>
-          <ScrollArea className={cn('flex-1 [&>[data-radix-scroll-area-scrollbar]]:w-1.5', overlayClassName)} {...overlayProps}>
+          <ScrollArea
+            className={cn('flex-1 [&>[data-radix-scroll-area-scrollbar]]:w-1.5', overlayClassName)}
+            {...overlayProps}
+          >
             <div className="p-4" ref={blocksRef}>
               {blocks && blocks.length > 0 ? (
                 <div className="flex flex-col gap-4">
@@ -375,7 +386,7 @@ export default function MarkerContentOverlay({
       <div className="flex flex-1 items-center justify-center">
         <div
           ref={overlayRef}
-          className="pointer-events-auto flex h-full max-h-[90vh] max-w-[700px] flex-col bg-background/75 shadow-xl md:backdrop-blur-lg md:rounded-lg"
+          className="pointer-events-auto flex h-full max-h-[90vh] max-w-[700px] flex-col bg-background/75 shadow-xl md:rounded-lg md:backdrop-blur-lg"
         >
           <div className="sticky top-0 z-10 rounded-t-lg bg-background/15 pb-4 pt-4 shadow-sm backdrop-blur-sm">
             <div className="relative flex items-center px-12 lg:px-14">

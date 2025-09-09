@@ -5,12 +5,12 @@ import { LinkButton } from '@/components/shared/link-button';
 import { Button } from '@/components/ui/button';
 import { useExpandedContentStore } from '@/experience/scenes/store/expandedContentStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import { useEscapeKey } from '@/hooks/useEscapeKey';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
 import { ArrowRight, ArrowUpFromLine, PanelLeftOpen, ShieldPlus, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import MarkerContentOverlay from './MarkerContentOverlay';
-import { useMemo } from 'react';
 
 export default function LogoMarkerContent() {
   // Select only needed pieces from the stores to avoid unnecessary re-renders
@@ -125,11 +125,16 @@ export default function LogoMarkerContent() {
         ticking = false;
         if (isAnimating) return;
         const top = el.scrollTop;
-        const next = top > SHOW_THRESHOLD ? selectedScene?.title || 'Security Services' : 'Security Services';
+        const next =
+          top > SHOW_THRESHOLD ? selectedScene?.title || 'Security Services' : 'Security Services';
         const current = headerTitleRef.current;
 
         // Apply hysteresis when toggling back to default
-        if (current !== 'Security Services' && top > HIDE_THRESHOLD && next === 'Security Services') {
+        if (
+          current !== 'Security Services' &&
+          top > HIDE_THRESHOLD &&
+          next === 'Security Services'
+        ) {
           return;
         }
 
@@ -160,6 +165,13 @@ export default function LogoMarkerContent() {
       },
     });
   };
+
+  // Handle escape key to close logo marker content
+  useEscapeKey({
+    enabled: isContentVisible,
+    condition: !isAnimating,
+    onEscape: handleClose,
+  });
 
   // Helper: open overlay with provided blocks and title
   const openOverlay = (overlayTitle: string, overlayBlocks: Sanity.Block[]) => {
@@ -225,7 +237,7 @@ export default function LogoMarkerContent() {
       {isContentVisible && (
         <div
           ref={drawerRef}
-          className="marker-content fixed left-0 top-0 z-20 flex h-full w-full flex-col bg-background pb-16 shadow-xl will-change-transform md:backdrop-blur-md md:w-[35vw] md:min-w-[400px] lg:w-[40vw] lg:min-w-[450px]"
+          className="marker-content fixed left-0 top-0 z-20 flex h-full w-full flex-col bg-background pb-16 shadow-xl will-change-transform md:w-[35vw] md:min-w-[400px] md:backdrop-blur-md lg:w-[40vw] lg:min-w-[450px]"
         >
           {/* Header with title that changes based on scroll */}
           <div className="sticky top-0 z-10 flex items-center justify-between overflow-hidden bg-background/95 pb-2 pl-6 pr-6 pt-2 md:backdrop-blur-sm">
@@ -249,9 +261,13 @@ export default function LogoMarkerContent() {
 
           {/* Unified content area with native scroll (prevents remounts and improves iOS perf) */}
           <div
-            className="flex-1 overflow-y-auto touch-pan-y overscroll-y-contain"
+            className="flex-1 touch-pan-y overflow-y-auto overscroll-y-contain"
             ref={scrollRef}
-            style={{ WebkitOverflowScrolling: 'touch', contain: 'paint', backfaceVisibility: 'hidden' as any }}
+            style={{
+              WebkitOverflowScrolling: 'touch',
+              contain: 'paint',
+              backfaceVisibility: 'hidden' as any,
+            }}
           >
             <div ref={contentRef} className="flex flex-col p-6 pb-20 pt-4">
               <h3 className="mb-6 pr-8 text-lg font-bold text-secondary md:text-3xl">
@@ -278,11 +294,13 @@ export default function LogoMarkerContent() {
                   <>
                     {/* Left: Always show Security Request Form trigger */}
                     <Button
-                      variant={isVisible && activeOverlaySource === 'security' ? 'inactive' : 'default'}
+                      variant={
+                        isVisible && activeOverlaySource === 'security' ? 'inactive' : 'default'
+                      }
                       size="default"
                       disabled={isVisible && activeOverlaySource === 'security'}
                       className={cn(
-                        'h-10 text-sm font-bold hover:shadow-lg hover:-translate-y-px active:translate-y-0',
+                        'h-10 text-sm font-bold hover:-translate-y-px hover:shadow-lg active:translate-y-0',
                         hasRightAction ? 'w-1/2' : 'w-full'
                       )}
                       onClick={openSecurityRequestOverlay}
@@ -297,7 +315,7 @@ export default function LogoMarkerContent() {
                         <LinkButton
                           link={selectedScene.links[0]}
                           className={cn(
-                            'h-10 w-1/2 text-sm font-bold hover:shadow-lg hover:-translate-y-px active:translate-y-0'
+                            'h-10 w-1/2 text-sm font-bold hover:-translate-y-px hover:shadow-lg active:translate-y-0'
                           )}
                           icon={ArrowRight}
                           iconPosition="right"
@@ -306,7 +324,7 @@ export default function LogoMarkerContent() {
                       ) : (
                         <Button
                           className={cn(
-                            'h-10 w-1/2 hover:shadow-lg hover:-translate-y-px active:translate-y-0'
+                            'h-10 w-1/2 hover:-translate-y-px hover:shadow-lg active:translate-y-0'
                           )}
                           variant={
                             isVisible && activeOverlaySource === 'expand' ? 'inactive' : 'outline'
