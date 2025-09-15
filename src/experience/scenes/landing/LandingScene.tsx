@@ -563,7 +563,7 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
             }}
           >
             <p className={`mb-8 ${textStyles.textSize} leading-relaxed`}>
-              With over 38 years of experience, O'Linn Security Inc. offers comprehensive security
+              With over 40 years of experience, O'Linn Security Inc. offers comprehensive security
               solutions tailored to your needs.
             </p>
             <Button
