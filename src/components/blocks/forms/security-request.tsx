@@ -76,12 +76,12 @@ const formSchema = z.object({
   securityTypes: z
     .array(
       z.enum([
-        'standing-guards',
-        'patrols',
-        'gate-access',
+        'vehicle-patrol',
+        'residential-security',
+        'retail-commercial-security',
         'event-security',
         'construction-security',
-        'mobile-patrol',
+        'hotel-resort-security',
         'other',
       ])
     )
@@ -355,12 +355,12 @@ export default function SecurityRequestForm({
   ];
 
   const securityTypeOptions = [
-    { id: 'standing-guards', label: 'Standing Guards' },
-    { id: 'patrols', label: 'Patrols' },
-    { id: 'gate-access', label: 'Gate Access' },
+    { id: 'vehicle-patrol', label: 'Vehicle Patrol' },
+    { id: 'residential-security', label: 'Residential Security' },
+    { id: 'retail-commercial-security', label: 'Retail/Commercial Security' },
     { id: 'event-security', label: 'Event Security' },
     { id: 'construction-security', label: 'Construction Security' },
-    { id: 'mobile-patrol', label: 'Mobile Patrol' },
+    { id: 'hotel-resort-security', label: 'Hotel/Resort Security' },
     { id: 'other', label: 'Other' },
   ];
 
