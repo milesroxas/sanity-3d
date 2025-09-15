@@ -102,14 +102,7 @@ const formSchema = z.object({
   specialCertifications: z.string().optional(),
   patrolRequirements: z
     .array(
-      z.enum([
-        'indoor',
-        'outdoor',
-        'gate-access-points',
-        'parking-lots',
-        'perimeter-fencing',
-        'other',
-      ])
+      z.enum(['indoor', 'outdoor', 'gate-access', 'parking-lots', 'perimeter-fencing', 'other'])
     )
     .optional(),
   onsiteContact: z.string().optional(),
@@ -356,18 +349,18 @@ export default function SecurityRequestForm({
 
   const securityTypeOptions = [
     { id: 'vehicle-patrol', label: 'Vehicle Patrol' },
-    { id: 'residential-security', label: 'Residential Security' },
-    { id: 'retail-commercial-security', label: 'Retail/Commercial Security' },
-    { id: 'event-security', label: 'Event Security' },
-    { id: 'construction-security', label: 'Construction Security' },
-    { id: 'hotel-resort-security', label: 'Hotel/Resort Security' },
+    { id: 'residential-security', label: 'HOA/Residential' },
+    { id: 'retail-commercial-security', label: 'Retail/Commercial' },
+    { id: 'event-security', label: 'Event' },
+    { id: 'construction-security', label: 'Construction Sites' },
+    { id: 'hotel-resort-security', label: 'Hotel/Resort' },
     { id: 'other', label: 'Other' },
   ];
 
   const patrolOptions = [
     { id: 'indoor', label: 'Indoor' },
     { id: 'outdoor', label: 'Outdoor' },
-    { id: 'gate-access-points', label: 'Gate/Access Points' },
+    { id: 'gate-access', label: 'Gate/Access' },
     { id: 'parking-lots', label: 'Parking Lots' },
     { id: 'perimeter-fencing', label: 'Perimeter Fencing' },
     { id: 'other', label: 'Other' },
