@@ -8,11 +8,12 @@ import { draftMode } from 'next/headers';
 import { fetchSanitySettings } from './actions';
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
-  const nav = await fetchSanityNav();
-  const settings = await fetchSanitySettings();
+  const [nav, settings] = await Promise.all([fetchSanityNav(), fetchSanitySettings()]);
+
+  const experienceMediaVideo = nav.experienceMediaVideo?.video ?? null;
   return (
     <>
-      <Header nav={nav} settings={settings} />
+      <Header nav={nav} settings={settings} mediaExperienceVideo={experienceMediaVideo} />
       {children}
       <SanityLive />
       {(await draftMode()).isEnabled && (

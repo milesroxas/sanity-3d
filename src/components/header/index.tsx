@@ -19,9 +19,10 @@ gsap.registerPlugin(ScrollTrigger);
 interface HeaderProps {
   nav: SanityNav;
   settings: SanitySettings;
+  mediaExperienceVideo?: Sanity.Video | null;
 }
 
-export default function Header({ nav, settings }: HeaderProps) {
+export default function Header({ nav, settings, mediaExperienceVideo }: HeaderProps) {
   const pathname = usePathname();
   const logo = nav.logo;
 
@@ -206,7 +207,11 @@ export default function Header({ nav, settings }: HeaderProps) {
         <div className="ml-auto flex items-center">
           <div ref={navContainerRef} className="flex items-center gap-7">
             <div className="hidden xl:flex">
-              <DesktopNav nav={nav} settings={settings} />
+              <DesktopNav
+                nav={nav}
+                settings={settings}
+                experienceMediaVideo={mediaExperienceVideo}
+              />
             </div>
             <div className="xl:hidden">
               <MobileNav nav={nav} settings={settings} />

@@ -34,7 +34,8 @@ export interface SanityNav {
   companyLinks: Array<any>;
   services: Array<any> | null;
   legal: Array<any> | null;
-  experienceVideo?: Sanity.Video | null;
+  experienceVideo?: Sanity.Media | null;
+  experienceMediaVideo?: Sanity.Media | null;
 }
 
 export interface SanitySettings {

@@ -190,8 +190,14 @@ declare global {
 
     type Media = SanityDocument<{
       title: string;
-      file: File;
+      mediaType?: string;
+      file?: File;
+      image?: Image;
       video?: Video;
+      videoOptions?: {
+        showControls?: boolean;
+      };
+      orderRank?: string;
     }>;
     type Settings = SanityDocument<{
       logo: Image;
@@ -226,7 +232,8 @@ declare global {
       companyLinks: Link[];
       services: Link[];
       legal: Link[];
-      experienceVideo?: Video;
+      experienceVideo?: Media;
+      experienceMediaVideo?: Media;
     }>;
 
     type Author = SanityDocument<{

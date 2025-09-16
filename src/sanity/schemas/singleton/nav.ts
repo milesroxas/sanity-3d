@@ -14,10 +14,19 @@ export default defineType({
   fields: [
     defineField({
       name: 'experienceVideo',
-      title: 'Experience Nav Video',
-      type: 'mux.video',
+      title: 'Default Experience Video',
+      type: 'reference',
+      to: [{ type: 'media' }],
       description:
-        'Optional: Select a Mux video to preview in the desktop nav when on the Experience page. Uses a looping, muted preview with a play overlay, switching to full playback inline on click.',
+        'Optional: Choose a Media Library video used for the experience card on non-experience pages.',
+    }),
+    defineField({
+      name: 'experienceMediaVideo',
+      title: 'Experience Page Media',
+      type: 'reference',
+      to: [{ type: 'media' }],
+      description:
+        'Optional: Choose a Media Library video used exclusively when the menu opens on the Experience route.',
     }),
     defineField({
       name: 'logo',

@@ -4,12 +4,30 @@ export const NAV_QUERY = groq`
   *[_type == "nav"][0] {
     _id,
     _type,
-    experienceVideo {
-      asset->{
-        _id,
-        playbackId,
-        assetId,
-        filename
+    experienceVideo->{
+      _id,
+      title,
+      mediaType,
+      video {
+        asset->{
+          _id,
+          playbackId,
+          assetId,
+          filename
+        }
+      }
+    },
+    experienceMediaVideo->{
+      _id,
+      title,
+      mediaType,
+      video {
+        asset->{
+          _id,
+          playbackId,
+          assetId,
+          filename
+        }
       }
     },
     logo {

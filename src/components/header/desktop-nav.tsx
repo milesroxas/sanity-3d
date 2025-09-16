@@ -12,7 +12,6 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { MenuIcon, Play } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -20,6 +19,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 interface DesktopNavProps {
   nav: SanityNav;
   settings: SanitySettings;
+  experienceMediaVideo?: Sanity.Video | null;
 }
 
 const useMenuAnimations = (isOpen: boolean, shouldRender: boolean, onCloseComplete: () => void) => {
@@ -470,7 +470,7 @@ const useMenuState = () => {
   };
 };
 
-export default function DesktopNav({ nav, settings }: DesktopNavProps) {
+export default function DesktopNav({ nav, settings, experienceMediaVideo }: DesktopNavProps) {
   const { contact, address, businessHours, social } = settings || {};
   const { isOpen, shouldRender, openMenu, closeMenu, onCloseComplete } = useMenuState();
 
@@ -481,6 +481,17 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
   // Detect experience route
   const pathname = usePathname();
   const isExperienceRoute = pathname === '/experience' || pathname?.startsWith('/experience/');
+
+  const mediaVideo =
+    experienceMediaVideo && experienceMediaVideo.asset?.playbackId ? experienceMediaVideo : null;
+  const navVideo =
+    nav?.experienceVideo?.video && nav.experienceVideo.video.asset?.playbackId
+      ? nav.experienceVideo.video
+      : null;
+  const activeExperienceVideo = isExperienceRoute
+    ? mediaVideo ?? navVideo
+    : navVideo ?? mediaVideo;
+  const hasActiveExperienceVideo = Boolean(activeExperienceVideo?.asset?.playbackId);
 
   // Mux Player (client-only) and state for videos used by the Billboard
   type MuxPlayerElement = any;
@@ -497,7 +508,7 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
     []
   );
 
-  // No fetching here; use nav.experienceVideo provided from server NAV_QUERY
+  // Choose the video source based on route (media library on experience page, nav settings elsewhere)
 
   // Hover overlay & playback mode (similar to Hero 1 block)
   type PlaybackMode = 'preview' | 'full';
@@ -543,6 +554,17 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
     }
   }, []);
 
+  useEffect(() => {
+    if (!playerRef.current) return;
+
+    const playerElement = playerRef.current as HTMLElement;
+    playerElement.style.setProperty('--media-object-fit', 'cover');
+    playerElement.style.setProperty('--media-object-position', 'center');
+    playerElement.style.setProperty('--media-border-radius', '0px');
+    playerElement.style.setProperty('--poster-object-fit', 'cover');
+    playerElement.style.setProperty('--poster-object-position', 'center');
+  }, [activeExperienceVideo]);
+
   // Reset player/card state AFTER the close animation completes
   const resetVideoState = useCallback(() => {
     setPlaybackMode('preview');
@@ -586,8 +608,8 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
             {/* Experience Panel */}
             <div ref={refs.leftPanelRef} className="relative h-full w-1/2">
               <div className="grid h-full grid-rows-3 gap-12 p-12">
-                {isExperienceRoute && nav?.experienceVideo?.asset?.playbackId ? (
-                  // Replace the Experience card with nav-selected video (row-span-2)
+                {isExperienceRoute && hasActiveExperienceVideo ? (
+                  // Replace the Experience card with the active experience video (row-span-2)
                   <div className="relative row-span-2 h-full w-full overflow-hidden rounded-lg">
                     <div
                       className="group relative h-full w-full"
@@ -598,7 +620,7 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
                       <div className="experience-image absolute inset-0 overflow-hidden rounded-lg transition-transform duration-700 ease-out will-change-transform group-hover:scale-105">
                         <MuxPlayer
                           ref={playerRef}
-                          playbackId={nav.experienceVideo.asset.playbackId}
+                          playbackId={activeExperienceVideo!.asset!.playbackId}
                           streamType="on-demand"
                           muted={playbackMode === 'preview'}
                           loop={playbackMode === 'preview'}
@@ -669,7 +691,7 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
                     </div>
                   </div>
                 ) : (
-                  // Original Experience card (row-span-2)
+                  // Default Experience card (row-span-2)
                   <Link
                     ref={experienceCardRef}
                     href="/experience"
@@ -677,14 +699,39 @@ export default function DesktopNav({ nav, settings }: DesktopNavProps) {
                     onMouseEnter={() => handleExperienceHover(true)}
                     onMouseLeave={() => handleExperienceHover(false)}
                   >
-                    <Image
-                      src="/images/fpo-nav.jpg"
-                      alt="Experience preview"
-                      fill
-                      sizes="50vw"
-                      priority
-                      className="experience-image object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
+                    {activeExperienceVideo?.asset?.playbackId && (
+                      <MuxPlayer
+                        ref={playerRef}
+                        playbackId={activeExperienceVideo.asset.playbackId}
+                        streamType="on-demand"
+                        muted={playbackMode === 'preview'}
+                        loop={playbackMode === 'preview'}
+                        autoPlay={true}
+                        paused={playbackMode === 'full' ? false : undefined}
+                        onTimeUpdate={handleTimeUpdate}
+                        onLoadedData={handleLoadedData}
+                        nohotkeys={playbackMode === 'preview'}
+                        style={
+                          {
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            objectPosition: 'center',
+                            // Ensure internal media fills & clips within host
+                            '--media-object-fit': 'cover',
+                            '--media-object-position': 'center',
+                            '--media-border-radius': '0px',
+                            ...(playbackMode === 'preview' && {
+                              '--controls': 'none',
+                              '--media-control-bar': 'none',
+                            }),
+                          } as React.CSSProperties
+                        }
+                      />
+                    )}
                     <div className="absolute inset-0 bg-black/25 transition-colors duration-300 group-hover:bg-black/80" />
                     <div className="absolute inset-x-0 bottom-0 p-8">
                       <div className="experience-text font-base text-3xl uppercase tracking-wide">
