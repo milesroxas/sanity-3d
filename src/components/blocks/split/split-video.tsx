@@ -1,5 +1,7 @@
 'use client';
+import { ISectionContainerProps } from '@/components/ui/section-container';
 import { createBlurUp } from '@mux/blurup';
+import { stegaClean } from 'next-sanity';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -26,10 +28,12 @@ export interface SplitVideoProps {
   };
   videoOptions?: {
     hideControls: boolean;
+    sizeVariant?: 'default' | '818x1021';
   };
   blurDataURL?: string;
   aspectRatio?: number;
   previewDuration?: number;
+  styleVariant?: ISectionContainerProps['style'];
 }
 
 type PlaybackMode = 'preview' | 'full';
@@ -43,7 +47,10 @@ export default function SplitVideo({
   blurDataURL: preGeneratedBlur,
   aspectRatio: preGeneratedRatio,
   previewDuration = DEFAULT_PREVIEW_DURATION,
+  styleVariant,
 }: SplitVideoProps) {
+  const style = stegaClean(styleVariant);
+  const isOffset = style === 'offset';
   const [blurDataURL, setBlurDataURL] = useState<string | null>(preGeneratedBlur || null);
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode>('preview');
   const [showPlayButton, setShowPlayButton] = useState(false);
@@ -117,8 +124,17 @@ export default function SplitVideo({
   if (!isClient) {
     return (
       <div
-        className="relative flex max-h-[25rem] w-full items-center justify-center overflow-hidden rounded-md bg-primary sm:max-h-[30rem] md:max-h-[25rem] lg:h-full"
-        style={{ aspectRatio: preGeneratedRatio || '16/9' }}
+        className={
+          isOffset
+            ? 'relative flex h-[25rem] w-full max-w-full items-center justify-center overflow-hidden rounded-md bg-primary sm:h-[30rem] md:h-[30rem] lg:h-[calc(100%)]'
+            : videoOptions?.sizeVariant === '818x1021'
+              ? 'relative flex w-full items-center justify-center overflow-hidden rounded-md bg-primary'
+              : 'relative flex max-h-[25rem] w-full items-center justify-center overflow-hidden rounded-md bg-primary sm:max-h-[30rem] md:max-h-[25rem] lg:h-full'
+        }
+        style={{
+          aspectRatio:
+            videoOptions?.sizeVariant === '818x1021' ? '818/1021' : preGeneratedRatio || '16/9',
+        }}
       >
         <div className="text-gray-500">Loading video...</div>
       </div>
@@ -129,8 +145,17 @@ export default function SplitVideo({
 
   return (
     <div
-      className="group relative max-h-[25rem] w-full overflow-hidden rounded-md sm:max-h-[30rem] md:max-h-[25rem] lg:h-full"
-      style={{ aspectRatio: preGeneratedRatio || '16/9' }}
+      className={
+        isOffset
+          ? 'group relative h-[25rem] w-full max-w-full overflow-hidden rounded-md sm:h-[30rem] md:h-[30rem] lg:h-[calc(100%)] lg:shadow-lg'
+          : videoOptions?.sizeVariant === '818x1021'
+            ? 'group relative w-full overflow-hidden rounded-md'
+            : 'group relative max-h-[25rem] w-full overflow-hidden rounded-md sm:max-h-[30rem] md:max-h-[25rem] lg:h-full'
+      }
+      style={{
+        aspectRatio:
+          videoOptions?.sizeVariant === '818x1021' ? '818/1021' : preGeneratedRatio || '16/9',
+      }}
       onMouseEnter={videoOptions?.hideControls ? undefined : handleMouseEnter}
       onMouseLeave={videoOptions?.hideControls ? undefined : handleMouseLeave}
     >
@@ -153,6 +178,13 @@ export default function SplitVideo({
             height: '100%',
             objectFit: 'cover',
             objectPosition: 'center',
+            // Ensure cover behavior for the 818x1021 variant
+            ...(videoOptions?.sizeVariant === '818x1021' && {
+              aspectRatio: '818 / 1021',
+            }),
+            // Mux Player uses CSS variables for internal media element
+            ['--media-object-fit' as any]: 'cover',
+            ['--media-object-position' as any]: 'center',
             ...(playbackMode === 'preview' && {
               '--controls': 'none',
               '--media-control-bar': 'none',

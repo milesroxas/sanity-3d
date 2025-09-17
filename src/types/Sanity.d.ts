@@ -270,6 +270,16 @@ declare global {
         };
       }>;
 
+    type SplitVideoOptions = {
+      hideControls?: boolean;
+      sizeVariant?: 'default' | '818x1021';
+    };
+
+    type SplitVideoBlock = Block<'split-video'> & {
+      video?: Video;
+      videoOptions?: SplitVideoOptions;
+    };
+
     // objects
     type Block<T = string> = {
       _type: T;

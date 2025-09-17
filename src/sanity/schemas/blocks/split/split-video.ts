@@ -23,6 +23,20 @@ export default defineType({
           type: 'boolean',
           initialValue: false,
         }),
+        defineField({
+          name: 'sizeVariant',
+          title: 'Size Variant',
+          type: 'string',
+          description: 'Choose how the video should size within its container',
+          options: {
+            list: [
+              { title: 'Default', value: 'default' },
+              { title: '818 x 1021 (cover)', value: '818x1021' },
+            ],
+            layout: 'radio',
+          },
+          initialValue: 'default',
+        }),
       ],
     }),
   ],

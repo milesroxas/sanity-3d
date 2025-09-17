@@ -277,7 +277,10 @@ export default function FeaturedContentOffset(props: FeaturedContentOffsetProps)
 
             {/* GRAPHIC */}
             {graphic?.asset?._id && (
-              <div ref={graphicRef} className="absolute bottom-[-10%] right-0 z-20 w-[60%]">
+              <div
+                ref={graphicRef}
+                className="pointer-events-none absolute bottom-[-10%] right-0 z-20 w-[60%]"
+              >
                 <Image
                   src={urlFor(graphic.asset).url()}
                   alt={graphic.alt || 'Decorative graphic'}

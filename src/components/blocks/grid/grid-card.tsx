@@ -81,10 +81,10 @@ export default function GridCard({
     minimal: {
       card: 'border-none bg-transparent p-2  md:text-center',
       image: {
-        container: 'relative mb-4 overflow-hidden rounded-sm h-8 w-8 md:mx-auto',
+        container: 'relative mb-4 overflow-hidden rounded-sm h-12 w-12 md:mx-auto',
         props: {
-          width: 32,
-          height: 32,
+          width: 64,
+          height: 64,
           className: 'object-contain',
         },
       },

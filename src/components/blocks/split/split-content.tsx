@@ -39,7 +39,13 @@ export default function SplitContent({
   const isDark = theme === 'dark';
 
   return (
-    <div className={cn('w-full', isOffset && 'lg:w-full')}>
+    <div
+      className={cn(
+        'w-full',
+        !isOffset && 'lg:flex lg:h-full lg:items-center',
+        isOffset && 'lg:w-full'
+      )}
+    >
       <div
         className={cn(
           'flex flex-col items-start',
@@ -63,7 +69,7 @@ export default function SplitContent({
           <div
             className={cn(
               'prose prose-lg prose-p:my-4 prose-p:leading-relaxed prose-p:text-muted-foreground',
-              links && 'mb-12'
+              links && 'mb-6'
             )}
           >
             <PortableTextRenderer value={body} />

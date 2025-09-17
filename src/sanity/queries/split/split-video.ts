@@ -13,7 +13,8 @@ export const splitVideoQuery = groq`
         }
     },
     videoOptions{
-      hideControls
+      hideControls,
+      sizeVariant
     }
   }
 `;
