@@ -4,9 +4,9 @@ import { generatePageMetadata } from '@/lib/metadata';
 import { urlFor } from '@/sanity/lib/image';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { fetchSanityTeamMemberBySlug, fetchSanityTeamStaticParams } from '../actions';
+import { fetchSanityTeamMemberBySlug } from '../actions';
 import TeamMemberPageClient from './page.client';
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
@@ -16,14 +16,6 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   }
 
   return generatePageMetadata({ page: team, slug: `/team/${params.slug}` });
-}
-
-export async function generateStaticParams() {
-  const teams = await fetchSanityTeamStaticParams();
-
-  return teams.map(team => ({
-    slug: team.slug,
-  }));
 }
 
 export default async function TeamMemberPage(props: { params: Promise<{ slug: string }> }) {

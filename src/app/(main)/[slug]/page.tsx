@@ -4,7 +4,7 @@ import { generatePageMetadata } from '@/lib/metadata';
 import { notFound } from 'next/navigation';
 import { fetchSanityPageBySlug } from '../actions';
 import PageClient from './page.client';
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;

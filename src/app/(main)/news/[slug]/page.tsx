@@ -5,9 +5,9 @@ import PostHero from '@/components/ui/post/hero';
 import { generatePageMetadata } from '@/lib/metadata';
 import { BreadcrumbLink } from '@/types';
 import { notFound } from 'next/navigation';
-import { fetchSanityPostBySlug, fetchSanityPostsStaticParams } from '../actions';
+import { fetchSanityPostBySlug } from '../actions';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
@@ -18,14 +18,6 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   }
 
   return generatePageMetadata({ page: post, slug: `/blog/${params.slug}` });
-}
-
-export async function generateStaticParams() {
-  const posts = await fetchSanityPostsStaticParams();
-
-  return posts.map(post => ({
-    slug: post.slug.current,
-  }));
 }
 
 export default async function PostPage(props: { params: Promise<{ slug: string }> }) {

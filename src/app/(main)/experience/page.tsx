@@ -2,9 +2,9 @@ import MainSceneClient from '@/experience/scenes/mainScene/MainSceneClient';
 import { generatePageMetadata } from '@/lib/metadata';
 import { fetchSanitySceneBySlug } from '../actions';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
-export const revalidate = 3600; // Revalidate every hour
+export const revalidate = 0; // Always serve fresh data
 
 export async function generateMetadata() {
   const scene = await fetchSanitySceneBySlug({ slug: 'experience' });

@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { fetchSanityPageBySlug } from '../actions';
 import { fetchSanityPosts } from './actions';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
   const page = await fetchSanityPageBySlug({ slug: 'news' });

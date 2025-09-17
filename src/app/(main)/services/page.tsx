@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { fetchAllSanityServices } from '../actions';
 import ServicesPageClient from './page.client';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 // Create a default service page for the /services route
 const servicesIndexPage: Sanity.Services = {

@@ -4,7 +4,7 @@ import { generatePageMetadata } from '@/lib/metadata';
 import { client } from '@/sanity/lib/client';
 import { fetchSanityPageBySlug } from './actions';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
   const page = await fetchSanityPageBySlug({ slug: 'index' });
 

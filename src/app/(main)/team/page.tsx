@@ -5,7 +5,7 @@ import { fetchSanityPageBySlug } from '../actions';
 import { fetchSanityTeamList, fetchSanityTeamMemberBySlug } from './actions';
 
 import TeamPageClient from './page.client';
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
   const page = await fetchSanityPageBySlug({ slug: 'team' });
