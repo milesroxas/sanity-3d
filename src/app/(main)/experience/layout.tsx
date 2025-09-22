@@ -2,6 +2,7 @@
 'use client';
 import { R3FProvider } from '@/experience/providers/R3FContext';
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
+import { TransitionProvider } from '@/providers/TransitionProvider';
 import { useLenis } from 'lenis/react';
 import { Leva } from 'leva';
 import { ReactNode, useEffect } from 'react';
@@ -37,13 +38,15 @@ export default function ExperienceLayout({ children }: { children: ReactNode }) 
   }, [lenis]);
 
   return (
-    <R3FProvider>
-      {/* Non-R3F components render here */}
+    <TransitionProvider overlayClassName="bg-white">
+      <R3FProvider>
+        {/* Non-R3F components render here */}
 
-      <main className="mt-8">{children}</main>
+        <main className="mt-8">{children}</main>
 
-      {/* Hide Leva in production, show in development */}
-      <Leva hidden={isProduction} />
-    </R3FProvider>
+        {/* Hide Leva in production, show in development */}
+        <Leva hidden={isProduction} />
+      </R3FProvider>
+    </TransitionProvider>
   );
 }

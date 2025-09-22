@@ -223,8 +223,6 @@ export default function LogoMarkerContent() {
     }
   }, [isVisible]);
 
-  if (!selectedScene) return null;
-
   const memoBody = useMemo(() => {
     if (!selectedScene?.body) return null;
     return (
@@ -233,6 +231,8 @@ export default function LogoMarkerContent() {
       </div>
     );
   }, [selectedScene?.body]);
+
+  if (!selectedScene) return null;
 
   return (
     <>

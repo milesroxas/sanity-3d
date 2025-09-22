@@ -1,8 +1,10 @@
 'use client';
 
 import { Button, type ButtonProps } from '@/components/ui/button';
+import { useExpandedContentStore } from '@/experience/scenes/store/expandedContentStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { cn } from '@/lib/utils';
+import { useOptionalTransition } from '@/providers/TransitionProvider';
 import gsap from 'gsap';
 import type { LucideIcon } from 'lucide-react';
 import { ExternalLink } from 'lucide-react';
@@ -37,6 +39,7 @@ export function LinkButton({
 }: LinkButtonProps) {
   const setSelectedScene = useLogoMarkerStore(s => s.setSelectedScene);
   const pathname = usePathname();
+  const transitionCtx = useOptionalTransition();
 
   // Keep your existing experience-page reset behavior
   useEffect(() => {
@@ -82,9 +85,19 @@ export function LinkButton({
       <Button asChild variant={buttonVariant} size={size} className={className} {...buttonProps}>
         <Link
           href={`/${pageLink.page.slug.current}`}
-          onClick={() => {
+          onClick={e => {
             window.dispatchEvent(new CustomEvent('forceNavVisible'));
+            const overlayOpen = !!useExpandedContentStore.getState().isVisible;
             onClick?.();
+            if (transitionCtx && overlayOpen) {
+              e.preventDefault();
+              transitionCtx.triggerTransition(`/${pageLink.page.slug.current}`, () => {
+                try {
+                  useExpandedContentStore.getState().closeExpandedContent();
+                  useLogoMarkerStore.getState().reset();
+                } catch {}
+              });
+            }
           }}
         >
           {render(title, Icon)}
@@ -104,9 +117,22 @@ export function LinkButton({
       <Button asChild variant={buttonVariant} size={size} className={className} {...buttonProps}>
         <Link
           href={`/services/${servicesLink.services.slug.current}`}
-          onClick={() => {
+          onClick={e => {
             window.dispatchEvent(new CustomEvent('forceNavVisible'));
+            const overlayOpen = !!useExpandedContentStore.getState().isVisible;
             onClick?.();
+            if (transitionCtx && overlayOpen) {
+              e.preventDefault();
+              transitionCtx.triggerTransition(
+                `/services/${servicesLink.services.slug.current}`,
+                () => {
+                  try {
+                    useExpandedContentStore.getState().closeExpandedContent();
+                    useLogoMarkerStore.getState().reset();
+                  } catch {}
+                }
+              );
+            }
           }}
         >
           {render(title, Icon)}
@@ -129,11 +155,23 @@ export function LinkButton({
           href={customLink.href}
           target={isExternal ? '_blank' : undefined}
           rel={isExternal ? 'noopener' : undefined}
-          onClick={() => {
+          onClick={e => {
             if (!isExternal) {
               window.dispatchEvent(new CustomEvent('forceNavVisible'));
             }
+            const overlayOpen = !!useExpandedContentStore.getState().isVisible;
             onClick?.();
+            if (isExternal) {
+              window.location.href = customLink.href;
+            } else if (transitionCtx && overlayOpen) {
+              e.preventDefault();
+              transitionCtx.triggerTransition(customLink.href, () => {
+                try {
+                  useExpandedContentStore.getState().closeExpandedContent();
+                  useLogoMarkerStore.getState().reset();
+                } catch {}
+              });
+            }
           }}
         >
           {render(title, EffectiveIcon)}
