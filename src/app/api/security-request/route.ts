@@ -2,9 +2,9 @@ import {
   SecurityRequestConfirmationEmail,
   SecurityRequestNotificationEmail,
 } from '@/lib/email-templates';
-import { NextRequest, NextResponse } from 'next/server';
 import { client } from '@/sanity/lib/client';
 import { token } from '@/sanity/lib/token';
+import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { z } from 'zod';
 
@@ -12,7 +12,7 @@ export const runtime = 'nodejs';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'noreply@olinn.com';
-const BUSINESS_NOTIFICATION_EMAIL = process.env.NOTIFY_TO_EMAIL || 'intake@olinn.com';
+const BUSINESS_NOTIFICATION_EMAIL = process.env.NOTIFY_TO_EMAIL || 'miles@milesroxas.com';
 
 const schema = z
   .object({
@@ -36,12 +36,12 @@ const schema = z
     securityTypes: z
       .array(
         z.enum([
-          'standing-guards',
-          'patrols',
-          'gate-access',
+          'vehicle-patrol',
+          'residential-security',
+          'retail-commercial-security',
           'event-security',
           'construction-security',
-          'mobile-patrol',
+          'hotel-resort-security',
           'other',
         ])
       )
@@ -61,14 +61,7 @@ const schema = z
     specialCertifications: z.string().trim().optional(),
     patrolRequirements: z
       .array(
-        z.enum([
-          'indoor',
-          'outdoor',
-          'gate-access-points',
-          'parking-lots',
-          'perimeter-fencing',
-          'other',
-        ])
+        z.enum(['indoor', 'outdoor', 'gate-access', 'parking-lots', 'perimeter-fencing', 'other'])
       )
       .optional(),
     onsiteContact: z.string().trim().optional(),

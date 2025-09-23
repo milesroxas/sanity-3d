@@ -69,9 +69,10 @@ export function SecurityRequestNotificationEmail({ data }: { data: SecurityReque
         <Container
           style={{
             maxWidth: '600px',
-            margin: '0 auto',
+            margin: '40px auto', // adds spacing from top and bottom
             backgroundColor: '#ffffff',
-            padding: '20px',
+            padding: '40px',
+            borderRadius: '8px', // rounded corners
           }}
         >
           <Heading style={{ color: '#1f2937', fontSize: '24px', marginBottom: '20px' }}>
