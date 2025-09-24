@@ -78,6 +78,67 @@ export default defineType({
       group: 'content',
     }),
 
+    // Points of Interest allow the main scene to reference other scenes and inline POIs
+    defineField({
+      name: 'pointsOfInterest',
+      title: 'Points of Interest',
+      description:
+        'Add references to other scenes to show their logo markers in the main experience, or define inline POIs.',
+      type: 'array',
+      group: 'content',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'scenes' }],
+          options: { disableNew: true },
+        },
+        {
+          name: 'pointOfInterest',
+          title: 'Point of Interest',
+          type: 'object',
+          fields: [
+            { name: 'title', type: 'string' },
+            { name: 'body', type: 'block-content' },
+            {
+              name: 'links',
+              type: link.name,
+              validation: (rule: any) => rule.max(2),
+            },
+            {
+              name: 'markerPosition',
+              title: 'Marker Position',
+              type: 'object',
+              fields: [
+                { name: 'x', type: 'number' },
+                { name: 'y', type: 'number' },
+                { name: 'z', type: 'number' },
+              ],
+            },
+            {
+              name: 'cameraPosition',
+              title: 'Camera Position',
+              type: 'object',
+              fields: [
+                { name: 'x', type: 'number' },
+                { name: 'y', type: 'number' },
+                { name: 'z', type: 'number' },
+              ],
+            },
+            {
+              name: 'cameraTarget',
+              title: 'Camera Target',
+              type: 'object',
+              fields: [
+                { name: 'x', type: 'number' },
+                { name: 'y', type: 'number' },
+                { name: 'z', type: 'number' },
+              ],
+            },
+          ],
+        },
+      ],
+    }),
+
     defineField({
       name: 'mainSceneMarkerPosition',
       title: 'Main Scene Marker Position',
