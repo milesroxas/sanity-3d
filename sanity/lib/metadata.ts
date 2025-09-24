@@ -31,7 +31,8 @@ export function generatePageMetadata({
         ? "noindex"
         : "index, follow",
     alternates: {
-      canonical: `/${slug === "index" ? "" : slug}`,
+      canonical:
+        process.env.NEXT_PUBLIC_SITE_URL + `/${slug === "index" ? "" : slug}`,
     },
   };
 }
