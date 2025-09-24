@@ -56,7 +56,7 @@ export const structure = (S: any, context: any) =>
         S,
         context,
       }),
-      S.divider(),
+      S.divider({ title: "Global" }),
       S.listItem()
         .title("Navigation")
         .icon(Menu)

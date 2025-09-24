@@ -39,7 +39,7 @@ export default function PricingCard({
               {tagLine && <Badge>{tagLine}</Badge>}
             </div>
           )}
-          {price && price.value && (
+          {price && price.value !== null && price.value !== undefined && (
             <div className="flex items-end my-8 gap-1">
               <div className="text-3xl font-bold leading-none">
                 ${price.value}
