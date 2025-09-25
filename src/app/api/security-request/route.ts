@@ -12,7 +12,7 @@ export const runtime = 'nodejs';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'noreply@olinn.com';
-const BUSINESS_NOTIFICATION_EMAIL = process.env.NOTIFY_TO_EMAIL || 'miles@milesroxas.com';
+const BUSINESS_NOTIFICATION_EMAIL = process.env.NOTIFY_TO_EMAIL || 'jason@olinnsecurityinc.com';
 
 const schema = z
   .object({
