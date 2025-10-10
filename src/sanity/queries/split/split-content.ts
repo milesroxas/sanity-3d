@@ -24,6 +24,18 @@ export const splitContentQuery = groq`
             }
           }
         }
+      },
+      _type == "muxVideo" => {
+        ...,
+        video {
+          asset-> {
+            _id,
+            playbackId,
+            assetId,
+            filename,
+            status
+          }
+        }
       }
     },
     links[] {

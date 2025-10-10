@@ -70,6 +70,18 @@ export const TEAM_LIST_QUERY = groq`
             }
           }
         }
+      },
+      _type == "muxVideo" => {
+        ...,
+        video {
+          asset-> {
+            _id,
+            playbackId,
+            assetId,
+            filename,
+            status
+          }
+        }
       }
     },
   }
@@ -118,6 +130,18 @@ export const TEAM_MEMBER_QUERY = groq`
               width,
               height
             }
+          }
+        }
+      },
+      _type == "muxVideo" => {
+        ...,
+        video {
+          asset-> {
+            _id,
+            playbackId,
+            assetId,
+            filename,
+            status
           }
         }
       }

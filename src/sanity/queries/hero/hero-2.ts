@@ -21,6 +21,18 @@ export const hero2Query = groq`
             }
           }
         }
+      },
+      _type == "muxVideo" => {
+        ...,
+        video {
+          asset-> {
+            _id,
+            playbackId,
+            assetId,
+            filename,
+            status
+          }
+        }
       }
     },
     links[] {

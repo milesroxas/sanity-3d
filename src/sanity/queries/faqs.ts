@@ -1,4 +1,4 @@
-import { groq } from "next-sanity";
+import { groq } from 'next-sanity';
 
 export const faqsQuery = groq`
   _type == "faqs" => {
@@ -22,6 +22,18 @@ export const faqsQuery = groq`
                 width,
                 height
               }
+            }
+          }
+        },
+        _type == "muxVideo" => {
+          ...,
+          video {
+            asset-> {
+              _id,
+              playbackId,
+              assetId,
+              filename,
+              status
             }
           }
         }

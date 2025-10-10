@@ -1,6 +1,6 @@
-import { defineType, defineArrayMember } from 'sanity';
-import { VideoIcon } from '@radix-ui/react-icons';
 import { YouTubePreview } from '@/sanity/schemas/previews/youtube-preview';
+import { VideoIcon } from '@radix-ui/react-icons';
+import { defineArrayMember, defineType } from 'sanity';
 import { BUTTON_VARIANTS } from './button-variant';
 
 export default defineType({
@@ -139,6 +139,44 @@ export default defineType({
       },
       components: {
         preview: YouTubePreview,
+      },
+    }),
+    defineArrayMember({
+      name: 'muxVideo',
+      title: 'Video (Mux)',
+      type: 'object',
+      icon: VideoIcon,
+      fields: [
+        {
+          name: 'video',
+          title: 'Video',
+          type: 'mux.video',
+        },
+        {
+          name: 'alt',
+          title: 'Alternative Text',
+          type: 'string',
+          description: 'Description of the video for accessibility',
+        },
+        {
+          name: 'showControls',
+          title: 'Show Controls',
+          type: 'boolean',
+          description: 'Show play button overlay in preview mode',
+          initialValue: true,
+        },
+      ],
+      preview: {
+        select: {
+          video: 'video',
+          alt: 'alt',
+        },
+        prepare({ video, alt }) {
+          return {
+            title: alt || 'Mux Video',
+            subtitle: video?.asset?.filename || 'No video selected',
+          };
+        },
       },
     }),
   ],

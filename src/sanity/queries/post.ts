@@ -1,4 +1,4 @@
-import { groq } from "next-sanity";
+import { groq } from 'next-sanity';
 
 export const POST_QUERY = groq`*[_type == "post" && slug.current == $slug][0]{
     title,
@@ -32,6 +32,18 @@ export const POST_QUERY = groq`*[_type == "post" && slug.current == $slug][0]{
               width,
               height
             }
+          }
+        }
+      },
+      _type == "muxVideo" => {
+        ...,
+        video {
+          asset-> {
+            _id,
+            playbackId,
+            assetId,
+            filename,
+            status
           }
         }
       }

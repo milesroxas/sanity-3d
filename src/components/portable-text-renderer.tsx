@@ -3,11 +3,23 @@
 import { Button } from '@/components/ui/button';
 import { extractHrefFromLinkMark } from '@/lib/sanity-utils';
 import { cn } from '@/lib/utils';
+import { createBlurUp } from '@mux/blurup';
 import { YouTubeEmbed } from '@next/third-parties/google';
 import { PortableText, PortableTextBlockComponent, PortableTextProps } from '@portabletext/react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+
+const MuxPlayer = dynamic(() => import('@mux/mux-player-react'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center rounded-md bg-gray-100">
+      <div className="text-gray-500">Loading video...</div>
+    </div>
+  ),
+});
 
 // Define variants using class-variance-authority
 const portableTextVariants = cva('', {
@@ -32,6 +44,173 @@ export interface PortableTextRendererProps extends VariantProps<typeof portableT
 const PortableTextRenderer = ({ value, variant, className }: PortableTextRendererProps) => {
   // Generate the base component styles
   const baseStyles = cn(portableTextVariants({ variant, className }));
+
+  // Mux Video Component
+  const MuxVideoComponent = ({ value }: any) => {
+    const [blurDataURL, setBlurDataURL] = useState<string | null>(null);
+    const [playbackMode, setPlaybackMode] = useState<'preview' | 'full'>('preview');
+    const [showPlayButton, setShowPlayButton] = useState(false);
+    const [isClient, setIsClient] = useState(false);
+    const playerRef = useRef<any>(null);
+    const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const playbackId = value?.video?.asset?.playbackId;
+    const showControls = value?.showControls !== false;
+
+    useEffect(() => {
+      setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+      if (playbackId && isClient) {
+        createBlurUp(playbackId, {})
+          .then(({ blurDataURL }) => setBlurDataURL(blurDataURL))
+          .catch(error => console.error('Error generating video placeholder:', error));
+      }
+    }, [playbackId, isClient]);
+
+    const handleTimeUpdate = useCallback(() => {
+      if (playbackMode === 'preview' && playerRef.current) {
+        const currentTime = playerRef.current.currentTime;
+        if (currentTime >= 4) {
+          playerRef.current.currentTime = 0;
+        }
+      }
+    }, [playbackMode]);
+
+    const handleMouseEnter = useCallback(() => {
+      if (playbackMode === 'preview' && showControls) {
+        hoverTimeoutRef.current = setTimeout(() => setShowPlayButton(true), 200);
+      }
+    }, [playbackMode, showControls]);
+
+    const handleMouseLeave = useCallback(() => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+      setShowPlayButton(false);
+    }, []);
+
+    const handlePlayClick = useCallback(() => {
+      if (playerRef.current) {
+        setPlaybackMode('full');
+        setShowPlayButton(false);
+        playerRef.current.currentTime = 0;
+        playerRef.current.play();
+      }
+    }, []);
+
+    const handleLoadedData = useCallback(() => {
+      if (playbackMode === 'preview' && playerRef.current) {
+        playerRef.current.currentTime = 0;
+      }
+    }, [playbackMode]);
+
+    useEffect(() => {
+      return () => {
+        if (hoverTimeoutRef.current) {
+          clearTimeout(hoverTimeoutRef.current);
+        }
+      };
+    }, []);
+
+    if (!playbackId || !isClient) {
+      return (
+        <div className="flex aspect-video w-full items-center justify-center bg-gray-100">
+          <div className="text-gray-500">Loading video...</div>
+        </div>
+      );
+    }
+
+    const shouldShowOverlay = showPlayButton && playbackMode === 'preview';
+
+    return (
+      <div className="relative mb-4 aspect-video w-full overflow-hidden rounded-md">
+        <div
+          className="relative h-full w-full"
+          onMouseEnter={showControls ? handleMouseEnter : undefined}
+          onMouseLeave={showControls ? handleMouseLeave : undefined}
+        >
+          <MuxPlayer
+            ref={playerRef}
+            playbackId={playbackId}
+            streamType="on-demand"
+            accentColor="#16A34A"
+            muted={playbackMode === 'preview'}
+            loop={playbackMode === 'preview'}
+            autoPlay={playbackMode === 'preview'}
+            paused={playbackMode === 'full' ? false : undefined}
+            placeholder={blurDataURL || undefined}
+            onTimeUpdate={handleTimeUpdate}
+            onLoadedData={handleLoadedData}
+            playerInitTime={0}
+            style={(() => {
+              const muxVars: Record<string, string> = {
+                '--media-object-fit': 'cover',
+                '--media-object-position': 'center',
+              };
+              if (playbackMode === 'preview') {
+                muxVars['--controls'] = 'none';
+                muxVars['--media-control-bar'] = 'none';
+              }
+              return {
+                width: '100%',
+                height: '100%',
+                ...muxVars,
+              } as CSSProperties;
+            })()}
+            nohotkeys={playbackMode === 'preview'}
+          />
+
+          {playbackMode === 'preview' && showControls && (
+            <>
+              <div
+                className={`absolute inset-0 bg-black transition-opacity duration-300 ease-in-out ${
+                  shouldShowOverlay
+                    ? 'pointer-events-auto opacity-50'
+                    : 'pointer-events-none opacity-0'
+                }`}
+                onClick={handlePlayClick}
+              />
+
+              <div
+                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ease-in-out ${
+                  shouldShowOverlay
+                    ? 'pointer-events-auto opacity-80'
+                    : 'pointer-events-none opacity-0'
+                }`}
+                style={{ zIndex: 10 }}
+              >
+                <button
+                  className={`flex h-16 w-16 items-center justify-center rounded-full bg-primary shadow-lg transition-all duration-200 ease-in-out ${
+                    shouldShowOverlay
+                      ? 'scale-100 bg-opacity-80 hover:scale-110 hover:bg-opacity-100 hover:shadow-xl'
+                      : 'scale-75 bg-opacity-0'
+                  }`}
+                  style={{
+                    backdropFilter: 'blur(4px)',
+                    transition: 'all 0.2s ease-in-out, backdrop-filter 0.2s ease-in-out',
+                  }}
+                  onClick={handlePlayClick}
+                  aria-label="Play video"
+                >
+                  <svg
+                    className={`ml-1 h-6 w-6 text-gray-800 transition-opacity duration-300 ease-in-out ${
+                      shouldShowOverlay ? 'opacity-100' : 'opacity-0'
+                    }`}
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   // Variant-specific component configurations
   const getComponents = (): PortableTextProps['components'] => {
@@ -73,6 +252,7 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
             </div>
           );
         },
+        muxVideo: MuxVideoComponent,
       },
       block: createBlockComponents({
         normal: ({ children }) => <p className="mb-6 mt-2 w-full max-w-full">{children}</p>,

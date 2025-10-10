@@ -24,6 +24,18 @@ export const featuredContentOffsetQuery = groq`
             }
           }
         }
+      },
+      _type == "muxVideo" => {
+        ...,
+        video {
+          asset-> {
+            _id,
+            playbackId,
+            assetId,
+            filename,
+            status
+          }
+        }
       }
     },
     image {

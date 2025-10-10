@@ -1,4 +1,4 @@
-import { groq } from "next-sanity";
+import { groq } from 'next-sanity';
 
 export const timelineQuery = groq`
   _type == "timeline-row" => {
@@ -22,6 +22,18 @@ export const timelineQuery = groq`
                 width,
                 height
               }
+            }
+          }
+        },
+        _type == "muxVideo" => {
+          ...,
+          video {
+            asset-> {
+              _id,
+              playbackId,
+              assetId,
+              filename,
+              status
             }
           }
         }

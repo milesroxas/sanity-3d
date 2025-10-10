@@ -25,6 +25,18 @@ export const SCENE_QUERY = groq`
             }
           }
         }
+      },
+      _type == "muxVideo" => {
+        ...,
+        video {
+          asset-> {
+            _id,
+            playbackId,
+            assetId,
+            filename,
+            status
+          }
+        }
       }
     },
     blocks[] {
@@ -161,6 +173,18 @@ export const SCENE_QUERY = groq`
                   }
                 }
               }
+            },
+            _type == "muxVideo" => {
+              ...,
+              video {
+                asset-> {
+                  _id,
+                  playbackId,
+                  assetId,
+                  filename,
+                  status
+                }
+              }
             }
           }
         },
@@ -271,6 +295,18 @@ export const SCENE_QUERY = groq`
                   width,
                   height
                 }
+              }
+            }
+          },
+          _type == "muxVideo" => {
+            ...,
+            video {
+              asset-> {
+                _id,
+                playbackId,
+                assetId,
+                filename,
+                status
               }
             }
           }

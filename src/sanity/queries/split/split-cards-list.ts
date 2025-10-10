@@ -1,4 +1,4 @@
-import { groq } from "next-sanity";
+import { groq } from 'next-sanity';
 
 export const splitCardsListQuery = groq`
   _type == "split-cards-list" => {
@@ -20,6 +20,18 @@ export const splitCardsListQuery = groq`
                 width,
                 height
               }
+            }
+          }
+        },
+        _type == "muxVideo" => {
+          ...,
+          video {
+            asset-> {
+              _id,
+              playbackId,
+              assetId,
+              filename,
+              status
             }
           }
         }
