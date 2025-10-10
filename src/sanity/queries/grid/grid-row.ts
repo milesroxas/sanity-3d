@@ -10,6 +10,7 @@ export const gridRowQuery = groq`
     padding,
     direction,
     colorVariant,
+    themeVariant,
     gridColumns,
     columns[]{
       ${gridCardQuery}
