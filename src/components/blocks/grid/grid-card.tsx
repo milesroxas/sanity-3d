@@ -1,12 +1,15 @@
 import { LinkButtons } from '@/components/shared/link-button';
+import { ISectionContainerProps } from '@/components/ui/section-container';
 import { cn } from '@/lib/utils';
 import { urlFor } from '@/sanity/lib/image';
+import { stegaClean } from 'next-sanity';
 import Image, { ImageProps } from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
 interface GridCardProps {
   color: 'primary' | 'secondary' | 'card' | 'accent' | 'destructive' | 'background' | 'transparent';
+  themeVariant?: ISectionContainerProps['theme'];
   style: 'default' | 'minimal' | 'accent' | 'data';
   title: string;
   excerpt: string;
@@ -29,12 +32,15 @@ interface GridCardProps {
 
 export default function GridCard({
   color,
+  themeVariant,
   title,
   excerpt,
   image,
   link,
   style = 'default',
 }: GridCardProps) {
+  const theme = stegaClean(themeVariant);
+  const isDark = theme === 'dark';
   const hasLink = Boolean(link?.href);
 
   // Container component and props
@@ -73,8 +79,11 @@ export default function GridCard({
           blurDataURL: image?.asset?.metadata?.lqip || '',
         },
       },
-      title: 'text-xl font-semibold text-card-foreground',
-      excerpt: 'text-muted-foreground',
+      title: cn(
+        'text-xl font-semibold',
+        isDark ? 'text-primary-foreground' : 'text-card-foreground'
+      ),
+      excerpt: cn(isDark ? 'text-primary-foreground/70' : 'text-muted-foreground'),
       button: 'mt-6',
       buttonSize: 'lg',
     },
@@ -88,8 +97,8 @@ export default function GridCard({
           className: 'object-contain',
         },
       },
-      title: 'text-base font-bold text-card-foreground ',
-      excerpt: 'text-muted-foreground text-sm',
+      title: cn('text-base font-bold', isDark ? 'text-primary-foreground' : 'text-card-foreground'),
+      excerpt: cn('text-sm', isDark ? 'text-primary-foreground/70' : 'text-muted-foreground'),
       button: 'mt-2',
       buttonSize: 'sm',
     },
@@ -103,9 +112,15 @@ export default function GridCard({
           className: 'object-cover rounded-full',
         },
       },
-      title: 'text-4xl font-extrabold text-card-foreground',
+      title: cn(
+        'text-4xl font-extrabold',
+        isDark ? 'text-primary-foreground' : 'text-card-foreground'
+      ),
       titleContainer: 'pb-2',
-      excerpt: 'text-muted-foreground leading-relaxed font-bold text-md',
+      excerpt: cn(
+        'leading-relaxed font-bold text-md',
+        isDark ? 'text-primary-foreground/70' : 'text-muted-foreground'
+      ),
       button: 'mt-6 self-end',
       buttonSize: 'default',
     },
@@ -125,8 +140,11 @@ export default function GridCard({
           blurDataURL: image?.asset?.metadata?.lqip || '',
         },
       },
-      title: 'text-xl font-semibold text-card-foreground',
-      excerpt: 'text-muted-foreground',
+      title: cn(
+        'text-xl font-semibold',
+        isDark ? 'text-primary-foreground' : 'text-card-foreground'
+      ),
+      excerpt: cn(isDark ? 'text-primary-foreground/70' : 'text-muted-foreground'),
       button: 'mt-6',
       buttonSize: 'lg',
     },

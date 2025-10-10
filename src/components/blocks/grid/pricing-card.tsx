@@ -1,10 +1,13 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ISectionContainerProps } from '@/components/ui/section-container';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
+import { stegaClean } from 'next-sanity';
 
 interface PricingCardProps {
   color: 'primary' | 'secondary' | 'card' | 'accent' | 'destructive' | 'background' | 'transparent';
+  themeVariant?: ISectionContainerProps['theme'];
   title: string;
   tagLine: string;
   excerpt: string;
@@ -32,6 +35,7 @@ interface PricingCardProps {
 
 export default function PricingCard({
   color,
+  themeVariant,
   title,
   tagLine,
   excerpt,
@@ -39,6 +43,8 @@ export default function PricingCard({
   list,
   link,
 }: PricingCardProps) {
+  const theme = stegaClean(themeVariant);
+  const isDark = theme === 'dark';
   const hasLink = Boolean(link?.href);
   const containerProps = hasLink
     ? { href: link!.href, target: link!.target ? '_blank' : undefined }
@@ -58,27 +64,60 @@ export default function PricingCard({
         <div className={cn(color === 'primary' ? 'text-background' : undefined)}>
           {title && (
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold leading-[1.2]">{title}</h3>
+              <h3
+                className={cn(
+                  'text-xl font-bold leading-[1.2]',
+                  isDark ? 'text-primary-foreground' : 'text-card-foreground'
+                )}
+              >
+                {title}
+              </h3>
               {tagLine && <Badge>{tagLine}</Badge>}
             </div>
           )}
           {price && price.value && (
             <div className="my-8 flex items-end gap-1">
-              <div className="text-3xl font-bold leading-none">${price.value}</div>
-              {price.period && <div className="text-sm">{price.period}</div>}
+              <div
+                className={cn(
+                  'text-3xl font-bold leading-none',
+                  isDark ? 'text-primary-foreground' : 'text-card-foreground'
+                )}
+              >
+                ${price.value}
+              </div>
+              {price.period && (
+                <div
+                  className={cn(
+                    'text-sm',
+                    isDark ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                  )}
+                >
+                  {price.period}
+                </div>
+              )}
             </div>
           )}
           {list && list.length > 0 && (
             <ul className="my-8 flex flex-col gap-2">
               {list.map(item => (
-                <li key={item} className="flex items-center gap-2">
+                <li
+                  key={item}
+                  className={cn(
+                    'flex items-center gap-2',
+                    isDark ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                  )}
+                >
                   <Check size={16} />
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
           )}
-          {excerpt && <p>{excerpt}</p>}
+          {excerpt && (
+            <p className={cn(isDark ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
+              {excerpt}
+            </p>
+          )}
         </div>
         {hasLink && (
           <Button className={'mt-6'} size={'lg'} variant={'default'} asChild>

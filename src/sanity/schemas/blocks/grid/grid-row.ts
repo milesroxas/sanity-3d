@@ -29,6 +29,13 @@ export default defineType({
       description: 'Select a background color variant',
     }),
     defineField({
+      name: 'themeVariant',
+      type: 'theme-variant',
+      title: 'Theme Variant',
+      description: 'Select a theme variant',
+      initialValue: 'light',
+    }),
+    defineField({
       name: 'gridColumns',
       type: 'string',
       title: 'Grid Columns',

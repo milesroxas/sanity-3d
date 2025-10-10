@@ -1,12 +1,15 @@
 import { Badge } from '@/components/ui/badge';
+import { ISectionContainerProps } from '@/components/ui/section-container';
 import { cn } from '@/lib/utils';
 import { urlFor } from '@/sanity/lib/image';
 import { ChevronRight } from 'lucide-react';
+import { stegaClean } from 'next-sanity';
 import Image from 'next/image';
 import Link from 'next/link';
 
 interface GridPostProps {
   color: 'primary' | 'secondary' | 'card' | 'accent' | 'destructive' | 'background' | 'transparent';
+  themeVariant?: ISectionContainerProps['theme'];
   title: string;
   slug: Sanity.Post['slug'];
   categories: Sanity.Category[];
@@ -16,12 +19,15 @@ interface GridPostProps {
 
 export default function GridPost({
   color,
+  themeVariant,
   title,
   slug,
   excerpt,
   image,
   categories,
 }: GridPostProps) {
+  const theme = stegaClean(themeVariant);
+  const isDark = theme === 'dark';
   return (
     <Link
       key={title}
@@ -55,7 +61,14 @@ export default function GridPost({
           )}
           {title && (
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-[1.5rem] font-bold leading-[1.2]">{title}</h3>
+              <h3
+                className={cn(
+                  'text-[1.5rem] font-bold leading-[1.2]',
+                  isDark ? 'text-primary-foreground' : 'text-card-foreground'
+                )}
+              >
+                {title}
+              </h3>
             </div>
           )}
           {categories && categories.length > 0 && (
@@ -67,7 +80,11 @@ export default function GridPost({
               ))}
             </div>
           )}
-          {excerpt && <p>{excerpt}</p>}
+          {excerpt && (
+            <p className={cn(isDark ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
+              {excerpt}
+            </p>
+          )}
         </div>
         <div className="mt-3 flex h-10 w-10 items-center justify-center rounded-full border group-hover:border-primary xl:mt-6">
           <ChevronRight className="text-border group-hover:text-primary" size={24} />

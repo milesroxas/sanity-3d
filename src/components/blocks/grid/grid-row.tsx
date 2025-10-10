@@ -1,4 +1,7 @@
-import SectionContainer, { ISectionPadding } from '@/components/ui/section-container';
+import SectionContainer, {
+  ISectionContainerProps,
+  ISectionPadding,
+} from '@/components/ui/section-container';
 import { cn } from '@/lib/utils';
 import { stegaClean } from 'next-sanity';
 // import only the components you need
@@ -17,6 +20,7 @@ interface Grid1Props {
     | 'destructive'
     | 'background'
     | 'transparent';
+  themeVariant?: ISectionContainerProps['theme'];
   gridColumns?: 'grid-cols-2' | 'grid-cols-3' | 'grid-cols-4';
   columns?: Sanity.Block[];
   _key?: string;
@@ -33,11 +37,13 @@ export default function GridRow({
   padding,
   direction,
   colorVariant = 'background',
+  themeVariant,
   gridColumns = 'grid-cols-3',
   columns,
   _key,
 }: Grid1Props) {
   const color = stegaClean(colorVariant);
+  const theme = stegaClean(themeVariant);
 
   // Combine padding and direction into ISectionPadding object
   const sectionPadding: ISectionPadding | undefined =
@@ -49,7 +55,7 @@ export default function GridRow({
       : undefined;
 
   return (
-    <SectionContainer color={color} padding={sectionPadding} key={_key}>
+    <SectionContainer color={color} theme={theme} padding={sectionPadding} key={_key}>
       {columns && columns?.length > 0 && (
         <div className={cn(`grid grid-cols-1 gap-6`, `lg:${stegaClean(gridColumns)}`)}>
           {columns.map((block: Sanity.Block, index: number) => {
@@ -57,7 +63,7 @@ export default function GridRow({
             // Ensure block._key exists, fallback to index if it doesn't
             const blockKey = block._key || `grid-item-${index}`;
 
-            return <Component {...block} color={color} key={blockKey} />;
+            return <Component {...block} color={color} themeVariant={theme} key={blockKey} />;
           })}
         </div>
       )}
