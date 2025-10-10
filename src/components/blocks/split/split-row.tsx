@@ -162,9 +162,11 @@ export default function SplitRow({
                 key={`content-wrapper-${contentBlock._key || 'fallback'}`}
                 className={cn(
                   'absolute top-0 z-20 h-full',
+                  'flex w-[60%] items-center',
                   // Position based on original order
-                  splitColumns.indexOf(contentBlock) === 0 ? 'left-0' : 'right-0',
-                  'flex w-[60%] items-center'
+                  splitColumns.indexOf(contentBlock) === 0
+                    ? 'left-0 justify-start'
+                    : 'right-0 justify-end'
                 )}
               >
                 <div

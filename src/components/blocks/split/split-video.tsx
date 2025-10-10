@@ -131,10 +131,16 @@ export default function SplitVideo({
               ? 'relative flex w-full items-center justify-center overflow-hidden rounded-md bg-primary'
               : 'relative flex max-h-[25rem] w-full items-center justify-center overflow-hidden rounded-md bg-primary sm:max-h-[30rem] md:max-h-[25rem] lg:h-full'
         }
-        style={{
-          aspectRatio:
-            videoOptions?.sizeVariant === '818x1021' ? '818/1021' : preGeneratedRatio || '16/9',
-        }}
+        style={
+          isOffset
+            ? undefined
+            : {
+                aspectRatio:
+                  videoOptions?.sizeVariant === '818x1021'
+                    ? '818/1021'
+                    : preGeneratedRatio || '16/9',
+              }
+        }
       >
         <div className="text-gray-500">Loading video...</div>
       </div>
@@ -152,10 +158,14 @@ export default function SplitVideo({
             ? 'group relative w-full overflow-hidden rounded-md'
             : 'group relative max-h-[25rem] w-full overflow-hidden rounded-md sm:max-h-[30rem] md:max-h-[25rem] lg:h-full'
       }
-      style={{
-        aspectRatio:
-          videoOptions?.sizeVariant === '818x1021' ? '818/1021' : preGeneratedRatio || '16/9',
-      }}
+      style={
+        isOffset
+          ? undefined
+          : {
+              aspectRatio:
+                videoOptions?.sizeVariant === '818x1021' ? '818/1021' : preGeneratedRatio || '16/9',
+            }
+      }
       onMouseEnter={videoOptions?.hideControls ? undefined : handleMouseEnter}
       onMouseLeave={videoOptions?.hideControls ? undefined : handleMouseLeave}
     >

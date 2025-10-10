@@ -39,16 +39,11 @@ export default function SplitContent({
   const isDark = theme === 'dark';
 
   return (
-    <div
-      className={cn(
-        'w-full',
-        !isOffset && 'lg:flex lg:h-full lg:items-center',
-        isOffset && 'lg:w-full'
-      )}
-    >
+    <div className={cn('w-full', !isOffset && 'lg:flex lg:h-full lg:items-center')}>
       <div
         className={cn(
           'flex flex-col items-start',
+          isOffset && 'w-full',
           !isOffset && 'lg:max-w-[550px]',
           !isOffset && sticky ? 'lg:sticky lg:top-56' : undefined
         )}
@@ -60,7 +55,10 @@ export default function SplitContent({
           createElement(
             tagLine ? 'h3' : 'h2',
             {
-              className: cn('my-4 font-bold leading-[1.2] text-4xl text-card-foreground'),
+              className: cn(
+                'my-4 font-bold leading-[1.2] text-4xl',
+                isDark ? 'text-primary-foreground' : 'text-card-foreground'
+              ),
             },
             title
           )}

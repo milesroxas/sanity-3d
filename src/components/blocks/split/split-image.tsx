@@ -21,12 +21,12 @@ export default function SplitImage({ image, styleVariant }: Partial<SplitImagePr
   return image && image.asset?._id ? (
     <div
       className={cn(
-        'relative overflow-hidden rounded-sm will-change-transform',
+        'relative overflow-hidden will-change-transform',
         isOffset
           ? 'h-[25rem] w-full max-w-full rounded-md sm:h-[30rem] md:h-[30rem] lg:h-[calc(100%)] lg:shadow-lg'
           : aspect
-            ? 'w-full'
-            : 'h-[25rem] w-full sm:h-[30rem] md:h-[35rem] lg:h-[40rem]'
+            ? 'w-full rounded-sm'
+            : 'h-[25rem] w-full rounded-sm sm:h-[30rem] md:h-[35rem] lg:h-[40rem]'
       )}
       style={isOffset ? undefined : aspect ? { aspectRatio: aspect } : undefined}
     >
