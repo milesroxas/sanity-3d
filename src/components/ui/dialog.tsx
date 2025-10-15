@@ -33,7 +33,7 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
  */
 const dialogVariants = cva(
   // Base: apply to every size by default
-  'fixed z-50 grid gap-4 bg-background p-6 shadow-lg sm:rounded-lg duration-1000 ease-out',
+  'fixed z-50 grid gap-4 bg-background p-6 shadow-lg rounded-lg duration-1000 ease-out',
 
   {
     variants: {
@@ -101,7 +101,7 @@ const DialogContent = React.forwardRef<
     >
       {children}
       <DialogPrimitive.Close className="absolute right-4 top-4 z-50 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-        <Cross2Icon className="h-12 w-12" />
+        <Cross2Icon className="h-6 w-6" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>

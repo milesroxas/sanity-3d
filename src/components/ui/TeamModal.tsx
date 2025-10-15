@@ -5,8 +5,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { urlFor } from '@/sanity/lib/image';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
- 
+
 import { useOverlayScrollLock } from '@/hooks/useOverlayScrollLock';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import Image from 'next/image';
 import { useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './dialog';
@@ -31,10 +32,11 @@ export default function TeamModal({
   onClose,
 }: TeamModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
- 
-  // Centralized overlay scroll locking + scroll props
+  const leftColRef = useRef<HTMLDivElement>(null);
+  const rightColRef = useRef<HTMLDivElement>(null);
+
+  // Lock body scroll while open. Let DialogContent handle vertical scroll on mobile,
+  // and the right column handle scroll on large screens.
   const { scrollAreaProps } = useOverlayScrollLock(isOpen, {
     lockBody: true,
     overscrollBehaviorY: 'none',
@@ -44,88 +46,91 @@ export default function TeamModal({
   });
   const { className: overlayClassName, ...overlayProps } = scrollAreaProps;
 
-  // Removed legacy wheel handlers in favor of native scroll with Lenis prevention flags
-
-  // GSAP fade‐in animation when modal opens
   useGSAP(
     () => {
       if (!isOpen || !modalRef.current) return;
+      gsap.set([leftColRef.current, rightColRef.current], { opacity: 0, y: 12 });
       const tl = gsap.timeline();
-
-      gsap.set(imageRef.current, { opacity: 0, scale: 0.8 });
-      gsap.set(contentRef.current, { opacity: 0, y: 20 });
-
-      tl.to(imageRef.current, {
-        opacity: 1,
-        scale: 1,
-        duration: 0.5,
-        ease: 'power2.out',
-      }).to(
-        contentRef.current,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.4,
-          ease: 'power2.out',
-        },
-        '-=0.2'
+      tl.to(leftColRef.current, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }).to(
+        rightColRef.current,
+        { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' },
+        '-=0.15'
       );
-
-      return () => {
-        tl.kill();
-      };
+      return () => tl.kill();
     },
     { scope: modalRef, dependencies: [isOpen] }
   );
 
+  const imageUrl = image?.asset?._id ? urlFor(image.asset).url() : null;
+
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
       <DialogContent
-        size="full"
-        className="max-h-[80vh] bg-black p-0 text-white lg:h-full overflow-hidden"
         ref={modalRef}
+        size="full"
+        className="max-h-[80vh] overflow-y-auto bg-background p-0 text-foreground md:max-w-3xl lg:max-h-[80vh] lg:overflow-hidden"
       >
-        <ScrollArea
-          className={`relative h-full w-full min-h-0 px-8 pb-12 ${overlayClassName || ''}`}
-          {...overlayProps}
-        >
-          {image && image.asset?._id && (
-            <div className="lg:max-w-1/3 pointer-events-none relative order-first aspect-square max-w-40 md:absolute md:bottom-0 md:right-[-2rem] md:-z-10 md:w-1/2 md:max-w-full lg:w-1/3">
-              <Image
-                ref={imageRef}
-                src={urlFor(image.asset).url()}
-                alt={image.alt || title}
-                placeholder={image?.asset?.metadata?.lqip ? 'blur' : undefined}
-                blurDataURL={image?.asset?.metadata?.lqip || ''}
-                fill
-                style={{ objectFit: 'cover' }}
-                quality={100}
-                className="rounded-sm md:rounded-lg"
-              />
-            </div>
-          )}
-          <div ref={contentRef} className="relative z-10 flex-1 md:w-1/2 lg:pl-12">
-            <DialogHeader className="sticky top-0 bg-black/50 pb-4 pt-8 text-left backdrop-blur-sm">
-              <DialogTitle className="text-2xl md:text-3xl">{title}</DialogTitle>
-              {role && <p className="text-md mt-2 text-gray-500">{role}</p>}
-              {email && (
-                <p className="mt-2 text-sm text-primary">
-                  <a href={`mailto:${email}`}>{email}</a>
-                </p>
-              )}
-            </DialogHeader>
+        <DialogHeader>
+          <VisuallyHidden>
+            <DialogTitle>{title}</DialogTitle>
+          </VisuallyHidden>
+        </DialogHeader>
 
-            {bio && (
-              <div className="prose prose-sm prose-p:text-white prose-headings:text-white text-white">
-                {typeof bio === 'string' ? (
-                  <p className="pb-2">{bio}</p>
-                ) : (
-                  <PortableTextRenderer value={bio} />
-                )}
+        <div className="grid max-h-[inherit] min-h-0 grid-cols-1 grid-rows-[auto_1fr] lg:h-[80vh] lg:max-h-[80vh] lg:grid-cols-[380px_1fr] lg:grid-rows-1">
+          {/* Left: image and meta */}
+          <div
+            ref={leftColRef}
+            className="flex min-h-0 items-center gap-6 border-b border-border p-6 lg:flex-col lg:items-start lg:border-b-0 lg:border-r lg:p-8"
+          >
+            {imageUrl && (
+              <div className="relative aspect-[1/1] w-[25%] overflow-hidden rounded-xl bg-muted lg:w-full">
+                <Image
+                  src={imageUrl}
+                  alt={image?.alt || title}
+                  fill
+                  className="object-cover"
+                  sizes="(min-width: 1024px) 360px, 100vw"
+                  priority
+                  placeholder={image?.asset?.metadata?.lqip ? 'blur' : undefined}
+                  blurDataURL={image?.asset?.metadata?.lqip || ''}
+                  quality={90}
+                />
               </div>
             )}
+
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold leading-tight lg:text-2xl">{title}</h2>
+              {role ? <p className="text-sm text-muted-foreground">{role}</p> : null}
+              {email ? (
+                <p className="text-sm">
+                  <a
+                    href={`mailto:${email}`}
+                    className="underline underline-offset-4 hover:no-underline"
+                  >
+                    {email}
+                  </a>
+                </p>
+              ) : null}
+            </div>
           </div>
-        </ScrollArea>
+
+          <div ref={rightColRef} className="min-h-0">
+            <ScrollArea
+              className={`h-full w-full lg:h-full ${overlayClassName || ''}`}
+              {...overlayProps}
+            >
+              <div className="p-6 md:p-8">
+                {bio ? (
+                  <div className="prose prose-sm prose-headings:mb-2 prose-p:mb-3 dark:prose-invert max-w-none">
+                    {typeof bio === 'string' ? <p>{bio}</p> : <PortableTextRenderer value={bio} />}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Bio coming soon.</p>
+                )}
+              </div>
+            </ScrollArea>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

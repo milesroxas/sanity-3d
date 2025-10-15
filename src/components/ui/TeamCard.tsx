@@ -43,9 +43,9 @@ export default function TeamCard({
 
       const tl = gsap.timeline({ paused: true });
       tl.to(imageElementToAnimate, {
-        scale: 1.2,
-        duration: 0.3,
-        ease: 'power2.inOut',
+        // scale: 1.2,
+        // duration: 0.3,
+        // ease: 'power2.inOut',
       });
 
       const handleMouseEnter = () => {
@@ -83,7 +83,7 @@ export default function TeamCard({
       ref={cardRef}
       onClick={onClick}
     >
-      <div className="mb-2 rounded-md bg-muted">
+      <div className="mb-2 overflow-hidden rounded-md bg-muted">
         {image && image.asset?._id && (
           <div
             ref={imageContainerRef}
@@ -96,11 +96,6 @@ export default function TeamCard({
               placeholder={image?.asset?.metadata?.lqip ? 'blur' : undefined}
               blurDataURL={image?.asset?.metadata?.lqip || ''}
               fill
-              style={{
-                objectFit: 'cover',
-                transformOrigin: 'bottom left',
-                scale: 1.1,
-              }}
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
               quality={100}
             />
