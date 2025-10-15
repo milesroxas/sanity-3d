@@ -17,6 +17,7 @@ import { urlFor } from '@/sanity/lib/image';
 import { AlignRight, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { LinkButton } from '../shared/link-button';
 
@@ -68,6 +69,7 @@ export default function MobileNav({
 }) {
   const [open, setOpen] = useState(false);
   const [contentReady, setContentReady] = useState(false);
+  const pathname = usePathname();
   const { scrollAreaProps } = useOverlayScrollLock(open, {
     lockBody: true,
     overscrollBehaviorY: 'none',
@@ -199,6 +201,18 @@ export default function MobileNav({
               <ul className="list-none space-y-3">
                 {nav.companyLinks.map((navItem, index) => {
                   const link = getLink(navItem);
+                  const isActive = pathname === link.href;
+
+                  if (isActive) {
+                    return (
+                      <li key={`mobile-nav-${index}-${link.label}`}>
+                        <span className="cursor-default text-lg font-light tracking-wide text-primary/50">
+                          {link.label}
+                        </span>
+                      </li>
+                    );
+                  }
+
                   return (
                     <li key={`mobile-nav-${index}-${link.label}`}>
                       <Link
@@ -223,6 +237,18 @@ export default function MobileNav({
                 <ul className="list-none space-y-3">
                   {nav.services.map((service, index) => {
                     const link = getLink(service);
+                    const isActive = pathname === link.href;
+
+                    if (isActive) {
+                      return (
+                        <li key={`mobile-service-${index}-${link.label}`}>
+                          <span className="cursor-default text-base font-light tracking-wide text-primary/50">
+                            {link.label}
+                          </span>
+                        </li>
+                      );
+                    }
+
                     return (
                       <li key={`mobile-service-${index}-${link.label}`}>
                         <Link

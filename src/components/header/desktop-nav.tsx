@@ -489,8 +489,8 @@ export default function DesktopNav({ nav, settings, experienceMediaVideo }: Desk
       ? nav.experienceVideo.video
       : null;
   const activeExperienceVideo = isExperienceRoute
-    ? mediaVideo ?? navVideo
-    : navVideo ?? mediaVideo;
+    ? (mediaVideo ?? navVideo)
+    : (navVideo ?? mediaVideo);
   const hasActiveExperienceVideo = Boolean(activeExperienceVideo?.asset?.playbackId);
 
   // Mux Player (client-only) and state for videos used by the Billboard
@@ -786,6 +786,19 @@ export default function DesktopNav({ nav, settings, experienceMediaVideo }: Desk
                     <div className="flex w-1/2 flex-col gap-6">
                       {nav.companyLinks?.map((link, index) => {
                         const linkData = getLinkData(link);
+                        const isActive = pathname === linkData.href;
+
+                        if (isActive) {
+                          return (
+                            <span
+                              key={`company-${index}`}
+                              className="cursor-default text-2xl font-light text-primary/50"
+                            >
+                              {linkData.label}
+                            </span>
+                          );
+                        }
+
                         return (
                           <Link
                             key={`company-${index}`}
@@ -804,6 +817,19 @@ export default function DesktopNav({ nav, settings, experienceMediaVideo }: Desk
                     <div className="flex w-1/2 flex-col items-start gap-6">
                       {nav.services?.map((link, index) => {
                         const linkData = getLinkData(link);
+                        const isActive = pathname === linkData.href;
+
+                        if (isActive) {
+                          return (
+                            <span
+                              key={`service-${index}`}
+                              className="cursor-default text-2xl font-light text-white/30"
+                            >
+                              {linkData.label}
+                            </span>
+                          );
+                        }
+
                         return (
                           <Link
                             key={`service-${index}`}
