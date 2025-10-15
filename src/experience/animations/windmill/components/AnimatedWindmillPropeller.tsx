@@ -1,7 +1,7 @@
 import { useStreetPropsInstances } from '@/experience/models/StreetPropsInstances';
 import { Instance } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
 interface AnimatedWindmillPropellerProps {
@@ -21,10 +21,14 @@ export function AnimatedWindmillPropeller({
   const streetProps = useStreetPropsInstances();
   const WindmillPropeller = streetProps['windmill-propeller'];
 
-  // Animation logic - runs every frame
-  useFrame((_, delta) => {
+  // Create a unique phase offset for each instance (0–2π)
+  const offset = useMemo(() => Math.random() * Math.PI * 2, []);
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
     if (propellerRef.current) {
-      propellerRef.current.rotation.z += delta * rotationSpeed;
+      // Add the offset to desynchronize each propeller
+      propellerRef.current.rotation.z = (t + offset) * rotationSpeed;
     }
   });
 
