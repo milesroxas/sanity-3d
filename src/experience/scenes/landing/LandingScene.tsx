@@ -377,7 +377,7 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
       cumulativeDuration += pauseDuration;
 
       // Calculate remaining duration for final animation
-      const totalKeyframeDuration = keyframes.reduce((sum, kf) => sum + kf.duration, 0);
+
       const remainingDuration = 3.0; // Duration for final camera movement to end position
 
       // Animate to final position

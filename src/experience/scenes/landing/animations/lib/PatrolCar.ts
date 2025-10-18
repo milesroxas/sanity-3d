@@ -2,8 +2,8 @@ import pathData from '@/experience/scenes/landing/animations/lib/patrol-path.jso
 
 export const PATROL_CAR_OFFSET = {
   x: 2.5,
-  y: 0,
-  z: 4,
+  y: -0.1,
+  z: 0.75,
 };
 
 // Pre-calculate the base path points
