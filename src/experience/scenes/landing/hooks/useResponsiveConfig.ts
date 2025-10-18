@@ -73,7 +73,7 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
         {
           position: { x: 8, y: 4, z: 60 },
           target: { x: -40.0, y: 10, z: 0 },
-          duration: 3.5,
+          duration: 3.2,
         },
         // Add more keyframes here as needed
       ],

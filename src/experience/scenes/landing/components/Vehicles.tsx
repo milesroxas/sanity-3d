@@ -13,8 +13,8 @@ export function Vehicles() {
   return (
     <>
       <TrafficEastBoundRight pathOffset={0.1} />
-      <TrafficEastBoundLeft pathOffset={0.8} />
-      <PatrolCar pathOffset={0} />
+      <TrafficEastBoundLeft pathOffset={0.7} />
+      <PatrolCar pathOffset={0.012} />
     </>
   );
 }

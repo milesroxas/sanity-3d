@@ -373,12 +373,12 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
       });
 
       // Add pause duration after last keyframe before final animation
-      const pauseDuration = 1.5; // Duration to hold at the last keyframe (patrol car paused)
+      const pauseDuration = 0.8; // Duration to hold at the last keyframe (patrol car paused)
       cumulativeDuration += pauseDuration;
 
       // Calculate remaining duration for final animation
 
-      const remainingDuration = 3.0; // Duration for final camera movement to end position
+      const remainingDuration = 3; // Duration for final camera movement to end position
 
       // Animate to final position
       tl.to(
@@ -388,13 +388,13 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
           y: finalCameraPos.y,
           z: finalCameraPos.z,
           duration: remainingDuration,
-          ease: 'power2.out',
+          ease: 'power2.inOut',
           onStart: () => {
             // Smoothly speed up patrol car when moving to final position
             gsap.to(patrolCarSpeedRef.current, {
               speed: 1,
-              duration: 1.2,
-              ease: 'power2.inOut',
+              duration: 0.8,
+              ease: 'power2.out',
               onUpdate: () => {
                 setPatrolCarSpeed(patrolCarSpeedRef.current.speed);
               },
@@ -416,7 +416,7 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
           y: finalTargetPos.y,
           z: finalTargetPos.z,
           duration: remainingDuration,
-          ease: 'power2.out',
+          ease: 'power2.inOut',
         },
         cumulativeDuration
       );

@@ -15,7 +15,7 @@ export function PatrolCar({ pathOffset = 0 }: PatrolCarProps) {
     <PatrolCarComponent
       animation={{
         path: PATROL_CAR_PATH_POINTS,
-        speed: 5.45 * speedMultiplier,
+        speed: 5.33 * speedMultiplier,
         loop: true,
         pathOffset,
       }}
