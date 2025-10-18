@@ -48,7 +48,7 @@ export function Loading() {
         textRef.current,
         {
           opacity: 1,
-          duration: 0.4,
+          duration: 1,
           ease: 'power2.out',
         },
         '-=0.3'
@@ -72,7 +72,7 @@ export function Loading() {
     return gsap.to(containerRef.current, {
       opacity: 0,
       duration: 0.8,
-      delay: 0.15,
+      delay: 1,
       ease: 'power2.in',
       onComplete: () => {
         setIsVisible(false);

@@ -13,18 +13,18 @@ interface LandingCameraStore {
   target: Vector3;
   isAnimating: boolean;
   hasAnimated: boolean;
-  isVideoPlaying: boolean; // New: tracks video player state
-  mouseTrackingEnabled: boolean; // New: controls mouse tracking
-  cameraReady: boolean; // New: landing camera mounted and seeded
+  isVideoPlaying: boolean;
+  mouseTrackingEnabled: boolean;
+  cameraReady: boolean;
 
   // Actions
   setCamera: (position: Vector3, target: Vector3) => void;
   setAnimating: (isAnimating: boolean) => void;
   setHasAnimated: (hasAnimated: boolean) => void;
-  setVideoPlaying: (isPlaying: boolean) => void; // New: video state control
-  setMouseTracking: (enabled: boolean) => void; // New: mouse tracking control
-  setCameraReady: (ready: boolean) => void; // New: signal camera is ready
-  reset: (preserveAnimatedState?: boolean) => void;
+  setVideoPlaying: (isPlaying: boolean) => void;
+  setMouseTracking: (enabled: boolean) => void;
+  setCameraReady: (ready: boolean) => void;
+  reset: () => void;
 }
 
 export const useLandingCameraStore = create<LandingCameraStore>(set => ({
@@ -52,19 +52,14 @@ export const useLandingCameraStore = create<LandingCameraStore>(set => ({
 
   setCameraReady: ready => set({ cameraReady: ready }),
 
-  reset: (preserveAnimatedState = false) =>
-    set(state => {
-      // Create the reset state
-      const resetState = {
-        position: LANDING_CAMERA_POSITIONS.main.position.clone(),
-        target: LANDING_CAMERA_POSITIONS.main.target.clone(),
-        isAnimating: false,
-        hasAnimated: preserveAnimatedState ? state.hasAnimated : false,
-        isVideoPlaying: false,
-        mouseTrackingEnabled: true,
-        cameraReady: false,
-      };
-
-      return resetState;
+  reset: () =>
+    set({
+      position: LANDING_CAMERA_POSITIONS.main.position.clone(),
+      target: LANDING_CAMERA_POSITIONS.main.target.clone(),
+      isAnimating: false,
+      hasAnimated: false,
+      isVideoPlaying: false,
+      mouseTrackingEnabled: true,
+      cameraReady: false,
     }),
 }));

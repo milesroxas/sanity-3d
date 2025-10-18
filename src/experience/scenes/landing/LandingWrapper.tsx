@@ -47,12 +47,8 @@ export default function LandingWrapper({
       // Clear the 3D content
       setR3FContent(null);
 
-      // Reset camera position and target, but preserve hasAnimated state
-      // This ensures content is visible when navigating back
-      const hasAnimatedValue = useLandingCameraStore.getState().hasAnimated;
-
-      // Use the preserveAnimatedState parameter to avoid race conditions
-      reset(hasAnimatedValue);
+      // Reset store state
+      reset();
 
       hasInitializedRef.current = false;
     };

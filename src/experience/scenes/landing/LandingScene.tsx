@@ -579,28 +579,17 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
     }
   });
 
-  // Initialize content visibility based on store state
+  // Initialize content visibility - always start hidden for entrance animation
   useLayoutEffect(() => {
     if (!contentRef.current) return;
 
-    // Single source of truth: check if animation has already been completed
-    if (hasAnimated) {
-      // If already animated, show content immediately (reset from exit animation state)
-      gsap.set(contentRef.current, {
-        opacity: 1,
-        y: 0,
-        visibility: 'visible',
-      });
-      animationStartedRef.current = true;
-    } else {
-      // Hide content initially for entrance animation
-      gsap.set(contentRef.current, {
-        opacity: 0,
-        y: 20,
-        visibility: 'hidden',
-      });
-    }
-  }, [hasAnimated]);
+    // Always hide content initially for entrance animation
+    gsap.set(contentRef.current, {
+      opacity: 0,
+      y: 20,
+      visibility: 'hidden',
+    });
+  }, []);
 
   // Trigger entrance animation when ready
   useEffect(() => {
@@ -749,6 +738,8 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
             onMouseLeave={handleMouseLeaveUI}
             style={{
               zIndex: 30,
+              opacity: 0,
+              visibility: 'hidden',
               willChange: 'opacity, transform',
             }}
           >
