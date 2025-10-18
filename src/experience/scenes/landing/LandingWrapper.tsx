@@ -4,7 +4,6 @@ import { useR3F } from '@/experience/providers/R3FContext';
 import { useEffect, useMemo, useRef } from 'react';
 import LandingScene from './LandingScene';
 import { useLandingCameraStore } from './store/landingCameraStore';
-import { usePatrolCarStore } from './store/patrolCarStore';
 
 interface LandingWrapperProps {
   textureVideo: Sanity.Media;
@@ -59,9 +58,6 @@ export default function LandingWrapper({
       if (hasAnimatedValue) {
         useLandingCameraStore.setState({ hasAnimated: true });
       }
-
-      // Reset patrol car to paused state
-      usePatrolCarStore.setState({ isPaused: true });
 
       hasInitializedRef.current = false;
     };
