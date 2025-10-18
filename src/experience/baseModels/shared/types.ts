@@ -79,5 +79,7 @@ export interface AnimatedInstanceProps {
     loop?: boolean;
     /** Offset in the path array (0-1) to start the animation from */
     pathOffset?: number;
+    /** Whether the animation is paused (default: false) */
+    paused?: boolean;
   };
 }

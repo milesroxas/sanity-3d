@@ -254,6 +254,7 @@ export function createModelInstancing<T extends ModelInstances>(
     const animationFrameRef = useRef<number | null>(null);
     const speed = animation.speed || 1;
     const loop = animation.loop !== false;
+    const paused = animation.paused || false;
 
     // Get or create path data
     const { curve, points } = useMemo(() => {
@@ -281,8 +282,11 @@ export function createModelInstancing<T extends ModelInstances>(
       const animate = (time: number) => {
         if (!ref.current || !curve) return;
 
-        // Update distance
-        distanceRef.current = (distanceRef.current + speed * 0.016) % curve.getLength();
+        // Only update distance if not paused
+        if (!paused) {
+          // Update distance
+          distanceRef.current = (distanceRef.current + speed * 0.016) % curve.getLength();
+        }
 
         // Get position at current distance
         const progress = distanceRef.current / curve.getLength();
@@ -314,7 +318,7 @@ export function createModelInstancing<T extends ModelInstances>(
           animationFrameRef.current = null;
         }
       };
-    }, [curve, speed, loop, updateCallback]);
+    }, [curve, speed, loop, paused, updateCallback]);
 
     return (
       <group ref={ref} {...props}>

@@ -34,6 +34,7 @@ import {
 import { MOUSE_CONFIG } from './config/mouseConfig';
 import { useResponsiveConfig, useResponsiveTextStyles } from './hooks/useResponsiveConfig';
 import { useLandingCameraStore } from './store/landingCameraStore';
+import { usePatrolCarStore } from './store/patrolCarStore';
 
 interface LandingSceneProps {
   textureVideo: Sanity.Video | undefined;
@@ -55,8 +56,10 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
     mouseTrackingEnabled,
   } = useLandingCameraStore();
   const setCameraReady = useLandingCameraStore(state => state.setCameraReady);
+  const setPatrolCarSpeed = usePatrolCarStore(state => state.setSpeedMultiplier);
 
   // Refs
+  const patrolCarSpeedRef = useRef({ speed: 1 });
   const cameraRef = useRef<ThreePerspectiveCamera>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const entranceTimelineRef = useRef<gsap.core.Timeline | null>(null);
@@ -319,8 +322,9 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
       let cumulativeDuration = 0;
 
       // Animate through each keyframe
-      keyframes.forEach(keyframe => {
+      keyframes.forEach((keyframe, index) => {
         const ease = keyframe.ease || 'power2.out';
+        const isLastKeyframe = index === keyframes.length - 1;
 
         // Animate position to this keyframe
         tl.to(
@@ -334,6 +338,19 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
             onUpdate: () => {
               targetVector.set(targetProxy.x, targetProxy.y, targetProxy.z);
               camera.lookAt(targetVector);
+            },
+            onComplete: () => {
+              // Smoothly slow down patrol car when last keyframe completes
+              if (isLastKeyframe) {
+                gsap.to(patrolCarSpeedRef.current, {
+                  speed: 0,
+                  duration: 0.8,
+                  ease: 'power2.out',
+                  onUpdate: () => {
+                    setPatrolCarSpeed(patrolCarSpeedRef.current.speed);
+                  },
+                });
+              }
             },
           },
           cumulativeDuration
@@ -355,9 +372,13 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
         cumulativeDuration += keyframe.duration;
       });
 
+      // Add pause duration after last keyframe before final animation
+      const pauseDuration = 1.5; // Duration to hold at the last keyframe (patrol car paused)
+      cumulativeDuration += pauseDuration;
+
       // Calculate remaining duration for final animation
       const totalKeyframeDuration = keyframes.reduce((sum, kf) => sum + kf.duration, 0);
-      const remainingDuration = Math.max(0.5, 4.5 - totalKeyframeDuration); // Minimum 0.5s for final
+      const remainingDuration = 3.0; // Duration for final camera movement to end position
 
       // Animate to final position
       tl.to(
@@ -368,6 +389,17 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
           z: finalCameraPos.z,
           duration: remainingDuration,
           ease: 'power2.out',
+          onStart: () => {
+            // Smoothly speed up patrol car when moving to final position
+            gsap.to(patrolCarSpeedRef.current, {
+              speed: 1,
+              duration: 1.2,
+              ease: 'power2.inOut',
+              onUpdate: () => {
+                setPatrolCarSpeed(patrolCarSpeedRef.current.speed);
+              },
+            });
+          },
           onUpdate: () => {
             targetVector.set(targetProxy.x, targetProxy.y, targetProxy.z);
             cameraRef.current?.lookAt(targetVector);
