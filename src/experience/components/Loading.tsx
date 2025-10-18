@@ -71,9 +71,9 @@ export function Loading() {
 
     return gsap.to(containerRef.current, {
       opacity: 0,
-      duration: 0.8,
-      delay: 1,
-      ease: 'power2.in',
+      duration: 1.5,
+      delay: 1.2,
+      ease: 'power2.inOut',
       onComplete: () => {
         setIsVisible(false);
         // Add a slight delay before setting isLoading to false

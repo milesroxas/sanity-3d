@@ -16,15 +16,15 @@ export function TrafficEastBoundLeft({ pathOffset = 0 }: TrafficEastBoundLeftPro
       <CarSedanWhite
         animation={{
           path: TRAFFIC_EAST_BOUND_LEFT_LANE_PATH_POINTS,
-          speed: 10,
+          speed: 8,
           loop: false,
-          pathOffset: (pathOffset + 0.22) % 1,
+          pathOffset: (pathOffset + 0.2) % 1,
         }}
       />
       <CarSedanBlue
         animation={{
           path: TRAFFIC_EAST_BOUND_LEFT_LANE_PATH_POINTS,
-          speed: 10,
+          speed: 8,
           loop: false,
           pathOffset: (pathOffset + 0.25) % 1,
         }}
@@ -32,7 +32,7 @@ export function TrafficEastBoundLeft({ pathOffset = 0 }: TrafficEastBoundLeftPro
       <Truck
         animation={{
           path: TRAFFIC_EAST_BOUND_LEFT_LANE_PATH_POINTS,
-          speed: 10,
+          speed: 8,
           loop: false,
           pathOffset: (pathOffset + 0.3) % 1,
         }}
@@ -40,7 +40,7 @@ export function TrafficEastBoundLeft({ pathOffset = 0 }: TrafficEastBoundLeftPro
       <HippieVan
         animation={{
           path: TRAFFIC_EAST_BOUND_LEFT_LANE_PATH_POINTS,
-          speed: 10,
+          speed: 8,
           loop: false,
           pathOffset: (pathOffset + 0.35) % 1,
         }}

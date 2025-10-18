@@ -27,7 +27,7 @@ export function TrafficEastBoundRight({ pathOffset = 0 }: TrafficEastBoundRightP
           path: TRAFFIC_EAST_BOUND_RIGHT_LANE_PATH_POINTS,
           speed: 6,
           loop: false,
-          pathOffset: (pathOffset + 0.1) % 1,
+          pathOffset: (pathOffset + 0.25) % 1,
         }}
       />
       <Taxi
