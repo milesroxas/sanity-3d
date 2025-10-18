@@ -9,20 +9,21 @@ import {
 } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 
-import { vehicles } from '@/experience/animations';
 import { AnimatedClouds } from '@/experience/effects/components/Clouds';
 import { VehiclesInstances } from '@/experience/models/VehiclesInstances';
 import { INITIAL_POSITIONS, useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { useRouter } from 'next/navigation';
-import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { PerspectiveCamera as ThreePerspectiveCamera, Vector3 } from 'three';
 import { Billboard } from './components/Billboard';
 import { Effects } from './components/Effects';
 import { SceneEnvironment } from './components/SceneEnvironment';
+import { Vehicles } from './components/Vehicles';
 import { DesertModels } from './compositions/DesertModels';
 
+import { Ground } from './compositions/Ground';
 import {
   useBillboardControls,
   useCameraControls,
@@ -182,9 +183,16 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
       currentConfig.billboard.position.z
     );
 
+    // Start positions for initial camera placement
+    const startConfig = 'start' in currentConfig.camera ? currentConfig.camera.start : null;
+    const initialCameraPos = startConfig
+      ? new Vector3(startConfig.position.x, startConfig.position.y, startConfig.position.z)
+      : cameraPos;
+
     return {
       camera: cameraPos,
       target: targetPos,
+      initialCamera: initialCameraPos,
       mainContent: mainContentPos,
       billboard: {
         position: billboardPos,
@@ -192,15 +200,6 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
       },
     };
   }, [currentConfig]);
-
-  const [mainContentPosition] = useState(
-    () =>
-      new Vector3(
-        responsiveConfig.mainContent.position.x,
-        responsiveConfig.mainContent.position.y,
-        responsiveConfig.mainContent.position.z
-      )
-  );
 
   // Mouse event handlers
   const handleMouseEnterUI = useCallback(() => {
@@ -221,9 +220,22 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
 
   // Ensure camera has a sensible initial lookAt before animations
   useLayoutEffect(() => {
-    if (cameraRef.current) {
-      cameraRef.current.position.copy(positions.camera);
-      cameraRef.current.lookAt(positions.target);
+    // Don't reset camera position during animation
+    if (cameraRef.current && !isAnimating && !animationStartedRef.current) {
+      // Use start position if defined, otherwise use end position
+      const startConfig = 'start' in currentConfig.camera ? currentConfig.camera.start : null;
+
+      if (startConfig) {
+        cameraRef.current.position.set(
+          startConfig.position.x,
+          startConfig.position.y,
+          startConfig.position.z
+        );
+        cameraRef.current.lookAt(startConfig.target.x, startConfig.target.y, startConfig.target.z);
+      } else {
+        cameraRef.current.position.copy(positions.camera);
+        cameraRef.current.lookAt(positions.target);
+      }
     }
     // We only depend on the numeric values to avoid stale refs while staying stable
   }, [
@@ -233,6 +245,8 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
     positions.target.x,
     positions.target.y,
     positions.target.z,
+    isAnimating,
+    currentConfig.camera,
   ]);
 
   // Mark camera ready once seeded to prevent viewport seeding from using provider camera
@@ -259,19 +273,167 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
 
     entranceTimelineRef.current = tl;
 
-    // Set initial camera position
-    const startPosition = positions.camera.clone();
-    startPosition.z += 200;
-    startPosition.y += 50;
-    cameraRef.current.position.copy(startPosition);
+    // Capture final positions at start to prevent race conditions
+    const finalCameraPos = { x: positions.camera.x, y: positions.camera.y, z: positions.camera.z };
+    const finalTargetPos = { x: positions.target.x, y: positions.target.y, z: positions.target.z };
 
-    // Camera animation
-    tl.to(cameraRef.current.position, {
-      ...positions.camera,
-      duration: 4.5,
-      ease: 'power2.out',
-      onUpdate: () => cameraRef.current?.lookAt(positions.target),
-    });
+    // Set initial camera position - use explicit start config or fallback to offset
+    const startConfig = 'start' in currentConfig.camera ? currentConfig.camera.start : null;
+
+    if (startConfig) {
+      cameraRef.current.position.set(
+        startConfig.position.x,
+        startConfig.position.y,
+        startConfig.position.z
+      );
+    } else {
+      // Fallback to offset-based start position
+      const startPosition = positions.camera.clone();
+      startPosition.z += 300;
+      startPosition.y += 50;
+      startPosition.x += 10;
+      cameraRef.current.position.copy(startPosition);
+    }
+
+    // Camera animation with optional keyframes
+    const keyframes =
+      'keyframes' in currentConfig.camera ? currentConfig.camera.keyframes : undefined;
+
+    if (keyframes && keyframes.length > 0) {
+      // Create animated target proxy that GSAP will animate
+      // Use start target if defined, otherwise use end target
+      const targetProxy = startConfig
+        ? {
+            x: startConfig.target.x,
+            y: startConfig.target.y,
+            z: startConfig.target.z,
+          }
+        : {
+            x: positions.target.x,
+            y: positions.target.y,
+            z: positions.target.z,
+          };
+      const targetVector = new Vector3();
+      const camera = cameraRef.current; // Cache ref for forEach
+
+      let cumulativeDuration = 0;
+
+      // Animate through each keyframe
+      keyframes.forEach(keyframe => {
+        const ease = keyframe.ease || 'power2.out';
+
+        // Animate position to this keyframe
+        tl.to(
+          camera.position,
+          {
+            x: keyframe.position.x,
+            y: keyframe.position.y,
+            z: keyframe.position.z,
+            duration: keyframe.duration,
+            ease,
+            onUpdate: () => {
+              targetVector.set(targetProxy.x, targetProxy.y, targetProxy.z);
+              camera.lookAt(targetVector);
+            },
+          },
+          cumulativeDuration
+        );
+
+        // Animate target to this keyframe alongside position
+        tl.to(
+          targetProxy,
+          {
+            x: keyframe.target.x,
+            y: keyframe.target.y,
+            z: keyframe.target.z,
+            duration: keyframe.duration,
+            ease,
+          },
+          cumulativeDuration
+        );
+
+        cumulativeDuration += keyframe.duration;
+      });
+
+      // Calculate remaining duration for final animation
+      const totalKeyframeDuration = keyframes.reduce((sum, kf) => sum + kf.duration, 0);
+      const remainingDuration = Math.max(0.5, 4.5 - totalKeyframeDuration); // Minimum 0.5s for final
+
+      // Animate to final position
+      tl.to(
+        cameraRef.current.position,
+        {
+          x: finalCameraPos.x,
+          y: finalCameraPos.y,
+          z: finalCameraPos.z,
+          duration: remainingDuration,
+          ease: 'power2.out',
+          onUpdate: () => {
+            targetVector.set(targetProxy.x, targetProxy.y, targetProxy.z);
+            cameraRef.current?.lookAt(targetVector);
+          },
+        },
+        cumulativeDuration
+      );
+
+      // Animate target to final alongside position
+      tl.to(
+        targetProxy,
+        {
+          x: finalTargetPos.x,
+          y: finalTargetPos.y,
+          z: finalTargetPos.z,
+          duration: remainingDuration,
+          ease: 'power2.out',
+        },
+        cumulativeDuration
+      );
+    } else {
+      // Original single animation with animated target
+      // Use start target if defined, otherwise use end target
+      const targetProxy = startConfig
+        ? {
+            x: startConfig.target.x,
+            y: startConfig.target.y,
+            z: startConfig.target.z,
+          }
+        : {
+            x: positions.target.x,
+            y: positions.target.y,
+            z: positions.target.z,
+          };
+      const targetVector = new Vector3();
+
+      // Animate position
+      tl.to(
+        cameraRef.current.position,
+        {
+          x: finalCameraPos.x,
+          y: finalCameraPos.y,
+          z: finalCameraPos.z,
+          duration: 4.5,
+          ease: 'power2.out',
+          onUpdate: () => {
+            targetVector.set(targetProxy.x, targetProxy.y, targetProxy.z);
+            cameraRef.current?.lookAt(targetVector);
+          },
+        },
+        0
+      );
+
+      // Animate target
+      tl.to(
+        targetProxy,
+        {
+          x: finalTargetPos.x,
+          y: finalTargetPos.y,
+          z: finalTargetPos.z,
+          duration: 4.5,
+          ease: 'power2.out',
+        },
+        0
+      );
+    }
 
     // Content animation - simplified and more reliable
     if (contentRef.current) {
@@ -522,7 +684,7 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
       <AnimatedClouds />
 
       <VehiclesInstances useSharedMaterial={false}>
-        <vehicles.AnimatedPlane pathOffset={0.85} scale={0.3} />
+        <Vehicles />
       </VehiclesInstances>
 
       <PerspectiveCamera
@@ -533,15 +695,16 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
         near={0.1}
         far={10000}
         // Seed initial camera placement to stabilize viewport-dependent math
-        position={[positions.camera.x, positions.camera.y, positions.camera.z]}
+        position={[positions.initialCamera.x, positions.initialCamera.y, positions.initialCamera.z]}
       />
 
       <ambientLight intensity={0.05} />
+      <Ground />
 
       <DreiBillboard follow={true}>
         <Html
           center
-          position={mainContentPosition}
+          position={positions.mainContent}
           transform
           prepend
           style={{

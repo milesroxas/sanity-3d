@@ -25,8 +25,12 @@
 - [Scene Compositions](../scenes/mainScene/compositions)
 - [Animation System](../animations)
 
-## GLTF Pipeline
+## GLTF Pipeline from Blender to Public
+
+1. In Blender: Export Format GLTF separate | Textures ../textures/ | Save in raw-exports
+
+2. Run gltf-pipeline
 
 ```bash
-gltf-pipeline -i raw-exports/models/mountain.gltf -o public/models/mountain.glb
+npx gltf-pipeline -i raw-exports/models/mountain.gltf -o public/models/mountain.glb
 ```

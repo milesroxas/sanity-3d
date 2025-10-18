@@ -180,8 +180,8 @@ export function Billboard({ position, scale = 1, modalVideo, textureVideo }: Bil
           rotation={[Math.PI / 2, 0, 0.131]}
         >
           {/* Play icon when hovering and player not shown */}
-          {hovered && !showPlayer && (
-            <Html position={[-3, 0, 0]} center>
+          {hovered && (
+            <Html position={[-3, 0, 0]} center style={{ pointerEvents: 'none' }}>
               <div className="flex items-center justify-center">
                 <PlayCircle size={48} className="animate-pulse text-white" />
               </div>

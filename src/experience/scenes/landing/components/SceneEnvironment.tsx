@@ -1,4 +1,3 @@
-import { vehicles } from '@/experience/animations';
 import { BlenderExportData } from '@/experience/baseModels/shared/types';
 import mountainData from '@/experience/data/intro-mountain.json';
 import { AnimatedClouds } from '@/experience/effects/components/Clouds';
@@ -7,14 +6,12 @@ import {
   MountainInstances_Blender,
 } from '@/experience/models/MountainInstances';
 
-import { VehiclesInstances } from '@/experience/models/VehiclesInstances';
 import { DesertModels } from '@/experience/scenes/landing/compositions/DesertModels';
 import { StreetProps } from '@/experience/scenes/landing/compositions/StreetProps';
 import { Environment as DreiEnvironment, useTexture } from '@react-three/drei';
 import { useControls } from 'leva';
-import { IntroGrass } from './IntroGrass';
-import { IntroGroundPlane } from './IntroGroundPlane';
 
+import { Ground } from '../compositions/Ground';
 import { Effects } from './Effects';
 
 type EnvironmentPreset =
@@ -91,10 +88,6 @@ export function SceneEnvironment() {
 
       <AnimatedClouds />
 
-      <VehiclesInstances useSharedMaterial={false}>
-        <vehicles.AnimatedPlane pathOffset={0.85} scale={0.3} />
-      </VehiclesInstances>
-
       <DesertModels />
 
       <MountainInstances useSharedMaterial={true}>
@@ -103,11 +96,7 @@ export function SceneEnvironment() {
 
       <StreetProps />
 
-      <group position={[grassPosition.x, grassPosition.y, grassPosition.z]}>
-        <IntroGrass />
-      </group>
-
-      <IntroGroundPlane />
+      <Ground />
     </>
   );
 }

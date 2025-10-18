@@ -12,8 +12,18 @@ interface Vec3 {
 
 export interface ResponsiveConfig {
   camera: {
+    start?: {
+      position: Vec3;
+      target: Vec3;
+    };
     position: Vec3;
     target: Vec3;
+    keyframes?: Array<{
+      position: Vec3;
+      target: Vec3;
+      duration: number; // Duration to reach THIS keyframe from previous position
+      ease?: string; // Optional easing function (defaults to 'power2.out')
+    }>;
   };
   mainContent: {
     position: Vec3;
@@ -54,8 +64,22 @@ export const RESPONSIVE_CONFIGS: Record<'mobile' | 'tablet' | 'desktop', Respons
   },
   desktop: {
     camera: {
-      position: { x: 15.0, y: 8.4, z: 78 },
-      target: { x: -6, y: 22, z: 2 },
+      start: {
+        position: { x: 8, y: 4, z: 60 },
+        target: { x: -40.0, y: 60, z: 0 },
+      },
+
+      keyframes: [
+        {
+          position: { x: 8, y: 4, z: 60 },
+          target: { x: -40.0, y: 10, z: 0 },
+          duration: 3.5,
+        },
+        // Add more keyframes here as needed
+      ],
+
+      position: { x: 15.0, y: 8.4, z: 100 },
+      target: { x: -6, y: 20, z: 2 },
     },
     mainContent: {
       position: { x: -22.3, y: 32, z: -20 },
@@ -113,7 +137,8 @@ export function useResponsiveConfig(): ResponsiveConfig {
     const viewportWidthChange = Math.abs(viewport.width - stableViewportWidthRef.current);
     const isLargeViewportChange = viewportWidthChange > 0.5; // Significant change
     const isStableViewportUpdate = !document.hidden && timeSinceLastUpdate > 50;
-    const shouldUpdateViewport = !freezeViewportUpdates && (isLargeViewportChange || isStableViewportUpdate);
+    const shouldUpdateViewport =
+      !freezeViewportUpdates && (isLargeViewportChange || isStableViewportUpdate);
 
     if (shouldUpdateViewport && viewportWidthChange > 0.02) {
       stableViewportWidthRef.current = viewport.width;
@@ -123,9 +148,9 @@ export function useResponsiveConfig(): ResponsiveConfig {
     let config: ResponsiveConfig;
     // While animating the entrance, keep viewport width stable to avoid position snapping
     const currentViewportWidth =
-      (freezeViewportUpdates && initialViewportWidthRef.current !== null)
+      freezeViewportUpdates && initialViewportWidthRef.current !== null
         ? initialViewportWidthRef.current
-        : (stableViewportWidthRef.current || viewport.width);
+        : stableViewportWidthRef.current || viewport.width;
 
     if (stableBreakpointRef.current === 'mobile') {
       config = structuredClone(RESPONSIVE_CONFIGS.mobile);

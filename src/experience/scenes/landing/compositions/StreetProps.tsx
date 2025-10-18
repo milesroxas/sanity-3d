@@ -10,21 +10,48 @@ import {
 
 export function StreetProps() {
   // Filter out windmill propellers to render them animated instead
-  const { filteredStreetProps, windmillPropellers } = useMemo(() => {
+  const {
+    filteredStreetProps,
+    windmillPropellers,
+    tileRoadStraight,
+    tileRoadMainroadIntersectionT,
+    mainroadStraight,
+  } = useMemo(() => {
     const propellers: BlenderExportData[] = [];
+    const tileRoadStraight: BlenderExportData[] = [];
+    const tileRoadMainroadIntersectionT: BlenderExportData[] = [];
+    const mainroadStraight: BlenderExportData[] = [];
     const filtered = (streetPropsData as BlenderExportData[]).filter(item => {
       if (item.name === 'windmill-propeller') {
         propellers.push(item);
         return false;
       }
+      if (item.name === 'tile-road-straight') {
+        tileRoadStraight.push(item);
+        return false;
+      }
+      if (item.name === 'tile-road-mainroad-intersection-t') {
+        tileRoadMainroadIntersectionT.push(item);
+        return false;
+      }
+      if (item.name === 'mainroad-straight') {
+        mainroadStraight.push(item);
+        return false;
+      }
       return true;
     });
 
-    return { filteredStreetProps: filtered, windmillPropellers: propellers };
+    return {
+      filteredStreetProps: filtered,
+      windmillPropellers: propellers,
+      tileRoadStraight,
+      tileRoadMainroadIntersectionT,
+      mainroadStraight,
+    };
   }, []);
 
   return (
-    <group>
+    <group position={[0, 0, 0]}>
       <StreetPropsInstances useSharedMaterial={true}>
         <StreetPropsInstances_Blender instancesData={filteredStreetProps} />
         {windmillPropellers.map((propeller, index) => (
@@ -35,6 +62,15 @@ export function StreetProps() {
             scale={propeller.scale}
           />
         ))}
+      </StreetPropsInstances>
+      <StreetPropsInstances useSharedMaterial={true}>
+        <StreetPropsInstances_Blender instancesData={tileRoadStraight} />
+      </StreetPropsInstances>
+      <StreetPropsInstances useSharedMaterial={true}>
+        <StreetPropsInstances_Blender instancesData={tileRoadMainroadIntersectionT} />
+      </StreetPropsInstances>
+      <StreetPropsInstances useSharedMaterial={true}>
+        <StreetPropsInstances_Blender instancesData={mainroadStraight} />
       </StreetPropsInstances>
     </group>
   );
