@@ -49,15 +49,10 @@ export default function LandingWrapper({
 
       // Reset camera position and target, but preserve hasAnimated state
       // This ensures content is visible when navigating back
-      const currentState = useLandingCameraStore.getState();
-      const hasAnimatedValue = currentState.hasAnimated;
+      const hasAnimatedValue = useLandingCameraStore.getState().hasAnimated;
 
-      reset();
-
-      // Restore hasAnimated value after reset
-      if (hasAnimatedValue) {
-        useLandingCameraStore.setState({ hasAnimated: true });
-      }
+      // Use the preserveAnimatedState parameter to avoid race conditions
+      reset(hasAnimatedValue);
 
       hasInitializedRef.current = false;
     };

@@ -583,27 +583,24 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
   useLayoutEffect(() => {
     if (!contentRef.current) return;
 
-    const alreadyAnimated = useLandingCameraStore.getState().hasAnimated;
-
-    if (alreadyAnimated) {
-      // If already animated, show content immediately
+    // Single source of truth: check if animation has already been completed
+    if (hasAnimated) {
+      // If already animated, show content immediately (reset from exit animation state)
       gsap.set(contentRef.current, {
         opacity: 1,
         y: 0,
         visibility: 'visible',
       });
-      // Portal interactivity handled centrally in wrapper
       animationStartedRef.current = true;
-      setHasAnimated(true);
     } else {
-      // Hide content initially for animation
+      // Hide content initially for entrance animation
       gsap.set(contentRef.current, {
         opacity: 0,
         y: 20,
         visibility: 'hidden',
       });
     }
-  }, [setHasAnimated]);
+  }, [hasAnimated]);
 
   // Trigger entrance animation when ready
   useEffect(() => {
@@ -752,8 +749,6 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
             onMouseLeave={handleMouseLeaveUI}
             style={{
               zIndex: 30,
-              opacity: 0,
-              visibility: 'hidden',
               willChange: 'opacity, transform',
             }}
           >
