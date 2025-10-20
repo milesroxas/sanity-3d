@@ -7,7 +7,7 @@ import * as React from 'react';
 
 export const buttonVariants = cva(
   // Base
-  'inline-flex items-center justify-center gap-2 rounded-md font-medium transition-all duration-300 ease-custom motion-reduce:transition-none',
+  'inline-flex items-center justify-center gap-2 rounded-md font-medium transition-all duration-300 ease-custom motion-reduce:transition-none [&_*]:pointer-events-none',
   {
     variants: {
       variant: {

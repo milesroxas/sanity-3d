@@ -1,5 +1,6 @@
 import { GSAP } from '@/components/gsap';
 import { ThemeProvider } from '@/components/theme-provider';
+import { CustomCursor } from '@/components/ui/Cursor';
 import { Toaster } from '@/components/ui/sonner';
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="light">
+          <CustomCursor />
           <GSAP scrollTrigger />
           {children}
         </ThemeProvider>

@@ -154,9 +154,7 @@
   /* Subtle edge contrast via dual drop-shadows (no extra shapes) */
   .custom-cursor,
   .custom-cursor-outer {
-    filter:
-      drop-shadow(0 0 1px rgba(0, 0, 0, 0.45))
-      drop-shadow(0 0 1px rgba(255, 255, 255, 0.55));
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 1px rgba(255, 255, 255, 0.55));
   }
 
   /* CSS */

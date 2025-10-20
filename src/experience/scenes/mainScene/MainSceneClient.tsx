@@ -1,6 +1,5 @@
 'use client';
 
-import { CustomCursor } from '@/components/ui/Cursor';
 import { useR3F } from '@/experience/providers/R3FContext';
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
@@ -48,7 +47,6 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
 
   return (
     <div>
-      <CustomCursor />
       <div style={noScrollStyles}>
         <AnimatePresence>
           {!isReady && (

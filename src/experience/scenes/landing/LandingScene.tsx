@@ -598,14 +598,30 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
 
     // Wait for camera to be ready and scene to be loaded
     if (cameraRef.current && isLoaded) {
-      // Small delay to ensure everything is properly mounted
-      const timer = setTimeout(() => {
+      // Use requestAnimationFrame to ensure DOM is ready
+      const rafId = requestAnimationFrame(() => {
         handleEnter();
-      }, 100);
+      });
 
-      return () => clearTimeout(timer);
+      return () => cancelAnimationFrame(rafId);
     }
-  }, [isLoaded, hasAnimated, handleEnter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded, hasAnimated]);
+
+  // Safety check: Force animation if content is still hidden after delay
+  useEffect(() => {
+    if (hasAnimated || animationStartedRef.current || !isLoaded) return;
+
+    const safetyTimer = setTimeout(() => {
+      if (!hasAnimated && !animationStartedRef.current && contentRef.current && isLoaded) {
+        console.warn('Safety check: Forcing entrance animation');
+        handleEnter();
+      }
+    }, 500);
+
+    return () => clearTimeout(safetyTimer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded, hasAnimated]);
 
   // Handle page visibility changes to prevent mouse/camera glitches during focus changes
   useEffect(() => {

@@ -18,10 +18,36 @@ function LenisController() {
   const lenis = useLenis();
   const isScrollLocked = useScrollLockStore(state => state.isScrollLocked);
 
+  // Stop/start Lenis and compensate for scrollbar width to prevent layout shift
   useEffect(() => {
     if (!lenis) return;
-    if (isScrollLocked) lenis.stop();
-    else lenis.start();
+
+    if (isScrollLocked) {
+      // Calculate scrollbar width before it disappears
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+      lenis.stop();
+
+      // Add padding to compensate for missing scrollbar
+      if (scrollbarWidth > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
+
+        // Also apply to fixed header to prevent shift
+        const header = document.querySelector('header.fixed');
+        if (header instanceof HTMLElement) {
+          header.style.paddingRight = `${scrollbarWidth}px`;
+        }
+      }
+    } else {
+      lenis.start();
+      document.body.style.paddingRight = '';
+
+      // Remove padding from fixed header
+      const header = document.querySelector('header.fixed');
+      if (header instanceof HTMLElement) {
+        header.style.paddingRight = '';
+      }
+    }
   }, [isScrollLocked, lenis]);
 
   return null;

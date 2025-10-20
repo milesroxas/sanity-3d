@@ -44,13 +44,14 @@ export default function LandingWrapper({
 
     // Cleanup function
     return () => {
-      // Clear the 3D content
+      // Clear the 3D content on unmount
       setR3FContent(null);
 
-      // Reset store state
-      reset();
-
+      // Reset flag for remount
       hasInitializedRef.current = false;
+
+      // Reset store state immediately on unmount
+      reset();
     };
   }, [setR3FContent, setCamera, setAnimating, reset, landingSceneComponent]);
 
