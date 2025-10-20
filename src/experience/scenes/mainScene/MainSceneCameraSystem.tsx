@@ -1,6 +1,6 @@
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { Box, MapControls, PerspectiveCamera } from '@react-three/drei';
-import { button, folder, useControls, useCreateStore } from 'leva';
+import { button, folder, useControls } from 'leva';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { MathUtils, PerspectiveCamera as ThreePerspectiveCamera, Vector3 } from 'three';
 
@@ -42,9 +42,6 @@ export function MainSceneCameraSystem() {
   const { controlType, isAnimating, position, target, syncCameraPosition, startCameraTransition } =
     useCameraStore();
 
-  // Create a separate Leva store - only in development
-  const levaStore = useCreateStore();
-
   // Memoize position and target as Vector3 to avoid recreation
   const positionVector = useMemo(
     () => new Vector3(position.x, position.y, position.z),
@@ -65,40 +62,43 @@ export function MainSceneCameraSystem() {
     };
   }, []);
 
-  // Optimized position update handlers that use a single debounced function
-  const updatePosition = useCallback(
-    debounce((axis: 'x' | 'y' | 'z', value: number) => {
-      if (isAnimating || isUpdatingRef.current) return;
+  // Debug: Log when isAnimating changes
+  useEffect(() => {
+    console.log(
+      `%c[MainSceneCameraSystem] isAnimating: ${isAnimating}, controlType: ${controlType}`,
+      isAnimating ? 'color: orange' : 'color: green; font-weight: bold'
+    );
+  }, [isAnimating, controlType]);
 
-      isUpdatingRef.current = true;
-      const newPosition = position.clone();
-      newPosition[axis] = value;
+  // Position update handlers - use refs to avoid stale closures
+  const updatePosition = useCallback((axis: 'x' | 'y' | 'z', value: number) => {
+    // Always check fresh state from store to avoid stale closures
+    const currentStore = useCameraStore.getState();
+    if (currentStore.isAnimating || isUpdatingRef.current) return;
 
-      syncCameraPosition(newPosition, target);
-      isUpdatingRef.current = false;
-    }, 16), // ~60fps debounce
-    [isAnimating, position, target, syncCameraPosition]
-  );
+    const newPosition = currentStore.position.clone();
+    newPosition[axis] = value;
 
-  // Optimized target update handlers that use a single debounced function
-  const updateTarget = useCallback(
-    debounce((axis: 'x' | 'y' | 'z', value: number) => {
-      if (isAnimating || isUpdatingRef.current) return;
+    currentStore.syncCameraPosition(newPosition, currentStore.target);
+  }, []); // No dependencies - always use fresh store state
 
-      isUpdatingRef.current = true;
-      const newTarget = target.clone();
-      newTarget[axis] = value;
+  // Target update handlers - use refs to avoid stale closures
+  const updateTarget = useCallback((axis: 'x' | 'y' | 'z', value: number) => {
+    // Always check fresh state from store to avoid stale closures
+    const currentStore = useCameraStore.getState();
+    if (currentStore.isAnimating || isUpdatingRef.current) return;
 
-      syncCameraPosition(position, newTarget);
-      isUpdatingRef.current = false;
-    }, 16), // ~60fps debounce
-    [isAnimating, position, target, syncCameraPosition]
-  );
+    const newTarget = currentStore.target.clone();
+    newTarget[axis] = value;
+
+    currentStore.syncCameraPosition(currentStore.position, newTarget);
+  }, []); // No dependencies - always use fresh store state
 
   // Log camera position - defined with useCallback to prevent recreation
   const logCameraPosition = useCallback(() => {
     if (!cameraRef.current) return;
 
+    const currentStore = useCameraStore.getState();
     console.log('%c --- Camera Debug Info ---', 'font-weight: bold; color: #0066ff;');
 
     // Get the actual current camera position and target from refs
@@ -125,6 +125,12 @@ export function MainSceneCameraSystem() {
       z: currentTarget.z.toFixed(2),
     });
 
+    console.log('Camera State:', {
+      isAnimating: currentStore.isAnimating,
+      controlType: currentStore.controlType,
+      state: currentStore.state,
+    });
+
     console.log(
       'Camera JSON (for copying):',
       JSON.stringify(
@@ -146,85 +152,77 @@ export function MainSceneCameraSystem() {
     );
   }, [position, target]);
 
-  // Only show debug controls in development
-  const isDevelopment = process.env.NEXT_PUBLIC_SITE_ENV === 'development';
+  // Add debug settings
+  const debugControls = useControls(
+    'Debug Options',
+    {
+      showTargetCube: {
+        value: false, // Default to off for better performance
+        label: 'Show Target Cube',
+      },
+      logCameraPosition: button(logCameraPosition),
+    },
+    { collapsed: true }
+  );
 
-  // Add debug settings - only when in development mode
-  const showTargetCube = isDevelopment
-    ? useControls({
-        'Debug Options': folder(
-          {
-            showTargetCube: {
-              value: false, // Default to off for better performance
-              label: 'Show Target Cube',
-            },
-            logCameraPosition: button(logCameraPosition),
-          },
-          { collapsed: true }
-        ),
-      })
-    : { showTargetCube: false };
-
-  // Create Leva controls - only when in development mode
-  const controls = isDevelopment
-    ? useControls(
-        'Main Camera Controls',
+  // Create Leva controls - these will automatically update when the store changes
+  useControls(
+    'Main Camera Controls',
+    {
+      'Main Scene': folder(
         {
-          'Main Scene': folder(
-            {
-              position: folder({
-                positionX: {
-                  value: position.x,
-                  min: -400,
-                  max: 400,
-                  step: 0.1,
-                  onChange: v => updatePosition('x', v),
-                },
-                positionY: {
-                  value: position.y,
-                  min: -400,
-                  max: 400,
-                  step: 0.1,
-                  onChange: v => updatePosition('y', v),
-                },
-                positionZ: {
-                  value: position.z,
-                  min: -400,
-                  max: 400,
-                  step: 0.1,
-                  onChange: v => updatePosition('z', v),
-                },
-              }),
-              target: folder({
-                targetX: {
-                  value: target.x,
-                  min: -400,
-                  max: 400,
-                  step: 0.1,
-                  onChange: v => updateTarget('x', v),
-                },
-                targetY: {
-                  value: target.y,
-                  min: -400,
-                  max: 400,
-                  step: 0.1,
-                  onChange: v => updateTarget('y', v),
-                },
-                targetZ: {
-                  value: target.z,
-                  min: -400,
-                  max: 400,
-                  step: 0.1,
-                  onChange: v => updateTarget('z', v),
-                },
-              }),
+          position: folder({
+            positionX: {
+              value: position.x,
+              min: -400,
+              max: 400,
+              step: 0.1,
+              onChange: v => updatePosition('x', v),
             },
-            { collapsed: true }
-          ),
+            positionY: {
+              value: position.y,
+              min: -400,
+              max: 400,
+              step: 0.1,
+              onChange: v => updatePosition('y', v),
+            },
+            positionZ: {
+              value: position.z,
+              min: -400,
+              max: 400,
+              step: 0.1,
+              onChange: v => updatePosition('z', v),
+            },
+          }),
+          target: folder({
+            targetX: {
+              value: target.x,
+              min: -400,
+              max: 400,
+              step: 0.1,
+              onChange: v => updateTarget('x', v),
+            },
+            targetY: {
+              value: target.y,
+              min: -400,
+              max: 400,
+              step: 0.1,
+              onChange: v => updateTarget('y', v),
+            },
+            targetZ: {
+              value: target.z,
+              min: -400,
+              max: 400,
+              step: 0.1,
+              onChange: v => updateTarget('z', v),
+            },
+          }),
         },
-        { collapsed: true, store: levaStore }
-      )
-    : null;
+        { collapsed: true }
+      ),
+    },
+    { collapsed: true }
+  );
 
   // Update camera position and orientation when store values change - optimized with memoized values
   useEffect(() => {
@@ -284,7 +282,7 @@ export function MainSceneCameraSystem() {
         // Slightly narrower fov reduces geometric aliasing during motion
         fov={45}
       />
-      {isDevelopment && showTargetCube.showTargetCube && (
+      {debugControls.showTargetCube && (
         <Box
           position={[target.x, target.y, target.z]}
           args={[2, 2, 2]}

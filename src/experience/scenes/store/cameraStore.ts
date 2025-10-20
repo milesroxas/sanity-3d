@@ -55,7 +55,7 @@ export const INITIAL_POSITIONS = {
     target: new Vector3(-20.15, 50, 0),
   },
   main: {
-    position: new Vector3(-16.4, 45, 240),
+    position: new Vector3(-16.12, 95.86, 229.55),
     target: new Vector3(-20.15, 22, -1.06),
   },
 } as const;

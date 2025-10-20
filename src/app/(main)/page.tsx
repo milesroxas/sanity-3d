@@ -10,7 +10,7 @@ import { fetchSanitySceneBySlug } from './actions';
 
 export default function Page() {
   const [scene, setScene] = useState<any>(null);
-  const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === 'production';
+  const isProduction = process.env.NODE_ENV === 'production';
   const resetCameraStore = useCameraStore(state => state.reset);
 
   useEffect(() => {
