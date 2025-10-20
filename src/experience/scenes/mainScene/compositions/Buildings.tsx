@@ -22,7 +22,7 @@ import {
 export function Buildings() {
   return (
     <>
-      <SmallBldgsInstances useSharedMaterial={false}>
+      <SmallBldgsInstances useSharedMaterial={true}>
         <SmallBldgsInstances_Blender instancesData={smallBldgsData as BlenderExportData[]} />
       </SmallBldgsInstances>
 

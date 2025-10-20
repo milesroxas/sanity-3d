@@ -47,26 +47,24 @@ export function createMaterialWithTextureMap(
 
 /**
  * Creates a material using the project-wide shared texture atlas (LOWPOLY-COLORS)
- * @param materials Materials from GLTF model
+ * @param materials Materials from GLTF model (optional, used for fallback)
  * @param options Additional material options
  */
 export function createSharedAtlasMaterial(
-  materials: MaterialMap,
+  materials?: MaterialMap,
   options: Partial<THREE.MeshStandardMaterialParameters> = {}
 ): THREE.MeshStandardMaterial {
-  if (!materials[SHARED_TEXTURE_KEY]) {
-    console.warn(`Shared texture atlas "${SHARED_TEXTURE_KEY}" not found in materials`);
-    return new THREE.MeshStandardMaterial({
-      color: 0xff00ff,
-      roughness: 1, // Higher default roughness
-      metalness: 0, // Lower default metalness
-      envMapIntensity: 0, // Lower environment map intensity
-      ...options,
-    }); // Fallback magenta material
-  }
+  // Load the external texture directly from the public folder
+  const colorTexture = useTexture('/textures/color-atlas-new2.png');
 
-  // Create material with texture map and non-reflective defaults
-  const material = createMaterialWithTextureMap(materials[SHARED_TEXTURE_KEY], {
+  // Configure texture settings
+  colorTexture.flipY = false;
+  colorTexture.colorSpace = THREE.SRGBColorSpace;
+
+  // Create a new material with the external texture
+  const material = new THREE.MeshStandardMaterial({
+    color: 0xffffff, // White color will show textures as-is
+    map: colorTexture,
     roughness: 1,
     metalness: 0,
     envMapIntensity: 0,
