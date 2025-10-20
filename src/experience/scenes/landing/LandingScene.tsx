@@ -302,6 +302,8 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
     const keyframes =
       'keyframes' in currentConfig.camera ? currentConfig.camera.keyframes : undefined;
 
+    let totalCameraDuration = 0;
+
     if (keyframes && keyframes.length > 0) {
       // Create animated target proxy that GSAP will animate
       // Use start target if defined, otherwise use end target
@@ -376,8 +378,6 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
       const pauseDuration = 0.8; // Duration to hold at the last keyframe (patrol car paused)
       cumulativeDuration += pauseDuration;
 
-      // Calculate remaining duration for final animation
-
       const remainingDuration = 3; // Duration for final camera movement to end position
 
       // Animate to final position
@@ -420,6 +420,8 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
         },
         cumulativeDuration
       );
+
+      totalCameraDuration = cumulativeDuration + remainingDuration;
     } else {
       // Original single animation with animated target
       // Use start target if defined, otherwise use end target
@@ -436,6 +438,9 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
           };
       const targetVector = new Vector3();
 
+      const singleAnimDuration = 4.5;
+      totalCameraDuration = singleAnimDuration;
+
       // Animate position
       tl.to(
         cameraRef.current.position,
@@ -443,7 +448,7 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
           x: finalCameraPos.x,
           y: finalCameraPos.y,
           z: finalCameraPos.z,
-          duration: 4.5,
+          duration: singleAnimDuration,
           ease: 'power2.out',
           onUpdate: () => {
             targetVector.set(targetProxy.x, targetProxy.y, targetProxy.z);
@@ -460,23 +465,25 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
           x: finalTargetPos.x,
           y: finalTargetPos.y,
           z: finalTargetPos.z,
-          duration: 4.5,
+          duration: singleAnimDuration,
           ease: 'power2.out',
         },
         0
       );
     }
 
-    // Content animation - simplified and more reliable
+    // Content animation - starts 1 second before camera animation completes
     if (contentRef.current) {
+      const contentStartTime = Math.max(0, totalCameraDuration - 1);
+
       // Set initial state
       gsap.set(contentRef.current, {
         opacity: 0,
         y: 20,
-        visibility: 'visible', // Ensure visibility is set
+        visibility: 'visible',
       });
 
-      // Animate in
+      // Animate in at the calculated time
       tl.to(
         contentRef.current,
         {
@@ -485,7 +492,7 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
           duration: 1.0,
           ease: 'power2.out',
         },
-        '-=1' // Start 1 second before camera animation ends
+        contentStartTime
       );
     }
 
@@ -579,6 +586,12 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
     }
   });
 
+  // Reset animation state on mount
+  useLayoutEffect(() => {
+    animationStartedRef.current = false;
+    setHasAnimated(false);
+  }, [setHasAnimated]);
+
   // Initialize content visibility - always start hidden for entrance animation
   useLayoutEffect(() => {
     if (!contentRef.current) return;
@@ -593,33 +606,9 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
 
   // Trigger entrance animation when ready
   useEffect(() => {
-    // Skip if already animated or currently animating
-    if (animationStartedRef.current || hasAnimated) return;
+    if (animationStartedRef.current || hasAnimated || !isLoaded || !cameraRef.current) return;
 
-    // Wait for camera to be ready and scene to be loaded
-    if (cameraRef.current && isLoaded) {
-      // Use requestAnimationFrame to ensure DOM is ready
-      const rafId = requestAnimationFrame(() => {
-        handleEnter();
-      });
-
-      return () => cancelAnimationFrame(rafId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, hasAnimated]);
-
-  // Safety check: Force animation if content is still hidden after delay
-  useEffect(() => {
-    if (hasAnimated || animationStartedRef.current || !isLoaded) return;
-
-    const safetyTimer = setTimeout(() => {
-      if (!hasAnimated && !animationStartedRef.current && contentRef.current && isLoaded) {
-        console.warn('Safety check: Forcing entrance animation');
-        handleEnter();
-      }
-    }, 500);
-
-    return () => clearTimeout(safetyTimer);
+    handleEnter();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, hasAnimated]);
 

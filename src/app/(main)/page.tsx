@@ -1,66 +1,55 @@
-import MissingSanityPage from '@/components/ui/missing-sanity-page';
-import LandingPage from '@/experience/scenes/landing/LandingPage';
-import { generatePageMetadata } from '@/lib/metadata';
-import { client } from '@/sanity/lib/client';
-import { fetchSanityPageBySlug } from './actions';
+'use client';
+import { R3FProvider } from '@/experience/providers/R3FContext';
+import MainSceneClient from '@/experience/scenes/mainScene/MainSceneClient';
+import { useCameraStore } from '@/experience/scenes/store/cameraStore';
+import { TransitionProvider } from '@/providers/TransitionProvider';
+import { useLenis } from 'lenis/react';
+import { Leva } from 'leva';
+import { useEffect, useState } from 'react';
+import { fetchSanitySceneBySlug } from './actions';
 
-export const dynamic = 'force-dynamic';
-export async function generateMetadata() {
-  const page = await fetchSanityPageBySlug({ slug: 'index' });
+export default function Page() {
+  const [scene, setScene] = useState<any>(null);
+  const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === 'production';
+  const resetCameraStore = useCameraStore(state => state.reset);
 
-  return generatePageMetadata({ page, slug: 'index' });
-}
+  useEffect(() => {
+    fetchSanitySceneBySlug({ slug: 'experience' }).then(setScene);
+  }, []);
 
-// Update your PageProps interface to match Next.js 13+ types
-interface PageProps {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}
+  // Reset stores on mount
+  useEffect(() => {
+    resetCameraStore();
+  }, [resetCameraStore]);
 
-export default async function Page({ searchParams }: PageProps) {
-  const resolvedSearchParams = await searchParams;
-  const isRootPath = Object.keys(resolvedSearchParams).length === 0;
+  // Prevent scrolling on experience pages
+  const lenis = useLenis();
+  useEffect(() => {
+    if (lenis) {
+      lenis.stop();
+      return () => lenis.start();
+    }
 
-  // Fetch both videos for landing page
-  const [textureVideo, modalVideo] = await Promise.all([
-    client.fetch(`
-      *[_id == "f57be663-ee9a-4412-a976-b15f0f6b6654"][0]{
-        _id,
-        title,
-        mediaType,
-        video{
-          asset->{
-            _id,
-            playbackId,
-            assetId,
-            filename
-          }
-        }
-      }
-    `),
-    client.fetch(`
-      *[_id == "9e88d329-c760-473b-9124-b8bcf3e7c611"][0]{
-        _id,
-        title,
-        mediaType,
-        video{
-          asset->{
-            _id,
-            playbackId,
-            assetId,
-            filename
-          }
-        }
-      }
-    `),
-  ]);
+    const originalOverflow = document.body.style.overflow;
+    const originalHeight = document.body.style.height;
+    document.body.style.overflow = 'hidden';
+    document.body.style.height = '100vh';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.height = originalHeight;
+    };
+  }, [lenis]);
 
-  if (isRootPath) {
-    return <LandingPage textureVideo={textureVideo} modalVideo={modalVideo} />;
-  }
+  if (!scene) return null;
 
-  const page = await fetchSanityPageBySlug({ slug: 'index' });
-
-  if (!page) {
-    return MissingSanityPage({ document: 'page', slug: 'index' });
-  }
+  return (
+    <TransitionProvider overlayClassName="bg-white">
+      <R3FProvider>
+        <main className="mt-8">
+          <MainSceneClient scene={scene} />
+        </main>
+        <Leva hidden={isProduction} />
+      </R3FProvider>
+    </TransitionProvider>
+  );
 }
