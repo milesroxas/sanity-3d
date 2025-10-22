@@ -377,7 +377,7 @@ export default function MarkerContentOverlay({
   // Desktop layout: side-by-side with LogoMarkerContent
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-10 flex"
+      className="pointer-events-none fixed inset-0 z-30 flex"
       style={{
         paddingLeft: `${logoMarkerWidth + margin}px`,
         paddingRight: `${margin}px`,

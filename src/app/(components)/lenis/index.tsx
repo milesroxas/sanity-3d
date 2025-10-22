@@ -63,6 +63,18 @@ export function Lenis({ root, options }: LenisProps) {
     }
   });
 
+  // Enable scrollbar gutter when Lenis is active to prevent layout shift
+  useEffect(() => {
+    const html = document.documentElement;
+    html.style.scrollbarGutter = 'stable';
+    html.style.overflowY = 'scroll'; // Fallback for older browsers
+
+    return () => {
+      html.style.scrollbarGutter = '';
+      html.style.overflowY = '';
+    };
+  }, []);
+
   return (
     <ReactLenis
       ref={lenisRef}

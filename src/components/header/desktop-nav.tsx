@@ -480,7 +480,7 @@ export default function DesktopNav({ nav, settings, experienceMediaVideo }: Desk
 
   // Detect experience route
   const pathname = usePathname();
-  const isExperienceRoute = pathname === '/experience' || pathname?.startsWith('/experience/');
+  const isExperienceRoute = pathname === '/';
 
   const mediaVideo =
     experienceMediaVideo && experienceMediaVideo.asset?.playbackId ? experienceMediaVideo : null;

@@ -182,14 +182,8 @@ export default function LogoMarkerContent() {
 
   // Helper: build overlay blocks from mainExpandedBody
   const buildExpandedBodyOverlayBlocks = (eb: Sanity.Scene['mainExpandedBody']) => {
-    return [
-      {
-        _type: 'expanded-body',
-        _key: 'main-expanded',
-        blocks: eb?.blocks || [],
-        links: eb?.links || [],
-      },
-    ] as unknown as Sanity.Block[];
+    // Return the blocks directly from mainExpandedBody instead of wrapping them
+    return eb?.blocks || [];
   };
 
   // Helper: open security request form overlay

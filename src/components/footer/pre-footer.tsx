@@ -111,7 +111,7 @@ export default function PreFooter() {
                 _type: 'customLink',
                 _key: 'prefooter-experience',
                 title: 'Enter Experience',
-                href: '/experience',
+                href: '/',
                 target: false,
                 buttonVariant: 'ghost',
               }}
