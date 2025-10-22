@@ -1,22 +1,13 @@
 // app/experience/layout.tsx
 'use client';
 import { R3FProvider } from '@/experience/providers/R3FContext';
-import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { TransitionProvider } from '@/providers/TransitionProvider';
 import { useLenis } from 'lenis/react';
 import { Leva } from 'leva';
 import { ReactNode, useEffect } from 'react';
 
 export default function ExperienceLayout({ children }: { children: ReactNode }) {
-  const isProduction = process.env.NODE_ENV === 'production';
-  const resetCameraStore = useCameraStore(state => state.reset);
-
-  // Reset stores on mount
-  useEffect(() => {
-    resetCameraStore();
-
-    // No cleanup needed for the resets
-  }, [resetCameraStore]);
+  const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === 'production';
 
   // Prevent scrolling on experience pages (prefer Lenis stop to body locking)
   const lenis = useLenis();
@@ -42,7 +33,7 @@ export default function ExperienceLayout({ children }: { children: ReactNode }) 
       <R3FProvider>
         {/* Non-R3F components render here */}
 
-        <main className="mt-8">{children}</main>
+        <main>{children}</main>
 
         {/* Hide Leva in production, show in development */}
         <Leva hidden={isProduction} />

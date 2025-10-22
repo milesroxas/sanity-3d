@@ -1,13 +1,18 @@
 'use client';
 
 import { useR3F } from '@/experience/providers/R3FContext';
-import { useCameraStore } from '@/experience/scenes/store/cameraStore';
+import {
+  selectIntroPhase,
+  selectIsLoading,
+  selectResetToInitial,
+  useCameraStore,
+} from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useLayoutEffect, useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo } from 'react';
+import IntroOverlay from './components/IntroOverlay';
 import LogoMarkerContent from './components/LogoMarkerContent';
 import MainScene from './MainScene';
-// Style to prevent scrollbars
+
 const noScrollStyles = {
   height: '100%',
   width: '100%',
@@ -17,69 +22,41 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
   const selectedScene = useLogoMarkerStore(s => s.selectedScene);
   const setSelectedScene = useLogoMarkerStore(s => s.setSelectedScene);
   const { setR3FContent } = useR3F();
-  const [isReady, setIsReady] = useState(false);
-  const { resetToInitial, isLoading } = useCameraStore();
+
+  // Performance optimization: Use selectors to prevent re-renders during camera animation
+  // This prevents 360 unnecessary re-renders during the 6-second intro (60fps × 6s)
+  const resetToInitial = useCameraStore(selectResetToInitial);
+  const isLoading = useCameraStore(selectIsLoading);
+  const introPhase = useCameraStore(selectIntroPhase);
 
   const memoizedScene = useMemo(() => scene, [scene._id]);
 
   useLayoutEffect(() => {
-    // Synchronously set camera store to intro before paint to avoid first-frame flashes
+    // Reset camera to intro position and clear any selected scene
     resetToInitial();
-
-    setIsReady(false);
     setSelectedScene(null);
 
-    // Then set the content and make it visible
+    // Set the R3F content
     setR3FContent(<MainScene scene={memoizedScene} />);
-    setIsReady(true);
 
     // Cleanup when unmounting
     return () => {
       setR3FContent(null);
       setSelectedScene(null);
-
-      // Only reset on unmount if we're not in loading state
-      if (!isLoading) {
-        resetToInitial();
-      }
     };
-  }, [setR3FContent, setSelectedScene, resetToInitial, isLoading, memoizedScene]);
+  }, [setR3FContent, setSelectedScene, resetToInitial, memoizedScene]);
+
+  // Show IntroOverlay during intro and transition phases, unmount only when complete
+  const showIntroOverlay = !isLoading && (introPhase === 'intro' || introPhase === 'transition');
+
+  // Show LogoMarkerContent when a scene is selected
+  const showLogoMarkerContent = selectedScene !== null;
 
   return (
     <div>
       <div style={noScrollStyles}>
-        <AnimatePresence>
-          {!isReady && (
-            <motion.div
-              initial={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'white',
-                zIndex: 1000,
-              }}
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Logo marker content: Render only when ready and a scene is selected */}
-        <AnimatePresence>
-          {isReady && selectedScene && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <LogoMarkerContent />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {showIntroOverlay && <IntroOverlay />}
+        {showLogoMarkerContent && <LogoMarkerContent />}
       </div>
     </div>
   );

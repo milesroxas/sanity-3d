@@ -1,25 +1,17 @@
-import { useCameraStore } from '@/experience/scenes/store/cameraStore';
+import {
+  ANGLE_LIMITS,
+  CAMERA_CONSTRAINTS,
+  selectControlType,
+  selectIsAnimating,
+  selectPosition,
+  selectSyncCameraPosition,
+  selectTarget,
+  useCameraStore,
+} from '@/experience/scenes/store/cameraStore';
 import { Box, MapControls, PerspectiveCamera } from '@react-three/drei';
 import { button, folder, useControls } from 'leva';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { MathUtils, PerspectiveCamera as ThreePerspectiveCamera, Vector3 } from 'three';
-
-const BOUNDARY_LIMITS = {
-  minX: -200,
-  maxX: 200,
-  minY: -400,
-  maxY: 400,
-  minZ: -200,
-  maxZ: 400,
-};
-
-// Define angle limits
-const ANGLE_LIMITS = {
-  minPolar: 0,
-  maxPolar: Math.PI / 2,
-  minAzimuth: -Math.PI / 4,
-  maxAzimuth: Math.PI / 4,
-};
 
 // Typed debounce utility function
 function debounce<T extends (...args: any[]) => void>(
@@ -39,8 +31,15 @@ export function MainSceneCameraSystem() {
   const isUpdatingRef = useRef(false);
   const animationFrameRef = useRef<number | null>(null);
 
-  const { controlType, isAnimating, position, target, syncCameraPosition, startCameraTransition } =
-    useCameraStore();
+  // Performance optimization: Use individual selectors to only subscribe to needed state
+  // This prevents re-renders when unrelated store fields change and avoids object creation
+  const controlType = useCameraStore(selectControlType);
+  const isAnimating = useCameraStore(selectIsAnimating);
+  const position = useCameraStore(selectPosition);
+  const target = useCameraStore(selectTarget);
+
+  // Actions don't cause re-renders, can be selected separately
+  const syncCameraPosition = useCameraStore(selectSyncCameraPosition);
 
   // Memoize position and target as Vector3 to avoid recreation
   const positionVector = useMemo(
@@ -169,57 +168,52 @@ export function MainSceneCameraSystem() {
   useControls(
     'Main Camera Controls',
     {
-      'Main Scene': folder(
-        {
-          position: folder({
-            positionX: {
-              value: position.x,
-              min: -400,
-              max: 400,
-              step: 0.1,
-              onChange: v => updatePosition('x', v),
-            },
-            positionY: {
-              value: position.y,
-              min: -400,
-              max: 400,
-              step: 0.1,
-              onChange: v => updatePosition('y', v),
-            },
-            positionZ: {
-              value: position.z,
-              min: -400,
-              max: 400,
-              step: 0.1,
-              onChange: v => updatePosition('z', v),
-            },
-          }),
-          target: folder({
-            targetX: {
-              value: target.x,
-              min: -400,
-              max: 400,
-              step: 0.1,
-              onChange: v => updateTarget('x', v),
-            },
-            targetY: {
-              value: target.y,
-              min: -400,
-              max: 400,
-              step: 0.1,
-              onChange: v => updateTarget('y', v),
-            },
-            targetZ: {
-              value: target.z,
-              min: -400,
-              max: 400,
-              step: 0.1,
-              onChange: v => updateTarget('z', v),
-            },
-          }),
+      position: folder({
+        positionX: {
+          value: position.x,
+          min: -400,
+          max: 400,
+          step: 0.1,
+          onChange: v => updatePosition('x', v),
         },
-        { collapsed: true }
-      ),
+        positionY: {
+          value: position.y,
+          min: -400,
+          max: 400,
+          step: 0.1,
+          onChange: v => updatePosition('y', v),
+        },
+        positionZ: {
+          value: position.z,
+          min: -400,
+          max: 400,
+          step: 0.1,
+          onChange: v => updatePosition('z', v),
+        },
+      }),
+      target: folder({
+        targetX: {
+          value: target.x,
+          min: -400,
+          max: 400,
+          step: 0.1,
+          onChange: v => updateTarget('x', v),
+        },
+        targetY: {
+          value: target.y,
+          min: -400,
+          max: 400,
+          step: 0.1,
+          onChange: v => updateTarget('y', v),
+        },
+        targetZ: {
+          value: target.z,
+          min: -400,
+          max: 400,
+          step: 0.1,
+          onChange: v => updateTarget('z', v),
+        },
+      }),
     },
     { collapsed: true }
   );
@@ -228,10 +222,9 @@ export function MainSceneCameraSystem() {
   useEffect(() => {
     if (!cameraRef.current) return;
 
-    // Use memoized vectors directly
     cameraRef.current.position.copy(positionVector);
     cameraRef.current.lookAt(targetVector);
-  }, [positionVector, targetVector, isAnimating, controlType]);
+  }, [positionVector, targetVector]);
 
   // Debounced version of the controls change handler
   const debouncedHandleControlsChange = useCallback(
@@ -244,21 +237,21 @@ export function MainSceneCameraSystem() {
       const currentPosition = cameraRef.current.position;
       const currentTarget = controlsRef.current.target;
 
-      // Apply constraints
+      // Apply constraints derived from camera positions (single source of truth)
       currentPosition.x = MathUtils.clamp(
         currentPosition.x,
-        BOUNDARY_LIMITS.minX,
-        BOUNDARY_LIMITS.maxX
+        CAMERA_CONSTRAINTS.bounds.minX,
+        CAMERA_CONSTRAINTS.bounds.maxX
       );
       currentPosition.y = MathUtils.clamp(
         currentPosition.y,
-        BOUNDARY_LIMITS.minY,
-        BOUNDARY_LIMITS.maxY
+        CAMERA_CONSTRAINTS.bounds.minY,
+        CAMERA_CONSTRAINTS.bounds.maxY
       );
       currentPosition.z = MathUtils.clamp(
         currentPosition.z,
-        BOUNDARY_LIMITS.minZ,
-        BOUNDARY_LIMITS.maxZ
+        CAMERA_CONSTRAINTS.bounds.minZ,
+        CAMERA_CONSTRAINTS.bounds.maxZ
       );
 
       // Always sync current camera state to the store (debounced)
@@ -274,12 +267,7 @@ export function MainSceneCameraSystem() {
       <PerspectiveCamera
         ref={cameraRef}
         makeDefault
-        position={[position.x, position.y, position.z]}
-        onUpdate={(cam: any) => {
-          // Ensure the default camera is looking at the current target on mount/update
-          cam.lookAt(target.x, target.y, target.z);
-        }}
-        // Slightly narrower fov reduces geometric aliasing during motion
+        // Position managed by useEffect to avoid redundant updates
         fov={45}
       />
       {debugControls.showTargetCube && (
@@ -295,7 +283,7 @@ export function MainSceneCameraSystem() {
         <MapControls
           ref={controlsRef}
           target={[target.x, target.y, target.z]}
-          // Use the angle limits defined above
+          // Angle constraints for camera orientation
           maxPolarAngle={ANGLE_LIMITS.maxPolar}
           minPolarAngle={ANGLE_LIMITS.minPolar}
           maxAzimuthAngle={ANGLE_LIMITS.maxAzimuth}
@@ -303,8 +291,9 @@ export function MainSceneCameraSystem() {
           enableDamping={true}
           dampingFactor={0.08}
           rotateSpeed={0.5}
-          maxDistance={250}
-          minDistance={10}
+          // Distance constraints derived from camera positions (single source of truth)
+          maxDistance={CAMERA_CONSTRAINTS.maxDistance}
+          minDistance={CAMERA_CONSTRAINTS.minDistance}
           onChange={debouncedHandleControlsChange}
           enabled={!isAnimating && controlType === 'Map'}
         />

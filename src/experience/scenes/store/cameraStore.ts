@@ -1,64 +1,27 @@
+/**
+ * Camera Store - Domain-Driven Design Implementation
+ * This is the main store file that should be imported by domain layer components
+ * UI components should use selectors from './camera/cameraSelectors' for optimal performance
+ */
+
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import gsap from 'gsap';
 import { Vector3 } from 'three';
 import { create } from 'zustand';
+import { CAMERA_CONFIG, INITIAL_POSITIONS } from './camera/cameraConfig';
+import type { CameraStore } from './camera/cameraTypes';
 
-type CameraState = 'main' | 'previous' | 'current';
-type ControlType = 'Map' | 'CameraControls' | 'Disabled';
+// Re-export domain types and config for convenience
+export { CAMERA_CONFIG, INITIAL_POSITIONS } from './camera/cameraConfig';
+export type { CameraState, ControlType, IntroPhase } from './camera/cameraTypes';
 
-interface CameraStore {
-  // Camera Properties
-  position: Vector3;
-  target: Vector3;
-  previousPosition: Vector3 | null;
-  previousTarget: Vector3 | null;
-  selectedPoi: any | null;
-
-  // State Properties
-  controlType: ControlType;
-  isAnimating: boolean;
-  state: CameraState;
-  isLoading: boolean;
-  firstTimeLoading: boolean;
-  // Camera Actions
-  setCamera: (position: Vector3, target: Vector3, state?: CameraState) => void;
-  setPreviousCamera: (position: Vector3, target: Vector3) => void;
-  restorePreviousCamera: () => void;
-  resetToInitial: () => void;
-  startCameraTransition: (
-    startPos: Vector3,
-    endPos: Vector3,
-    startTarget: Vector3,
-    endTarget: Vector3
-  ) => void;
-
-  // State Actions
-  setControlType: (type: ControlType) => void;
-  setIsAnimating: (state: boolean) => void;
-  setIsLoading: (state: boolean) => void;
-  setSelectedPoi: (poi: any | null) => void;
-  reset: () => void;
-
-  // New action
-  syncCameraPosition: (position: Vector3, target: Vector3) => void;
-
-  // Add to CameraStore interface
-  currentPoiIndex: number;
-  setCurrentPoiIndex: (index: number) => void;
-  navigateToNextPoi: (points: any[]) => void;
-  navigateToPreviousPoi: (points: any[]) => void;
-}
-
-export const INITIAL_POSITIONS = {
-  mainIntro: {
-    position: new Vector3(-606.4, 120, 80),
-    target: new Vector3(-20.15, 50, 0),
-  },
-  main: {
-    position: new Vector3(-16.12, 95.86, 229.55),
-    target: new Vector3(-20.15, 22, -1.06),
-  },
-} as const;
+// Re-export backwards compatibility aliases
+export const CAMERA_CONSTRAINTS = {
+  bounds: CAMERA_CONFIG.constraints.bounds,
+  maxDistance: CAMERA_CONFIG.constraints.distance.max,
+  minDistance: CAMERA_CONFIG.constraints.distance.min,
+};
+export const ANGLE_LIMITS = CAMERA_CONFIG.constraints.angles;
 
 export const useCameraStore = create<CameraStore>((set, get) => ({
   // Initial State
@@ -67,31 +30,26 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   previousPosition: null,
   previousTarget: null,
   controlType: 'Disabled',
-  isAnimating: true,
+  isAnimating: false,
   state: 'main',
-  isLoading: false,
+  isLoading: true,
   selectedPoi: null,
   currentPoiIndex: 0,
   firstTimeLoading: true,
-
+  introPhase: 'intro',
+  activeTimeline: null,
   // Camera Actions
   resetToInitial: () => {
-    // Always start from mainIntro and animate to main
+    useLogoMarkerStore.getState().setOtherMarkersVisible(false);
+
+    // Reset to intro state and wait for loading to complete
     set({
+      introPhase: 'intro',
       position: INITIAL_POSITIONS.mainIntro.position.clone(),
       target: INITIAL_POSITIONS.mainIntro.target.clone(),
-      isAnimating: true,
+      isAnimating: false,
       controlType: 'Disabled',
-    });
-
-    // Delay one frame to ensure renderer/canvas settled to avoid flicker, then start
-    requestAnimationFrame(() => {
-      get().startCameraTransition(
-        INITIAL_POSITIONS.mainIntro.position,
-        INITIAL_POSITIONS.main.position,
-        INITIAL_POSITIONS.mainIntro.target,
-        INITIAL_POSITIONS.main.target
-      );
+      isLoading: true,
     });
   },
 
@@ -150,7 +108,12 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         // Allow next frame(s) to settle before enabling controls
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            if (get().state === 'main' && !get().isAnimating) {
+            const currentStore = get();
+            if (
+              currentStore.state === 'main' &&
+              !currentStore.isAnimating &&
+              currentStore.introPhase === 'complete'
+            ) {
               set({ controlType: 'Map' });
             }
           });
@@ -164,14 +127,68 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
 
   setSelectedPoi: poi => set({ selectedPoi: poi }),
 
+  beginIntroTransition: () => {
+    const { introPhase, isAnimating, position, target } = get();
+
+    console.log('[beginIntroTransition] CALLED', {
+      introPhase,
+      isAnimating,
+      willRun: introPhase === 'intro' && !isAnimating,
+    });
+
+    if (introPhase !== 'intro' || isAnimating) {
+      console.warn('[beginIntroTransition] BLOCKED - Guard condition failed', {
+        introPhase,
+        isAnimating,
+        reason: introPhase !== 'intro' ? 'introPhase is not "intro"' : 'isAnimating is true',
+      });
+      return;
+    }
+
+    console.log('[beginIntroTransition] START', {
+      position: `(${position.x.toFixed(2)}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)})`,
+      target: `(${target.x.toFixed(2)}, ${target.y.toFixed(2)}, ${target.z.toFixed(2)})`,
+    });
+
+    useLogoMarkerStore.getState().setOtherMarkersVisible(false);
+
+    // Atomic state update - only update state flags, not position/target
+    // Don't clone position/target to avoid triggering unnecessary re-renders
+    set({
+      introPhase: 'transition',
+      isAnimating: true,
+      controlType: 'Disabled',
+    });
+
+    console.log('[beginIntroTransition] After set(), before GSAP');
+
+    // Start GSAP animation with current position as starting point
+    get().startCameraTransition(
+      position,
+      INITIAL_POSITIONS.main.position,
+      target,
+      INITIAL_POSITIONS.main.target
+    );
+  },
+
   // Animation using GSAP instead of animationUtils
   startCameraTransition: (startPos, endPos, startTarget, endTarget) => {
-    // Force clean state for the intro animation
-    set({
-      controlType: 'Disabled',
-      isAnimating: true,
-      isLoading: false,
+    // Position/target should already be set by caller to avoid race conditions
+    // GSAP will handle updates during animation via onUpdate callback
+
+    console.log('[startCameraTransition] Received:', {
+      startPos: `(${startPos.x.toFixed(2)}, ${startPos.y.toFixed(2)}, ${startPos.z.toFixed(2)})`,
+      startTarget: `(${startTarget.x.toFixed(2)}, ${startTarget.y.toFixed(2)}, ${startTarget.z.toFixed(2)})`,
+      endPos: `(${endPos.x.toFixed(2)}, ${endPos.y.toFixed(2)}, ${endPos.z.toFixed(2)})`,
+      endTarget: `(${endTarget.x.toFixed(2)}, ${endTarget.y.toFixed(2)}, ${endTarget.z.toFixed(2)})`,
     });
+
+    // Kill any existing timeline to prevent conflicts
+    const existingTimeline = get().activeTimeline;
+    if (existingTimeline) {
+      console.log('[startCameraTransition] Killing existing timeline');
+      existingTimeline.kill();
+    }
 
     // Create proxy objects for GSAP to animate
     const positionProxy = {
@@ -190,16 +207,40 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
     const newPosition = new Vector3();
     const newTarget = new Vector3();
 
+    let frameCount = 0;
     // Create a GSAP timeline for better control
     const tl = gsap.timeline({
+      onStart: () => {
+        console.log('[GSAP Timeline] Started');
+      },
       onUpdate: () => {
         // Update the store with the new position and target during animation
         // Reuse Vector3 instances instead of creating new ones each frame
         newPosition.set(positionProxy.x, positionProxy.y, positionProxy.z);
         newTarget.set(targetProxy.x, targetProxy.y, targetProxy.z);
-        set({ position: newPosition, target: newTarget });
+
+        if (frameCount < 3) {
+          console.log(`[GSAP Frame ${frameCount}]`, {
+            position: `(${positionProxy.x.toFixed(2)}, ${positionProxy.y.toFixed(2)}, ${positionProxy.z.toFixed(2)})`,
+            target: `(${targetProxy.x.toFixed(2)}, ${targetProxy.y.toFixed(2)}, ${targetProxy.z.toFixed(2)})`,
+          });
+        }
+        frameCount++;
+
+        // Clone vectors before setting to avoid reference issues
+        set({ position: newPosition.clone(), target: newTarget.clone() });
       },
       onComplete: () => {
+        console.log('[GSAP Timeline] Completed');
+
+        set({
+          introPhase: 'complete',
+          firstTimeLoading: false,
+          controlType: 'Map',
+          activeTimeline: null, // Clear timeline reference
+        });
+        useLogoMarkerStore.getState().setOtherMarkersVisible(true);
+
         // Use the final values directly to avoid unnecessary object creation
         newPosition.copy(endPos);
         newTarget.copy(endTarget);
@@ -228,8 +269,8 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         x: endPos.x,
         y: endPos.y,
         z: endPos.z,
-        duration: 6,
-        ease: 'power2.inOut',
+        duration: CAMERA_CONFIG.animation.introDuration,
+        ease: CAMERA_CONFIG.animation.introEase,
         overwrite: 'auto', // Prevents conflicting animations
         lazy: false, // Improves accuracy for 3D animations
       },
@@ -242,18 +283,24 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         x: endTarget.x,
         y: endTarget.y,
         z: endTarget.z,
-        duration: 6,
-        ease: 'power2.inOut',
+        duration: CAMERA_CONFIG.animation.introDuration,
+        ease: CAMERA_CONFIG.animation.introEase,
         overwrite: 'auto',
         lazy: false,
       },
       0
     );
 
-    // Stabilize DPR during the first 0.75s of the intro movement to avoid flicker
-    tl.add(() => {
-      // lock animating flag to true early (already true), then release a bit later
-    }, 0);
+    console.log(
+      '[GSAP Timeline] Duration:',
+      tl.duration(),
+      'seconds (configured:',
+      CAMERA_CONFIG.animation.introDuration,
+      's)'
+    );
+
+    // Store timeline in state to prevent it from being garbage collected
+    set({ activeTimeline: tl });
   },
 
   // New action
@@ -267,76 +314,113 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   setCurrentPoiIndex: index => set({ currentPoiIndex: index }),
 
   navigateToNextPoi: points => {
-    const currentIndex = get().currentPoiIndex;
-    const nextIndex = (currentIndex + 1) % points.length;
+    const { currentPoiIndex, position, target } = get();
+    const nextIndex = (currentPoiIndex + 1) % points.length;
     const nextPoi = points[nextIndex];
 
     if (nextPoi.cameraPosition && nextPoi.cameraTarget) {
-      set({ currentPoiIndex: nextIndex });
+      // Atomic state update to prevent race conditions
+      set({
+        currentPoiIndex: nextIndex,
+        isAnimating: true,
+        controlType: 'Disabled',
+        selectedPoi: nextPoi,
+      });
+
       get().startCameraTransition(
-        get().position,
+        position,
         new Vector3(nextPoi.cameraPosition.x, nextPoi.cameraPosition.y, nextPoi.cameraPosition.z),
-        get().target,
+        target,
         new Vector3(nextPoi.cameraTarget.x, nextPoi.cameraTarget.y, nextPoi.cameraTarget.z)
       );
-      get().setSelectedPoi(nextPoi);
     }
   },
 
   navigateToPreviousPoi: points => {
-    const currentIndex = get().currentPoiIndex;
-    const previousIndex = currentIndex === 0 ? points.length - 1 : currentIndex - 1;
+    const { currentPoiIndex, position, target } = get();
+    const previousIndex = currentPoiIndex === 0 ? points.length - 1 : currentPoiIndex - 1;
     const previousPoi = points[previousIndex];
 
     if (previousPoi.cameraPosition && previousPoi.cameraTarget) {
-      set({ currentPoiIndex: previousIndex });
+      // Atomic state update to prevent race conditions
+      set({
+        currentPoiIndex: previousIndex,
+        isAnimating: true,
+        controlType: 'Disabled',
+        selectedPoi: previousPoi,
+      });
+
       get().startCameraTransition(
-        get().position,
+        position,
         new Vector3(
           previousPoi.cameraPosition.x,
           previousPoi.cameraPosition.y,
           previousPoi.cameraPosition.z
         ),
-        get().target,
+        target,
         new Vector3(
           previousPoi.cameraTarget.x,
           previousPoi.cameraTarget.y,
           previousPoi.cameraTarget.z
         )
       );
-      get().setSelectedPoi(previousPoi);
     }
   },
 
   reset: () => {
-    const startPos = INITIAL_POSITIONS.mainIntro.position.clone();
-    const startTarget = INITIAL_POSITIONS.mainIntro.target.clone();
-
-    // Immediately set the camera to the starting position to prevent any flash
+    // Reset to initial intro state and wait for loading to complete
+    useLogoMarkerStore.getState().setOtherMarkersVisible(false);
     set({
-      // Set position and target immediately
-      position: startPos.clone(),
-      target: startTarget.clone(),
-
-      // Reset all other state properties
+      position: INITIAL_POSITIONS.mainIntro.position.clone(),
+      target: INITIAL_POSITIONS.mainIntro.target.clone(),
       controlType: 'Disabled',
-      isAnimating: true,
+      isAnimating: false,
       state: 'main',
-      isLoading: true, // Set to true while initializing
+      isLoading: true,
       currentPoiIndex: 0,
       firstTimeLoading: true,
       selectedPoi: null,
       previousPosition: null,
       previousTarget: null,
+      introPhase: 'intro',
     });
-
-    // Start transition immediately without timeouts
-    set({ isLoading: false });
-    get().startCameraTransition(
-      startPos,
-      INITIAL_POSITIONS.main.position,
-      startTarget,
-      INITIAL_POSITIONS.main.target
-    );
   },
 }));
+
+/**
+ * Re-export optimized selectors for UI components
+ * Using these selectors prevents unnecessary re-renders by subscribing only to needed state slices
+ *
+ * @example
+ * // BAD - subscribes to entire store, re-renders on every position update (60fps)
+ * const { isLoading, introPhase } = useCameraStore();
+ *
+ * // GOOD - only subscribes to specific fields, re-renders only when they change
+ * const isLoading = useCameraStore(selectIsLoading);
+ * const introPhase = useCameraStore(selectIntroPhase);
+ */
+export {
+  // Action Selectors
+  selectBeginIntroTransition,
+  // Camera State Selectors
+  selectControlType,
+  // POI Selectors
+  selectCurrentPoiIndex,
+  // UI Layer Selectors
+  selectIntroPhase,
+  selectIsAnimating,
+  selectIsLoading,
+  selectNavigateToNextPoi,
+  selectNavigateToPreviousPoi,
+  selectPosition,
+  selectResetToInitial,
+  selectSelectedPoi,
+  selectSetCamera,
+  selectSetControlType,
+  selectSetCurrentPoiIndex,
+  selectSetIsAnimating,
+  selectSetSelectedPoi,
+  selectStartCameraTransition,
+  selectSyncCameraPosition,
+  selectTarget,
+} from './camera/cameraSelectors';

@@ -1,12 +1,17 @@
 'use client';
+import { useCursorStore } from '@/components/ui/cursorStore';
 import { LogoMarker } from '@/experience/components/markers/LogoMarker';
-import { useCameraStore } from '@/experience/scenes/store/cameraStore';
+import {
+  selectSetControlType,
+  selectSetIsAnimating,
+  selectSyncCameraPosition,
+  useCameraStore,
+} from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { animateCameraMovement } from '@/experience/utils/animationUtils';
 import { Float, Html, useCursor } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { useCallback, useEffect, useRef } from 'react';
-import { useCursorStore } from '@/components/ui/cursorStore';
 import * as THREE from 'three';
 import { Vector3 } from 'three';
 
@@ -191,7 +196,11 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     hoveredMarkerId,
     setHoveredMarkerId,
   } = useLogoMarkerStore();
-  const { setControlType, setIsAnimating, syncCameraPosition } = useCameraStore();
+
+  // Performance optimization: Use individual selectors to prevent re-renders during camera animation
+  const setControlType = useCameraStore(selectSetControlType);
+  const setIsAnimating = useCameraStore(selectSetIsAnimating);
+  const syncCameraPosition = useCameraStore(selectSyncCameraPosition);
 
   // Refs to track animation frames and timeouts for cleanup
   const animationFrameRef = useRef<number | (() => void) | null>(null);
