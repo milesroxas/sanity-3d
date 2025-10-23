@@ -37,8 +37,8 @@ export default function Header({ nav, settings, mediaExperienceVideo }: HeaderPr
   // Navigation store
   const { setHeaderVisible, setNavVisible, setExperiencePage, closeMenu } = useNavigationStore();
 
-  const isExperiencePage = pathname === '/experience' || pathname.startsWith('/experience/');
-  const isLandingPage = pathname === '/';
+  const isExperiencePage = pathname === '/';
+  const isLandingPage = false;
 
   // Update experience page state when pathname changes
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function Header({ nav, settings, mediaExperienceVideo }: HeaderPr
     closeMenu();
 
     // Reset selected scene when navigating to the main experience page
-    if (pathname === '/experience') {
+    if (pathname === '/') {
       setSelectedScene(null);
     }
 

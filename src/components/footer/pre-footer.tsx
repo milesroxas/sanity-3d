@@ -10,7 +10,7 @@ export default function PreFooter() {
   const pathname = usePathname();
   const iconRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  if (pathname === '/' || pathname === '/experience' || pathname?.startsWith('/experience/')) {
+  if (pathname === '/') {
     return null;
   }
 

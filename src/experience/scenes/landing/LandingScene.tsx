@@ -515,7 +515,7 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
           'main'
         );
         cameraStore.setIsLoading(true);
-        router.push('/experience');
+        router.push('/');
       },
     });
 

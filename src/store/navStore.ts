@@ -174,9 +174,13 @@ export const getLinkData = (link: any) => {
   if (!link) return { label: '', href: '#', target: false };
 
   if (link._type === 'pageLink' && link.page?.slug) {
+    const rawSlug =
+      typeof link.page.slug === 'string' ? link.page.slug : link.page.slug?.current;
+    const cleanedSlug = (rawSlug || '').replace(/^\/+/g, '');
+    const href = cleanedSlug === 'experience' ? '/' : `/${cleanedSlug}`;
     return {
       label: link.title || '',
-      href: `/${link.page.slug.current || link.page.slug}`,
+      href,
       target: false,
     };
   }
@@ -193,9 +197,10 @@ export const getLinkData = (link: any) => {
   }
 
   if (link.url) {
+    const href = link.url === 'experience' || link.url === '/experience' ? '/' : link.url;
     return {
       label: link.title || '',
-      href: link.url,
+      href,
       target: link.openInNewTab || false,
     };
   }

@@ -43,7 +43,7 @@ export function LinkButton({
 
   // Keep your existing experience-page reset behavior
   useEffect(() => {
-    const isExperiencePage = pathname === '/experience' || pathname.startsWith('/experience/');
+    const isExperiencePage = pathname === '/';
     if (!isExperiencePage) {
       gsap.set('main', { opacity: 1, pointerEvents: 'auto' });
       setSelectedScene(null);
@@ -80,18 +80,21 @@ export function LinkButton({
     if (!pageLink.page?.slug?.current) return null;
     const buttonVariant = variant ?? stegaClean(pageLink.buttonVariant);
     const title = pageLink.title;
+    const rawSlug = (pageLink.page.slug?.current || pageLink.page.slug || '').toString();
+    const normalizedSlug = (rawSlug || '').replace(/^\/+/g, '');
+    const href = normalizedSlug === 'experience' ? '/' : `/${normalizedSlug}`;
 
     return (
       <Button asChild variant={buttonVariant} size={size} className={className} {...buttonProps}>
         <Link
-          href={`/${pageLink.page.slug.current}`}
+          href={href}
           onClick={e => {
             window.dispatchEvent(new CustomEvent('forceNavVisible'));
             const overlayOpen = !!useExpandedContentStore.getState().isVisible;
             onClick?.();
             if (transitionCtx && overlayOpen) {
               e.preventDefault();
-              transitionCtx.triggerTransition(`/${pageLink.page.slug.current}`, () => {
+              transitionCtx.triggerTransition(href, () => {
                 try {
                   useExpandedContentStore.getState().closeExpandedContent();
                   useLogoMarkerStore.getState().reset();
@@ -148,11 +151,19 @@ export function LinkButton({
     const EffectiveIcon: LucideIcon | undefined = Icon ?? (isExternal ? ExternalLink : undefined);
     const buttonVariant = variant ?? stegaClean(customLink.buttonVariant);
     const title = customLink.title;
+    let resolvedHref = customLink.href || '#';
+    if (!isExternal) {
+      if (resolvedHref === 'experience' || resolvedHref === '/experience') {
+        resolvedHref = '/';
+      } else if (!resolvedHref.startsWith('/')) {
+        resolvedHref = `/${resolvedHref}`;
+      }
+    }
 
     return (
       <Button asChild variant={buttonVariant} size={size} className={className} {...buttonProps}>
         <Link
-          href={customLink.href}
+          href={resolvedHref}
           target={isExternal ? '_blank' : undefined}
           rel={isExternal ? 'noopener' : undefined}
           onClick={e => {
@@ -165,7 +176,7 @@ export function LinkButton({
               window.location.href = customLink.href;
             } else if (transitionCtx && overlayOpen) {
               e.preventDefault();
-              transitionCtx.triggerTransition(customLink.href, () => {
+              transitionCtx.triggerTransition(resolvedHref, () => {
                 try {
                   useExpandedContentStore.getState().closeExpandedContent();
                   useLogoMarkerStore.getState().reset();

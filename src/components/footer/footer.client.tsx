@@ -57,59 +57,59 @@ export default function FooterClient({ nav, settings }: FooterClientProps) {
   const pathname = usePathname();
 
   // Hide footer on homepage and experience pages
-  if (pathname === '/' || pathname === '/experience' || pathname?.startsWith('/experience/')) {
+  if (pathname === '/') {
     return null;
   }
 
   const getLink = (link: any) => {
     if (!link) return { label: '', href: '#', target: false };
 
-    // For pageLink type with page reference
     if (link._type === 'pageLink' && link.page?.slug) {
+      const pageSlug = (link.page.slug.current || link.page.slug || '').replace(/^\/+/g, '');
+      const href = pageSlug === 'experience' ? '/' : `/${pageSlug}`;
       return {
         label: link.title || '',
-        href: `/${link.page.slug}`,
+        href,
         target: false,
       };
     }
 
-    // For legalLink type with legal reference
     if (link._type === 'legalLink' && link.legal?.slug) {
+      const legalSlug = (link.legal.slug.current || link.legal.slug || '').replace(/^\/+/g, '');
       return {
         label: link.title || '',
-        href: `/${link.legal.slug}`,
+        href: `/${legalSlug}`,
         target: false,
       };
     }
 
-    // For servicesLink type with services reference
     if (link._type === 'servicesLink' && link.services?.slug) {
+      const servicesSlug = (link.services.slug.current || link.services.slug || '').replace(/^\/+/g, '');
       return {
         label: link.title || '',
-        href: `/${link.services.slug}`,
+        href: `/${servicesSlug}`,
         target: false,
       };
     }
 
-    // For service link type (fallback for older structure)
     if (link.services?.slug) {
+      const servicesSlug = (link.services.slug.current || link.services.slug || '').replace(/^\/+/g, '');
       return {
         label: link.title || '',
-        href: `/${link.services.slug}`,
+        href: `/${servicesSlug}`,
         target: false,
       };
     }
 
-    // For external links
     if (link.url) {
+      const href = link.url === 'experience' || link.url === '/experience' ? '/' : link.url;
       return {
         label: link.title || '',
-        href: link.url,
+        href,
         target: link.openInNewTab || false,
       };
     }
 
-    // Fallback - if we have a title but no valid link, still show it for debugging
     return {
       label: link.title || '',
       href: '#',

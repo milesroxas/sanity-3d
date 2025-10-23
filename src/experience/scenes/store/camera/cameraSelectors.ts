@@ -13,6 +13,7 @@ import { CameraStore } from './cameraTypes';
 // For components that need to know about intro state but not camera position updates
 
 export const selectIsLoading = (state: CameraStore) => state.isLoading;
+export const selectFirstTimeLoading = (state: CameraStore) => state.firstTimeLoading;
 export const selectIntroPhase = (state: CameraStore) => state.introPhase;
 
 // === Camera Position Selectors ===
@@ -32,6 +33,7 @@ export const selectResetToInitial = (state: CameraStore) => state.resetToInitial
 export const selectBeginIntroTransition = (state: CameraStore) => state.beginIntroTransition;
 export const selectSyncCameraPosition = (state: CameraStore) => state.syncCameraPosition;
 export const selectSetControlType = (state: CameraStore) => state.setControlType;
+export const selectSetIsLoading = (state: CameraStore) => state.setIsLoading;
 export const selectSetIsAnimating = (state: CameraStore) => state.setIsAnimating;
 export const selectSetCamera = (state: CameraStore) => state.setCamera;
 export const selectStartCameraTransition = (state: CameraStore) => state.startCameraTransition;

@@ -694,7 +694,7 @@ export default function DesktopNav({ nav, settings, experienceMediaVideo }: Desk
                   // Default Experience card (row-span-2)
                   <Link
                     ref={experienceCardRef}
-                    href="/experience"
+                    href="/"
                     className="experience-card group relative row-span-2 block h-full w-full overflow-hidden rounded-lg hover:text-primary"
                     onMouseEnter={() => handleExperienceHover(true)}
                     onMouseLeave={() => handleExperienceHover(false)}

@@ -98,9 +98,12 @@ export default function MobileNav({
 
     // For pageLink type with page reference
     if (link._type === 'pageLink' && link.page?.slug) {
+      const rawSlug = link.page.slug.current || link.page.slug;
+      const normalized = (rawSlug || '').replace(/^\/+/g, '');
+      const href = normalized === 'experience' ? '/' : `/${normalized}`;
       return {
         label: link.title || '',
-        href: `/${link.page.slug.current || link.page.slug}`,
+        href,
         target: false,
       };
     }
@@ -120,9 +123,11 @@ export default function MobileNav({
 
     // For external links
     if (link.url) {
+      const href =
+        link.url === 'experience' || link.url === '/experience' ? '/' : link.url;
       return {
         label: link.title || '',
-        href: link.url,
+        href,
         target: link.openInNewTab || false,
       };
     }
@@ -270,7 +275,7 @@ export default function MobileNav({
             {/* Experience Link with Image */}
             <div className="mb-8">
               <Link
-                href="/experience"
+                href="/"
                 onClick={handleExperienceClick}
                 className="group flex flex-col items-start"
               >

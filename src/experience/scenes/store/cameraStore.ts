@@ -130,12 +130,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   beginIntroTransition: () => {
     const { introPhase, isAnimating, position, target } = get();
 
-    console.log('[beginIntroTransition] CALLED', {
-      introPhase,
-      isAnimating,
-      willRun: introPhase === 'intro' && !isAnimating,
-    });
-
     if (introPhase !== 'intro' || isAnimating) {
       console.warn('[beginIntroTransition] BLOCKED - Guard condition failed', {
         introPhase,
@@ -160,8 +154,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
       controlType: 'Disabled',
     });
 
-    console.log('[beginIntroTransition] After set(), before GSAP');
-
     // Start GSAP animation with current position as starting point
     get().startCameraTransition(
       position,
@@ -175,13 +167,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   startCameraTransition: (startPos, endPos, startTarget, endTarget) => {
     // Position/target should already be set by caller to avoid race conditions
     // GSAP will handle updates during animation via onUpdate callback
-
-    console.log('[startCameraTransition] Received:', {
-      startPos: `(${startPos.x.toFixed(2)}, ${startPos.y.toFixed(2)}, ${startPos.z.toFixed(2)})`,
-      startTarget: `(${startTarget.x.toFixed(2)}, ${startTarget.y.toFixed(2)}, ${startTarget.z.toFixed(2)})`,
-      endPos: `(${endPos.x.toFixed(2)}, ${endPos.y.toFixed(2)}, ${endPos.z.toFixed(2)})`,
-      endTarget: `(${endTarget.x.toFixed(2)}, ${endTarget.y.toFixed(2)}, ${endTarget.z.toFixed(2)})`,
-    });
 
     // Kill any existing timeline to prevent conflicts
     const existingTimeline = get().activeTimeline;
@@ -210,9 +195,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
     let frameCount = 0;
     // Create a GSAP timeline for better control
     const tl = gsap.timeline({
-      onStart: () => {
-        console.log('[GSAP Timeline] Started');
-      },
       onUpdate: () => {
         // Update the store with the new position and target during animation
         // Reuse Vector3 instances instead of creating new ones each frame
@@ -231,8 +213,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         set({ position: newPosition.clone(), target: newTarget.clone() });
       },
       onComplete: () => {
-        console.log('[GSAP Timeline] Completed');
-
         set({
           introPhase: 'complete',
           firstTimeLoading: false,
@@ -289,14 +269,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         lazy: false,
       },
       0
-    );
-
-    console.log(
-      '[GSAP Timeline] Duration:',
-      tl.duration(),
-      'seconds (configured:',
-      CAMERA_CONFIG.animation.introDuration,
-      's)'
     );
 
     // Store timeline in state to prevent it from being garbage collected
@@ -404,6 +376,7 @@ export {
   selectBeginIntroTransition,
   // Camera State Selectors
   selectControlType,
+  selectFirstTimeLoading,
   // POI Selectors
   selectCurrentPoiIndex,
   // UI Layer Selectors
@@ -420,6 +393,7 @@ export {
   selectSetCurrentPoiIndex,
   selectSetIsAnimating,
   selectSetSelectedPoi,
+  selectSetIsLoading,
   selectStartCameraTransition,
   selectSyncCameraPosition,
   selectTarget,

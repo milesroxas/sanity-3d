@@ -4,6 +4,11 @@ import {
   PresentationPluginOptions,
 } from "sanity/presentation";
 
+const mapSceneSlugToPath = (slug?: string | null) => {
+  const sanitized = (slug || '').replace(/^\/+/g, '');
+  return sanitized === 'experience' || sanitized === '' ? '/' : `/${sanitized}`;
+};
+
 export const resolve: PresentationPluginOptions["resolve"] = {
   locations: {
     // Add more locations for other post types
@@ -42,9 +47,9 @@ export const resolve: PresentationPluginOptions["resolve"] = {
           locations: [
             {
               title: doc?.title || "Untitled",
-              href: `/experience/${doc?.slug}`,
+              href: mapSceneSlugToPath(doc?.slug),
             },
-            { title: "Experience", href: `/experience` },
+            { title: "Experience", href: "/" },
           ],
         };
       },
@@ -64,8 +69,8 @@ export const resolve: PresentationPluginOptions["resolve"] = {
       filter: `_type == 'post' && slug.current == $slug`,
     },
     {
-      route: "/experience/:slug",
-      filter: `_type == 'scenes' && slug.current == $slug`,
+      route: "/",
+      filter: `_type == 'scenes' && slug.current == 'experience'`,
     },
   ]),
 };

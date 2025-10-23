@@ -1,4 +1,5 @@
 import { fetchSanitySceneBySlug } from '@/app/(main)/actions';
+import { stegaClean } from 'next-sanity';
 import { Vector3 } from 'three';
 import { create } from 'zustand';
 
@@ -37,7 +38,9 @@ export const useLogoMarkerStore = create<LogoMarkerStore>(set => ({
   hoveredMarkerId: null,
 
   // Actions
-  setSelectedScene: scene => set({ selectedScene: scene }),
+  setSelectedScene: scene => {
+    set({ selectedScene: scene });
+  },
   setContentVisible: visible => set({ isContentVisible: visible }),
   setIsLoading: loading => set({ isLoading: loading }),
   setShouldAnimateBack: should => {
@@ -53,9 +56,23 @@ export const useLogoMarkerStore = create<LogoMarkerStore>(set => ({
   setHoveredMarkerId: id => set({ hoveredMarkerId: id }),
 
   fetchAndSetScene: async slug => {
+    const cleanSlug = stegaClean(slug);
+    if (!cleanSlug) {
+      console.warn('fetchAndSetScene called without a valid slug', { slug });
+      set({ selectedScene: null, isContentVisible: false });
+      return;
+    }
+
     set({ isLoading: true });
     try {
-      const scene = await fetchSanitySceneBySlug({ slug });
+      const scene = await fetchSanitySceneBySlug({ slug: cleanSlug });
+
+      if (!scene) {
+        console.warn('No scene returned for slug', { slug: cleanSlug });
+        set({ selectedScene: null, isContentVisible: false });
+        return;
+      }
+
       set({ selectedScene: scene, isContentVisible: true });
     } catch (error) {
       console.error('Error fetching scene:', error);
