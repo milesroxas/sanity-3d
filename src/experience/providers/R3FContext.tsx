@@ -142,6 +142,24 @@ export function R3FProvider({ children }: { children: ReactNode }) {
               // Increase default texture anisotropy for crisper textures at oblique angles
               THREE.Texture.DEFAULT_ANISOTROPY = gl.capabilities.getMaxAnisotropy();
 
+              // Handle WebGL context loss and restore
+              const canvas = gl.domElement;
+              const handleContextLost = (event: Event) => {
+                event.preventDefault();
+                console.warn('WebGL context lost, attempting to recover...');
+              };
+
+              const handleContextRestored = () => {
+                console.log('WebGL context restored');
+                // Re-initialize renderer settings after context restore
+                gl.toneMapping = THREE.ACESFilmicToneMapping;
+                (gl as any).outputColorSpace = THREE.SRGBColorSpace;
+                gl.toneMappingExposure = 1.0;
+              };
+
+              canvas.addEventListener('webglcontextlost', handleContextLost);
+              canvas.addEventListener('webglcontextrestored', handleContextRestored);
+
               camera.position.set(
                 INITIAL_POSITIONS.mainIntro.position.x,
                 INITIAL_POSITIONS.mainIntro.position.y,

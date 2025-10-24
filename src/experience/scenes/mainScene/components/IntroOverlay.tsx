@@ -2,6 +2,7 @@ import { useR3F } from '@/experience/providers/R3FContext';
 import { selectBeginIntroTransition, useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
+import Image from 'next/image';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
 gsap.registerPlugin(useGSAP);
@@ -112,7 +113,7 @@ export default function IntroOverlay() {
           },
           0
         )
-        .to(content, { autoAlpha: 0, y: -24, duration: 0.35, ease: 'power2.inOut' })
+        .to(content, { autoAlpha: 0, duration: 0.35, ease: 'power2.inOut' })
         .to(container, { autoAlpha: 0, duration: 0.45, ease: 'power2.inOut' }, '-=0.2');
     },
     {
@@ -149,14 +150,19 @@ export default function IntroOverlay() {
           'radial-gradient(circle at center, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.7) 55%, rgba(255,255,255,0.9) 78%, rgba(255,255,255,1) 100%)',
       }}
     >
-      <div ref={contentRef} className="max-w-2xl text-center">
-        <div className="space-y-6">
-          <h1 id="intro-title" className="text-3xl font-semibold tracking-tight">
-            Experience Overlay Test
-          </h1>
-          <p id="intro-desc" className="text-base">
-            Take a quick look around from above, then drop into the main experience when you are
-            ready.
+      <div ref={contentRef} className="max-w-xl">
+        <div className="flex flex-col items-center space-y-24 text-center">
+          <Image
+            src="/images/logo.webp"
+            alt="logo"
+            width={100}
+            height={100}
+            priority
+            style={{ width: '100px', height: '100px' }}
+          />
+          <p id="intro-desc" className="text-2xl font-medium text-foreground/80">
+            With over 40 years of experience, O'Linn Security Inc. offers comprehensive security
+            solutions tailored to your needs.
           </p>
           <button
             type="button"

@@ -46,29 +46,53 @@ export const SplitText = forwardRef<GSAPSplitText | undefined, SplitTextProps>(
     useEffect(() => {
       if (!elementRef.current) return;
 
-      if (fallbackRef.current) {
-        replaceFromNode(fallbackRef.current, '-', '‑');
-      }
+      const initializeSplitText = async () => {
+        // Wait for fonts to load before initializing SplitText
+        if (typeof document !== 'undefined' && document.fonts) {
+          try {
+            await document.fonts.ready;
+          } catch (error) {
+            // Fallback if fonts.ready fails
+            console.warn('Font loading check failed, proceeding with SplitText initialization');
+          }
+        }
 
-      const ignored = Array.from(
-        elementRef.current.querySelectorAll<HTMLElement>('[data-ignore-split-text]')
-      );
-      ignored.forEach(el => {
-        el.innerText = el.innerText.replaceAll(' ', '\u00A0');
-      });
+        if (!elementRef.current) return;
 
-      const split = new GSAPSplitText(elementRef.current, {
-        tag: 'span',
-        type,
-        linesClass: 'line',
-        wordsClass: 'word',
-        charsClass: 'char',
+        if (fallbackRef.current) {
+          replaceFromNode(fallbackRef.current, '-', '‑');
+        }
+
+        const ignored = Array.from(
+          elementRef.current.querySelectorAll<HTMLElement>('[data-ignore-split-text]')
+        );
+        ignored.forEach(el => {
+          el.innerText = el.innerText.replaceAll(' ', '\u00A0');
+        });
+
+        const split = new GSAPSplitText(elementRef.current, {
+          tag: 'span',
+          type,
+          linesClass: 'line',
+          wordsClass: 'word',
+          charsClass: 'char',
+        });
+        setSplitted(split);
+
+        return split;
+      };
+
+      let split: GSAPSplitText | undefined;
+
+      initializeSplitText().then(splitInstance => {
+        split = splitInstance;
       });
-      setSplitted(split);
 
       return () => {
-        split.revert();
-        setSplitted(undefined);
+        if (split) {
+          split.revert();
+          setSplitted(undefined);
+        }
       };
     }, [rect, type]);
 

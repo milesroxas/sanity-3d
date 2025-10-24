@@ -88,9 +88,8 @@ function PoiMarker({
   const handleClick = () => {
     if (otherMarkersVisible) {
       handleMarkerClick(poi);
-      // On click, briefly toggle to ensure cursor effect remains snappy
-      useCursorStore.getState().setHoveringInteractive(true);
-      setTimeout(() => useCursorStore.getState().setHoveringInteractive(false), 250);
+      // Reset cursor state immediately after click
+      useCursorStore.getState().setHoveringInteractive(false);
     }
   };
 
@@ -202,22 +201,8 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
   const setIsAnimating = useCameraStore(selectSetIsAnimating);
   const syncCameraPosition = useCameraStore(selectSyncCameraPosition);
 
-  // Refs to track animation frames and timeouts for cleanup
+  // Ref to track animation frames for cleanup
   const animationFrameRef = useRef<number | (() => void) | null>(null);
-  const timeoutRefs = useRef<Array<ReturnType<typeof setTimeout>>>([]);
-
-  // Helper to safely set timeouts that we can clean up
-  const safeSetTimeout = useCallback((callback: () => void, delay: number) => {
-    const timeoutId = setTimeout(callback, delay);
-    timeoutRefs.current.push(timeoutId);
-    return timeoutId;
-  }, []);
-
-  // Clear all timeouts
-  const clearAllTimeouts = useCallback(() => {
-    timeoutRefs.current.forEach(clearTimeout);
-    timeoutRefs.current = [];
-  }, []);
 
   // Clear animation frame
   const clearAnimationFrame = useCallback(() => {
@@ -239,9 +224,8 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
   useEffect(() => {
     return () => {
       clearAnimationFrame();
-      clearAllTimeouts();
     };
-  }, [clearAnimationFrame, clearAllTimeouts]);
+  }, [clearAnimationFrame]);
 
   // Preload marker model on component mount with proper error handling
   useEffect(() => {
@@ -262,9 +246,8 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
         return;
       }
 
-      // Clean up any existing animations or timeouts
+      // Clean up any existing animations
       clearAnimationFrame();
-      clearAllTimeouts();
 
       // First, fade out all markers
       setOtherMarkersVisible(false);
@@ -293,13 +276,18 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
       setIsAnimating(true);
 
       // Start camera animation immediately; marker fade runs in parallel
+      let frameCount = 0;
       animationFrameRef.current = animateCameraMovement(
         startPosition,
         targetPos,
         startTarget,
         targetLookAt,
         (nextPosition, nextTarget) => {
-          syncCameraPosition(nextPosition, nextTarget);
+          // Throttle store updates to every 3rd frame to reduce re-renders
+          if (frameCount % 3 === 0) {
+            syncCameraPosition(nextPosition, nextTarget);
+          }
+          frameCount++;
         },
         {
           duration: 2000,
@@ -321,7 +309,6 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
       fetchAndSetScene,
       setOtherMarkersVisible,
       clearAnimationFrame,
-      clearAllTimeouts,
     ]
   );
 
@@ -333,7 +320,6 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
 
     // Clean up any existing animations before starting a new one
     clearAnimationFrame();
-    clearAllTimeouts();
 
     // Disable controls during animation
     setControlType('Disabled');
@@ -376,7 +362,6 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     // Clean up function to handle component unmounting during animation
     return () => {
       clearAnimationFrame();
-      clearAllTimeouts();
     };
   }, [
     shouldAnimateBack,
@@ -388,8 +373,6 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     setIsAnimating,
     syncCameraPosition,
     clearAnimationFrame,
-    clearAllTimeouts,
-    safeSetTimeout,
   ]);
 
   return (
