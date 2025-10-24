@@ -5,9 +5,11 @@ import { Canvas } from '@react-three/fiber';
 import {
   createContext,
   ReactNode,
+  RefObject,
   Suspense,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -19,15 +21,18 @@ import { usePerfStore } from '../scenes/store/perfStore';
 
 type R3FContextType = {
   setR3FContent: (content: ReactNode) => void;
+  sceneContainerRef: RefObject<HTMLDivElement | null>;
 };
 
 const R3FContext = createContext<R3FContextType | null>(null);
 
 export function R3FProvider({ children }: { children: ReactNode }) {
+  const initialSceneOpacityRef = useRef(useCameraStore.getState().firstTimeLoading ? 0 : 1);
   const [r3fContent, setR3FContent] = useState<ReactNode>(null);
   const { dprFactor, declined, reset } = usePerfStore();
   const isAnimating = useCameraStore(state => state.isAnimating);
   const isLandingAnimating = useLandingCameraStore(state => state.isAnimating);
+  const sceneContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Track page visibility to prevent performance monitoring during focus changes
   const [isPageVisible, setIsPageVisible] = useState(true);
@@ -47,6 +52,13 @@ export function R3FProvider({ children }: { children: ReactNode }) {
       reset();
     };
   }, [reset]);
+
+  useLayoutEffect(() => {
+    const store = useCameraStore.getState();
+    if (sceneContainerRef.current) {
+      sceneContainerRef.current.style.opacity = store.firstTimeLoading ? '0' : '1';
+    }
+  }, []);
 
   // Ref to track stable DPR and prevent oscillation
   const stableDprRef = useRef<number>(
@@ -96,6 +108,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
     <R3FContext.Provider
       value={{
         setR3FContent,
+        sceneContainerRef,
       }}
     >
       <div className="relative h-full w-full">
@@ -106,6 +119,8 @@ export function R3FProvider({ children }: { children: ReactNode }) {
         <div
           className="fixed inset-0 z-40 overflow-hidden transition-opacity duration-1000 ease-in-out"
           data-r3f-container
+          ref={sceneContainerRef}
+          style={{ opacity: initialSceneOpacityRef.current }}
         >
           <Loading />
           <Canvas
