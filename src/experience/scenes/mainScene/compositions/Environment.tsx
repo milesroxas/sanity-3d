@@ -27,7 +27,7 @@ export function Environment() {
     {
       useCustomHDR: { value: true },
       preset: {
-        value: 'sunset' as EnvironmentPreset,
+        value: 'city' as EnvironmentPreset,
         options: [
           'sunset',
           'dawn',
@@ -42,13 +42,13 @@ export function Environment() {
         ] as EnvironmentPreset[],
       },
       background: { value: true },
-      blur: { value: 0.3, min: 0, max: 1, step: 0.1 },
-      intensity: { value: 1, min: 0, max: 5, step: 0.1 },
+      blur: { value: 0.9, min: 0, max: 1, step: 0.1 },
+      intensity: { value: 0.65, min: 0, max: 5, step: 0.1 },
       environmentRotation: {
         value: { x: 0, y: 0, z: 0 },
         step: 0.1,
       },
-      lightIntensity: { value: 4, min: 0, max: 20, step: 0.1 },
+      lightIntensity: { value: 1, min: 0, max: 20, step: 0.1 },
       lightPosition: {
         value: { x: 10, y: 20, z: 10 },
         step: 1,
@@ -61,7 +61,7 @@ export function Environment() {
     <>
       <DreiEnvironment
         {...(environmentControls.useCustomHDR
-          ? { files: '/textures/desert-clear-sky.hdr' }
+          ? { files: '/textures/kloofendal_43d_clear_1k.hdr' }
           : { preset: environmentControls.preset })}
         background={environmentControls.background}
         backgroundBlurriness={environmentControls.blur}
@@ -72,14 +72,15 @@ export function Environment() {
           environmentControls.environmentRotation.z,
         ]}
       />
-      <directionalLight
+      {/* <ambientLight
         position={[
           environmentControls.lightPosition.x,
           environmentControls.lightPosition.y,
           environmentControls.lightPosition.z,
         ]}
         intensity={environmentControls.lightIntensity}
-      />
+        color={0xffffff}
+      /> */}
       <MountainInstances useSharedMaterial={true}>
         <MountainInstances_Blender instancesData={mountainData as BlenderExportData[]} />
       </MountainInstances>

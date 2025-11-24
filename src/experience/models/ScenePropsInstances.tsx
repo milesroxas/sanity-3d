@@ -41,7 +41,9 @@ type ScenePropsType =
   | 'lounger'
   | 'fountain'
   | 'sunscreen-big'
-  | 'sunscreen-closed';
+  | 'sunscreen-closed'
+  | 'tent-circus-big'
+  | 'ferris-wheel';
 
 // Define the types for festival instances using a mapped type
 type ScenePropsInstances = ModelInstances & {
@@ -89,6 +91,8 @@ const SCENE_PROPS_MODELS: Record<ScenePropsType, ScenePropsType> = {
   'sunscreen-closed': 'sunscreen-closed',
   'inflatable-swan-big': 'inflatable-swan-big',
   'sunscreen-big': 'sunscreen-big',
+  'tent-circus-big': 'tent-circus-big',
+  'ferris-wheel': 'ferris-wheel',
 };
 
 const mapScenePropsNodes = (nodes: Record<string, THREE.Object3D>) => {

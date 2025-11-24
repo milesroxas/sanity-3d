@@ -6,9 +6,7 @@ import * as THREE from 'three';
 export const SHARED_TEXTURE_KEY = 'LOWPOLY-COLORS';
 
 // Preload the textures to avoid loading during render
-useTexture.preload('/textures/color-atlas-new2.png');
-useTexture.preload('/textures/color-atlas-specular.png');
-useTexture.preload('/textures/color-atlas-emission-night.png');
+useTexture.preload('/textures/color-atlas-muted-1.jpg');
 
 /**
  * Creates a material that uses the shared texture atlas
@@ -22,25 +20,22 @@ export function createMaterialWithTextureMap(
   // Extract the texture map from source material
   const textureMap = (sourceMaterial as any).map || null;
 
-  // Determine if source is already a PBR material to extract properties
-  let roughness = 1;
-  let metalness = 0;
+  // // Determine if source is already a PBR material to extract properties
+  // let roughness = 1;
+  // let metalness = 0;
 
-  if (sourceMaterial instanceof THREE.MeshStandardMaterial) {
-    roughness = sourceMaterial.roughness;
-    metalness = sourceMaterial.metalness;
-  } else if (sourceMaterial instanceof THREE.MeshPhysicalMaterial) {
-    roughness = sourceMaterial.roughness;
-    metalness = sourceMaterial.metalness;
-  }
+  // if (sourceMaterial instanceof THREE.MeshStandardMaterial) {
+  //   roughness = sourceMaterial.roughness;
+  //   metalness = sourceMaterial.metalness;
+  // } else if (sourceMaterial instanceof THREE.MeshPhysicalMaterial) {
+  //   roughness = sourceMaterial.roughness;
+  //   metalness = sourceMaterial.metalness;
+  // }
 
   // Create a new material with the shared texture map that responds to lighting
   return new THREE.MeshStandardMaterial({
     color: 0xffffff, // White color will show textures as-is
     map: textureMap,
-    roughness: roughness,
-    metalness: metalness,
-    envMapIntensity: 1.0,
     ...options,
   });
 }
@@ -55,7 +50,7 @@ export function createSharedAtlasMaterial(
   options: Partial<THREE.MeshStandardMaterialParameters> = {}
 ): THREE.MeshStandardMaterial {
   // Load the external texture directly from the public folder
-  const colorTexture = useTexture('/textures/color-atlas-new2.png');
+  const colorTexture = useTexture('/textures/color-atlas-muted-1.jpg');
 
   // Configure texture settings
   colorTexture.flipY = false;
@@ -67,7 +62,6 @@ export function createSharedAtlasMaterial(
     map: colorTexture,
     roughness: 1,
     metalness: 0,
-    envMapIntensity: 0,
     ...options,
   });
 
@@ -88,9 +82,9 @@ export function configureMaterialForInstancing(
     material instanceof THREE.MeshPhysicalMaterial
   ) {
     // Ensure proper normal handling
-    material.side = THREE.DoubleSide; // Render both sides to handle flipped normals
+    // material.side = THREE.DoubleSide; // Render both sides to handle flipped normals
     material.transparent = false; // Disable transparency by default
-    material.opacity = 1.0;
+    // material.opacity = 1.0;
 
     // Preserve existing normal scale if present
     if (material.normalScale) {
