@@ -1,6 +1,6 @@
 import { vehicles } from '@/experience/animations';
 import { BlenderExportData } from '@/experience/baseModels/shared/types';
-import parkedCarsData from '@/experience/data/parked-cars.json';
+import parkedCarsData from '@/experience/data/parked-cars-2.json';
 import { useRenderProfile } from '@/experience/scenes/mainScene/hooks/useDeviceProfile';
 
 import {
@@ -11,11 +11,11 @@ import {
 export function Vehicles() {
   const { includeAnimatedVehicles } = useRenderProfile();
   return (
-    <VehiclesInstances useSharedMaterial={false}>
-      {/* Static vehicles from JSON data */}
+    <VehiclesInstances useSharedMaterial={true}>
+      {/* Static vehicles from JSON data (patrol cars preserve original materials) */}
       <VehiclesInstances_Blender instancesData={parkedCarsData as BlenderExportData[]} />
 
-      {/* Animated vehicles */}
+      {/* Animated vehicles (patrol cars preserve original materials) */}
       {includeAnimatedVehicles && (
         <>
           <vehicles.AnimatedCar pathOffset={0} />

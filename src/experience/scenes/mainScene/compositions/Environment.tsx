@@ -1,6 +1,6 @@
 import { BlenderExportData } from '@/experience/baseModels/shared/types';
 import mountainData from '@/experience/data/mountains.json';
-import natureData from '@/experience/data/nature.json';
+import natureData from '@/experience/data/nature-2.json';
 import {
   MountainInstances,
   MountainInstances_Blender,

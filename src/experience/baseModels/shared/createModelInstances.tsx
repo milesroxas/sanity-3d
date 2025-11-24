@@ -96,8 +96,12 @@ export function createModelInstancing<T extends ModelInstances>(
         if (object instanceof THREE.Mesh) {
           // Single mesh handling (same as before)
           const geometry = object.geometry as THREE.BufferGeometry;
+
+          // Check if this is a patrol car - always preserve original materials
+          const isPatrolCar = key.toLowerCase().includes('patrol-car');
+
           const material =
-            useSharedMaterial && sharedMaterial
+            useSharedMaterial && sharedMaterial && !isPatrolCar
               ? (configureMaterialForInstancing(sharedMaterial) as THREE.Material)
               : (configureMaterialForInstancing(object.material) as THREE.Material);
 
@@ -116,6 +120,9 @@ export function createModelInstancing<T extends ModelInstances>(
               // But preserve special materials if they exist (like LogoWrap)
               let material: THREE.Material;
 
+              // Check if this is a patrol car - always preserve original materials
+              const isPatrolCar = key.toLowerCase().includes('patrol-car');
+
               // If the material name contains special keywords like "logo" or "wrap", preserve it
               const isSpecialMaterial =
                 child.material instanceof THREE.Material &&
@@ -123,7 +130,7 @@ export function createModelInstancing<T extends ModelInstances>(
                   child.material.name.toLowerCase().includes('wrap') ||
                   child.material.name === 'LogoWrap');
 
-              if (useSharedMaterial && sharedMaterial && !isSpecialMaterial) {
+              if (useSharedMaterial && sharedMaterial && !isSpecialMaterial && !isPatrolCar) {
                 material = configureMaterialForInstancing(sharedMaterial) as THREE.Material;
               } else {
                 material = configureMaterialForInstancing(child.material) as THREE.Material;

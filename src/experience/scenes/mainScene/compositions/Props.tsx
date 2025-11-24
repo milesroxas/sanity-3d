@@ -1,8 +1,8 @@
 import { Billboard } from '@/experience/baseModels/objects/Billboard';
 import { BlenderExportData } from '@/experience/baseModels/shared/types';
 import fencesData from '@/experience/data/fences.json';
-import ScenePropsData from '@/experience/data/scene-props.json';
-import streetPropsData from '@/experience/data/street-props.json';
+import ScenePropsData from '@/experience/data/scene-props-2.json';
+import streetPropsData from '@/experience/data/street-props-2.json';
 import { FencesInstances, FencesInstances_Blender } from '@/experience/models/FencesInstances';
 import {
   ScenePropsInstances,

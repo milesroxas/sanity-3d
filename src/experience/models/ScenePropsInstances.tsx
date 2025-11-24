@@ -50,7 +50,7 @@ type ScenePropsInstances = ModelInstances & {
   [K in ScenePropsType]: ModelInstanceComponent;
 };
 
-const MODEL_PATH = '/models/scene-props.glb';
+const MODEL_PATH = '/models/scene-props-2.glb';
 
 // Create a single source of truth for model names
 const SCENE_PROPS_MODELS: Record<ScenePropsType, ScenePropsType> = {

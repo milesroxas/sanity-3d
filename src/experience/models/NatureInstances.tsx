@@ -31,7 +31,7 @@ type NatureInstances = ModelInstances & {
   [K in NatureType]: ModelInstanceComponent;
 };
 
-const MODEL_PATH = '/models/nature-props.glb';
+const MODEL_PATH = '/models/nature-props-2.glb';
 
 // Create a mapping of types to node names
 const NATURE_MODELS: Record<NatureType, string> = {
