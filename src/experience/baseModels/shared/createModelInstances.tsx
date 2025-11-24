@@ -80,8 +80,20 @@ export function createModelInstancing<T extends ModelInstances>(
   }) {
     const { nodes, materials } = useGLTF(modelPath) as unknown as MeshGLTFModel;
 
-    // Get shared material if requested
-    const sharedMaterial = useSharedMaterial ? createSharedAtlasMaterial(materials) : null;
+    // Create shared material once and cache it
+    const sharedMaterialBase = useSharedMaterial ? createSharedAtlasMaterial(materials) : null;
+
+    // Use ref to ensure the material instance remains stable across renders
+    const sharedMaterialRef = useRef<THREE.Material | null>(null);
+
+    // Only update the ref if we don't have a material yet or if useSharedMaterial changed
+    if (useSharedMaterial && !sharedMaterialRef.current) {
+      sharedMaterialRef.current = sharedMaterialBase;
+    } else if (!useSharedMaterial) {
+      sharedMaterialRef.current = null;
+    }
+
+    const sharedMaterial = sharedMaterialRef.current;
 
     // Map nodes to instance meshes
     const instanceObjects = useMemo(() => nodeMapping(nodes), [nodes]);
@@ -111,6 +123,9 @@ export function createModelInstancing<T extends ModelInstances>(
           // Enhanced multi-part group handling
           const meshParts: MeshPart[] = [];
 
+          // Check if this is a patrol car - always preserve original materials
+          const isPatrolCar = key.toLowerCase().includes('patrol-car');
+
           // Find all meshes in the group
           object.traverse(child => {
             if (child instanceof THREE.Mesh) {
@@ -119,9 +134,6 @@ export function createModelInstancing<T extends ModelInstances>(
               // Determine which material to use based on useSharedMaterial flag
               // But preserve special materials if they exist (like LogoWrap)
               let material: THREE.Material;
-
-              // Check if this is a patrol car - always preserve original materials
-              const isPatrolCar = key.toLowerCase().includes('patrol-car');
 
               // If the material name contains special keywords like "logo" or "wrap", preserve it
               const isSpecialMaterial =

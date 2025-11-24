@@ -23,13 +23,13 @@ export const CAMERA_CONFIG = {
       minX: -300,
       maxX: 200,
       minY: -400,
-      maxY: 500,
+      maxY: 300,
       minZ: -300,
-      maxZ: 500,
+      maxZ: 300,
     },
     distance: {
       min: 10,
-      max: 600, // Set high enough to accommodate mainIntro distance (~450)
+      max: 500, // Set high enough to accommodate mainIntro distance (~450)
     },
     angles: {
       minPolar: 0,

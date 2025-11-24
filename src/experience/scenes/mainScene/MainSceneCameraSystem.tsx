@@ -226,41 +226,90 @@ export function MainSceneCameraSystem() {
     cameraRef.current.lookAt(targetVector);
   }, [positionVector, targetVector]);
 
-  // Debounced version of the controls change handler
-  const debouncedHandleControlsChange = useCallback(
-    debounce(() => {
-      if (!controlsRef.current || isAnimating || !cameraRef.current || isUpdatingRef.current)
-        return;
-
-      isUpdatingRef.current = true;
-
-      const currentPosition = cameraRef.current.position;
-      const currentTarget = controlsRef.current.target;
-
-      // Apply constraints derived from camera positions (single source of truth)
-      currentPosition.x = MathUtils.clamp(
-        currentPosition.x,
-        CAMERA_CONSTRAINTS.bounds.minX,
-        CAMERA_CONSTRAINTS.bounds.maxX
-      );
-      currentPosition.y = MathUtils.clamp(
-        currentPosition.y,
-        CAMERA_CONSTRAINTS.bounds.minY,
-        CAMERA_CONSTRAINTS.bounds.maxY
-      );
-      currentPosition.z = MathUtils.clamp(
-        currentPosition.z,
-        CAMERA_CONSTRAINTS.bounds.minZ,
-        CAMERA_CONSTRAINTS.bounds.maxZ
-      );
-
-      // Always sync current camera state to the store (debounced)
-      syncCameraPosition(currentPosition, currentTarget);
-
-      isUpdatingRef.current = false;
-    }, 32), // At least 30fps
-    [isAnimating, syncCameraPosition, controlType]
+  // Debounced store sync to prevent excessive store updates
+  const debouncedSyncToStore = useMemo(
+    () =>
+      debounce((position: Vector3, target: Vector3) => {
+        if (isUpdatingRef.current) return;
+        isUpdatingRef.current = true;
+        syncCameraPosition(position, target);
+        isUpdatingRef.current = false;
+      }, 32), // At least 30fps
+    [syncCameraPosition]
   );
+
+  // Immediate handler that applies constraints on every change
+  const handleControlsChange = useCallback(() => {
+    if (!controlsRef.current || isAnimating || !cameraRef.current || isUpdatingRef.current)
+      return;
+
+    const currentPosition = cameraRef.current.position;
+    const currentTarget = controlsRef.current.target;
+
+    // Track if any clamping occurred
+    let wasClamped = false;
+
+    // Apply constraints to camera position (single source of truth)
+    const clampedPosX = MathUtils.clamp(
+      currentPosition.x,
+      CAMERA_CONSTRAINTS.bounds.minX,
+      CAMERA_CONSTRAINTS.bounds.maxX
+    );
+    const clampedPosY = MathUtils.clamp(
+      currentPosition.y,
+      CAMERA_CONSTRAINTS.bounds.minY,
+      CAMERA_CONSTRAINTS.bounds.maxY
+    );
+    const clampedPosZ = MathUtils.clamp(
+      currentPosition.z,
+      CAMERA_CONSTRAINTS.bounds.minZ,
+      CAMERA_CONSTRAINTS.bounds.maxZ
+    );
+
+    if (
+      clampedPosX !== currentPosition.x ||
+      clampedPosY !== currentPosition.y ||
+      clampedPosZ !== currentPosition.z
+    ) {
+      wasClamped = true;
+      currentPosition.set(clampedPosX, clampedPosY, clampedPosZ);
+    }
+
+    // Apply constraints to target position to prevent panning beyond scene boundaries
+    // This is crucial for limiting drag/pan interactions
+    const clampedTargetX = MathUtils.clamp(
+      currentTarget.x,
+      CAMERA_CONSTRAINTS.bounds.minX,
+      CAMERA_CONSTRAINTS.bounds.maxX
+    );
+    const clampedTargetY = MathUtils.clamp(
+      currentTarget.y,
+      CAMERA_CONSTRAINTS.bounds.minY,
+      CAMERA_CONSTRAINTS.bounds.maxY
+    );
+    const clampedTargetZ = MathUtils.clamp(
+      currentTarget.z,
+      CAMERA_CONSTRAINTS.bounds.minZ,
+      CAMERA_CONSTRAINTS.bounds.maxZ
+    );
+
+    if (
+      clampedTargetX !== currentTarget.x ||
+      clampedTargetY !== currentTarget.y ||
+      clampedTargetZ !== currentTarget.z
+    ) {
+      wasClamped = true;
+      currentTarget.set(clampedTargetX, clampedTargetY, clampedTargetZ);
+    }
+
+    // If we clamped, force update the controls to reflect the new constrained position
+    if (wasClamped && controlsRef.current) {
+      controlsRef.current.update();
+    }
+
+    // Debounce the store sync to avoid too many updates
+    debouncedSyncToStore(currentPosition, currentTarget);
+  }, [isAnimating, debouncedSyncToStore]);
 
   return (
     <>
@@ -294,7 +343,7 @@ export function MainSceneCameraSystem() {
           // Distance constraints derived from camera positions (single source of truth)
           maxDistance={CAMERA_CONSTRAINTS.maxDistance}
           minDistance={CAMERA_CONSTRAINTS.minDistance}
-          onChange={debouncedHandleControlsChange}
+          onChange={handleControlsChange}
           enabled={!isAnimating && controlType === 'Map'}
         />
       )}
