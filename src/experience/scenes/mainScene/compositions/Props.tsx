@@ -16,15 +16,15 @@ import {
 export function Props() {
   return (
     <>
-      <FencesInstances useSharedMaterial={true}>
+      <FencesInstances useSharedMaterial={true} category="props">
         <FencesInstances_Blender instancesData={fencesData as BlenderExportData[]} />
       </FencesInstances>
 
-      <StreetPropsInstances useSharedMaterial={true}>
+      <StreetPropsInstances useSharedMaterial={true} category="props">
         <StreetPropsInstances_Blender instancesData={streetPropsData as BlenderExportData[]} />
       </StreetPropsInstances>
 
-      <ScenePropsInstances useSharedMaterial={true}>
+      <ScenePropsInstances useSharedMaterial={true} category="props">
         <ScenePropsInstances_Blender instancesData={ScenePropsData as BlenderExportData[]} />
       </ScenePropsInstances>
 

@@ -22,19 +22,19 @@ import {
 export function Buildings() {
   return (
     <>
-      <SmallBldgsInstances useSharedMaterial={true}>
+      <SmallBldgsInstances useSharedMaterial={true} category="buildings">
         <SmallBldgsInstances_Blender instancesData={smallBldgsData as BlenderExportData[]} />
       </SmallBldgsInstances>
 
-      <HousesInstances>
+      <HousesInstances category="buildings">
         <HousesInstances_Blender instancesData={housesData as BlenderExportData[]} />
       </HousesInstances>
 
-      <CityBldgsInstances useSharedMaterial={true}>
+      <CityBldgsInstances useSharedMaterial={true} category="buildings">
         <CityBldgsInstances_Blender instancesData={cityBldgsData as BlenderExportData[]} />
       </CityBldgsInstances>
 
-      <ConstructionInstances useSharedMaterial={true}>
+      <ConstructionInstances useSharedMaterial={true} category="buildings">
         <ConstructionInstances_Blender instancesData={constructionData as BlenderExportData[]} />
       </ConstructionInstances>
 

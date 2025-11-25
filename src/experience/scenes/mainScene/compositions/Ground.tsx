@@ -4,7 +4,7 @@ import { GroundInstances, GroundInstances_Blender } from '@/experience/models/Gr
 
 export function Ground() {
   return (
-    <GroundInstances useSharedMaterial={true}>
+    <GroundInstances useSharedMaterial={true} category="ground">
       <GroundInstances_Blender instancesData={groundData as BlenderExportData[]} />
     </GroundInstances>
   );

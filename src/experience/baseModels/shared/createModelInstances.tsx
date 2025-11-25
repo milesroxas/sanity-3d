@@ -72,16 +72,20 @@ export function createModelInstancing<T extends ModelInstances>(
   function ModelInstances({
     children,
     useSharedMaterial = true,
+    category,
     ...props
   }: {
     children: React.ReactNode;
     useSharedMaterial?: boolean;
+    category?: 'ground' | 'buildings' | 'vehicles' | 'nature' | 'props' | 'default';
     [key: string]: any;
   }) {
     const { nodes, materials } = useGLTF(modelPath) as unknown as MeshGLTFModel;
 
     // Create shared material once and cache it
-    const sharedMaterialBase = useSharedMaterial ? createSharedAtlasMaterial(materials) : null;
+    const sharedMaterialBase = useSharedMaterial
+      ? createSharedAtlasMaterial(materials, {}, category)
+      : null;
 
     // Use ref to ensure the material instance remains stable across renders
     const sharedMaterialRef = useRef<THREE.Material | null>(null);

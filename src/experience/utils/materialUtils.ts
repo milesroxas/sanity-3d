@@ -5,8 +5,54 @@ import * as THREE from 'three';
 // The key for the shared texture atlas used across the entire project
 export const SHARED_TEXTURE_KEY = 'LOWPOLY-COLORS';
 
+/**
+ * Material mode configuration
+ * Set to 'textured' to use custom texture atlas
+ * Set to 'basic' to use simple untextured materials
+ */
+export const MATERIAL_MODE: 'textured' | 'basic' = 'textured';
+
+/**
+ * Default color to use for basic materials
+ * Can be changed to any hex color (e.g., 0xff0000 for red)
+ */
+export const BASIC_MATERIAL_COLOR = 0xaaaaaa; // Medium gray
+
+/**
+ * Color configuration for different object categories
+ * Ultra-minimalist palette - very bright, near-white values for PBR rendering
+ * Based on color theory: analogous warm neutrals with micro temperature shifts
+ */
+export const CATEGORY_COLORS = {
+  ground: 0xfaf8f5, // Near-white with subtle warmth
+  buildings: 0xffffff, // Pure white (main focus, maximum luminosity)
+  vehicles: 0xf5f3f0, // Very light warm gray (barely perceptible contrast)
+  nature: 0xf8f6f2, // Very light beige with hint of green (almost imperceptible)
+  props: 0xfcfaf7, // Near-white warm
+  default: 0xfbf9f6, // Near-white neutral warm
+};
+
 // Preload the textures to avoid loading during render
 useTexture.preload('/textures/color-atlas-muted-1.jpg');
+
+/**
+ * Creates a basic untextured material that responds to lighting
+ * Optimized for soft, luminous appearance similar to Cycles render
+ * @param color Optional color override
+ * @param options Additional material options
+ */
+export function createBasicMaterial(
+  color?: number,
+  options: Partial<THREE.MeshStandardMaterialParameters> = {}
+): THREE.MeshStandardMaterial {
+  return new THREE.MeshStandardMaterial({
+    color: color ?? BASIC_MATERIAL_COLOR,
+    roughness: 0.7, // Softer, more reflective than fully matte
+    metalness: 0,
+    flatShading: false, // Smooth shading for softer appearance
+    ...options,
+  });
+}
 
 /**
  * Creates a material that uses the shared texture atlas
@@ -17,6 +63,11 @@ export function createMaterialWithTextureMap(
   sourceMaterial: THREE.Material,
   options: Partial<THREE.MeshStandardMaterialParameters> = {}
 ): THREE.MeshStandardMaterial {
+  // If basic mode is enabled, return a simple untextured material
+  if (MATERIAL_MODE === 'basic') {
+    return createBasicMaterial(undefined, options);
+  }
+
   // Extract the texture map from source material
   const textureMap = (sourceMaterial as any).map || null;
 
@@ -44,11 +95,19 @@ export function createMaterialWithTextureMap(
  * Creates a material using the project-wide shared texture atlas (LOWPOLY-COLORS)
  * @param materials Materials from GLTF model (optional, used for fallback)
  * @param options Additional material options
+ * @param category Optional category for color-coding (e.g., 'ground', 'buildings', 'vehicles')
  */
 export function createSharedAtlasMaterial(
   materials?: MaterialMap,
-  options: Partial<THREE.MeshStandardMaterialParameters> = {}
+  options: Partial<THREE.MeshStandardMaterialParameters> = {},
+  category?: keyof typeof CATEGORY_COLORS
 ): THREE.MeshStandardMaterial {
+  // If basic mode is enabled, return a simple untextured material with category color
+  if (MATERIAL_MODE === 'basic') {
+    const color = category ? CATEGORY_COLORS[category] : undefined;
+    return createBasicMaterial(color, options);
+  }
+
   // Load the external texture directly from the public folder
   const colorTexture = useTexture('/textures/color-atlas-muted-1.jpg');
 

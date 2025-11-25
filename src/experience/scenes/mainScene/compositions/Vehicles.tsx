@@ -11,7 +11,7 @@ import {
 export function Vehicles() {
   const { includeAnimatedVehicles } = useRenderProfile();
   return (
-    <VehiclesInstances useSharedMaterial={true}>
+    <VehiclesInstances useSharedMaterial={true} category="vehicles">
       {/* Static vehicles from JSON data (patrol cars preserve original materials) */}
       <VehiclesInstances_Blender instancesData={parkedCarsData as BlenderExportData[]} />
 

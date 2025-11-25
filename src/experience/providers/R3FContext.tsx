@@ -124,6 +124,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
         >
           <Loading />
           <Canvas
+            shadows
             dpr={dynamicDpr}
             camera={{
               position: [
@@ -135,7 +136,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
             }}
             onCreated={({ gl, camera }) => {
               // Renderer quality settings to reduce aliasing/banding while keeping perf reasonable
-              gl.toneMapping = THREE.ACESFilmicToneMapping;
+              gl.toneMapping = THREE.NoToneMapping; // No tone mapping for clean, bright minimalist look
               (gl as any).outputColorSpace = THREE.SRGBColorSpace;
               gl.toneMappingExposure = 1.0;
               (gl as any).physicallyCorrectLights = true;
@@ -152,7 +153,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
               const handleContextRestored = () => {
                 console.log('WebGL context restored');
                 // Re-initialize renderer settings after context restore
-                gl.toneMapping = THREE.ACESFilmicToneMapping;
+                gl.toneMapping = THREE.NoToneMapping; // No tone mapping for clean, bright minimalist look
                 (gl as any).outputColorSpace = THREE.SRGBColorSpace;
                 gl.toneMappingExposure = 1.0;
               };
