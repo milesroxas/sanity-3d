@@ -114,7 +114,7 @@ export function Environment() {
           'lobby',
         ] as EnvironmentPreset[],
       },
-      showBackground: { value: false, label: 'Show as Background' },
+      showBackground: { value: true, label: 'Show as Background' },
       backgroundBlur: { value: 0.9, min: 0, max: 1, step: 0.01, label: 'Background Blur' },
       envIntensity: { value: 0.3, min: 0, max: 3, step: 0.05, label: 'Environment Intensity' },
       envRotationY: { value: 0, min: -Math.PI, max: Math.PI, step: 0.01, label: 'Rotation Y' },
@@ -126,8 +126,8 @@ export function Environment() {
   const [{ ambientIntensity, ambientColor }, setAmbientControls] = useControls(
     '💡 Ambient Light',
     () => ({
-      ambientIntensity: { value: 0.5, min: 0, max: 2, step: 0.05, label: 'Intensity' },
-      ambientColor: { value: '#ffffff', label: 'Color' },
+      ambientIntensity: { value: 0.75, min: 0, max: 2, step: 0.05, label: 'Intensity' },
+      ambientColor: { value: '#ffe5b7', label: 'Color' },
     }),
     { collapsed: true }
   );
@@ -138,7 +138,7 @@ export function Environment() {
       '☀️ Desert Sun',
       () => ({
         sunEnabled: { value: true, label: 'Enabled' },
-        sunIntensity: { value: 1.2, min: 0, max: 5, step: 0.1, label: 'Intensity' },
+        sunIntensity: { value: 2.2, min: 0, max: 5, step: 0.1, label: 'Intensity' },
         sunColor: { value: '#ffffff', label: 'Color' },
         sunPosition: {
           value: { x: -20, y: 50, z: 15 },
@@ -194,9 +194,7 @@ export function Environment() {
   return (
     <>
       <DreiEnvironment
-        {...(useCustomHDR
-          ? { files: '/textures/kloofendal_43d_clear_1k.hdr' }
-          : { preset: preset })}
+        {...(useCustomHDR ? { files: '/textures/desert-clear-sky.hdr' } : { preset: preset })}
         background={showBackground}
         backgroundBlurriness={backgroundBlur}
         environmentIntensity={envIntensity}
