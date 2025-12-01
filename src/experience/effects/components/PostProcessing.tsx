@@ -8,7 +8,7 @@ export default function PostProcessing() {
   return (
     // Progressive enhancement: prefer SMAA (better edges); fall back to FXAA when declined
     <EffectComposer enabled multisampling={0}>
-      <BrightnessContrast brightness={0.05} contrast={-0.1} />
+      <BrightnessContrast brightness={0.0} contrast={-0.2} />
       {declined ? <FXAA /> : <SMAA />}
       {/* <Vignette offset={0.1} darkness={0.6} /> */}
     </EffectComposer>

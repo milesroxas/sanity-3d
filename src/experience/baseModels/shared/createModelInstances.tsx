@@ -73,11 +73,15 @@ export function createModelInstancing<T extends ModelInstances>(
     children,
     useSharedMaterial = true,
     category,
+    castShadow = true,
+    receiveShadow = true,
     ...props
   }: {
     children: React.ReactNode;
     useSharedMaterial?: boolean;
     category?: 'ground' | 'buildings' | 'vehicles' | 'nature' | 'props' | 'default';
+    castShadow?: boolean;
+    receiveShadow?: boolean;
     [key: string]: any;
   }) {
     const { nodes, materials } = useGLTF(modelPath) as unknown as MeshGLTFModel;
@@ -122,7 +126,7 @@ export function createModelInstancing<T extends ModelInstances>(
               : (configureMaterialForInstancing(object.material) as THREE.Material);
 
           // Create standard component for single-mesh objects
-          components[key] = createInstanceComponent([{ geometry, material, index: 0 }]);
+          components[key] = createInstanceComponent([{ geometry, material, index: 0 }], { castShadow, receiveShadow });
         } else if (object instanceof THREE.Group) {
           // Enhanced multi-part group handling
           const meshParts: MeshPart[] = [];
@@ -162,7 +166,7 @@ export function createModelInstancing<T extends ModelInstances>(
 
           if (meshParts.length > 0) {
             // Create enhanced component for multi-mesh objects
-            components[key] = createInstanceComponent(meshParts);
+            components[key] = createInstanceComponent(meshParts, { castShadow, receiveShadow });
           } else {
             console.warn(`No meshes found in group for key: ${key}`);
           }
@@ -180,7 +184,7 @@ export function createModelInstancing<T extends ModelInstances>(
   }
 
   // Factory function to create instance components based on mesh parts
-  function createInstanceComponent(meshParts: MeshPart[]) {
+  function createInstanceComponent(meshParts: MeshPart[], shadowSettings: { castShadow: boolean; receiveShadow: boolean }) {
     return ({
       count = 0,
       children,
@@ -189,7 +193,7 @@ export function createModelInstancing<T extends ModelInstances>(
     }: ModelInstanceProps & { animation?: AnimatedInstanceProps['animation'] }) => {
       // If we have animation, create an animated instance with all mesh parts
       if (animation) {
-        return <AnimatedMultiInstance meshParts={meshParts} animation={animation} {...props} />;
+        return <AnimatedMultiInstance meshParts={meshParts} animation={animation} castShadow={shadowSettings.castShadow} receiveShadow={shadowSettings.receiveShadow} {...props} />;
       }
 
       // If we have a single mesh part, use standard instancing
@@ -204,8 +208,8 @@ export function createModelInstancing<T extends ModelInstances>(
               range={Math.max(count, 100)} // Set reasonable default range
               geometry={geometry}
               material={material}
-              castShadow
-              receiveShadow
+              castShadow={shadowSettings.castShadow}
+              receiveShadow={shadowSettings.receiveShadow}
               {...props}
             >
               {children}
@@ -219,8 +223,8 @@ export function createModelInstancing<T extends ModelInstances>(
               range={count}
               geometry={geometry}
               material={material}
-              castShadow
-              receiveShadow
+              castShadow={shadowSettings.castShadow}
+              receiveShadow={shadowSettings.receiveShadow}
               {...props}
             />
           );
@@ -237,8 +241,8 @@ export function createModelInstancing<T extends ModelInstances>(
               range={Math.max(count, 100)}
               geometry={geometry}
               material={material}
-              castShadow
-              receiveShadow
+              castShadow={shadowSettings.castShadow}
+              receiveShadow={shadowSettings.receiveShadow}
             >
               {children
                 ? React.Children.map(children, child =>
@@ -266,12 +270,16 @@ export function createModelInstancing<T extends ModelInstances>(
     meshParts,
     animation,
     onUpdate,
+    castShadow = false,
+    receiveShadow = false,
     ...props
   }: {
     meshParts: MeshPart[];
     animation: NonNullable<AnimatedInstanceProps['animation']>;
     onUpdate?: (position: [number, number, number], rotation: [number, number, number]) => void;
-  } & Omit<AnimatedInstanceProps, 'animation' | 'onUpdate'>) {
+    castShadow?: boolean;
+    receiveShadow?: boolean;
+  } & Omit<AnimatedInstanceProps, 'animation' | 'onUpdate' | 'castShadow' | 'receiveShadow'>) {
     const ref = useRef<THREE.Group>(null);
     const distanceRef = useRef(0);
     const animationFrameRef = useRef<number | null>(null);
@@ -350,8 +358,8 @@ export function createModelInstancing<T extends ModelInstances>(
             key={`part-${index}`}
             geometry={geometry}
             material={material}
-            castShadow
-            receiveShadow
+            castShadow={castShadow}
+            receiveShadow={receiveShadow}
           />
         ))}
       </group>

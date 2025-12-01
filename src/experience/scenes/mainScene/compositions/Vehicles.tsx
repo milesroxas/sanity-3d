@@ -11,17 +11,19 @@ import {
 export function Vehicles() {
   const { includeAnimatedVehicles } = useRenderProfile();
   return (
-    <VehiclesInstances useSharedMaterial={true} category="vehicles">
-      {/* Static vehicles from JSON data (patrol cars preserve original materials) */}
-      <VehiclesInstances_Blender instancesData={parkedCarsData as BlenderExportData[]} />
+    <>
+      {/* Static vehicles with shadows */}
+      <VehiclesInstances useSharedMaterial={true} category="vehicles" castShadow={true} receiveShadow={true}>
+        <VehiclesInstances_Blender instancesData={parkedCarsData as BlenderExportData[]} />
+      </VehiclesInstances>
 
-      {/* Animated vehicles (patrol cars preserve original materials) */}
+      {/* Animated vehicles without shadows for performance */}
       {includeAnimatedVehicles && (
-        <>
+        <VehiclesInstances useSharedMaterial={true} category="vehicles" castShadow={false} receiveShadow={false}>
           <vehicles.AnimatedCar pathOffset={0} />
           <vehicles.AnimatedPlane pathOffset={0.3} scale={0.8} />
-        </>
+        </VehiclesInstances>
       )}
-    </VehiclesInstances>
+    </>
   );
 }
