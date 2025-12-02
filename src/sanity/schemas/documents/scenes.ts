@@ -77,6 +77,21 @@ export default defineType({
       initialValue: false,
       group: 'content',
     }),
+    defineField({
+      name: 'poiDisplayMode',
+      title: 'Points of Interest Display Mode',
+      description:
+        'Choose how inline POIs should be displayed after camera transition. Legacy mode shows logo markers immediately. Interactive mode shows clickable POI buttons.',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Legacy (Auto-show logo markers)', value: 'legacy' },
+          { title: 'Interactive Buttons (Click to view)', value: 'interactive' },
+        ],
+      },
+      initialValue: 'legacy',
+      group: 'settings',
+    }),
 
     // Points of Interest allow the main scene to reference other scenes and inline POIs
     defineField({
@@ -97,8 +112,20 @@ export default defineType({
           title: 'Point of Interest',
           type: 'object',
           fields: [
-            { name: 'title', type: 'string' },
-            { name: 'body', type: 'block-content' },
+            { name: 'title', type: 'string', validation: (rule: any) => rule.required() },
+            {
+              name: 'body',
+              title: 'Body (Legacy)',
+              description: 'Legacy field - use blocks for richer content',
+              type: 'block-content',
+            },
+            {
+              name: 'blocks',
+              title: 'Blocks',
+              description: 'Rich content blocks (recommended for interactive mode)',
+              type: 'array',
+              of: [{ type: 'text-block' }, { type: 'experience-carousel' }, { type: 'media' }],
+            },
             {
               name: 'links',
               type: link.name,
@@ -107,16 +134,20 @@ export default defineType({
             {
               name: 'markerPosition',
               title: 'Marker Position',
+              description: 'The 3D position where the POI button should appear',
               type: 'object',
               fields: [
-                { name: 'x', type: 'number' },
-                { name: 'y', type: 'number' },
-                { name: 'z', type: 'number' },
+                { name: 'x', type: 'number', validation: (rule: any) => rule.required() },
+                { name: 'y', type: 'number', validation: (rule: any) => rule.required() },
+                { name: 'z', type: 'number', validation: (rule: any) => rule.required() },
               ],
+              validation: (rule: any) => rule.required(),
             },
             {
               name: 'cameraPosition',
-              title: 'Camera Position',
+              title: 'Camera Position (Optional)',
+              description:
+                'Optional: Camera position when POI is clicked. If not set, camera stays in place',
               type: 'object',
               fields: [
                 { name: 'x', type: 'number' },
@@ -126,7 +157,8 @@ export default defineType({
             },
             {
               name: 'cameraTarget',
-              title: 'Camera Target',
+              title: 'Camera Target (Optional)',
+              description: 'Optional: Where camera looks when POI is clicked',
               type: 'object',
               fields: [
                 { name: 'x', type: 'number' },
@@ -135,6 +167,24 @@ export default defineType({
               ],
             },
           ],
+          preview: {
+            select: {
+              title: 'title',
+              hasBlocks: 'blocks',
+              hasBody: 'body',
+            },
+            prepare({ title, hasBlocks, hasBody }) {
+              const contentType = hasBlocks?.length
+                ? 'Rich Content'
+                : hasBody
+                  ? 'Simple Body'
+                  : 'No Content';
+              return {
+                title: title || 'Untitled POI',
+                subtitle: contentType,
+              };
+            },
+          },
         },
       ],
     }),

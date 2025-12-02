@@ -5,12 +5,14 @@ import { LinkButton } from '@/components/shared/link-button';
 import { Button } from '@/components/ui/button';
 import { useExpandedContentStore } from '@/experience/scenes/store/expandedContentStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import { usePoiStore } from '@/experience/scenes/store/poiStore';
 import { useEscapeKey } from '@/hooks/useEscapeKey';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
 import { ArrowRight, ArrowUpFromLine, PanelLeftOpen, ShieldPlus, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import MarkerContentOverlay from './MarkerContentOverlay';
+import PoiContentOverlay from './PoiContentOverlay';
 
 export default function LogoMarkerContent() {
   // Select only needed pieces from the stores to avoid unnecessary re-renders
@@ -25,6 +27,15 @@ export default function LogoMarkerContent() {
   const isVisible = useExpandedContentStore(s => s.isVisible);
   const setExpandedContent = useExpandedContentStore(s => s.setExpandedContent);
   const closeExpandedContent = useExpandedContentStore(s => s.closeExpandedContent);
+
+  // POI state
+  const selectedPoi = usePoiStore(s => s.selectedPoi);
+  const setSelectedPoi = usePoiStore(s => s.setSelectedPoi);
+
+  // Debug: Log when POI is selected
+  useEffect(() => {
+    console.log('[LogoMarkerContent] selectedPoi changed:', selectedPoi);
+  }, [selectedPoi]);
 
   // Refs
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -207,8 +218,9 @@ export default function LogoMarkerContent() {
   useEffect(() => {
     if (!isContentVisible) {
       closeExpandedContent();
+      setSelectedPoi(null);
     }
-  }, [isContentVisible, closeExpandedContent]);
+  }, [isContentVisible, closeExpandedContent, setSelectedPoi]);
 
   // Reset which button is marked active when overlay hides
   useEffect(() => {
@@ -351,6 +363,13 @@ export default function LogoMarkerContent() {
           isVisible={isVisible}
           onClose={closeExpandedContent}
           blocks={blocks || []}
+        />
+      )}
+      {selectedPoi && (
+        <PoiContentOverlay
+          poi={selectedPoi}
+          isVisible={!!selectedPoi}
+          onClose={() => setSelectedPoi(null)}
         />
       )}
     </>

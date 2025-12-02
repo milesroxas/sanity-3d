@@ -239,6 +239,7 @@ export const SCENE_QUERY = groq`
       }
     },
     replaceMainLinkWithExpanded,
+    poiDisplayMode,
     links[] {
       ...,
       _type == 'pageLink' => {
@@ -280,6 +281,8 @@ export const SCENE_QUERY = groq`
         }
       },
       _type == "pointOfInterest" => {
+        _key,
+        _type,
         title,
         body[]{
           ...,
@@ -308,6 +311,90 @@ export const SCENE_QUERY = groq`
                 filename,
                 status
               }
+            }
+          }
+        },
+        blocks[] {
+          ...,
+          _type == "experience-carousel" => {
+            ...,
+            images[] {
+              ...,
+              asset->{
+                _id,
+                url,
+                metadata {
+                  lqip,
+                  dimensions {
+                    width,
+                    height
+                  }
+                }
+              }
+            }
+          },
+          _type == "text-block" => {
+            ...,
+            content[]{
+              ...,
+              _type == "image" => {
+                ...,
+                asset->{
+                  _id,
+                  url,
+                  mimeType,
+                  metadata {
+                    lqip,
+                    dimensions {
+                      width,
+                      height
+                    }
+                  }
+                }
+              },
+              _type == "muxVideo" => {
+                ...,
+                video {
+                  asset-> {
+                    _id,
+                    playbackId,
+                    assetId,
+                    filename,
+                    status
+                  }
+                }
+              }
+            }
+          },
+          _type == "media" => {
+            ...,
+            title,
+            mediaType,
+            alt,
+            image {
+              asset->{
+                _id,
+                url,
+                metadata {
+                  lqip,
+                  dimensions {
+                    width,
+                    height
+                  }
+                }
+              }
+            },
+            video {
+              asset-> {
+                _id,
+                playbackId,
+                assetId,
+                filename,
+                status
+              }
+            },
+            videoOptions{
+              showControls
             }
           }
         },

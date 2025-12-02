@@ -93,20 +93,36 @@ declare global {
       orderRank?: number;
     }>;
 
-    type Scene = PageBase & {
-      readonly _type: 'scenes';
+    type PointOfInterest = {
+      _key: string;
+      _type: 'pointOfInterest';
+      title: string;
       body?: any[];
+      blocks?: Block[];
       links?: Link[];
-      mainExpandedBody?: {
-        _type: 'expanded-body';
-        _key?: string;
-        title?: string;
-        body?: any[];
-        blocks?: Block[];
-        links?: Link[];
-      } | null;
+      markerPosition: {
+        x: number;
+        y: number;
+        z: number;
+      };
+      cameraPosition?: {
+        x: number;
+        y: number;
+        z: number;
+      };
+      cameraTarget?: {
+        x: number;
+        y: number;
+        z: number;
+      };
+    };
 
-      replaceMainLinkWithExpanded?: boolean;
+    type SceneReference = {
+      _key: string;
+      _type: 'scenes';
+      _id: string;
+      title: string;
+      slug: { current: string };
       mainSceneMarkerPosition?: {
         x: number;
         y: number;
@@ -122,43 +138,41 @@ declare global {
         y: number;
         z: number;
       };
-      pointsOfInterest?: Array<
-        | {
-            _key: string;
-            _type: 'scenes';
-            _id: string;
-            title: string;
-            slug: { current: string };
-            mainSceneMarkerPosition?: {
-              x: number;
-              y: number;
-              z: number;
-            };
-            body?: any[];
-            link?: Link;
-          }
-        | {
-            _key: string;
-            _type: 'pointOfInterest';
-            title: string;
-            body?: any[];
-            markerPosition?: {
-              x: number;
-              y: number;
-              z: number;
-            };
-            cameraPosition?: {
-              x: number;
-              y: number;
-              z: number;
-            };
-            cameraTarget?: {
-              x: number;
-              y: number;
-              z: number;
-            };
-          }
-      >;
+      body?: any[];
+      link?: Link;
+    };
+
+    type Scene = PageBase & {
+      readonly _type: 'scenes';
+      body?: any[];
+      links?: Link[];
+      mainExpandedBody?: {
+        _type: 'expanded-body';
+        _key?: string;
+        title?: string;
+        body?: any[];
+        blocks?: Block[];
+        links?: Link[];
+      } | null;
+
+      replaceMainLinkWithExpanded?: boolean;
+      poiDisplayMode?: 'legacy' | 'interactive';
+      mainSceneMarkerPosition?: {
+        x: number;
+        y: number;
+        z: number;
+      };
+      mainSceneCameraPosition?: {
+        x: number;
+        y: number;
+        z: number;
+      };
+      mainSceneCameraTarget?: {
+        x: number;
+        y: number;
+        z: number;
+      };
+      pointsOfInterest?: Array<SceneReference | PointOfInterest>;
       blocks?: Block[];
       sceneType?:
         | 'main'

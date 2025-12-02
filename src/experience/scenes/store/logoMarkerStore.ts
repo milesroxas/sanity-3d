@@ -73,7 +73,11 @@ export const useLogoMarkerStore = create<LogoMarkerStore>(set => ({
         return;
       }
 
-      set({ selectedScene: scene, isContentVisible: true });
+      // Only show drawer content in legacy mode
+      // In interactive mode, POI buttons will appear instead
+      const shouldShowContent = scene.poiDisplayMode !== 'interactive';
+
+      set({ selectedScene: scene, isContentVisible: shouldShowContent });
     } catch (error) {
       console.error('Error fetching scene:', error);
     } finally {

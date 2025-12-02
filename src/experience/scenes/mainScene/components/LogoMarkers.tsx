@@ -11,9 +11,10 @@ import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { animateCameraMovement } from '@/experience/utils/animationUtils';
 import { Float, Html, useCursor } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { Vector3 } from 'three';
+import { PoiManager } from './PoiManager';
 
 type MarkerPosition = {
   x: number;
@@ -194,7 +195,34 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     setOtherMarkersVisible,
     hoveredMarkerId,
     setHoveredMarkerId,
+    selectedScene, // Get the selected child scene
   } = useLogoMarkerStore();
+
+  // Use selectedScene if available (clicked child scene), otherwise use main scene
+  const activeScene = selectedScene || scene;
+
+  // Determine display mode: legacy (show all markers) or interactive (show POI buttons)
+  const poiDisplayMode = activeScene.poiDisplayMode || 'legacy';
+  const isInteractiveMode = poiDisplayMode === 'interactive';
+
+  console.log('[LogoMarkers] Scene data:', {
+    slug: activeScene.slug?.current,
+    isChildScene: !!selectedScene,
+    poiDisplayMode: activeScene.poiDisplayMode,
+    rawMode: poiDisplayMode,
+    isInteractiveMode,
+    hasPointsOfInterest: !!activeScene.pointsOfInterest,
+    pointsCount: activeScene.pointsOfInterest?.length || 0
+  });
+
+  // Filter scene references (logo markers) from POIs
+  const sceneReferences = useMemo(() => {
+    if (!scene.pointsOfInterest) return [];
+    return scene.pointsOfInterest.filter(
+      (poi): poi is Sanity.SceneReference =>
+        poi._type === 'scenes' && !!poi.mainSceneMarkerPosition
+    );
+  }, [scene.pointsOfInterest]);
 
   // Performance optimization: Use individual selectors to prevent re-renders during camera animation
   const setControlType = useCameraStore(selectSetControlType);
@@ -229,15 +257,10 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
 
   // Preload marker model on component mount with proper error handling
   useEffect(() => {
-    let isMounted = true;
     // Force preload of marker model
     import('@/experience/components/markers/LogoMarker').catch(err => {
       console.error('Failed to preload LogoMarker:', err);
     });
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   const handleMarkerClick = useCallback(
@@ -294,6 +317,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
           onComplete: () => {
             setIsAnimating(false);
             if (poi.slug?.current) {
+              // Fetch the scene data, but don't auto-show content in interactive mode
               fetchAndSetScene(poi.slug.current);
             }
           },
@@ -377,27 +401,20 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
 
   return (
     <group>
-      {scene.pointsOfInterest?.map((poi, index) => {
-        if (
-          '_type' in poi &&
-          poi._type === 'scenes' &&
-          'mainSceneMarkerPosition' in poi &&
-          poi.mainSceneMarkerPosition &&
-          'slug' in poi
-        ) {
-          return (
-            <PoiMarker
-              key={poi._id}
-              poi={poi}
-              hoveredMarkerId={hoveredMarkerId}
-              setHoveredMarkerId={setHoveredMarkerId}
-              handleMarkerClick={handleMarkerClick}
-              otherMarkersVisible={otherMarkersVisible}
-            />
-          );
-        }
-        return null;
-      })}
+      {/* Logo Markers - Always render scene references from main scene */}
+      {sceneReferences.map(poi => (
+        <PoiMarker
+          key={poi._id}
+          poi={poi}
+          hoveredMarkerId={hoveredMarkerId}
+          setHoveredMarkerId={setHoveredMarkerId}
+          handleMarkerClick={handleMarkerClick}
+          otherMarkersVisible={otherMarkersVisible}
+        />
+      ))}
+
+      {/* POI System - Only render in interactive mode, using activeScene (selectedScene if clicked) */}
+      {isInteractiveMode && <PoiManager scene={activeScene} />}
     </group>
   );
 }

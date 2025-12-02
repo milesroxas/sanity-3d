@@ -126,8 +126,8 @@ export function Environment() {
   const [{ ambientIntensity, ambientColor }, setAmbientControls] = useControls(
     '💡 Ambient Light',
     () => ({
-      ambientIntensity: { value: 0.75, min: 0, max: 2, step: 0.05, label: 'Intensity' },
-      ambientColor: { value: '#ffe5b7', label: 'Color' },
+      ambientIntensity: { value: 1.8, min: 0, max: 2, step: 0.05, label: 'Intensity' },
+      ambientColor: { value: '#fff6e6', label: 'Color' },
     }),
     { collapsed: true }
   );
