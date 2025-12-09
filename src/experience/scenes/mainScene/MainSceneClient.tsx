@@ -12,9 +12,13 @@ import {
   useCameraStore,
 } from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import { usePoiStore } from '@/experience/scenes/store/poiStore';
+import { useEscapeKey } from '@/hooks/useEscapeKey';
 import { useEffect, useLayoutEffect, useMemo } from 'react';
 import IntroOverlay from './components/IntroOverlay';
 import LogoMarkerContent from './components/LogoMarkerContent';
+import { PoiCloseButton } from './components/PoiCloseButton';
+import { usePoiCloseHandler } from './components/PoiManager';
 import MainScene from './MainScene';
 
 const noScrollStyles = {
@@ -27,6 +31,11 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
   const setSelectedScene = useLogoMarkerStore(s => s.setSelectedScene);
   const { setR3FContent } = useR3F();
 
+  // POI state
+  const poisVisible = usePoiStore(s => s.poisVisible);
+  const selectedPoi = usePoiStore(s => s.selectedPoi);
+  const { handleClose, isClosing } = usePoiCloseHandler();
+
   // Performance optimization: Use selectors to prevent re-renders during camera animation
   // This prevents 360 unnecessary re-renders during the 6-second intro (60fps × 6s)
   const resetToInitial = useCameraStore(selectResetToInitial);
@@ -36,6 +45,14 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
   const firstTimeLoading = useCameraStore(selectFirstTimeLoading);
   const beginIntroTransition = useCameraStore(selectBeginIntroTransition);
   const isAnimating = useCameraStore(selectIsAnimating);
+
+  // Escape key handling for POI close button
+  useEscapeKey({
+    enabled: poisVisible && !!selectedScene,
+    condition: !isClosing && !selectedPoi,
+    priority: 1,
+    onEscape: handleClose,
+  });
 
   const memoizedScene = useMemo(() => scene, [scene._id]);
 
@@ -81,6 +98,7 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
       <div style={noScrollStyles}>
         {showIntroOverlay && <IntroOverlay />}
         {showLogoMarkerContent && <LogoMarkerContent />}
+        <PoiCloseButton isVisible={poisVisible && !isClosing} onClick={handleClose} />
       </div>
     </div>
   );

@@ -10,7 +10,7 @@ import { useOverlayScrollLock } from '@/hooks/useOverlayScrollLock';
 import { cn } from '@/lib/utils';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { ArrowRight, PanelLeftClose, X } from 'lucide-react';
+import { ArrowRight, PanelRightClose, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 interface PoiContentOverlayProps {
@@ -405,7 +405,7 @@ export default function PoiContentOverlay({ poi, isVisible, onClose }: PoiConten
                   className="bg-primary/10 text-primary hover:bg-primary/80 hover:text-primary-foreground [&_svg]:!size-6 [&_svg]:!stroke-[1.75]"
                   ref={closeRef}
                 >
-                  <PanelLeftClose />
+                  <PanelRightClose />
                 </Button>
               </div>
             </div>

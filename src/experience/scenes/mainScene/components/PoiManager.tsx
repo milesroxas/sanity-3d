@@ -2,7 +2,7 @@
 import { useCameraStore } from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { usePoiStore } from '@/experience/scenes/store/poiStore';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PoiButton } from './PoiButton';
 
 interface PoiManagerProps {
@@ -74,6 +74,11 @@ export function PoiManager({ scene }: PoiManagerProps) {
   // Don't render if no POIs or wrong mode
   if (inlinePois.length === 0) return null;
 
+  console.log('[PoiManager] Render:', {
+    poisVisible,
+    poisCount: inlinePois.length
+  });
+
   return (
     <group>
       {inlinePois.map((poi, index) => (
@@ -88,4 +93,32 @@ export function PoiManager({ scene }: PoiManagerProps) {
       ))}
     </group>
   );
+}
+
+/**
+ * Hook to access POI close handler from outside the Canvas
+ */
+export function usePoiCloseHandler() {
+  const setSelectedScene = useLogoMarkerStore(s => s.setSelectedScene);
+  const setShouldAnimateBack = useLogoMarkerStore(s => s.setShouldAnimateBack);
+  const setSelectedPoi = usePoiStore(s => s.setSelectedPoi);
+  const setPoisVisible = usePoiStore(s => s.setPoisVisible);
+
+  const [isClosing, setIsClosing] = useState(false);
+
+  const handleClose = () => {
+    if (isClosing) return;
+
+    setIsClosing(true);
+    setSelectedPoi(null);
+    setPoisVisible(false);
+    setShouldAnimateBack(true);
+    setSelectedScene(null);
+
+    setTimeout(() => {
+      setIsClosing(false);
+    }, 1000);
+  };
+
+  return { handleClose, isClosing };
 }
