@@ -4,7 +4,7 @@ const nextConfig = {
   output: 'standalone',
 
   // Fix for isomorphic-dompurify and jsdom with Turbopack
-  serverExternalPackages: ['jsdom'],
+  serverExternalPackages: ['jsdom', 'parse5'],
 
   images: {
     remotePatterns: [
