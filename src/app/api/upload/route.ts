@@ -1,13 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseServiceClient } from "@/sanity/lib/supabaseServiceClient";
 
-// Disable Next.js body parser for this route (App Router handles this automatically)
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 // POST method handler
 export async function POST(req: Request) {
   try {

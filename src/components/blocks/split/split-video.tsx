@@ -199,7 +199,7 @@ export default function SplitVideo({
               '--controls': 'none',
               '--media-control-bar': 'none',
             }),
-          } as React.CSSProperties
+          } as React.CSSProperties & Record<`--${string}`, string>
         }
         nohotkeys={playbackMode === 'preview'}
       />

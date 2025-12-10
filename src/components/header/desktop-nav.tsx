@@ -646,7 +646,7 @@ export default function DesktopNav({ nav, settings, experienceMediaVideo }: Desk
                                 '--controls': 'none',
                                 '--media-control-bar': 'none',
                               }),
-                            } as React.CSSProperties
+                            } as React.CSSProperties & Record<`--${string}`, string>
                           }
                         />
                       </div>
@@ -728,7 +728,7 @@ export default function DesktopNav({ nav, settings, experienceMediaVideo }: Desk
                               '--controls': 'none',
                               '--media-control-bar': 'none',
                             }),
-                          } as React.CSSProperties
+                          } as React.CSSProperties & Record<`--${string}`, string>
                         }
                       />
                     )}

@@ -170,7 +170,7 @@ export default function Media({
                 width: '100%',
                 height: '100%',
                 ...muxVars,
-              } as CSSProperties;
+              } as React.CSSProperties & Record<`--${string}`, string>;
             })()}
             nohotkeys={playbackMode === 'preview'}
           />
