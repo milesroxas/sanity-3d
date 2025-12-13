@@ -18,11 +18,13 @@ interface PoiStore {
   poisVisible: boolean;
   selectedPoi: Sanity.PointOfInterest | null;
   isAnimatingIn: boolean;
+  isPoiOverlayVisible: boolean; // Tracks if POI content overlay is currently visible
 
   // Actions
   setPoisVisible: (visible: boolean) => void;
   setSelectedPoi: (poi: Sanity.PointOfInterest | null) => void;
   setIsAnimatingIn: (animating: boolean) => void;
+  setIsPoiOverlayVisible: (visible: boolean) => void;
   reset: () => void;
 }
 
@@ -31,13 +33,14 @@ export const usePoiStore = create<PoiStore>(set => ({
   poisVisible: false,
   selectedPoi: null,
   isAnimatingIn: false,
+  isPoiOverlayVisible: false,
 
   // Actions
   setPoisVisible: visible => {
     set({ poisVisible: visible });
     // If hiding POIs, also clear selection
     if (!visible) {
-      set({ selectedPoi: null, isAnimatingIn: false });
+      set({ selectedPoi: null, isAnimatingIn: false, isPoiOverlayVisible: false });
     }
   },
 
@@ -45,10 +48,13 @@ export const usePoiStore = create<PoiStore>(set => ({
 
   setIsAnimatingIn: animating => set({ isAnimatingIn: animating }),
 
+  setIsPoiOverlayVisible: visible => set({ isPoiOverlayVisible: visible }),
+
   reset: () =>
     set({
       poisVisible: false,
       selectedPoi: null,
       isAnimatingIn: false,
+      isPoiOverlayVisible: false,
     }),
 }));

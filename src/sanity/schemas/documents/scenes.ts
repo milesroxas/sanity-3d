@@ -61,6 +61,23 @@ export default defineType({
       validation: (rule: any) => rule.max(2),
       group: 'content',
     }),
+
+    defineField({
+      name: 'poiDisplayMode',
+      title: 'Points of Interest Display Mode',
+      description:
+        'Choose how inline POIs should be displayed after camera transition. Legacy mode shows logo markers immediately. Interactive mode shows clickable POI buttons.',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Legacy (Auto-show logo markers)', value: 'legacy' },
+          { title: 'Interactive Buttons (Click to view)', value: 'interactive' },
+        ],
+      },
+      initialValue: 'legacy',
+      group: 'settings',
+    }),
+
     defineField({
       name: 'mainExpandedBody',
       title: 'Primary Expanded Content',
@@ -76,21 +93,6 @@ export default defineType({
       type: 'boolean',
       initialValue: false,
       group: 'content',
-    }),
-    defineField({
-      name: 'poiDisplayMode',
-      title: 'Points of Interest Display Mode',
-      description:
-        'Choose how inline POIs should be displayed after camera transition. Legacy mode shows logo markers immediately. Interactive mode shows clickable POI buttons.',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Legacy (Auto-show logo markers)', value: 'legacy' },
-          { title: 'Interactive Buttons (Click to view)', value: 'interactive' },
-        ],
-      },
-      initialValue: 'legacy',
-      group: 'settings',
     }),
 
     // Points of Interest allow the main scene to reference other scenes and inline POIs
@@ -113,16 +115,11 @@ export default defineType({
           type: 'object',
           fields: [
             { name: 'title', type: 'string', validation: (rule: any) => rule.required() },
-            {
-              name: 'body',
-              title: 'Body (Legacy)',
-              description: 'Legacy field - use blocks for richer content',
-              type: 'block-content',
-            },
+
             {
               name: 'blocks',
               title: 'Blocks',
-              description: 'Rich content blocks (recommended for interactive mode)',
+              description: 'Rich content blocks',
               type: 'array',
               of: [{ type: 'text-block' }, { type: 'experience-carousel' }, { type: 'media' }],
             },

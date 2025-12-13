@@ -1,5 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/button';
+import { usePoiStore } from '@/experience/scenes/store/poiStore';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { X } from 'lucide-react';
@@ -20,11 +21,16 @@ interface PoiCloseButtonProps {
  * - GSAP animations for smooth entrance/exit
  * - Positioned in top-right corner
  * - Matches legacy marker content close button behavior
+ * - Hides when POI content overlay is visible to avoid overlapping close buttons
  */
 export function PoiCloseButton({ isVisible, onClick }: PoiCloseButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  console.log('[PoiCloseButton] Render:', { isVisible, hasRef: !!buttonRef.current });
+  // Hide this button when POI content overlay is visible
+  const isPoiOverlayVisible = usePoiStore(s => s.isPoiOverlayVisible);
+  const shouldShow = isVisible && !isPoiOverlayVisible;
+
+  console.log('[PoiCloseButton] Render:', { isVisible, isPoiOverlayVisible, shouldShow, hasRef: !!buttonRef.current });
 
   // GSAP animations
   useGSAP(
@@ -34,9 +40,9 @@ export function PoiCloseButton({ isVisible, onClick }: PoiCloseButtonProps) {
         return;
       }
 
-      console.log('[PoiCloseButton] Animation triggered:', { isVisible });
+      console.log('[PoiCloseButton] Animation triggered:', { shouldShow });
 
-      if (isVisible) {
+      if (shouldShow) {
         // Fade and scale in
         gsap.fromTo(
           buttonRef.current,
@@ -63,10 +69,10 @@ export function PoiCloseButton({ isVisible, onClick }: PoiCloseButtonProps) {
         });
       }
     },
-    { dependencies: [isVisible] }
+    { dependencies: [shouldShow] }
   );
 
-  if (!isVisible) return null;
+  if (!shouldShow) return null;
 
   return (
     <Button

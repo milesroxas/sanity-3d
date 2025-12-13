@@ -284,36 +284,6 @@ export const SCENE_QUERY = groq`
         _key,
         _type,
         title,
-        body[]{
-          ...,
-          _type == "image" => {
-            ...,
-            asset->{
-              _id,
-              url,
-              mimeType,
-              metadata {
-                lqip,
-                dimensions {
-                  width,
-                  height
-                }
-              }
-            }
-          },
-          _type == "muxVideo" => {
-            ...,
-            video {
-              asset-> {
-                _id,
-                playbackId,
-                assetId,
-                filename,
-                status
-              }
-            }
-          }
-        },
         blocks[] {
           ...,
           _type == "experience-carousel" => {

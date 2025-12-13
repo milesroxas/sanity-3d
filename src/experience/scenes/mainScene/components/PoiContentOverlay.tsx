@@ -5,12 +5,13 @@ import { LinkButton } from '@/components/shared/link-button';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import { usePoiStore } from '@/experience/scenes/store/poiStore';
 import { useEscapeKey } from '@/hooks/useEscapeKey';
 import { useOverlayScrollLock } from '@/hooks/useOverlayScrollLock';
 import { cn } from '@/lib/utils';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { ArrowRight, PanelRightClose, X } from 'lucide-react';
+import { ArrowRight, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 interface PoiContentOverlayProps {
@@ -46,6 +47,21 @@ export default function PoiContentOverlay({ poi, isVisible, onClose }: PoiConten
   // Check if a scene is selected instead of checking drawer visibility
   const selectedScene = useLogoMarkerStore(s => s.selectedScene);
   const isSceneActive = !!selectedScene;
+
+  // Sync overlay visibility state with poiStore to control main close button
+  const setIsPoiOverlayVisible = usePoiStore(s => s.setIsPoiOverlayVisible);
+
+  // Sync visibility state - update store when overlay shows/hides
+  useEffect(() => {
+    // Only set to visible when fully shown (not animating out)
+    const shouldBeVisible = isVisible && isSceneActive && !isAnimating;
+    setIsPoiOverlayVisible(shouldBeVisible);
+
+    // Cleanup: ensure we reset state when component unmounts
+    return () => {
+      setIsPoiOverlayVisible(false);
+    };
+  }, [isVisible, isSceneActive, isAnimating, setIsPoiOverlayVisible]);
 
   // Calculate layout dimensions
   useEffect(() => {
@@ -405,7 +421,7 @@ export default function PoiContentOverlay({ poi, isVisible, onClose }: PoiConten
                   className="bg-primary/10 text-primary hover:bg-primary/80 hover:text-primary-foreground [&_svg]:!size-6 [&_svg]:!stroke-[1.75]"
                   ref={closeRef}
                 >
-                  <PanelRightClose />
+                  <X />
                 </Button>
               </div>
             </div>
