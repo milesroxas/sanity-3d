@@ -365,6 +365,7 @@ export default function LogoMarkerContent() {
           poi={selectedPoi}
           isVisible={!!selectedPoi}
           onClose={() => setSelectedPoi(null)}
+          sceneTitle={selectedScene?.title}
         />
       )}
     </>

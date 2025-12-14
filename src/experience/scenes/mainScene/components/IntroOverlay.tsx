@@ -112,6 +112,25 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
     };
   }, []);
 
+  // Cleanup: Ensure container is completely removed if component unmounts during animation
+  useEffect(() => {
+    return () => {
+      if (containerRef.current) {
+        // Force remove all visual effects on unmount
+        const container = containerRef.current;
+        gsap.set(container, {
+          display: 'none',
+          visibility: 'hidden',
+          opacity: 0,
+          pointerEvents: 'none',
+          background: 'transparent',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
+        });
+      }
+    };
+  }, []);
+
   // Cache user motion preference. No state update to avoid re-renders.
   const prefersReducedMotion = useMemo(
     () =>
@@ -157,8 +176,11 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
       if (heading) gsap.set(heading, { autoAlpha: 0 });
       if (buttons) gsap.set(buttons, { autoAlpha: 0 });
 
+      // Start scene at target opacity so it's immediately visible
       gsap.set(scene, {
-        opacity: prefersReducedMotion ? targetSceneOpacity : Math.min(targetSceneOpacity, 0.05),
+        opacity: prefersReducedMotion
+          ? targetSceneOpacity
+          : Math.min(targetSceneOpacity * 0.6, 0.6),
       });
 
       if (prefersReducedMotion) {
@@ -174,11 +196,11 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
 
       const tl = gsap.timeline();
 
-      // 1. Fade in container (without scene initially)
-      tl.to(container, { autoAlpha: 1, duration: 0.4, ease: 'power2.out' }, 0);
+      // 1. Container fades in (scene is already visible)
+      tl.to(container, { autoAlpha: 1, duration: 0.6, ease: 'power2.out' }, 0);
 
-      // 2. Content (heading with SplitText line reveal + buttons) fades in
-      tl.addLabel('contentFadeIn', 0.3);
+      // 2. Content (heading with SplitText line reveal + buttons) fades in after container
+      tl.addLabel('contentFadeIn', 0.4);
 
       if (heading) {
         // Split text into lines
@@ -192,6 +214,7 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
         lines.forEach(line => {
           const wrapper = document.createElement('div');
           wrapper.style.overflow = 'hidden';
+          wrapper.style.paddingBottom = '0.15em'; // Prevent descenders from being cut off
           line.parentNode?.insertBefore(wrapper, line);
           wrapper.appendChild(line);
         });
@@ -199,66 +222,78 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
         // Initial state - lines translated down and invisible
         gsap.set(lines, {
           yPercent: 100,
-          opacity: 0
+          opacity: 0,
         });
 
         gsap.set(heading, { autoAlpha: 1 });
 
         // Animate lines up with stagger using elegant expo easing
-        tl.to(lines, {
-          yPercent: 0,
-          opacity: 1,
-          duration: 1,
-          ease: 'expo.out',
-          stagger: 0.08
-        }, 'contentFadeIn');
+        tl.to(
+          lines,
+          {
+            yPercent: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'expo.out',
+            stagger: 0.06,
+          },
+          'contentFadeIn'
+        );
       }
 
       if (buttons) {
-        tl.to(buttons, {
-          autoAlpha: 1,
-          duration: 0.8,
-          ease: 'power3.out'
-        }, 'contentFadeIn+=0.5');
+        tl.to(
+          buttons,
+          {
+            autoAlpha: 1,
+            duration: 0.6,
+            ease: 'power3.out',
+          },
+          'contentFadeIn+=0.8'
+        );
       }
 
-      // 3. Video fades in with scale
-      tl.addLabel('videoFadeIn', 'contentFadeIn+=1.1');
-      if (video) {
-        tl.to(video, {
-          autoAlpha: 1,
-          scale: 1,
-          duration: 1.2,
-          ease: 'expo.out'
-        }, 'videoFadeIn');
-      }
+      // 3. Logo and Marquee first, then video after they complete
+      tl.addLabel('finalElements', 'contentFadeIn+=1.5');
 
-      // 4. Logo slides down and marquee slides up together AFTER video completes
-      tl.addLabel('finalElements', 'videoFadeIn+=1.2');
       if (logo) {
-        tl.to(logo, {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.9,
-          ease: 'expo.out'
-        }, 'finalElements');
-      }
-      if (marquee) {
-        tl.to(marquee, {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.9,
-          ease: 'expo.out'
-        }, 'finalElements');
+        tl.to(
+          logo,
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.7,
+            ease: 'expo.out',
+          },
+          'finalElements'
+        );
       }
 
-      // 5. Scene background fades up LAST - more visible (lower opacity = more scene visible)
-      tl.addLabel('sceneReveal', 'finalElements+=0.6');
-      tl.to(scene, {
-        opacity: Math.min(targetSceneOpacity * 0.6, 0.6), // 60% of original or max 0.6
-        duration: 1.8,
-        ease: 'power3.out'
-      }, 'sceneReveal');
+      if (marquee) {
+        tl.to(
+          marquee,
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.7,
+            ease: 'expo.out',
+          },
+          'finalElements'
+        );
+      }
+
+      if (video) {
+        tl.to(
+          video,
+          {
+            autoAlpha: 1,
+            scale: 1,
+            duration: 1.0,
+            ease: 'expo.out',
+          },
+          'finalElements+=0.2'
+        );
+      }
 
       // No manual kill needed. Context revert handles it.
     },
@@ -287,11 +322,22 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
       if (!container || !scene) return;
 
       // Disable pointer events quickly to prevent double clicks
-      gsap.set(container, { pointerEvents: 'none' });
+      gsap.set(container, {
+        pointerEvents: 'none',
+      });
 
       if (prefersReducedMotion) {
-        // Snap out
-        gsap.set(container, { autoAlpha: 0 });
+        // Snap out - completely remove from DOM
+        gsap.set(container, {
+          autoAlpha: 0,
+          display: 'none',
+          visibility: 'hidden',
+          pointerEvents: 'none',
+          // Remove background and backdrop effects completely
+          background: 'transparent',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
+        });
         if (logo) gsap.set(logo, { autoAlpha: 0 });
         if (heading) gsap.set(heading, { autoAlpha: 0 });
         if (buttons) gsap.set(buttons, { autoAlpha: 0 });
@@ -303,13 +349,6 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
 
       const tl = gsap.timeline();
 
-      // Scene fades up throughout
-      tl.to(scene, {
-        opacity: sceneInitialOpacityRef.current,
-        duration: 1,
-        ease: 'power3.inOut',
-      }, 0);
-
       // All elements slide down and fade out in a staggered way
       // Key: opacity finishes BEFORE y animation completes
       const slideDistance = 80; // Total slide down distance
@@ -317,77 +356,174 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
       const fadeDuration = 0.6; // Fade completes much earlier
 
       if (logo) {
-        tl.to(logo, {
-          y: slideDistance,
-          duration: slideDuration,
-          ease: 'power2.in'
-        }, 0)
-        .to(logo, {
-          opacity: 0,
-          duration: fadeDuration,
-          ease: 'power2.in'
-        }, 0);
+        tl.to(
+          logo,
+          {
+            y: slideDistance,
+            duration: slideDuration,
+            ease: 'power2.in',
+          },
+          0
+        ).to(
+          logo,
+          {
+            opacity: 0,
+            duration: fadeDuration,
+            ease: 'power2.in',
+          },
+          0
+        );
       }
 
       if (heading) {
-        tl.to(heading, {
-          y: slideDistance,
-          duration: slideDuration,
-          ease: 'power2.in'
-        }, 0.05)
-        .to(heading, {
-          opacity: 0,
-          duration: fadeDuration,
-          ease: 'power2.in'
-        }, 0.05);
+        tl.to(
+          heading,
+          {
+            y: slideDistance,
+            duration: slideDuration,
+            ease: 'power2.in',
+          },
+          0.05
+        ).to(
+          heading,
+          {
+            opacity: 0,
+            duration: fadeDuration,
+            ease: 'power2.in',
+          },
+          0.05
+        );
       }
 
       if (buttons) {
-        tl.to(buttons, {
-          y: slideDistance,
-          duration: slideDuration,
-          ease: 'power2.in'
-        }, 0.08)
-        .to(buttons, {
-          opacity: 0,
-          duration: fadeDuration,
-          ease: 'power2.in'
-        }, 0.08);
+        tl.to(
+          buttons,
+          {
+            y: slideDistance,
+            duration: slideDuration,
+            ease: 'power2.in',
+          },
+          0.08
+        ).to(
+          buttons,
+          {
+            opacity: 0,
+            duration: fadeDuration,
+            ease: 'power2.in',
+          },
+          0.08
+        );
       }
 
       if (video) {
-        tl.to(video, {
-          y: slideDistance,
-          scale: 0.92,
-          duration: slideDuration,
-          ease: 'power2.in'
-        }, 0.1)
-        .to(video, {
-          opacity: 0,
-          duration: fadeDuration,
-          ease: 'power2.in'
-        }, 0.1);
+        tl.to(
+          video,
+          {
+            y: slideDistance,
+            scale: 0.92,
+            duration: slideDuration,
+            ease: 'power2.in',
+          },
+          0.1
+        ).to(
+          video,
+          {
+            opacity: 0,
+            duration: fadeDuration,
+            ease: 'power2.in',
+          },
+          0.1
+        );
       }
 
       if (marquee) {
-        tl.to(marquee, {
-          y: slideDistance,
-          duration: slideDuration,
-          ease: 'power2.in'
-        }, 0.13)
-        .to(marquee, {
-          opacity: 0,
-          duration: fadeDuration,
-          ease: 'power2.in'
-        }, 0.13);
+        tl.to(
+          marquee,
+          {
+            y: slideDistance,
+            duration: slideDuration,
+            ease: 'power2.in',
+          },
+          0.13
+        ).to(
+          marquee,
+          {
+            opacity: 0,
+            duration: fadeDuration,
+            ease: 'power2.in',
+          },
+          0.13
+        );
       }
 
-      // Container fades last
-      tl.to(container, {
-        autoAlpha: 0,
-        duration: 0.3,
-        ease: 'power2.inOut'
-      }, 0.5);
+      // Container fades out simultaneously with content animations
+      // Use autoAlpha to set both opacity and visibility
+      // The background and backdrop will fade naturally with opacity
+      tl.to(
+        container,
+        {
+          autoAlpha: 0,
+          duration: 0.6,
+          ease: 'power2.in',
+        },
+        0
+      );
+
+      // Scene fades up simultaneously - ensure it reaches full opacity and stays there
+      tl.to(
+        scene,
+        {
+          opacity: sceneInitialOpacityRef.current,
+          duration: 1,
+          ease: 'power3.inOut',
+        },
+        0
+      );
+
+      // Completely remove container from DOM flow at the END of all animations
+      // This ensures nothing can reappear or interfere with the main scene
+      // Calculate the latest end time: marquee starts at 0.13 and animates for slideDuration (1.2s)
+      // Scene fade is 1s, so total should be max(1.33, 1) = 1.33s
+      const latestAnimationEnd = 0.13 + slideDuration; // 1.33 seconds
+      const sceneFadeEnd = 1; // Scene fade duration
+      const totalDuration = Math.max(latestAnimationEnd, sceneFadeEnd);
+
+      // Lock the scene opacity at the end to prevent any reverts
+      tl.set(
+        scene,
+        {
+          opacity: sceneInitialOpacityRef.current,
+        },
+        totalDuration
+      );
+
+      // Remove CSS transition classes from scene container at the end to prevent unwanted fade-ins
+      // And lock the scene opacity to prevent any reverts
+      tl.call(
+        () => {
+          if (scene) {
+            scene.classList.remove('transition-opacity', 'duration-1000', 'ease-in-out');
+            // Lock opacity to prevent any CSS transitions from reverting it
+            scene.style.opacity = String(sceneInitialOpacityRef.current);
+          }
+        },
+        [],
+        totalDuration
+      );
+
+      tl.set(
+        container,
+        {
+          display: 'none',
+          visibility: 'hidden',
+          pointerEvents: 'none',
+          // Remove background and backdrop effects completely
+          background: 'transparent',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
+        },
+        totalDuration
+      );
     },
     {
       scope: containerRef,
@@ -441,7 +577,10 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
         <div className="grid w-full max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Text content */}
           <div className="flex flex-col space-y-8">
-            <h1 ref={headingRef} className="text-2xl font-semibold leading-tight text-foreground lg:text-4xl">
+            <h1
+              ref={headingRef}
+              className="text-2xl font-semibold leading-tight text-foreground lg:text-4xl"
+            >
               Over 40 years of experience offering comprehensive security solutions
             </h1>
             <div ref={buttonsRef} className="flex gap-4">

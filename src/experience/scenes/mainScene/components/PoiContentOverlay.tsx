@@ -18,6 +18,7 @@ interface PoiContentOverlayProps {
   poi: Sanity.PointOfInterest;
   isVisible: boolean;
   onClose: () => void;
+  sceneTitle?: string;
 }
 
 /**
@@ -32,7 +33,12 @@ interface PoiContentOverlayProps {
  * - Escape key handling
  * - Scroll lock on mobile
  */
-export default function PoiContentOverlay({ poi, isVisible, onClose }: PoiContentOverlayProps) {
+export default function PoiContentOverlay({
+  poi,
+  isVisible,
+  onClose,
+  sceneTitle,
+}: PoiContentOverlayProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -345,7 +351,7 @@ export default function PoiContentOverlay({ poi, isVisible, onClose }: PoiConten
             ref={contentRef}
           >
             <h2 className="text-lg font-bold text-secondary/50" ref={titleRef}>
-              {poi.title}
+              {sceneTitle || poi.title}
             </h2>
             <Button
               variant="ghost"
@@ -411,7 +417,7 @@ export default function PoiContentOverlay({ poi, isVisible, onClose }: PoiConten
             <div className="relative flex items-center px-14 lg:px-16">
               <div className="" ref={titleRef}>
                 <h3 className="text-xl font-medium leading-none text-muted-foreground lg:text-2xl lg:leading-none">
-                  {poi.title}
+                  {sceneTitle || poi.title}
                 </h3>
               </div>
               <div className="absolute left-2 top-1/2 -translate-y-1/2 lg:left-3">
