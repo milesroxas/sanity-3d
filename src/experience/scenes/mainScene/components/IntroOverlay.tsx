@@ -172,7 +172,7 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
       gsap.set(container, { autoAlpha: 0 });
       if (logo) gsap.set(logo, { autoAlpha: 0, y: -30 });
       if (marquee) gsap.set(marquee, { autoAlpha: 0, y: 30 });
-      if (video) gsap.set(video, { autoAlpha: 0, scale: 0.95 });
+      if (video) gsap.set(video, { autoAlpha: 0 });
       if (heading) gsap.set(heading, { autoAlpha: 0 });
       if (buttons) gsap.set(buttons, { autoAlpha: 0 });
 
@@ -180,7 +180,7 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
       gsap.set(scene, {
         opacity: prefersReducedMotion
           ? targetSceneOpacity
-          : Math.min(targetSceneOpacity * 0.6, 0.6),
+          : Math.min(targetSceneOpacity * 0.8, 0.8),
       });
 
       if (prefersReducedMotion) {
@@ -189,7 +189,7 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
         if (logo) gsap.set(logo, { autoAlpha: 1 });
         if (heading) gsap.set(heading, { autoAlpha: 1 });
         if (buttons) gsap.set(buttons, { autoAlpha: 1 });
-        if (video) gsap.set(video, { autoAlpha: 1, scale: 1 });
+        if (video) gsap.set(video, { autoAlpha: 1 });
         if (marquee) gsap.set(marquee, { autoAlpha: 1 });
         return;
       }
@@ -197,10 +197,10 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
       const tl = gsap.timeline();
 
       // 1. Container fades in (scene is already visible)
-      tl.to(container, { autoAlpha: 1, duration: 0.6, ease: 'power2.out' }, 0);
+      tl.to(container, { autoAlpha: 1, duration: 1, ease: 'power2.out' }, 0);
 
       // 2. Content (heading with SplitText line reveal + buttons) fades in after container
-      tl.addLabel('contentFadeIn', 0.4);
+      tl.addLabel('contentFadeIn', 1.25);
 
       if (heading) {
         // Split text into lines
@@ -233,9 +233,9 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
           {
             yPercent: 0,
             opacity: 1,
-            duration: 0.8,
+            duration: 1.25,
             ease: 'expo.out',
-            stagger: 0.06,
+            stagger: 0.08,
           },
           'contentFadeIn'
         );
@@ -246,15 +246,15 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
           buttons,
           {
             autoAlpha: 1,
-            duration: 0.6,
+            duration: 1,
             ease: 'power3.out',
           },
-          'contentFadeIn+=0.8'
+          'contentFadeIn+=1.5'
         );
       }
 
       // 3. Logo and Marquee first, then video after they complete
-      tl.addLabel('finalElements', 'contentFadeIn+=1.5');
+      tl.addLabel('finalElements', 'contentFadeIn+=1.75');
 
       if (logo) {
         tl.to(
@@ -262,7 +262,7 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
           {
             autoAlpha: 1,
             y: 0,
-            duration: 0.7,
+            duration: 1.5,
             ease: 'expo.out',
           },
           'finalElements'
@@ -275,7 +275,7 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
           {
             autoAlpha: 1,
             y: 0,
-            duration: 0.7,
+            duration: 1.5,
             ease: 'expo.out',
           },
           'finalElements'
@@ -287,11 +287,10 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
           video,
           {
             autoAlpha: 1,
-            scale: 1,
-            duration: 1.0,
+            duration: 1.5,
             ease: 'expo.out',
           },
-          'finalElements+=0.2'
+          'finalElements'
         );
       }
 
@@ -411,7 +410,7 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
             duration: fadeDuration,
             ease: 'power2.in',
           },
-          0.08
+          0.1
         );
       }
 
