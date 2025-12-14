@@ -13,7 +13,9 @@ type FenceType =
   | 'fence-stone-metal'
   | 'fence-shrub'
   | 'fence-big'
-  | 'fence-picket';
+  | 'fence-picket'
+  | 'gate-right'
+  | 'gate-left';
 
 // Define the types for fence instances using a mapped type
 type FencesInstances = ModelInstances & {
@@ -36,6 +38,8 @@ const mapFencesNodes = (nodes: Record<string, THREE.Object3D>) => {
     'fence-shrub': nodes['fence-shrub'],
     'fence-big': nodes['fence-big'],
     'fence-picket': nodes['fence-picket'],
+    'gate-right': nodes['gate-right'],
+    'gate-left': nodes['gate-left'],
   };
 };
 
@@ -55,6 +59,8 @@ const mapBlenderNamesToTypes = (name: string): FenceType | null => {
     'fence-shrub': 'fence-shrub',
     'fence-big': 'fence-big',
     'fence-picket': 'fence-picket',
+    'gate-right': 'gate-right',
+    'gate-left': 'gate-left',
   };
 
   return nameMap[baseName] || null;
