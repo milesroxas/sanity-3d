@@ -59,16 +59,10 @@ export function PoiButton({ poi, isVisible, isSelected, onClick, index = 0 }: Po
       'Copy Position': button(() => {
         const positionString = `{ x: ${positionControls.x}, y: ${positionControls.y}, z: ${positionControls.z} }`;
         navigator.clipboard.writeText(positionString);
-        console.log('[PoiButton] Copied position:', positionString);
       }),
     },
     [poi.title]
   );
-
-  // Debug: Log when controls are created
-  useEffect(() => {
-    console.log('[PoiButton] Leva controls created for:', poi.title, positionControls);
-  }, [poi.title, positionControls]);
 
   // Apply cursor effect
   useCursor(isHovered && isVisible);
@@ -76,8 +70,6 @@ export function PoiButton({ poi, isVisible, isSelected, onClick, index = 0 }: Po
   // Animate in when visible
   useEffect(() => {
     if (!groupRef.current || !buttonRef.current) return;
-
-    console.log('[PoiButton] Animation check:', { isVisible, hasAnimatedIn, index });
 
     if (isVisible && !hasAnimatedIn) {
       // Set initial state - start slightly below and scaled down
@@ -193,14 +185,7 @@ export function PoiButton({ poi, isVisible, isSelected, onClick, index = 0 }: Po
   };
 
   const handleClick = () => {
-    console.log('[PoiButton] Click:', {
-      isVisible,
-      hasAnimatedIn,
-      isSelected,
-      willTrigger: isVisible && hasAnimatedIn && !isSelected,
-    });
     if (isVisible && hasAnimatedIn && !isSelected) {
-      console.log('[PoiButton] Triggering onClick for:', poi.title);
       onClick(poi);
       useCursorStore.getState().setHoveringInteractive(false);
     }

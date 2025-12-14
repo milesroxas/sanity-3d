@@ -405,7 +405,7 @@ export default function PoiContentOverlay({ poi, isVisible, onClose }: PoiConten
       <div className="flex flex-1 items-center justify-end">
         <div
           ref={overlayRef}
-          className="pointer-events-auto flex h-full max-h-[90vh] w-full max-w-[700px] flex-col bg-background/75 shadow-xl md:rounded-lg md:backdrop-blur-lg lg:max-w-[800px]"
+          className="pointer-events-auto flex h-full max-h-[90vh] w-full max-w-[700px] flex-col bg-background/75 shadow-xl md:rounded-lg md:backdrop-blur-lg lg:max-w-[75vw]"
         >
           <div className="sticky top-0 z-10 rounded-t-lg bg-background/15 pb-4 pt-4 shadow-sm backdrop-blur-sm">
             <div className="relative flex items-center px-14 lg:px-16">

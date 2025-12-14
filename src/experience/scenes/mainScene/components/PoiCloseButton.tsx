@@ -30,17 +30,12 @@ export function PoiCloseButton({ isVisible, onClick }: PoiCloseButtonProps) {
   const isPoiOverlayVisible = usePoiStore(s => s.isPoiOverlayVisible);
   const shouldShow = isVisible && !isPoiOverlayVisible;
 
-  console.log('[PoiCloseButton] Render:', { isVisible, isPoiOverlayVisible, shouldShow, hasRef: !!buttonRef.current });
-
   // GSAP animations
   useGSAP(
     () => {
       if (!buttonRef.current) {
-        console.log('[PoiCloseButton] No buttonRef');
         return;
       }
-
-      console.log('[PoiCloseButton] Animation triggered:', { shouldShow });
 
       if (shouldShow) {
         // Fade and scale in
@@ -56,7 +51,6 @@ export function PoiCloseButton({ isVisible, onClick }: PoiCloseButtonProps) {
             duration: 0.4,
             ease: 'power2.out',
             delay: 0.3, // Slight delay after POIs appear
-            onComplete: () => console.log('[PoiCloseButton] Fade in complete'),
           }
         );
       } else {

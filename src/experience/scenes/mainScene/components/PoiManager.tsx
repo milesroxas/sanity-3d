@@ -74,11 +74,6 @@ export function PoiManager({ scene }: PoiManagerProps) {
   // Don't render if no POIs or wrong mode
   if (inlinePois.length === 0) return null;
 
-  console.log('[PoiManager] Render:', {
-    poisVisible,
-    poisCount: inlinePois.length
-  });
-
   return (
     <group>
       {inlinePois.map((poi, index) => (

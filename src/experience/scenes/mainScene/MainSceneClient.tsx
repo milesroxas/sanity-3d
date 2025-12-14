@@ -26,7 +26,7 @@ const noScrollStyles = {
   width: '100%',
 };
 
-export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
+export default function MainSceneClient({ scene, nav }: { scene: Sanity.Scene; nav: Sanity.Nav }) {
   const selectedScene = useLogoMarkerStore(s => s.selectedScene);
   const setSelectedScene = useLogoMarkerStore(s => s.setSelectedScene);
   const { setR3FContent } = useR3F();
@@ -96,7 +96,9 @@ export default function MainSceneClient({ scene }: { scene: Sanity.Scene }) {
   return (
     <div>
       <div style={noScrollStyles}>
-        {showIntroOverlay && <IntroOverlay />}
+        {showIntroOverlay && (
+          <IntroOverlay experienceMediaVideo={nav.experienceMediaVideo} logo={nav.logo} />
+        )}
         {showLogoMarkerContent && <LogoMarkerContent />}
         <PoiCloseButton isVisible={poisVisible && !isClosing} onClick={handleClose} />
       </div>

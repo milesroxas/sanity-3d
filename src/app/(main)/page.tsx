@@ -1,7 +1,7 @@
 import ExperienceWrapper from '@/app/(components)/wrapper/ExperienceWrapper';
 import MainSceneClient from '@/experience/scenes/mainScene/MainSceneClient';
 import { generatePageMetadata } from '@/lib/metadata';
-import { fetchSanitySceneBySlug } from './actions';
+import { fetchSanityNav, fetchSanitySceneBySlug } from './actions';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -13,9 +13,10 @@ export async function generateMetadata() {
 
 export default async function HomePage() {
   const scene = await fetchSanitySceneBySlug({ slug: 'experience' });
+  const nav = await fetchSanityNav();
   return (
     <ExperienceWrapper>
-      <MainSceneClient scene={scene} />
+      <MainSceneClient scene={scene} nav={nav} />
     </ExperienceWrapper>
   );
 }

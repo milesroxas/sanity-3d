@@ -205,22 +205,11 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
   const poiDisplayMode = activeScene.poiDisplayMode || 'legacy';
   const isInteractiveMode = poiDisplayMode === 'interactive';
 
-  console.log('[LogoMarkers] Scene data:', {
-    slug: activeScene.slug?.current,
-    isChildScene: !!selectedScene,
-    poiDisplayMode: activeScene.poiDisplayMode,
-    rawMode: poiDisplayMode,
-    isInteractiveMode,
-    hasPointsOfInterest: !!activeScene.pointsOfInterest,
-    pointsCount: activeScene.pointsOfInterest?.length || 0
-  });
-
   // Filter scene references (logo markers) from POIs
   const sceneReferences = useMemo(() => {
     if (!scene.pointsOfInterest) return [];
     return scene.pointsOfInterest.filter(
-      (poi): poi is Sanity.SceneReference =>
-        poi._type === 'scenes' && !!poi.mainSceneMarkerPosition
+      (poi): poi is Sanity.SceneReference => poi._type === 'scenes' && !!poi.mainSceneMarkerPosition
     );
   }, [scene.pointsOfInterest]);
 

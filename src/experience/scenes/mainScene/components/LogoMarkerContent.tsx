@@ -32,11 +32,6 @@ export default function LogoMarkerContent() {
   const selectedPoi = usePoiStore(s => s.selectedPoi);
   const setSelectedPoi = usePoiStore(s => s.setSelectedPoi);
 
-  // Debug: Log when POI is selected
-  useEffect(() => {
-    console.log('[LogoMarkerContent] selectedPoi changed:', selectedPoi);
-  }, [selectedPoi]);
-
   // Refs
   const drawerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
