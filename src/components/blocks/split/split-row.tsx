@@ -50,6 +50,7 @@ export default function SplitRow({
   noGap,
   splitColumns,
   _key,
+  renderContext,
 }: Partial<{
   padding: ISectionPadding['padding'];
   direction: ISectionPadding['direction'];
@@ -62,12 +63,14 @@ export default function SplitRow({
     _key: string;
   }>;
   _key?: string;
+  renderContext?: string;
 }>) {
   const color = stegaClean(colorVariant);
   const theme = stegaClean(themeVariant);
   const style = stegaClean(styleVariant);
   const isOffset = style === 'offset';
   const isDark = theme === 'dark';
+  const isOverlay = renderContext === 'overlay';
 
   // Combine padding and direction into ISectionPadding object
   const sectionPadding: ISectionPadding | undefined =
@@ -88,6 +91,33 @@ export default function SplitRow({
     block => block._type === 'split-image' || block._type === 'split-video'
   );
 
+  // Render content for overlay context - no SectionContainer, no padding, no background
+  if (isOverlay) {
+    return (
+      <div className={cn('grid grid-cols-1 lg:grid-cols-2', noGap ? 'gap-0' : 'gap-6')}>
+        {splitColumns.map((block, index) => {
+          const Component = componentMap[block._type as keyof typeof componentMap];
+          if (!Component) {
+            return <div data-type={block._type} key={block._key || `split-unknown-${index}`} />;
+          }
+
+          const blockKey = block._key || `split-item-${index}`;
+
+          return (
+            <Component
+              {...block}
+              color={color}
+              styleVariant={style}
+              themeVariant={theme}
+              key={blockKey}
+            />
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Standard layout for regular pages - with SectionContainer
   return (
     <div>
       <SectionContainer

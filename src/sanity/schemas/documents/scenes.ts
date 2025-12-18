@@ -121,7 +121,12 @@ export default defineType({
               title: 'Blocks',
               description: 'Rich content blocks',
               type: 'array',
-              of: [{ type: 'text-block' }, { type: 'experience-carousel' }, { type: 'media' }],
+              of: [
+                { type: 'text-block' },
+                { type: 'experience-carousel' },
+                { type: 'media' },
+                { type: 'split-row' },
+              ],
             },
             {
               name: 'links',

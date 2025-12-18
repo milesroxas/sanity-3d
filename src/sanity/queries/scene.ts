@@ -1,4 +1,5 @@
 import { groq } from 'next-sanity';
+import { splitRowQuery } from './split/split-row';
 
 export const SCENE_QUERY = groq`
   *[_type == "scenes" && slug.current == $slug][0]{
@@ -366,7 +367,8 @@ export const SCENE_QUERY = groq`
             videoOptions{
               showControls
             }
-          }
+          },
+          ${splitRowQuery}
         },
         links[] {
           ...,

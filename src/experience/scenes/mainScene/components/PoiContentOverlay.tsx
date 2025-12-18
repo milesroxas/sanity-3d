@@ -439,7 +439,7 @@ export default function PoiContentOverlay({
                 ref={blocksRef}
               >
                 {hasBlocks ? (
-                  <Blocks blocks={poi.blocks!} />
+                  <Blocks blocks={poi.blocks!} renderContext="overlay" />
                 ) : hasBody ? (
                   <PortableTextRenderer value={poi.body!} variant="drawer" />
                 ) : (
