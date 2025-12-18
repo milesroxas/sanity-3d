@@ -23,7 +23,7 @@ export const CAMERA_CONFIG = {
       minX: -300,
       maxX: 200,
       minY: -400,
-      maxY: 300,
+      maxY: 400, // Increased from 300 to 400 to accommodate mainIntro position (350)
       minZ: -300,
       maxZ: 300,
     },

@@ -100,7 +100,9 @@ const mapScenePropsNodes = (nodes: Record<string, THREE.Object3D>) => {
 
   // Use the keys from FESTIVAL_MODELS to create the mapping
   Object.keys(SCENE_PROPS_MODELS).forEach(key => {
-    result[key] = nodes[key];
+    if (nodes[key]) {
+      result[key] = nodes[key];
+    }
   });
 
   return result as Record<ScenePropsType, THREE.Object3D>;

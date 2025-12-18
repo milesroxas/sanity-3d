@@ -10,7 +10,7 @@ import {
 } from '@/experience/scenes/store/cameraStore';
 import { Box, MapControls, PerspectiveCamera } from '@react-three/drei';
 import { button, folder, useControls } from 'leva';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { MathUtils, PerspectiveCamera as ThreePerspectiveCamera, Vector3 } from 'three';
 
 // Typed debounce utility function
@@ -61,13 +61,6 @@ export function MainSceneCameraSystem() {
     };
   }, []);
 
-  // Debug: Log when isAnimating changes
-  useEffect(() => {
-    console.log(
-      `%c[MainSceneCameraSystem] isAnimating: ${isAnimating}, controlType: ${controlType}`,
-      isAnimating ? 'color: orange' : 'color: green; font-weight: bold'
-    );
-  }, [isAnimating, controlType]);
 
   // Position update handlers - use refs to avoid stale closures
   const updatePosition = useCallback((axis: 'x' | 'y' | 'z', value: number) => {
@@ -218,12 +211,14 @@ export function MainSceneCameraSystem() {
     { collapsed: true }
   );
 
-  // Update camera position and orientation when store values change - optimized with memoized values
-  useEffect(() => {
+  // Update camera position and orientation when store values change
+  // Use useLayoutEffect to run synchronously before browser paint to avoid visual snap
+  useLayoutEffect(() => {
     if (!cameraRef.current) return;
 
     cameraRef.current.position.copy(positionVector);
     cameraRef.current.lookAt(targetVector);
+    cameraRef.current.updateMatrixWorld();
   }, [positionVector, targetVector]);
 
   // Debounced store sync to prevent excessive store updates
@@ -316,7 +311,7 @@ export function MainSceneCameraSystem() {
       <PerspectiveCamera
         ref={cameraRef}
         makeDefault
-        // Position managed by useEffect to avoid redundant updates
+        position={[position.x, position.y, position.z]}
         fov={45}
       />
       {debugControls.showTargetCube && (

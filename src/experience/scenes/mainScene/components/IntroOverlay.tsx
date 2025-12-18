@@ -142,6 +142,21 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
 
   const resolveSceneContainer = useCallback(() => sceneContainerRef.current, [sceneContainerRef]);
 
+  // Track font loading state
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    // Wait for fonts to be ready before running GSAP animations
+    if (typeof document !== 'undefined' && document.fonts) {
+      document.fonts.ready.then(() => {
+        setFontsLoaded(true);
+      });
+    } else {
+      // Fallback for browsers without document.fonts API
+      setFontsLoaded(true);
+    }
+  }, []);
+
   /**
    * ENTRY
    * Use revertOnUpdate so any dependency change safely kills and rebuilds timelines.
@@ -168,13 +183,16 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
 
       sceneInitialOpacityRef.current = targetSceneOpacity;
 
-      // Initial states
+      // Initial states - set immediately regardless of font loading
       gsap.set(container, { autoAlpha: 0 });
       if (logo) gsap.set(logo, { autoAlpha: 0, y: -30 });
       if (marquee) gsap.set(marquee, { autoAlpha: 0, y: 30 });
       if (video) gsap.set(video, { autoAlpha: 0 });
       if (heading) gsap.set(heading, { autoAlpha: 0 });
       if (buttons) gsap.set(buttons, { autoAlpha: 0 });
+
+      // Wait for fonts before starting animation
+      if (!fontsLoaded) return;
 
       // Start scene at target opacity so it's immediately visible
       gsap.set(scene, {
@@ -299,7 +317,7 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
     {
       scope: containerRef,
       // If these change, the hook safely reverts and re-runs
-      dependencies: [resolveSceneContainer, prefersReducedMotion],
+      dependencies: [resolveSceneContainer, prefersReducedMotion, fontsLoaded],
       revertOnUpdate: true,
     }
   );
@@ -563,10 +581,11 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
           <Image
             src={urlFor(logo.asset).url()}
             alt={logo.alt || 'Logo'}
-            width={80}
-            height={80}
+            width={156}
+            height={164}
             priority
             className="h-auto w-[80px]"
+            style={{ width: 'auto', height: 'auto' }}
           />
         </div>
       )}

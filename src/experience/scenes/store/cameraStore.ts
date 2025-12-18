@@ -131,18 +131,8 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
     const { introPhase, isAnimating, position, target } = get();
 
     if (introPhase !== 'intro' || isAnimating) {
-      console.warn('[beginIntroTransition] BLOCKED - Guard condition failed', {
-        introPhase,
-        isAnimating,
-        reason: introPhase !== 'intro' ? 'introPhase is not "intro"' : 'isAnimating is true',
-      });
       return;
     }
-
-    console.log('[beginIntroTransition] START', {
-      position: `(${position.x.toFixed(2)}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)})`,
-      target: `(${target.x.toFixed(2)}, ${target.y.toFixed(2)}, ${target.z.toFixed(2)})`,
-    });
 
     useLogoMarkerStore.getState().setOtherMarkersVisible(false);
 
@@ -171,7 +161,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
     // Kill any existing timeline to prevent conflicts
     const existingTimeline = get().activeTimeline;
     if (existingTimeline) {
-      console.log('[startCameraTransition] Killing existing timeline');
       existingTimeline.kill();
     }
 
@@ -192,7 +181,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
     const newPosition = new Vector3();
     const newTarget = new Vector3();
 
-    let frameCount = 0;
     // Create a GSAP timeline for better control
     const tl = gsap.timeline({
       onUpdate: () => {
@@ -200,14 +188,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         // Reuse Vector3 instances instead of creating new ones each frame
         newPosition.set(positionProxy.x, positionProxy.y, positionProxy.z);
         newTarget.set(targetProxy.x, targetProxy.y, targetProxy.z);
-
-        if (frameCount < 3) {
-          console.log(`[GSAP Frame ${frameCount}]`, {
-            position: `(${positionProxy.x.toFixed(2)}, ${positionProxy.y.toFixed(2)}, ${positionProxy.z.toFixed(2)})`,
-            target: `(${targetProxy.x.toFixed(2)}, ${targetProxy.y.toFixed(2)}, ${targetProxy.z.toFixed(2)})`,
-          });
-        }
-        frameCount++;
 
         // Clone vectors before setting to avoid reference issues
         set({ position: newPosition.clone(), target: newTarget.clone() });
