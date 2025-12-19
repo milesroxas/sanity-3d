@@ -387,6 +387,11 @@ export const SCENE_QUERY = groq`
             services->{_id, _type, title, slug}
           }
         },
+        actionButton {
+          label,
+          formType,
+          icon
+        },
         markerPosition {
           x,
           y,

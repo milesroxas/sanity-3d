@@ -4,6 +4,7 @@ import PortableTextRenderer from '@/components/portable-text-renderer';
 import { LinkButton } from '@/components/shared/link-button';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useExpandedContentStore } from '@/experience/scenes/store/expandedContentStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { usePoiStore } from '@/experience/scenes/store/poiStore';
 import { useEscapeKey } from '@/hooks/useEscapeKey';
@@ -11,8 +12,9 @@ import { useOverlayScrollLock } from '@/hooks/useOverlayScrollLock';
 import { cn } from '@/lib/utils';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { ArrowRight, X } from 'lucide-react';
+import { ArrowRight, FileText, MessageSquare, ShieldPlus, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import FormOverlay from './FormOverlay';
 
 interface PoiContentOverlayProps {
   poi: Sanity.PointOfInterest;
@@ -44,7 +46,7 @@ export default function PoiContentOverlay({
   const titleRef = useRef<HTMLHeadingElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const blocksRef = useRef<HTMLDivElement>(null);
-
+  const actionButtonRef = useRef<HTMLButtonElement>(null);
   const [logoMarkerWidth, setLogoMarkerWidth] = useState<number>(0);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
@@ -56,6 +58,76 @@ export default function PoiContentOverlay({
 
   // Sync overlay visibility state with poiStore to control main close button
   const setIsPoiOverlayVisible = usePoiStore(s => s.setIsPoiOverlayVisible);
+
+  // Expanded content state for action button overlays
+  const title = useExpandedContentStore(s => s.title);
+  const blocks = useExpandedContentStore(s => s.blocks);
+  const isExpandedVisible = useExpandedContentStore(s => s.isVisible);
+  const hasSubmitted = useExpandedContentStore(s => s.hasSubmitted);
+  const setExpandedContent = useExpandedContentStore(s => s.setExpandedContent);
+  const closeExpandedContent = useExpandedContentStore(s => s.closeExpandedContent);
+  const markAsSubmitted = useExpandedContentStore(s => s.markAsSubmitted);
+  const resetSubmissionState = useExpandedContentStore(s => s.resetSubmissionState);
+  const clearBlocks = useExpandedContentStore(s => s.clearBlocks);
+
+  // Helper: get icon component from string name
+  const getIconComponent = (iconName?: string) => {
+    const iconMap: Record<string, any> = {
+      ShieldPlus,
+      FileText,
+      MessageSquare,
+    };
+    return iconName ? iconMap[iconName] : null;
+  };
+
+  // Helper: open form overlay
+  const openFormOverlay = (actionButton: NonNullable<Sanity.PointOfInterest['actionButton']>) => {
+    const overlayBlocks = [
+      {
+        _type: actionButton.formType,
+        _key: `${actionButton.formType}-overlay`,
+        colorVariant: 'transparent',
+        padding: 'none',
+        direction: 'both',
+        variant: 'overlay',
+        onSuccess: markAsSubmitted,
+      },
+    ] as unknown as Sanity.Block[];
+    setExpandedContent(actionButton.label, overlayBlocks);
+  };
+
+  // Helper: handle submitting another request
+  const handleSubmitAnother = () => {
+    if (poi.actionButton) {
+      // Just open the form - don't reset hasSubmitted yet
+      // hasSubmitted will only be reset after successful new submission
+      openFormOverlay(poi.actionButton);
+    }
+  };
+
+  // Helper: handle form overlay close
+  const handleFormClose = () => {
+    // If we have submitted and the overlay is closing, clear the blocks
+    // This ensures that when the overlay is opened again, it shows the success screen
+    if (hasSubmitted && blocks && blocks.length > 0) {
+      clearBlocks();
+    }
+    closeExpandedContent();
+  };
+
+  // Helper: handle action button click
+  const handleActionButtonClick = () => {
+    if (!poi.actionButton) return;
+
+    // If already submitted, just show the overlay (which will show success screen)
+    if (hasSubmitted) {
+      // Don't pass blocks - we want FormOverlay to show success screen based on hasSubmitted flag
+      setExpandedContent(poi.actionButton.label, []);
+    } else {
+      // Otherwise, open fresh form
+      openFormOverlay(poi.actionButton);
+    }
+  };
 
   // Sync visibility state - update store when overlay shows/hides
   useEffect(() => {
@@ -103,10 +175,19 @@ export default function PoiContentOverlay({
     setIsAnimating(true);
   };
 
-  // Escape key handling
+  // Close expanded content when POI overlay is closed
+  useEffect(() => {
+    if (!isVisible) {
+      closeExpandedContent();
+      // Reset submission state when POI closes
+      resetSubmissionState();
+    }
+  }, [isVisible, closeExpandedContent, resetSubmissionState]);
+
+  // Escape key handling - close expanded content first, then POI overlay
   useEscapeKey({
     enabled: isVisible,
-    condition: !isAnimating,
+    condition: !isAnimating && !isExpandedVisible,
     priority: 2, // Higher priority than logo marker content
     onEscape: handleClose,
   });
@@ -176,7 +257,7 @@ export default function PoiContentOverlay({
           gsap.set(titleRef.current, { opacity: 0, x: 10 });
           gsap.set(closeRef.current, { opacity: 0 });
           gsap.set(contentRef.current, { opacity: 0, y: 20 });
-
+          gsap.set(actionButtonRef.current, { opacity: 0 });
           gsap
             .timeline()
             .to(overlayRef.current, {
@@ -207,6 +288,15 @@ export default function PoiContentOverlay({
               {
                 opacity: 0.75,
                 x: 0,
+                duration: 0.3,
+                ease: 'power2.inOut',
+              },
+              '-=0.2'
+            )
+            .to(
+              actionButtonRef.current,
+              {
+                opacity: 1,
                 duration: 0.3,
                 ease: 'power2.inOut',
               },
@@ -305,6 +395,11 @@ export default function PoiContentOverlay({
               duration: 0.2,
               ease: 'power2.in',
             })
+            .to(actionButtonRef.current, {
+              opacity: 0,
+              duration: 0.2,
+              ease: 'power2.in',
+            })
             .to(overlayRef.current, {
               opacity: 0,
               x: 200,
@@ -324,6 +419,8 @@ export default function PoiContentOverlay({
   const hasBlocks = poi.blocks && poi.blocks.length > 0;
   const hasBody = poi.body && poi.body.length > 0;
   const hasLinks = poi.links && poi.links.length > 0;
+  const hasActionButton = !!poi.actionButton;
+  const IconComponent = poi.actionButton ? getIconComponent(poi.actionButton.icon) : null;
 
   const margin = 16;
 
@@ -340,128 +437,186 @@ export default function PoiContentOverlay({
   // Mobile layout
   if (isMobile) {
     return (
-      <div
-        className="poi-overlay pointer-events-none fixed inset-0 z-50"
-        ref={overlayRef}
-        style={{ WebkitTransform: 'translateZ(0)', backfaceVisibility: 'hidden' as any }}
-      >
-        <div className="pointer-events-auto absolute inset-0 flex flex-col bg-background">
-          <div
-            className="sticky top-0 z-10 flex items-center justify-between bg-background/15 p-4"
-            ref={contentRef}
-          >
-            <h2 className="text-lg font-bold text-secondary/50" ref={titleRef}>
-              {sceneTitle || poi.title}
-            </h2>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleClose}
-              className="text-primary hover:bg-primary/10 [&_svg]:!size-5"
-              ref={closeRef}
-            >
-              <X />
-            </Button>
-          </div>
-          <ScrollArea
-            className={cn('flex-1 [&>[data-radix-scroll-area-scrollbar]]:w-1.5', overlayClassName)}
-            {...overlayProps}
-          >
-            <div className="p-4" ref={blocksRef}>
-              {hasBlocks ? (
-                <div className="flex flex-col gap-4">
-                  <Blocks blocks={poi.blocks!} renderContext="overlay" />
-                </div>
-              ) : hasBody ? (
-                <PortableTextRenderer value={poi.body!} variant="drawer" />
-              ) : (
-                <p className="text-muted-foreground">No content available</p>
-              )}
-              {hasLinks && (
-                <div className="mt-6 flex flex-col gap-3">
-                  {poi.links!.map(link => (
-                    <LinkButton
-                      key={link._key}
-                      link={link}
-                      icon={ArrowRight}
-                      iconPosition="right"
-                      className="w-full"
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </ScrollArea>
-        </div>
-      </div>
-    );
-  }
-
-  // Desktop layout
-  return (
-    <div
-      className="pointer-events-none fixed inset-0 z-40 flex"
-      style={{
-        paddingLeft: `${margin}px`,
-        paddingRight: `${margin}px`,
-        paddingTop: `${margin}px`,
-        paddingBottom: `${margin}px`,
-      }}
-    >
-      <div className="flex flex-1 items-center justify-end">
+      <>
         <div
+          className="poi-overlay pointer-events-none fixed inset-0 z-50"
           ref={overlayRef}
-          className="pointer-events-auto flex h-full max-h-[90vh] w-full max-w-[700px] flex-col bg-background/75 shadow-xl md:rounded-lg md:backdrop-blur-lg lg:max-w-[75vw]"
+          style={{ WebkitTransform: 'translateZ(0)', backfaceVisibility: 'hidden' as any }}
         >
-          <div className="sticky top-0 z-10 rounded-t-lg bg-background/15 pb-4 pt-4 shadow-sm backdrop-blur-sm">
-            <div className="relative flex items-center px-14 lg:px-16">
-              <div className="" ref={titleRef}>
-                <h3 className="text-xl font-medium leading-none text-muted-foreground lg:text-2xl lg:leading-none">
-                  {sceneTitle || poi.title}
-                </h3>
-              </div>
-              <div className="absolute left-2 top-1/2 -translate-y-1/2 lg:left-3">
-                <Button
-                  size="icon"
-                  onClick={handleClose}
-                  className="bg-primary/10 text-primary hover:bg-primary/80 hover:text-primary-foreground [&_svg]:!size-6 [&_svg]:!stroke-[1.75]"
-                  ref={closeRef}
-                >
-                  <X />
-                </Button>
-              </div>
-            </div>
-          </div>
-          <ScrollArea className={cn('flex-1 rounded-b-lg px-6 lg:px-10')}>
-            <div className="px-8 lg:px-10" ref={contentRef}>
-              <div
-                className="flex flex-col gap-6 pb-8 pt-6 lg:gap-8 lg:pb-12 lg:pt-10"
-                ref={blocksRef}
+          <div className="pointer-events-auto absolute inset-0 flex flex-col bg-background">
+            <div
+              className="sticky top-0 z-10 flex items-center justify-between bg-background/15 p-4"
+              ref={contentRef}
+            >
+              <h2 className="text-lg font-bold text-secondary/50" ref={titleRef}>
+                {sceneTitle || poi.title}
+              </h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleClose}
+                className="text-primary hover:bg-primary/10 [&_svg]:!size-5"
+                ref={closeRef}
               >
+                <X />
+              </Button>
+            </div>
+            <ScrollArea
+              className={cn(
+                'flex-1 [&>[data-radix-scroll-area-scrollbar]]:w-1.5',
+                overlayClassName
+              )}
+              {...overlayProps}
+            >
+              <div className={cn('p-4', hasActionButton && 'pb-24')} ref={blocksRef}>
                 {hasBlocks ? (
-                  <Blocks blocks={poi.blocks!} renderContext="overlay" />
+                  <div className="flex flex-col gap-4">
+                    <Blocks blocks={poi.blocks!} renderContext="overlay" />
+                  </div>
                 ) : hasBody ? (
                   <PortableTextRenderer value={poi.body!} variant="drawer" />
                 ) : (
                   <p className="text-muted-foreground">No content available</p>
                 )}
                 {hasLinks && (
-                  <div className="mt-6 flex flex-col gap-3 lg:mt-8">
+                  <div className="mt-6 flex flex-col gap-3">
                     {poi.links!.map(link => (
                       <LinkButton
                         key={link._key}
                         link={link}
                         icon={ArrowRight}
                         iconPosition="right"
+                        className="w-full"
                       />
                     ))}
                   </div>
                 )}
               </div>
+            </ScrollArea>
+            {hasActionButton && poi.actionButton && (
+              <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-center bg-white px-4 py-4 shadow-md shadow-slate-800">
+                <Button
+                  variant={isExpandedVisible ? 'inactive' : 'default'}
+                  size="default"
+                  disabled={isExpandedVisible}
+                  className="h-10 w-full text-sm font-bold hover:-translate-y-px hover:shadow-lg active:translate-y-0"
+                  onClick={handleActionButtonClick}
+                >
+                  {IconComponent && <IconComponent className="h-4 w-4" />}
+                  <span className="truncate">{poi.actionButton.label}</span>
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+        {isExpandedVisible && title && (
+          <FormOverlay
+            title={title}
+            isVisible={isExpandedVisible}
+            onClose={handleFormClose}
+            blocks={blocks || []}
+            hasSubmitted={hasSubmitted}
+            onSubmitAnother={handleSubmitAnother}
+          />
+        )}
+      </>
+    );
+  }
+
+  // Desktop layout
+  return (
+    <>
+      <div
+        className="pointer-events-none fixed inset-0 z-40 flex"
+        style={{
+          paddingLeft: `${margin}px`,
+          paddingRight: `${margin}px`,
+          paddingTop: `${margin}px`,
+          paddingBottom: `${margin}px`,
+        }}
+      >
+        <div className="flex flex-1 items-center justify-end">
+          <div
+            ref={overlayRef}
+            className="pointer-events-auto flex h-full max-h-[90vh] w-full max-w-[700px] flex-col bg-background/75 shadow-xl md:rounded-lg md:backdrop-blur-lg lg:max-w-[75vw]"
+          >
+            <div className="sticky top-0 z-10 rounded-t-lg bg-background/95 py-4 shadow-sm backdrop-blur-sm">
+              <div className="relative flex items-center gap-4 px-6 lg:px-4">
+                <div className="flex w-full items-center gap-4">
+                  <Button
+                    size="icon"
+                    onClick={handleClose}
+                    className="h-8 w-8 bg-primary/10 text-primary hover:bg-primary/80 hover:text-primary-foreground [&_svg]:!size-6 [&_svg]:!stroke-[1.75]"
+                    ref={closeRef}
+                  >
+                    <X />
+                  </Button>
+
+                  <div className="" ref={titleRef}>
+                    <h3 className="text-xl font-medium leading-none text-muted-foreground lg:text-xl lg:leading-none">
+                      {sceneTitle || poi.title}
+                    </h3>
+                  </div>
+                </div>
+                {hasActionButton && poi.actionButton && (
+                  <Button
+                    variant={isExpandedVisible ? 'inactive' : 'default'}
+                    size="default"
+                    disabled={isExpandedVisible}
+                    className="h-8 px-2 text-sm font-bold hover:-translate-y-px hover:shadow-lg active:translate-y-0"
+                    onClick={handleActionButtonClick}
+                    ref={actionButtonRef}
+                  >
+                    {IconComponent && <IconComponent className="h-4 w-4" />}
+                    <span className="truncate">{poi.actionButton.label}</span>
+                  </Button>
+                )}
+              </div>
             </div>
-          </ScrollArea>
+            <ScrollArea className={cn('flex-1 rounded-b-lg px-6 lg:px-10')}>
+              <div className="px-8 lg:px-10" ref={contentRef}>
+                <div
+                  className={cn(
+                    'flex flex-col gap-6 pb-8 pt-6 lg:gap-8 lg:pt-10',
+                    hasActionButton ? 'lg:pb-24' : 'lg:pb-12'
+                  )}
+                  ref={blocksRef}
+                >
+                  {hasBlocks ? (
+                    <Blocks blocks={poi.blocks!} renderContext="overlay" />
+                  ) : hasBody ? (
+                    <PortableTextRenderer value={poi.body!} variant="drawer" />
+                  ) : (
+                    <p className="text-muted-foreground">No content available</p>
+                  )}
+                  {hasLinks && (
+                    <div className="mt-6 flex flex-col gap-3 lg:mt-8">
+                      {poi.links!.map(link => (
+                        <LinkButton
+                          key={link._key}
+                          link={link}
+                          icon={ArrowRight}
+                          iconPosition="right"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </ScrollArea>
+          </div>
         </div>
       </div>
-    </div>
+      {isExpandedVisible && title && (
+        <FormOverlay
+          title={title}
+          isVisible={isExpandedVisible}
+          onClose={handleFormClose}
+          blocks={blocks || []}
+          hasSubmitted={hasSubmitted}
+          onSubmitAnother={handleSubmitAnother}
+        />
+      )}
+    </>
   );
 }

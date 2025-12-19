@@ -134,6 +134,36 @@ export default defineType({
               validation: (rule: any) => rule.max(2),
             },
             {
+              name: 'actionButton',
+              title: 'Action Button',
+              description:
+                'Optional: Add a button that opens a form overlay (e.g., Request Security, Get Quote)',
+              type: 'object',
+              fields: [
+                {
+                  name: 'label',
+                  title: 'Button Label',
+                  type: 'string',
+                  validation: (rule: any) => rule.required(),
+                },
+                {
+                  name: 'formType',
+                  title: 'Form Type',
+                  type: 'string',
+                  options: {
+                    list: [{ title: 'Security Request Form', value: 'form-security-request' }],
+                  },
+                  validation: (rule: any) => rule.required(),
+                },
+                {
+                  name: 'icon',
+                  title: 'Icon',
+                  description: 'Optional: Lucide icon name (e.g., ShieldPlus, FileText, MessageSquare)',
+                  type: 'string',
+                },
+              ],
+            },
+            {
               name: 'markerPosition',
               title: 'Marker Position',
               description: 'The 3D position where the POI button should appear',

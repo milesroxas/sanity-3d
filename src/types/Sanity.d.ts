@@ -100,6 +100,11 @@ declare global {
       body?: any[];
       blocks?: Block[];
       links?: Link[];
+      actionButton?: {
+        label: string;
+        formType: string;
+        icon?: string;
+      };
       markerPosition: {
         x: number;
         y: number;

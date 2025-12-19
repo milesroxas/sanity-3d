@@ -48,6 +48,7 @@ interface SecurityRequestFormProps {
   successMessage?: string;
   notificationEmail?: string;
   variant?: 'default' | 'overlay';
+  onSuccess?: () => void;
 }
 
 // Form validation schema
@@ -136,6 +137,7 @@ export default function SecurityRequestForm({
   successMessage = "Thank you for your security request. We'll contact you within 24 hours.",
   notificationEmail,
   variant = 'default',
+  onSuccess,
 }: Partial<SecurityRequestFormProps>) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
@@ -329,6 +331,11 @@ export default function SecurityRequestForm({
           toast.success(message);
           form.reset();
           setUploadedFiles([]);
+
+          // Call onSuccess callback if provided (for overlay variant)
+          if (onSuccess) {
+            onSuccess();
+          }
         } else {
           const result = await response.json();
           toast.error(result.error || 'Failed to submit form. Please try again.');
@@ -338,7 +345,7 @@ export default function SecurityRequestForm({
         toast.error('Failed to submit form. Please try again.');
       }
     },
-    [form, successMessage, notificationEmail, uploadedFiles]
+    [form, successMessage, notificationEmail, uploadedFiles, onSuccess]
   );
 
   const contactMethodOptions = [
