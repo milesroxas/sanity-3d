@@ -515,26 +515,26 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
           <p className="mb-6 w-full max-w-full text-lg leading-relaxed last:mb-0">{children}</p>
         ),
         lead: ({ children }) => (
-          <p className="mb-8 mt-2 w-full max-w-full text-3xl font-medium leading-snug last:mb-0">
+          <p className="mb-8 mt-2 w-full max-w-full text-2xl font-medium leading-snug last:mb-0">
             {children}
           </p>
         ),
         supporting: ({ children }) => (
-          <p className="mb-6 w-full max-w-full text-2xl leading-normal last:mb-0">{children}</p>
+          <p className="mb-6 w-full max-w-full text-xl leading-normal last:mb-0">{children}</p>
         ),
         // Backward compatibility for old content
         largeText: ({ children }) => (
-          <p className="mb-8 mt-2 w-full max-w-full text-3xl font-medium leading-snug last:mb-0">
+          <p className="mb-8 mt-2 w-full max-w-full text-2xl font-medium leading-snug last:mb-0">
             {children}
           </p>
         ),
         h1: ({ children }) => (
-          <h1 className="mb-4 mt-12 text-5xl font-bold leading-tight first:mt-0 last:mb-0">
+          <h1 className="mb-4 mt-12 text-3xl font-bold leading-tight first:mt-0 last:mb-0">
             {children}
           </h1>
         ),
         h2: ({ children }) => (
-          <h2 className="mb-4 mt-10 text-4xl font-bold leading-tight first:mt-0 last:mb-0">
+          <h2 className="mb-4 mt-10 text-3xl font-bold leading-tight first:mt-0 last:mb-0">
             {children}
           </h2>
         ),
