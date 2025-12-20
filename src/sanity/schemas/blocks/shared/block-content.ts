@@ -13,7 +13,9 @@ export default defineType({
       type: 'block',
       styles: [
         { title: 'Normal', value: 'normal' },
-        { title: 'Large Text', value: 'largeText' },
+        { title: 'Lead', value: 'lead' },
+        { title: 'Supporting', value: 'supporting' },
+        { title: 'Large Text (deprecated)', value: 'largeText' },
         { title: 'H1', value: 'h1' },
         { title: 'H2', value: 'h2' },
         { title: 'H3', value: 'h3' },
