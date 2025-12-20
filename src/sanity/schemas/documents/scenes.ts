@@ -137,28 +137,29 @@ export default defineType({
               name: 'actionButton',
               title: 'Action Button',
               description:
-                'Optional: Add a button that opens a form overlay (e.g., Request Security, Get Quote)',
+                'Optional: Customize the action button. If not set, defaults to "Request Free Quote" with ShieldPlus icon.',
               type: 'object',
               fields: [
                 {
                   name: 'label',
                   title: 'Button Label',
                   type: 'string',
-                  validation: (rule: any) => rule.required(),
+                  description: 'Leave empty to use default from Settings',
                 },
                 {
                   name: 'formType',
                   title: 'Form Type',
                   type: 'string',
+                  description: 'Leave empty to use default from Settings',
                   options: {
                     list: [{ title: 'Security Request Form', value: 'form-security-request' }],
                   },
-                  validation: (rule: any) => rule.required(),
                 },
                 {
                   name: 'icon',
                   title: 'Icon',
-                  description: 'Optional: Lucide icon name (e.g., ShieldPlus, FileText, MessageSquare)',
+                  description:
+                    'Lucide icon name (e.g., ShieldPlus, FileText, MessageSquare). Leave empty to use default from Settings',
                   type: 'string',
                 },
               ],

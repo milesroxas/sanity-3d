@@ -1,5 +1,6 @@
 import { Text } from 'lucide-react';
 import { defineField, defineType } from 'sanity';
+import link from '../shared/link';
 
 export default defineType({
   name: 'text-block',
@@ -11,6 +12,11 @@ export default defineType({
       name: 'content',
       title: 'Content',
       type: 'block-content',
+    }),
+    defineField({
+      name: 'links',
+      type: link.name,
+      validation: (rule: any) => rule.max(2),
     }),
   ],
   preview: {

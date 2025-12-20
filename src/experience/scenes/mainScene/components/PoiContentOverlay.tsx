@@ -21,6 +21,11 @@ interface PoiContentOverlayProps {
   isVisible: boolean;
   onClose: () => void;
   sceneTitle?: string;
+  defaultActionButton?: {
+    label: string;
+    formType: string;
+    icon?: string;
+  };
 }
 
 /**
@@ -40,6 +45,7 @@ export default function PoiContentOverlay({
   isVisible,
   onClose,
   sceneTitle,
+  defaultActionButton,
 }: PoiContentOverlayProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -70,6 +76,15 @@ export default function PoiContentOverlay({
   const resetSubmissionState = useExpandedContentStore(s => s.resetSubmissionState);
   const clearBlocks = useExpandedContentStore(s => s.clearBlocks);
 
+  // Merge POI actionButton with default settings
+  // Priority: POI custom values > default values > fallback values
+  const effectiveActionButton = {
+    label: poi.actionButton?.label || defaultActionButton?.label || 'Request Free Quote',
+    formType:
+      poi.actionButton?.formType || defaultActionButton?.formType || 'form-security-request',
+    icon: poi.actionButton?.icon || defaultActionButton?.icon || 'ShieldPlus',
+  };
+
   // Helper: get icon component from string name
   const getIconComponent = (iconName?: string) => {
     const iconMap: Record<string, any> = {
@@ -81,7 +96,7 @@ export default function PoiContentOverlay({
   };
 
   // Helper: open form overlay
-  const openFormOverlay = (actionButton: NonNullable<Sanity.PointOfInterest['actionButton']>) => {
+  const openFormOverlay = (actionButton: { label: string; formType: string; icon?: string }) => {
     const overlayBlocks = [
       {
         _type: actionButton.formType,
@@ -98,11 +113,9 @@ export default function PoiContentOverlay({
 
   // Helper: handle submitting another request
   const handleSubmitAnother = () => {
-    if (poi.actionButton) {
-      // Just open the form - don't reset hasSubmitted yet
-      // hasSubmitted will only be reset after successful new submission
-      openFormOverlay(poi.actionButton);
-    }
+    // Just open the form - don't reset hasSubmitted yet
+    // hasSubmitted will only be reset after successful new submission
+    openFormOverlay(effectiveActionButton);
   };
 
   // Helper: handle form overlay close
@@ -117,15 +130,13 @@ export default function PoiContentOverlay({
 
   // Helper: handle action button click
   const handleActionButtonClick = () => {
-    if (!poi.actionButton) return;
-
     // If already submitted, just show the overlay (which will show success screen)
     if (hasSubmitted) {
       // Don't pass blocks - we want FormOverlay to show success screen based on hasSubmitted flag
-      setExpandedContent(poi.actionButton.label, []);
+      setExpandedContent(effectiveActionButton.label, []);
     } else {
       // Otherwise, open fresh form
-      openFormOverlay(poi.actionButton);
+      openFormOverlay(effectiveActionButton);
     }
   };
 
@@ -419,8 +430,9 @@ export default function PoiContentOverlay({
   const hasBlocks = poi.blocks && poi.blocks.length > 0;
   const hasBody = poi.body && poi.body.length > 0;
   const hasLinks = poi.links && poi.links.length > 0;
-  const hasActionButton = !!poi.actionButton;
-  const IconComponent = poi.actionButton ? getIconComponent(poi.actionButton.icon) : null;
+  // Action button is always shown (using effective merged config)
+  const hasActionButton = true;
+  const IconComponent = getIconComponent(effectiveActionButton.icon);
 
   const margin = 16;
 
@@ -470,16 +482,16 @@ export default function PoiContentOverlay({
             >
               <div className={cn('p-4', hasActionButton && 'pb-24')} ref={blocksRef}>
                 {hasBlocks ? (
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-8">
                     <Blocks blocks={poi.blocks!} renderContext="overlay" />
                   </div>
                 ) : hasBody ? (
-                  <PortableTextRenderer value={poi.body!} variant="drawer" />
+                  <PortableTextRenderer value={poi.body!} variant="sheet" />
                 ) : (
                   <p className="text-muted-foreground">No content available</p>
                 )}
                 {hasLinks && (
-                  <div className="mt-6 flex flex-col gap-3">
+                  <div className="mt-8 flex flex-col gap-3">
                     {poi.links!.map(link => (
                       <LinkButton
                         key={link._key}
@@ -493,7 +505,7 @@ export default function PoiContentOverlay({
                 )}
               </div>
             </ScrollArea>
-            {hasActionButton && poi.actionButton && (
+            {hasActionButton && (
               <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-center bg-white px-4 py-4 shadow-md shadow-slate-800">
                 <Button
                   variant={isExpandedVisible ? 'inactive' : 'default'}
@@ -503,7 +515,7 @@ export default function PoiContentOverlay({
                   onClick={handleActionButtonClick}
                 >
                   {IconComponent && <IconComponent className="h-4 w-4" />}
-                  <span className="truncate">{poi.actionButton.label}</span>
+                  <span className="truncate">{effectiveActionButton.label}</span>
                 </Button>
               </div>
             )}
@@ -558,7 +570,7 @@ export default function PoiContentOverlay({
                     </h3>
                   </div>
                 </div>
-                {hasActionButton && poi.actionButton && (
+                {hasActionButton && (
                   <Button
                     variant={isExpandedVisible ? 'inactive' : 'default'}
                     size="default"
@@ -568,29 +580,25 @@ export default function PoiContentOverlay({
                     ref={actionButtonRef}
                   >
                     {IconComponent && <IconComponent className="h-4 w-4" />}
-                    <span className="truncate">{poi.actionButton.label}</span>
+                    <span className="truncate">{effectiveActionButton.label}</span>
                   </Button>
                 )}
               </div>
             </div>
-            <ScrollArea className={cn('flex-1 rounded-b-lg px-6 lg:px-10')}>
-              <div className="px-8 lg:px-10" ref={contentRef}>
-                <div
-                  className={cn(
-                    'flex flex-col gap-6 pb-8 pt-6 lg:gap-8 lg:pt-10',
-                    hasActionButton ? 'lg:pb-24' : 'lg:pb-12'
-                  )}
-                  ref={blocksRef}
-                >
+            <ScrollArea className={cn('flex-1 rounded-b-lg')}>
+              <div className="p-8" ref={contentRef}>
+                <div className={cn('flex flex-col gap-12')} ref={blocksRef}>
                   {hasBlocks ? (
                     <Blocks blocks={poi.blocks!} renderContext="overlay" />
                   ) : hasBody ? (
-                    <PortableTextRenderer value={poi.body!} variant="drawer" />
+                    <div className="max-w-2xl">
+                      <PortableTextRenderer value={poi.body!} variant="sheet" />
+                    </div>
                   ) : (
                     <p className="text-muted-foreground">No content available</p>
                   )}
                   {hasLinks && (
-                    <div className="mt-6 flex flex-col gap-3 lg:mt-8">
+                    <div className="mt-4 flex flex-col gap-3">
                       {poi.links!.map(link => (
                         <LinkButton
                           key={link._key}

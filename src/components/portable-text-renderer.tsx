@@ -10,7 +10,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const MuxPlayer = dynamic(() => import('@mux/mux-player-react'), {
   ssr: false,
@@ -28,6 +28,7 @@ const portableTextVariants = cva('', {
       default: '',
       drawer: '',
       compact: '',
+      sheet: '',
     },
   },
   defaultVariants: {
@@ -469,12 +470,82 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
       },
     };
 
+    // Sheet variant - large typography for overlay sheets
+    const sheetComponents: PortableTextProps['components'] = {
+      ...defaultComponents,
+      block: createBlockComponents({
+        normal: ({ children }) => (
+          <p className="mb-6 w-full max-w-full text-2xl leading-relaxed last:mb-0">{children}</p>
+        ),
+        largeText: ({ children }) => (
+          <p className="mb-8 mt-2 w-full max-w-full text-3xl font-medium leading-snug last:mb-0">
+            {children}
+          </p>
+        ),
+        h1: ({ children }) => (
+          <h1 className="mb-4 mt-12 text-5xl font-bold leading-tight first:mt-0 last:mb-0">
+            {children}
+          </h1>
+        ),
+        h2: ({ children }) => (
+          <h2 className="mb-4 mt-10 text-4xl font-bold leading-tight first:mt-0 last:mb-0">
+            {children}
+          </h2>
+        ),
+        h3: ({ children }) => (
+          <h3 className="mb-3 mt-8 text-2xl font-semibold leading-snug first:mt-0 last:mb-0">
+            {children}
+          </h3>
+        ),
+        h4: ({ children }) => (
+          <h4 className="mb-3 mt-6 text-xl font-semibold leading-snug first:mt-0 last:mb-0">
+            {children}
+          </h4>
+        ),
+        h5: ({ children }) => (
+          <h5 className="mb-2 mt-6 text-lg font-medium leading-normal first:mt-0 last:mb-0">
+            {children}
+          </h5>
+        ),
+      }),
+      list: {
+        bullet: ({ children }) => (
+          <ul
+            className="mb-6 list-disc text-lg last:mb-0"
+            style={{
+              paddingLeft: '1.5rem',
+              listStylePosition: 'outside',
+            }}
+          >
+            {children}
+          </ul>
+        ),
+        number: ({ children }) => (
+          <ol
+            className="mb-6 list-decimal text-lg last:mb-0"
+            style={{
+              paddingLeft: '1.5rem',
+              listStylePosition: 'outside',
+            }}
+          >
+            {children}
+          </ol>
+        ),
+      },
+      listItem: {
+        bullet: ({ children }) => <li className="mb-2 leading-relaxed">{children}</li>,
+        number: ({ children }) => <li className="mb-2 leading-relaxed">{children}</li>,
+      },
+    };
+
     // Return component configuration based on variant
     switch (variant) {
       case 'drawer':
         return drawerComponents;
       case 'compact':
         return compactComponents;
+      case 'sheet':
+        return sheetComponents;
       default:
         return defaultComponents;
     }

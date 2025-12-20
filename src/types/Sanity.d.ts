@@ -244,6 +244,11 @@ declare global {
         tiktok: string;
         googleReviews: string;
       };
+      defaultPoiActionButton?: {
+        label: string;
+        formType: string;
+        icon?: string;
+      };
     }>;
 
     type Nav = SanityDocument<{

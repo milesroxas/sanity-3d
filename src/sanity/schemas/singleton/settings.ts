@@ -25,6 +25,10 @@ export default defineType({
       name: 'social',
       title: 'Social',
     },
+    {
+      name: 'forms',
+      title: 'Forms',
+    },
   ],
   fields: [
     defineField({
@@ -162,6 +166,40 @@ export default defineType({
           title: 'TikTok',
           type: 'string',
         }),
+      ],
+    }),
+    defineField({
+      name: 'defaultPoiActionButton',
+      title: 'Default POI Action Button',
+      description:
+        'Default action button configuration for POI overlays. This will be used when no custom action button is specified on a POI.',
+      type: 'object',
+      group: 'forms',
+      fields: [
+        {
+          name: 'label',
+          title: 'Button Label',
+          type: 'string',
+          initialValue: 'Request Free Quote',
+          validation: (rule: any) => rule.required(),
+        },
+        {
+          name: 'formType',
+          title: 'Form Type',
+          type: 'string',
+          options: {
+            list: [{ title: 'Security Request Form', value: 'form-security-request' }],
+          },
+          initialValue: 'form-security-request',
+          validation: (rule: any) => rule.required(),
+        },
+        {
+          name: 'icon',
+          title: 'Icon',
+          description: 'Lucide icon name (e.g., ShieldPlus, FileText, MessageSquare)',
+          type: 'string',
+          initialValue: 'ShieldPlus',
+        },
       ],
     }),
   ],

@@ -14,7 +14,15 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import MarkerContentOverlay from './MarkerContentOverlay';
 import PoiContentOverlay from './PoiContentOverlay';
 
-export default function LogoMarkerContent() {
+export default function LogoMarkerContent({
+  defaultActionButton,
+}: {
+  defaultActionButton?: {
+    label: string;
+    formType: string;
+    icon?: string;
+  };
+}) {
   // Select only needed pieces from the stores to avoid unnecessary re-renders
   const selectedScene = useLogoMarkerStore(s => s.selectedScene);
   const isContentVisible = useLogoMarkerStore(s => s.isContentVisible);
@@ -366,6 +374,7 @@ export default function LogoMarkerContent() {
           isVisible={!!selectedPoi}
           onClose={() => setSelectedPoi(null)}
           sceneTitle={selectedScene?.title}
+          defaultActionButton={defaultActionButton}
         />
       )}
     </>

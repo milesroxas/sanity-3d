@@ -38,6 +38,11 @@ export const SETTINGS_QUERY = groq`
     yelp,
     tiktok,
     googleReviews
+  },
+  defaultPoiActionButton {
+    label,
+    formType,
+    icon
   }
   }
 `;
