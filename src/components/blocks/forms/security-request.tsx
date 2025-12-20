@@ -374,12 +374,7 @@ export default function SecurityRequestForm({
   ];
 
   const content = (
-    <div
-      className={cn(
-        'mx-auto',
-        variant === 'overlay' ? 'w-full rounded-lg bg-white/50 p-6 md:p-8' : 'max-w-3xl py-12'
-      )}
-    >
+    <div className={cn('mx-auto', variant === 'overlay' ? 'w-full max-w-2xl' : 'max-w-3xl py-12')}>
       <div className={cn('max-w-xl', variant === 'overlay' ? 'hidden' : 'mb-24')}>
         {title && <h2 className="mb-4 text-3xl font-bold">{title}</h2>}
         {description && <p className="mb-8 text-xl text-muted-foreground">{description}</p>}
@@ -454,7 +449,7 @@ export default function SecurityRequestForm({
               render={() => (
                 <FormItem>
                   <FormLabel>Preferred Contact Method *</FormLabel>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-2">
                     {contactMethodOptions.map(option => (
                       <FormField
                         key={option.id}
@@ -464,7 +459,7 @@ export default function SecurityRequestForm({
                           <FormItem className="space-y-0">
                             <Label
                               htmlFor={`preferred-${option.id}`}
-                              className="flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50"
+                              className="flex cursor-pointer items-center gap-2.5 rounded-md border px-3 py-2.5 hover:bg-muted/50"
                             >
                               <FormControl>
                                 <Checkbox
@@ -548,7 +543,7 @@ export default function SecurityRequestForm({
               render={() => (
                 <FormItem>
                   <FormLabel>What type of security are you interested in? *</FormLabel>
-                  <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3">
                     {securityTypeOptions.map(option => (
                       <FormField
                         key={option.id}
@@ -558,7 +553,7 @@ export default function SecurityRequestForm({
                           <FormItem className="space-y-0">
                             <Label
                               htmlFor={`stype-${option.id}`}
-                              className="flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50"
+                              className="flex cursor-pointer items-center gap-2.5 rounded-md border px-3 py-2.5 hover:bg-muted/50"
                             >
                               <FormControl>
                                 <Checkbox
@@ -573,7 +568,7 @@ export default function SecurityRequestForm({
                                   }}
                                 />
                               </FormControl>
-                              <span className="font-normal">{option.label}</span>
+                              <span className="text-sm font-normal">{option.label}</span>
                             </Label>
                           </FormItem>
                         )}
@@ -769,7 +764,7 @@ export default function SecurityRequestForm({
               render={() => (
                 <FormItem>
                   <FormLabel>Will patrols be required?</FormLabel>
-                  <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3">
                     {patrolOptions.map(option => (
                       <FormField
                         key={option.id}
@@ -779,7 +774,7 @@ export default function SecurityRequestForm({
                           <FormItem className="space-y-0">
                             <Label
                               htmlFor={`patrol-${option.id}`}
-                              className="flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 hover:bg-muted/50"
+                              className="flex cursor-pointer items-center gap-2.5 rounded-md border px-3 py-2.5 hover:bg-muted/50"
                             >
                               <FormControl>
                                 <Checkbox
@@ -795,7 +790,7 @@ export default function SecurityRequestForm({
                                   }}
                                 />
                               </FormControl>
-                              <span className="font-normal">{option.label}</span>
+                              <span className="text-sm font-normal">{option.label}</span>
                             </Label>
                           </FormItem>
                         )}
@@ -980,7 +975,12 @@ export default function SecurityRequestForm({
               )}
             />
 
-            <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto" size="lg">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full md:w-auto md:min-w-[200px]"
+              size="lg"
+            >
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {submitButtonText}
             </Button>

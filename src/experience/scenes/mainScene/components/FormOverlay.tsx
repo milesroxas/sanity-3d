@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { CheckCircle2, RotateCcw, X } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface FormOverlayProps {
   title: string;
@@ -27,6 +27,7 @@ interface FormOverlayProps {
  * - Slightly narrower than POI overlay (90% width vs 100%)
  * - Right-aligned with POI overlay, showing POI on the left
  * - Drop shadow for stacked effect
+ * - Click outside to close
  */
 export default function FormOverlay({
   title,
@@ -37,6 +38,7 @@ export default function FormOverlay({
   onSubmitAnother,
 }: FormOverlayProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const contentContainerRef = useRef<HTMLDivElement>(null);
   const blocksRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -45,10 +47,49 @@ export default function FormOverlay({
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
 
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
+
   // Handle close animation
   const handleClose = () => {
     setIsAnimating(true);
   };
+
+  // Handle click outside to close
+  useEffect(() => {
+    if (!isVisible || isAnimating) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        contentContainerRef.current &&
+        !contentContainerRef.current.contains(event.target as Node)
+      ) {
+        handleClose();
+      }
+    };
+
+    // Add slight delay to prevent immediate closing on open
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isVisible, isAnimating]);
 
   // Handle escape key to close overlay
   useEscapeKey({
@@ -61,8 +102,6 @@ export default function FormOverlay({
   // GSAP animations
   useGSAP(
     () => {
-      if (!overlayRef.current) return;
-
       const shouldShow = isVisible && !isAnimating;
       const shouldAnimate = isAnimating;
 
@@ -70,12 +109,14 @@ export default function FormOverlay({
         setIsAnimating(false);
 
         if (isMobile) {
-          // Mobile: slide up animation
+          // Mobile: slide up animation (matching POI overlay behavior)
+          if (!overlayRef.current) return;
+
           gsap.set(overlayRef.current, { y: '100%', x: 0, opacity: 0 });
-          gsap.set(titleRef.current, { opacity: 0, y: 10 });
-          gsap.set(contentRef.current, { opacity: 0, y: 20 });
-          gsap.set(blocksRef.current, { opacity: 0, y: 20 });
-          gsap.set(closeRef.current, { opacity: 0 });
+          gsap.set(titleRef.current, { opacity: 0, y: 10, x: 0 });
+          gsap.set(contentRef.current, { opacity: 0, y: 20, x: 0 });
+          gsap.set(blocksRef.current, { opacity: 0, y: 20, x: 0 });
+          gsap.set(closeRef.current, { opacity: 0, x: 0 });
 
           gsap
             .timeline()
@@ -118,7 +159,9 @@ export default function FormOverlay({
             });
         } else {
           // Desktop: slide in from right
-          gsap.set(overlayRef.current, { opacity: 0, x: 200 });
+          if (!contentContainerRef.current) return;
+
+          gsap.set(contentContainerRef.current, { opacity: 0, x: 200 });
           gsap.set(blocksRef.current, { opacity: 0, y: 20 });
           gsap.set(titleRef.current, { opacity: 0, x: 10 });
           gsap.set(closeRef.current, { opacity: 0 });
@@ -126,13 +169,13 @@ export default function FormOverlay({
 
           gsap
             .timeline()
-            .to(overlayRef.current, {
+            .to(contentContainerRef.current, {
               opacity: 1,
               duration: 0.5,
               ease: 'power2.in',
             })
             .to(
-              overlayRef.current,
+              contentContainerRef.current,
               {
                 x: 0,
                 duration: 0.8,
@@ -253,7 +296,7 @@ export default function FormOverlay({
               duration: 0.2,
               ease: 'power2.in',
             })
-            .to(overlayRef.current, {
+            .to(contentContainerRef.current, {
               opacity: 0,
               x: 200,
               duration: 0.3,
@@ -280,7 +323,7 @@ export default function FormOverlay({
   });
   const { className: overlayClassName = '', ...overlayProps } = scrollAreaProps as any;
 
-  // Mobile layout: full screen overlay
+  // Mobile layout: full screen overlay (slides up from bottom like POI overlay)
   if (isMobile) {
     return (
       <div
@@ -288,9 +331,12 @@ export default function FormOverlay({
         ref={overlayRef}
         style={{ WebkitTransform: 'translateZ(0)', backfaceVisibility: 'hidden' as any }}
       >
-        <div className="pointer-events-auto absolute inset-0 flex flex-col bg-background">
+        <div
+          ref={contentContainerRef}
+          className="pointer-events-auto absolute inset-0 flex flex-col bg-background"
+        >
           <div
-            className="sticky top-0 z-10 flex items-center justify-between bg-background/95 p-4"
+            className="sticky top-0 z-10 flex items-center justify-between bg-background/15 px-4 py-3"
             ref={contentRef}
           >
             <h2 className="text-lg font-bold text-secondary/50" ref={titleRef}>
@@ -310,9 +356,9 @@ export default function FormOverlay({
             className={cn('flex-1 [&>[data-radix-scroll-area-scrollbar]]:w-1.5', overlayClassName)}
             {...overlayProps}
           >
-            <div className="p-4" ref={blocksRef}>
+            <div className="px-4 py-6" ref={blocksRef}>
               {hasSubmitted && (!blocks || blocks.length === 0) ? (
-                <div className="flex min-h-[400px] flex-col items-center justify-center gap-6 px-4 py-12 text-center">
+                <div className="flex min-h-[50vh] flex-col items-center justify-center gap-6 text-center">
                   <div className="rounded-full bg-green-100 p-4">
                     <CheckCircle2 className="h-12 w-12 text-green-600" />
                   </div>
@@ -322,7 +368,7 @@ export default function FormOverlay({
                       Thank you for your request. We'll contact you within 24 hours.
                     </p>
                   </div>
-                  <div className="flex w-full max-w-xs flex-col gap-3">
+                  <div className="flex w-full flex-col gap-3">
                     <Button onClick={onSubmitAnother} variant="default" className="w-full">
                       <RotateCcw className="h-4 w-4" />
                       Submit Another Request
@@ -349,6 +395,7 @@ export default function FormOverlay({
   // Form overlay: 90% of POI width, right-aligned
   return (
     <div
+      ref={overlayRef}
       className="pointer-events-none fixed inset-0 z-50 flex"
       style={{
         paddingRight: `${margin}px`,
@@ -358,11 +405,11 @@ export default function FormOverlay({
     >
       <div className="flex flex-1 items-center justify-end">
         <div
-          ref={overlayRef}
-          className="pointer-events-auto flex h-full max-h-[90vh] w-[90%] max-w-[685px] flex-col bg-background shadow-2xl md:rounded-lg lg:max-w-[74.25vw]"
+          ref={contentContainerRef}
+          className="pointer-events-auto flex h-full max-h-[90vh] w-[90%] max-w-[650px] flex-col bg-background shadow-2xl md:rounded-lg lg:max-w-[min(68vw,900px)]"
         >
           <div className="sticky top-0 z-10 rounded-t-lg bg-background/95 py-4 shadow-sm backdrop-blur-sm">
-            <div className="relative flex items-center gap-4 px-6 lg:px-4">
+            <div className="relative flex items-center gap-4 px-6">
               <div className="">
                 <Button
                   size="icon"
@@ -380,11 +427,11 @@ export default function FormOverlay({
               </div>
             </div>
           </div>
-          <ScrollArea className={cn('flex-1 rounded-b-lg px-4 lg:px-8')}>
-            <div className="px-6 lg:px-8" ref={contentRef}>
+          <ScrollArea className={cn('flex-1 rounded-b-lg')}>
+            <div className="px-6 py-6 lg:px-8 lg:py-8" ref={contentRef}>
               {hasSubmitted && (!blocks || blocks.length === 0) ? (
                 <div
-                  className="flex min-h-[500px] flex-col items-center justify-center gap-8 px-4 py-16 text-center"
+                  className="flex min-h-[500px] flex-col items-center justify-center gap-8 text-center"
                   ref={blocksRef}
                 >
                   <div className="rounded-full bg-green-100 p-6">
@@ -415,7 +462,7 @@ export default function FormOverlay({
                   </div>
                 </div>
               ) : blocks && blocks.length > 0 ? (
-                <div className="flex flex-col gap-4 pb-8 pt-4 lg:pb-12 lg:pt-8" ref={blocksRef}>
+                <div className="flex flex-col gap-4" ref={blocksRef}>
                   <Blocks blocks={blocks} renderContext="overlay" />
                 </div>
               ) : null}

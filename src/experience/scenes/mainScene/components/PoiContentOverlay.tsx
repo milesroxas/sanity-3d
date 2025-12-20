@@ -565,7 +565,7 @@ export default function PoiContentOverlay({
                   </Button>
 
                   <div className="" ref={titleRef}>
-                    <h3 className="text-xl font-medium leading-none text-muted-foreground lg:text-xl lg:leading-none">
+                    <h3 className="text-xl font-bold leading-none text-muted-foreground lg:text-xl lg:leading-none">
                       {sceneTitle || poi.title}
                     </h3>
                   </div>
