@@ -8,7 +8,7 @@ export const CAMERA_CONFIG = {
   // Camera positions for different states
   positions: {
     mainIntro: {
-      position: new Vector3(-20, 350, 0),
+      position: new Vector3(-20, 350, 5),
       target: new Vector3(-20, -100, 0),
     },
     main: {

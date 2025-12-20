@@ -256,11 +256,15 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
         muxVideo: MuxVideoComponent,
       },
       block: createBlockComponents({
-        normal: ({ children }) => <p className="mb-6 mt-2 w-full max-w-full">{children}</p>,
-        lead: ({ children }) => (
-          <p className="mb-12 w-full max-w-full text-xl font-medium">{children}</p>
+        normal: ({ children }) => (
+          <p className="mb-6 mt-2 w-full max-w-full leading-relaxed">{children}</p>
         ),
-        supporting: ({ children }) => <p className="mb-6 mt-2 w-full max-w-full">{children}</p>,
+        lead: ({ children }) => (
+          <p className="mb-12 w-full max-w-full text-xl font-medium leading-relaxed">{children}</p>
+        ),
+        supporting: ({ children }) => (
+          <p className="mb-6 mt-2 w-full max-w-full leading-relaxed">{children}</p>
+        ),
         // Backward compatibility for old content
         largeText: ({ children }) => (
           <p className="mb-12 w-full max-w-full text-xl font-medium">{children}</p>
@@ -374,15 +378,19 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
       ...defaultComponents,
       block: createBlockComponents({
         normal: ({ children }) => (
-          <p className="mb-2 w-full max-w-full text-sm md:mb-6 md:text-base">{children}</p>
+          <p className="mb-2 w-full max-w-full text-sm leading-relaxed md:mb-6 md:text-base">
+            {children}
+          </p>
         ),
         lead: ({ children }) => (
-          <p className="mb-6 w-full max-w-full text-sm font-medium text-slate-700 md:mb-8 md:pt-2 md:text-lg">
+          <p className="mb-6 w-full max-w-full text-sm font-medium leading-relaxed text-slate-700 md:mb-8 md:pt-2 md:text-lg">
             {children}
           </p>
         ),
         supporting: ({ children }) => (
-          <p className="mb-2 w-full max-w-full text-sm md:mb-6 md:text-base">{children}</p>
+          <p className="mb-2 w-full max-w-full text-sm leading-relaxed md:mb-6 md:text-base">
+            {children}
+          </p>
         ),
         // Backward compatibility for old content
         largeText: ({ children }) => (
@@ -439,15 +447,21 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
       ...defaultComponents,
       block: createBlockComponents({
         normal: ({ children }) => (
-          <p className="w-full max-w-full text-sm" style={{ marginBottom: '0.5rem' }}>
+          <p
+            className="w-full max-w-full text-sm leading-normal"
+            style={{ marginBottom: '0.5rem' }}
+          >
             {children}
           </p>
         ),
         lead: ({ children }) => (
-          <p className="mb-4 w-full max-w-full text-xs text-muted">{children}</p>
+          <p className="mb-4 w-full max-w-full text-xs leading-normal text-muted">{children}</p>
         ),
         supporting: ({ children }) => (
-          <p className="w-full max-w-full text-sm" style={{ marginBottom: '0.5rem' }}>
+          <p
+            className="w-full max-w-full text-sm leading-normal"
+            style={{ marginBottom: '0.5rem' }}
+          >
             {children}
           </p>
         ),
@@ -506,7 +520,7 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
           </p>
         ),
         supporting: ({ children }) => (
-          <p className="mb-6 w-full max-w-full text-2xl leading-relaxed last:mb-0">{children}</p>
+          <p className="mb-6 w-full max-w-full text-2xl leading-normal last:mb-0">{children}</p>
         ),
         // Backward compatibility for old content
         largeText: ({ children }) => (

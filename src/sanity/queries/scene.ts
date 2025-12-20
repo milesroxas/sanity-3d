@@ -187,6 +187,23 @@ export const SCENE_QUERY = groq`
                 }
               }
             }
+          },
+          links[] {
+            ...,
+            _type == 'pageLink' => {
+              ...,
+              buttonVariant,
+              page->{_id, _type, title, slug}
+            },
+            _type == 'customLink' => {
+              ...,
+              buttonVariant
+            },
+            _type == 'servicesLink' => {
+              ...,
+              buttonVariant,
+              services->{_id, _type, title, slug}
+            }
           }
         },
         _type == "media" => {
@@ -334,6 +351,23 @@ export const SCENE_QUERY = groq`
                     status
                   }
                 }
+              }
+            },
+            links[] {
+              ...,
+              _type == 'pageLink' => {
+                ...,
+                buttonVariant,
+                page->{_id, _type, title, slug}
+              },
+              _type == 'customLink' => {
+                ...,
+                buttonVariant
+              },
+              _type == 'servicesLink' => {
+                ...,
+                buttonVariant,
+                services->{_id, _type, title, slug}
               }
             }
           },

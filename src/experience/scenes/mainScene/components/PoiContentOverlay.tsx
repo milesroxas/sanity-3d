@@ -48,6 +48,7 @@ export default function PoiContentOverlay({
   defaultActionButton,
 }: PoiContentOverlayProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const contentContainerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -195,6 +196,30 @@ export default function PoiContentOverlay({
     }
   }, [isVisible, closeExpandedContent, resetSubmissionState]);
 
+  // Handle click outside to close (only if FormOverlay is not open)
+  useEffect(() => {
+    if (!isVisible || isAnimating || isExpandedVisible) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        contentContainerRef.current &&
+        !contentContainerRef.current.contains(event.target as Node)
+      ) {
+        handleClose();
+      }
+    };
+
+    // Add slight delay to prevent immediate closing on open
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isVisible, isAnimating, isExpandedVisible]);
+
   // Escape key handling - close expanded content first, then POI overlay
   useEscapeKey({
     enabled: isVisible,
@@ -263,7 +288,9 @@ export default function PoiContentOverlay({
             });
         } else {
           // Desktop: slide in from right
-          gsap.set(overlayRef.current, { opacity: 0, x: 200 });
+          if (!contentContainerRef.current) return;
+
+          gsap.set(contentContainerRef.current, { opacity: 0, x: 200 });
           gsap.set(blocksRef.current, { opacity: 0, y: 20 });
           gsap.set(titleRef.current, { opacity: 0, x: 10 });
           gsap.set(closeRef.current, { opacity: 0 });
@@ -271,13 +298,13 @@ export default function PoiContentOverlay({
           gsap.set(actionButtonRef.current, { opacity: 0 });
           gsap
             .timeline()
-            .to(overlayRef.current, {
+            .to(contentContainerRef.current, {
               opacity: 1,
               duration: 0.5,
               ease: 'power2.in',
             })
             .to(
-              overlayRef.current,
+              contentContainerRef.current,
               {
                 x: 0,
                 duration: 0.8,
@@ -386,6 +413,7 @@ export default function PoiContentOverlay({
               ease: 'power2.in',
             });
         } else {
+          // Desktop: slide out to right
           tl.to(blocksRef.current, {
             opacity: 0,
             duration: 0.2,
@@ -411,7 +439,7 @@ export default function PoiContentOverlay({
               duration: 0.2,
               ease: 'power2.in',
             })
-            .to(overlayRef.current, {
+            .to(contentContainerRef.current, {
               opacity: 0,
               x: 200,
               duration: 0.3,
@@ -455,7 +483,10 @@ export default function PoiContentOverlay({
           ref={overlayRef}
           style={{ WebkitTransform: 'translateZ(0)', backfaceVisibility: 'hidden' as any }}
         >
-          <div className="pointer-events-auto absolute inset-0 flex flex-col bg-background">
+          <div
+            ref={contentContainerRef}
+            className="pointer-events-auto absolute inset-0 flex flex-col bg-background"
+          >
             <div
               className="sticky top-0 z-10 flex items-center justify-between bg-background/15 p-4"
               ref={contentRef}
@@ -539,6 +570,7 @@ export default function PoiContentOverlay({
   return (
     <>
       <div
+        ref={overlayRef}
         className="pointer-events-none fixed inset-0 z-40 flex"
         style={{
           paddingLeft: `${margin}px`,
@@ -549,7 +581,7 @@ export default function PoiContentOverlay({
       >
         <div className="flex flex-1 items-center justify-end">
           <div
-            ref={overlayRef}
+            ref={contentContainerRef}
             className="pointer-events-auto flex h-full max-h-[90vh] w-full max-w-[700px] flex-col bg-background/75 shadow-xl md:rounded-lg md:backdrop-blur-lg lg:max-w-[75vw]"
           >
             <div className="sticky top-0 z-10 rounded-t-lg bg-background/95 py-4 shadow-sm backdrop-blur-sm">
