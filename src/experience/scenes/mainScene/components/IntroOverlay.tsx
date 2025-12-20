@@ -185,8 +185,8 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
 
       // Initial states - set immediately regardless of font loading
       gsap.set(container, { autoAlpha: 0 });
-      if (logo) gsap.set(logo, { autoAlpha: 0, y: -30 });
-      if (marquee) gsap.set(marquee, { autoAlpha: 0, y: 30 });
+      if (logo) gsap.set(logo, { autoAlpha: 0 });
+      if (marquee) gsap.set(marquee, { autoAlpha: 0 });
       if (video) gsap.set(video, { autoAlpha: 0 });
       if (heading) gsap.set(heading, { autoAlpha: 0 });
       if (buttons) gsap.set(buttons, { autoAlpha: 0 });
@@ -194,16 +194,13 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
       // Wait for fonts before starting animation
       if (!fontsLoaded) return;
 
-      // Start scene at target opacity so it's immediately visible
-      gsap.set(scene, {
-        opacity: prefersReducedMotion
-          ? targetSceneOpacity
-          : Math.min(targetSceneOpacity * 0.8, 0.8),
-      });
+      // Remove CSS transitions from scene so GSAP can control it
+      scene.classList.remove('transition-opacity', 'duration-1000', 'ease-in-out');
 
       if (prefersReducedMotion) {
         // Snap in without animation
         gsap.set(container, { autoAlpha: 1 });
+        gsap.set(scene, { opacity: targetSceneOpacity });
         if (logo) gsap.set(logo, { autoAlpha: 1 });
         if (heading) gsap.set(heading, { autoAlpha: 1 });
         if (buttons) gsap.set(buttons, { autoAlpha: 1 });
@@ -212,105 +209,56 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
         return;
       }
 
+      // Set scene to 0 for animation
+      gsap.set(scene, { opacity: 0 });
+
       const tl = gsap.timeline();
+      const dur = 1.2;
+      const ease = 'power3.out';
 
-      // 1. Container fades in (scene is already visible)
-      tl.to(container, { autoAlpha: 1, duration: 1, ease: 'power2.out' }, 0);
+      // Make container visible immediately
+      gsap.set(container, { autoAlpha: 1 });
 
-      // 2. Content (heading with SplitText line reveal + buttons) fades in after container
-      tl.addLabel('contentFadeIn', 1.25);
-
+      // 1. Title lines reveal starting at 0
       if (heading) {
-        // Split text into lines
         const split = new SplitText(heading, { type: 'lines' });
         const lines = split.lines;
 
-        // Wrap lines for overflow hidden (clip effect)
         gsap.set(heading, { perspective: 400 });
 
-        // Create parent wrapper for each line to clip
         lines.forEach(line => {
           const wrapper = document.createElement('div');
           wrapper.style.overflow = 'hidden';
-          wrapper.style.paddingBottom = '0.15em'; // Prevent descenders from being cut off
+          wrapper.style.paddingBottom = '0.15em';
           line.parentNode?.insertBefore(wrapper, line);
           wrapper.appendChild(line);
         });
 
-        // Initial state - lines translated down and invisible
-        gsap.set(lines, {
-          yPercent: 100,
-          opacity: 0,
-        });
-
+        gsap.set(lines, { yPercent: 120, opacity: 0 });
         gsap.set(heading, { autoAlpha: 1 });
 
-        // Animate lines up with stagger using elegant expo easing
         tl.to(
           lines,
           {
             yPercent: 0,
             opacity: 1,
-            duration: 1.25,
-            ease: 'expo.out',
+            duration: 0.9,
+            ease: 'power3.out',
             stagger: 0.08,
           },
-          'contentFadeIn'
+          0
         );
       }
 
-      if (buttons) {
-        tl.to(
-          buttons,
-          {
-            autoAlpha: 1,
-            duration: 1,
-            ease: 'power3.out',
-          },
-          'contentFadeIn+=1.5'
-        );
-      }
+      // 2. Scene fades in - starts with overlap before title ends
+      tl.to(scene, { opacity: targetSceneOpacity, duration: 1.0, ease: 'power2.inOut' }, '-=0.4');
 
-      // 3. Logo and Marquee first, then video after they complete
-      tl.addLabel('finalElements', 'contentFadeIn+=1.75');
-
-      if (logo) {
-        tl.to(
-          logo,
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 1.5,
-            ease: 'expo.out',
-          },
-          'finalElements'
-        );
-      }
-
-      if (marquee) {
-        tl.to(
-          marquee,
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 1.5,
-            ease: 'expo.out',
-          },
-          'finalElements'
-        );
-      }
-
-      if (video) {
-        tl.to(
-          video,
-          {
-            autoAlpha: 1,
-            duration: 1.5,
-            ease: 'expo.out',
-          },
-          'finalElements'
-        );
-      }
+      // 3. Other elements fade in together with scene for continuous flow
+      tl.to(
+        [buttons, logo, marquee, video],
+        { autoAlpha: 1, duration: 1.0, ease: 'power2.inOut' },
+        '<'
+      );
 
       // No manual kill needed. Context revert handles it.
     },
