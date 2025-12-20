@@ -1,5 +1,6 @@
 import { useR3F } from '@/experience/providers/R3FContext';
 import { selectBeginIntroTransition, useCameraStore } from '@/experience/scenes/store/cameraStore';
+import { useExpandedContentStore } from '@/experience/scenes/store/expandedContentStore';
 import { urlFor } from '@/sanity/lib/image';
 import { useGSAP } from '@gsap/react';
 import { createBlurUp } from '@mux/blurup';
@@ -35,6 +36,10 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
   const beginIntroTransition = useCameraStore(selectBeginIntroTransition);
   const [isDismissing, setIsDismissing] = useState(false);
   const { sceneContainerRef } = useR3F();
+
+  // Form overlay state
+  const setExpandedContent = useExpandedContentStore(s => s.setExpandedContent);
+  const markAsSubmitted = useExpandedContentStore(s => s.markAsSubmitted);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const logoRef = useRef<HTMLDivElement | null>(null);
@@ -506,6 +511,23 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
     beginIntroTransition();
   });
 
+  // Handle opening the form overlay
+  const handleGetQuote = contextSafe(() => {
+    if (isDismissing) return;
+    const overlayBlocks = [
+      {
+        _type: 'form-security-request',
+        _key: 'form-security-request-overlay',
+        colorVariant: 'transparent',
+        padding: 'none',
+        direction: 'both',
+        variant: 'overlay',
+        onSuccess: markAsSubmitted,
+      },
+    ] as unknown as Sanity.Block[];
+    setExpandedContent('Request Free Quote', overlayBlocks);
+  });
+
   return (
     <div
       ref={containerRef}
@@ -561,6 +583,7 @@ export default function IntroOverlay({ experienceMediaVideo, logo }: IntroOverla
               <button
                 type="button"
                 className="rounded-md border border-foreground/20 bg-transparent px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-foreground/5"
+                onClick={handleGetQuote}
               >
                 Get a free quote
               </button>

@@ -11,10 +11,12 @@ import {
   selectSetIsLoading,
   useCameraStore,
 } from '@/experience/scenes/store/cameraStore';
+import { useExpandedContentStore } from '@/experience/scenes/store/expandedContentStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { usePoiStore } from '@/experience/scenes/store/poiStore';
 import { useEscapeKey } from '@/hooks/useEscapeKey';
 import { useEffect, useLayoutEffect, useMemo } from 'react';
+import FormOverlay from './components/FormOverlay';
 import IntroOverlay from './components/IntroOverlay';
 import LogoMarkerContent from './components/LogoMarkerContent';
 import { PoiCloseButton } from './components/PoiCloseButton';
@@ -43,6 +45,16 @@ export default function MainSceneClient({
   const poisVisible = usePoiStore(s => s.poisVisible);
   const selectedPoi = usePoiStore(s => s.selectedPoi);
   const { handleClose, isClosing } = usePoiCloseHandler();
+
+  // Form overlay state
+  const title = useExpandedContentStore(s => s.title);
+  const blocks = useExpandedContentStore(s => s.blocks);
+  const isExpandedVisible = useExpandedContentStore(s => s.isVisible);
+  const hasSubmitted = useExpandedContentStore(s => s.hasSubmitted);
+  const closeExpandedContent = useExpandedContentStore(s => s.closeExpandedContent);
+  const markAsSubmitted = useExpandedContentStore(s => s.markAsSubmitted);
+  const clearBlocks = useExpandedContentStore(s => s.clearBlocks);
+  const setExpandedContent = useExpandedContentStore(s => s.setExpandedContent);
 
   // Performance optimization: Use selectors to prevent re-renders during camera animation
   // This prevents 360 unnecessary re-renders during the 6-second intro (60fps × 6s)
@@ -101,6 +113,30 @@ export default function MainSceneClient({
     }
   }, [beginIntroTransition, firstTimeLoading, introPhase, isAnimating, isLoading]);
 
+  // Helper: handle form overlay close
+  const handleFormClose = () => {
+    if (hasSubmitted && blocks && blocks.length > 0) {
+      clearBlocks();
+    }
+    closeExpandedContent();
+  };
+
+  // Helper: handle submitting another request
+  const handleSubmitAnother = () => {
+    const overlayBlocks = [
+      {
+        _type: 'form-security-request',
+        _key: 'form-security-request-overlay',
+        colorVariant: 'transparent',
+        padding: 'none',
+        direction: 'both',
+        variant: 'overlay',
+        onSuccess: markAsSubmitted,
+      },
+    ] as unknown as Sanity.Block[];
+    setExpandedContent('Request Free Quote', overlayBlocks);
+  };
+
   return (
     <div>
       <div style={noScrollStyles}>
@@ -111,6 +147,16 @@ export default function MainSceneClient({
           <LogoMarkerContent defaultActionButton={settings.defaultPoiActionButton} />
         )}
         <PoiCloseButton isVisible={poisVisible && !isClosing} onClick={handleClose} />
+        {isExpandedVisible && title && (
+          <FormOverlay
+            title={title}
+            isVisible={isExpandedVisible}
+            onClose={handleFormClose}
+            blocks={blocks || []}
+            hasSubmitted={hasSubmitted}
+            onSubmitAnother={handleSubmitAnother}
+          />
+        )}
       </div>
     </div>
   );
