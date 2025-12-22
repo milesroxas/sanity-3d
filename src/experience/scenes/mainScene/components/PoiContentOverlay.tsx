@@ -582,7 +582,7 @@ export default function PoiContentOverlay({
         <div className="flex flex-1 items-center justify-end">
           <div
             ref={contentContainerRef}
-            className="pointer-events-auto flex h-full max-h-[90vh] w-full max-w-[700px] flex-col bg-background/75 shadow-xl md:rounded-lg md:backdrop-blur-lg lg:max-w-[75vw]"
+            className="pointer-events-auto flex h-full max-h-[95vh] w-full max-w-[700px] flex-col bg-background/75 shadow-xl md:rounded-lg md:backdrop-blur-lg lg:max-w-[60vw]"
           >
             <div className="sticky top-0 z-10 rounded-t-lg bg-background/95 py-4 shadow-sm backdrop-blur-sm">
               <div className="relative flex items-center gap-4 px-6 lg:px-4">
@@ -618,7 +618,7 @@ export default function PoiContentOverlay({
               </div>
             </div>
             <ScrollArea className={cn('flex-1 rounded-b-lg')}>
-              <div className="p-8" ref={contentRef}>
+              <div className="p-12" ref={contentRef}>
                 <div className={cn('flex flex-col gap-12')} ref={blocksRef}>
                   {hasBlocks ? (
                     <Blocks blocks={poi.blocks!} renderContext="overlay" />
