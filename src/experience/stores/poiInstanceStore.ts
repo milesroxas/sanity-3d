@@ -4,14 +4,17 @@ import { create } from 'zustand';
 /**
  * POI Instance Store
  *
- * Manages state for proximity-based instance texture transitions.
- * Tracks which POI is active, where the camera is looking, and which textures to use.
+ * Manages state for global material texture transitions.
+ * Tracks which POI is active for transitions.
  *
  * State Flow:
- * 1. User clicks logo marker → setActivePoi(slug, cameraTarget, textures)
- * 2. ProximityInstanceGroup calculates distances from cameraTargetPosition
- * 3. Near instances transition to activeTexture, far instances stay on defaultTexture
+ * 1. User clicks logo marker → setActivePoi(slug, cameraTarget)
+ * 2. useMaterialTextureTransition hook detects state change
+ * 3. All instances transition from defaultTexture to activeTexture
  * 4. User navigates back → resetToDefault()
+ *
+ * Note: Texture paths are now fixed and pre-loaded for performance.
+ * See TexturePreloader component for texture management.
  */
 interface POIInstanceState {
   // Camera target position (where camera is looking at)
@@ -24,20 +27,11 @@ interface POIInstanceState {
   // Instances within this distance from camera target will transition
   transitionRadius: number;
 
-  // Texture paths for current POI
-  defaultTexture: string;
-  activeTexture: string;
-
   // Transition animation state
   isTransitioning: boolean;
 
   // Actions
-  setActivePoi: (
-    slug: string,
-    cameraTarget: Vector3,
-    defaultTex: string,
-    activeTex: string
-  ) => void;
+  setActivePoi: (slug: string, cameraTarget: Vector3) => void;
   setTransitionRadius: (radius: number) => void;
   startTransition: () => void;
   completeTransition: () => void;
@@ -50,17 +44,13 @@ export const usePoiInstanceStore = create<POIInstanceState>(set => ({
   cameraTargetPosition: null,
   activePoi: null,
   transitionRadius: 80, // Default radius - adjust based on scene scale
-  defaultTexture: '/textures/color-atlas-muted-1.jpg',
-  activeTexture: '/textures/color-atlas-new2.png',
   isTransitioning: false,
 
   // Actions
-  setActivePoi: (slug, cameraTarget, defaultTex, activeTex) =>
+  setActivePoi: (slug, cameraTarget) =>
     set({
       activePoi: slug,
       cameraTargetPosition: cameraTarget.clone(),
-      defaultTexture: defaultTex,
-      activeTexture: activeTex,
       isTransitioning: true,
     }),
 
@@ -81,8 +71,6 @@ export const usePoiInstanceStore = create<POIInstanceState>(set => ({
     set({
       cameraTargetPosition: null,
       activePoi: null,
-      defaultTexture: '/textures/color-atlas-muted-1.jpg',
-      activeTexture: '/textures/color-atlas-new2.png',
       isTransitioning: false,
     }),
 }));

@@ -4,7 +4,7 @@ import * as THREE from 'three';
 
 /**
  * Custom shader material for paint coating texture transitions
- * 
+ *
  * Creates a smooth cross-fade between two textures with an organic paint coating effect.
  * Uses noise to create irregular transition edges that simulate paint spreading across surfaces.
  *
@@ -168,11 +168,9 @@ export const TextureTransitionMaterial = shaderMaterial(
 extend({ TextureTransitionMaterial });
 
 // TypeScript declarations for JSX usage
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      textureTransitionMaterial: any;
-    }
+declare module '@react-three/fiber' {
+  interface ThreeElements {
+    textureTransitionMaterial: any;
   }
 }
 

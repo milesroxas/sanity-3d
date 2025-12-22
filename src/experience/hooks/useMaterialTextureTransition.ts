@@ -1,3 +1,4 @@
+import { TEXTURE_PATHS } from '@/experience/constants/textures';
 import { usePoiInstanceStore } from '@/experience/stores/poiInstanceStore';
 import { useTexture } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
@@ -15,31 +16,38 @@ import * as THREE from 'three';
  * to avoid creating multiple texture loaders and animation timelines.
  *
  * How it works:
- * 1. Loads both default and active textures upfront (drei caches them)
+ * 1. Pre-loads ONLY the two textures used for swapping (never changes)
  * 2. When POI is clicked, animates a smooth transition over 2 seconds
  * 3. Traverses the entire scene and updates all MeshStandardMaterial instances
  *
- * Performance: O(n) scene traversal but only during transitions (not every frame)
- * Single source of truth: POI store manages state, this hook applies it
+ * Performance optimizations:
+ * - O(n) scene traversal but only during transitions (not every frame)
+ * - Fixed texture paths that never change (always cached)
+ * - Textures pre-loaded by TexturePreloader
+ * - Single source of truth: Texture paths in constants/textures.ts
  */
 export function useMaterialTextureTransition() {
   const { scene } = useThree();
 
-  // Get POI state - single source of truth
-  const defaultTexturePath = usePoiInstanceStore(s => s.defaultTexture);
-  const activeTexturePath = usePoiInstanceStore(s => s.activeTexture);
+  // Get POI state
   const isTransitioning = usePoiInstanceStore(s => s.isTransitioning);
   const activePoi = usePoiInstanceStore(s => s.activePoi);
 
-  // Load both textures upfront (drei caches them automatically)
-  const defaultTexture = useTexture(defaultTexturePath);
-  const activeTexture = useTexture(activeTexturePath);
+  // FIXED: Always load the same two textures - never change paths
+  // These are pre-loaded by TexturePreloader so they're always cached
+  // Texture paths imported from single source of truth
+  const textures = useTexture(TEXTURE_PATHS);
+  const defaultTexture = textures.defaultTexture;
+  const activeTexture = textures.activeTexture;
 
   // Configure textures once
   useEffect(() => {
     [defaultTexture, activeTexture].forEach(tex => {
       tex.flipY = false;
       tex.colorSpace = THREE.SRGBColorSpace;
+      tex.minFilter = THREE.LinearMipmapLinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      tex.generateMipmaps = true;
       tex.needsUpdate = true;
     });
   }, [defaultTexture, activeTexture]);

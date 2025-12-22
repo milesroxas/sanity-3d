@@ -1,6 +1,7 @@
 'use client';
 
 import Effects from '@/experience/effects';
+import { TexturePreloader } from '@/experience/components/TexturePreloader';
 import { useMaterialTextureTransition } from '@/experience/hooks/useMaterialTextureTransition';
 import { forwardRef } from 'react';
 import { MainSceneCameraSystem } from './MainSceneCameraSystem';
@@ -18,13 +19,16 @@ interface MainSceneProps {
 
 const MainScene = forwardRef<any, MainSceneProps>(({ scene }, ref) => {
   const profile = useRenderProfile();
-  
+
   // Enable global material texture transitions
   // This hook manages texture swapping when POIs are clicked
   useMaterialTextureTransition();
-  
+
   return (
     <>
+      {/* Pre-load textures during initial load - integrates with Loading component */}
+      <TexturePreloader />
+
       <MainSceneCameraSystem />
       {/* <TempFloor position={[0, -0.05, 0]} /> */}
       <Effects />

@@ -291,14 +291,9 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
 
       // NEW: Set active POI for instance texture transitions
       if (poi.slug?.current) {
-        // Get texture paths from POI data or use defaults
-        const defaultTex =
-          poi.instanceTextures?.defaultTexture || '/textures/color-atlas-muted-1.jpg';
-        const activeTex =
-          poi.instanceTextures?.activeTexture || '/textures/color-atlas-new2.png';
-
         // Trigger instance transitions near this camera target
-        setActivePoi(poi.slug.current, targetLookAt, defaultTex, activeTex);
+        // Textures are now fixed and pre-loaded for performance
+        setActivePoi(poi.slug.current, targetLookAt);
       }
 
       setControlType('Disabled');

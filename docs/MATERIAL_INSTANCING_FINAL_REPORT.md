@@ -14,16 +14,14 @@ After thorough review and analysis, the material instancing feature has been **r
 
 - Removed invalid import `ensureTextureTransitionMaterialExtended` from `ProximityInstanceGroup.tsx`
 - Added proper TypeScript types to `TextureTransitionMaterial.ts`
+- Fixed lint error (namespace → module augmentation)
 - Build now completes successfully with no errors
 
 ### 2. Removed Broken Implementation ✅
 
-- Disabled `ProximityInstanceGroup` component (now just passes through children)
-- Removed all `ProximityInstanceGroup` wrappers from:
-  - `src/experience/scenes/mainScene/compositions/Vehicles.tsx`
-  - `src/experience/scenes/mainScene/compositions/Props.tsx`
-  - `src/experience/scenes/mainScene/compositions/Buildings.tsx`
-  - `src/experience/scenes/mainScene/compositions/Ground.tsx`
+- Deleted `ProximityInstanceGroup.tsx` component (was unused pass-through)
+- Removed all `ProximityInstanceGroup` wrappers from composition files
+- Cleaned up outdated documentation files
 
 ### 3. Verified Stability ✅
 
@@ -73,16 +71,22 @@ The `ProximityInstanceGroup` tried to:
 
 ### Cleaned Up ✅
 
-- `src/experience/materials/TextureTransitionMaterial.ts` - Added types, kept for potential future use
-- `src/experience/components/ProximityInstanceGroup.tsx` - Disabled (pass-through only)
-- `src/experience/scenes/mainScene/compositions/Vehicles.tsx` - Removed wrapper
-- `src/experience/scenes/mainScene/compositions/Props.tsx` - Removed wrapper
-- `src/experience/scenes/mainScene/compositions/Buildings.tsx` - Removed wrapper
-- `src/experience/scenes/mainScene/compositions/Ground.tsx` - Removed wrapper
+- `src/experience/materials/TextureTransitionMaterial.ts` - Fixed lint error, kept for potential future use
+- `src/experience/components/ProximityInstanceGroup.tsx` - **DELETED** (was unused)
+- Removed outdated documentation files:
+  - `POI_TEXTURE_TRANSITION_IMPLEMENTATION.md`
+  - `POI_TEXTURE_TRANSITION_SUMMARY.md`
+  - `SHADER_PAINT_TRANSITION.md`
+  - `MATERIAL_INSTANCING_REVIEW.md`
+  - `DEBUGGING_TRANSITIONS.md`
+
+### Currently Used ✅
+
+- `src/experience/stores/poiInstanceStore.ts` - Used by `useMaterialTextureTransition` hook
+- `src/experience/hooks/useMaterialTextureTransition.ts` - Active implementation (simple texture swap)
 
 ### Kept (For Reference)
 
-- `src/experience/stores/poiInstanceStore.ts` - Store still exists, unused but harmless
 - `src/experience/materials/TextureTransitionMaterial.ts` - Shader material implementation (well-written, might be useful later)
 
 ---
@@ -205,10 +209,10 @@ gsap.to(sharedMaterial, {
 - `TextureTransitionMaterial.ts` - Well-written shader material, might be useful for Option 1 or 3
 - `poiInstanceStore.ts` - Store is unused but doesn't hurt anything
 
-### Safe to Delete (Optional Cleanup)
+### Current Status
 
-- `ProximityInstanceGroup.tsx` - Currently does nothing, can be removed
-- `poiInstanceStore.ts` - If you're sure you won't need it
+- `ProximityInstanceGroup.tsx` - **DELETED** (was unused)
+- `poiInstanceStore.ts` - **IN USE** by current texture transition implementation
 
 ---
 
@@ -241,11 +245,17 @@ A quick prototype would have revealed the architectural conflict immediately.
 3. **Validate with users**: See if the simpler approach is "good enough"
 4. **Iterate if needed**: Only add complexity if users actually need it
 
-### If You Don't Need This Feature:
+### Current Implementation Status:
 
-1. **Optional cleanup**: Delete `ProximityInstanceGroup.tsx` and `poiInstanceStore.ts`
-2. **Update docs**: Remove references to proximity transitions from `POI_TEXTURE_TRANSITION_IMPLEMENTATION.md`
-3. **Move on**: Focus on features that provide more user value
+✅ **Option 3 (Camera-Based Material Swapping) has been implemented!**
+
+The current implementation uses `useMaterialTextureTransition` hook which:
+
+- Swaps textures globally when POI is clicked
+- Works with existing instancing system
+- Simple and performant
+
+See `docs/MATERIAL_TEXTURE_TRANSITIONS.md` for current implementation details.
 
 ---
 

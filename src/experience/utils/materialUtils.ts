@@ -1,3 +1,4 @@
+import { DEFAULT_TEXTURE_PATH } from '@/experience/constants/textures';
 import type { MaterialMap } from '@/experience/types/modelTypes';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
@@ -32,8 +33,9 @@ export const CATEGORY_COLORS = {
   default: 0xfbf9f6, // Near-white neutral warm
 };
 
-// Preload the textures to avoid loading during render
-useTexture.preload('/textures/color-atlas-muted-1.jpg');
+// Preload the default texture to avoid loading during render
+// Using centralized texture path constant
+useTexture.preload(DEFAULT_TEXTURE_PATH);
 
 /**
  * Creates a basic untextured material that responds to lighting
@@ -109,7 +111,8 @@ export function createSharedAtlasMaterial(
   }
 
   // Load the external texture directly from the public folder
-  const colorTexture = useTexture('/textures/color-atlas-muted-1.jpg');
+  // Using centralized texture path constant
+  const colorTexture = useTexture(DEFAULT_TEXTURE_PATH);
 
   // Configure texture settings
   colorTexture.flipY = false;
