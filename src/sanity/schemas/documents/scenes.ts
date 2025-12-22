@@ -165,6 +165,51 @@ export default defineType({
               ],
             },
             {
+              name: 'instanceTextures',
+              title: 'Instance Textures Configuration',
+              description: 'Configure which textures instances should use when this POI is active',
+              type: 'object',
+              fields: [
+                {
+                  name: 'defaultTexture',
+                  title: 'Default Texture (Before Click)',
+                  type: 'string',
+                  initialValue: '/textures/color-atlas-muted-1.jpg',
+                  options: {
+                    list: [
+                      { title: 'Muted 1', value: '/textures/color-atlas-muted-1.jpg' },
+                      { title: 'Muted', value: '/textures/color-atlas-muted.jpg' },
+                    ],
+                  },
+                },
+                {
+                  name: 'activeTexture',
+                  title: 'Active Texture (After Camera Arrives)',
+                  type: 'string',
+                  initialValue: '/textures/color-atlas-new2.png',
+                  options: {
+                    list: [
+                      { title: 'Color New 2', value: '/textures/color-atlas-new2.png' },
+                      {
+                        title: 'Color Emission Night',
+                        value: '/textures/color-atlas-emission-night.png',
+                      },
+                      { title: 'Color Specular', value: '/textures/color-atlas-specular.png' },
+                    ],
+                  },
+                },
+              ],
+            },
+            {
+              name: 'transitionRadius',
+              title: 'Instance Transition Radius',
+              type: 'number',
+              description:
+                'How far from camera target should instances transition? (in scene units)',
+              initialValue: 80,
+              validation: (Rule: any) => Rule.min(10).max(500),
+            },
+            {
               name: 'markerPosition',
               title: 'Marker Position',
               description: 'The 3D position where the POI button should appear',

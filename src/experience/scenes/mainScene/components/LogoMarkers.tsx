@@ -8,6 +8,7 @@ import {
   useCameraStore,
 } from '@/experience/scenes/store/cameraStore';
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
+import { usePoiInstanceStore } from '@/experience/stores/poiInstanceStore';
 import { animateCameraMovement } from '@/experience/utils/animationUtils';
 import { Float, Html, useCursor } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
@@ -218,6 +219,10 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
   const setIsAnimating = useCameraStore(selectSetIsAnimating);
   const syncCameraPosition = useCameraStore(selectSyncCameraPosition);
 
+  // POI Instance Store actions
+  const setActivePoi = usePoiInstanceStore(s => s.setActivePoi);
+  const resetToDefault = usePoiInstanceStore(s => s.resetToDefault);
+
   // Ref to track animation frames for cleanup
   const animationFrameRef = useRef<number | (() => void) | null>(null);
 
@@ -284,6 +289,18 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
         poi.mainSceneCameraTarget.z
       );
 
+      // NEW: Set active POI for instance texture transitions
+      if (poi.slug?.current) {
+        // Get texture paths from POI data or use defaults
+        const defaultTex =
+          poi.instanceTextures?.defaultTexture || '/textures/color-atlas-muted-1.jpg';
+        const activeTex =
+          poi.instanceTextures?.activeTexture || '/textures/color-atlas-new2.png';
+
+        // Trigger instance transitions near this camera target
+        setActivePoi(poi.slug.current, targetLookAt, defaultTex, activeTex);
+      }
+
       setControlType('Disabled');
       setIsAnimating(true);
 
@@ -322,6 +339,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
       fetchAndSetScene,
       setOtherMarkersVisible,
       clearAnimationFrame,
+      setActivePoi,
     ]
   );
 
@@ -333,6 +351,9 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
 
     // Clean up any existing animations before starting a new one
     clearAnimationFrame();
+
+    // NEW: Reset instance transitions back to default
+    resetToDefault();
 
     // Disable controls during animation
     setControlType('Disabled');
@@ -386,6 +407,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
     setIsAnimating,
     syncCameraPosition,
     clearAnimationFrame,
+    resetToDefault,
   ]);
 
   return (

@@ -609,7 +609,6 @@ const LandingScene = memo(({ textureVideo, modalVideo }: LandingSceneProps) => {
     if (animationStartedRef.current || hasAnimated || !isLoaded || !cameraRef.current) return;
 
     handleEnter();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, hasAnimated]);
 
   // Handle page visibility changes to prevent mouse/camera glitches during focus changes

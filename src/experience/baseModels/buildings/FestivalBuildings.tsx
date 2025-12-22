@@ -14,20 +14,7 @@ export function FestivalBuildings(props: ThreeElements['group']) {
   const LowpolyMaterial = createSharedAtlasMaterial(materials);
   return (
     <group {...props} dispose={null}>
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes['ferris-wheel001'].geometry}
-        material={LowpolyMaterial}
-        position={[-322.371, 0, 56.479]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes['tent-circus-big001'].geometry}
-        material={LowpolyMaterial}
-        position={[-306.258, -0.005, 88.341]}
-      />
+      {/* Ferris wheel and tent-circus-big now in scene-props-2.glb (instanced) */}
       <group position={[-158.828, 4.975, 43.436]} rotation={[0, Math.PI / 4, 0]} scale={7.75}>
         <mesh
           castShadow

@@ -13,13 +13,23 @@ export function Vehicles() {
   return (
     <>
       {/* Static vehicles with shadows */}
-      <VehiclesInstances useSharedMaterial={true} category="vehicles" castShadow={true} receiveShadow={true}>
+      <VehiclesInstances
+        useSharedMaterial={true}
+        category="vehicles"
+        castShadow={true}
+        receiveShadow={true}
+      >
         <VehiclesInstances_Blender instancesData={parkedCarsData as BlenderExportData[]} />
       </VehiclesInstances>
 
       {/* Animated vehicles without shadows for performance */}
       {includeAnimatedVehicles && (
-        <VehiclesInstances useSharedMaterial={true} category="vehicles" castShadow={false} receiveShadow={false}>
+        <VehiclesInstances
+          useSharedMaterial={true}
+          category="vehicles"
+          castShadow={false}
+          receiveShadow={false}
+        >
           <vehicles.AnimatedCar pathOffset={0} />
           <vehicles.AnimatedPlane pathOffset={0.3} scale={0.8} />
         </VehiclesInstances>

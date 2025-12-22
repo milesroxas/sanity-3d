@@ -1,6 +1,7 @@
 'use client';
 
 import Effects from '@/experience/effects';
+import { useMaterialTextureTransition } from '@/experience/hooks/useMaterialTextureTransition';
 import { forwardRef } from 'react';
 import { MainSceneCameraSystem } from './MainSceneCameraSystem';
 import LogoMarkers from './components/LogoMarkers';
@@ -17,6 +18,11 @@ interface MainSceneProps {
 
 const MainScene = forwardRef<any, MainSceneProps>(({ scene }, ref) => {
   const profile = useRenderProfile();
+  
+  // Enable global material texture transitions
+  // This hook manages texture swapping when POIs are clicked
+  useMaterialTextureTransition();
+  
   return (
     <>
       <MainSceneCameraSystem />
