@@ -406,23 +406,7 @@ export const SCENE_QUERY = groq`
           ${splitRowQuery}
           ${gridRowQuery}
         },
-        links[] {
-          ...,
-          _type == 'pageLink' => {
-            ...,
-            buttonVariant,
-            page->{_id, _type, title, slug}
-          },
-          _type == 'customLink' => {
-            ...,
-            buttonVariant
-          },
-          _type == 'servicesLink' => {
-            ...,
-            buttonVariant,
-            services->{_id, _type, title, slug}
-          }
-        },
+        customizeActionButton,
         actionButton {
           label,
           formType,

@@ -1,7 +1,6 @@
 'use client';
 import Blocks from '@/components/blocks';
 import PortableTextRenderer from '@/components/portable-text-renderer';
-import { LinkButton } from '@/components/shared/link-button';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useExpandedContentStore } from '@/experience/scenes/store/expandedContentStore';
@@ -12,7 +11,7 @@ import { useOverlayScrollLock } from '@/hooks/useOverlayScrollLock';
 import { cn } from '@/lib/utils';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { ArrowRight, FileText, MessageSquare, ShieldPlus, X } from 'lucide-react';
+import { FileText, MessageSquare, ShieldPlus, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import FormOverlay from './FormOverlay';
 
@@ -78,12 +77,14 @@ export default function PoiContentOverlay({
   const clearBlocks = useExpandedContentStore(s => s.clearBlocks);
 
   // Merge POI actionButton with default settings
-  // Priority: POI custom values > default values > fallback values
+  // Only use POI's custom actionButton values if customizeActionButton toggle is enabled
+  // Priority: POI custom values (if enabled) > default values > fallback values
+  const customActionButton = poi.customizeActionButton ? poi.actionButton : undefined;
   const effectiveActionButton = {
-    label: poi.actionButton?.label || defaultActionButton?.label || 'Request Free Quote',
+    label: customActionButton?.label || defaultActionButton?.label || 'Request Free Quote',
     formType:
-      poi.actionButton?.formType || defaultActionButton?.formType || 'form-security-request',
-    icon: poi.actionButton?.icon || defaultActionButton?.icon || 'ShieldPlus',
+      customActionButton?.formType || defaultActionButton?.formType || 'form-security-request',
+    icon: customActionButton?.icon || defaultActionButton?.icon || 'ShieldPlus',
   };
 
   // Helper: get icon component from string name
@@ -457,7 +458,6 @@ export default function PoiContentOverlay({
   // Determine content to display (prefer blocks over body)
   const hasBlocks = poi.blocks && poi.blocks.length > 0;
   const hasBody = poi.body && poi.body.length > 0;
-  const hasLinks = poi.links && poi.links.length > 0;
   // Action button is always shown (using effective merged config)
   const hasActionButton = true;
   const IconComponent = getIconComponent(effectiveActionButton.icon);
@@ -520,19 +520,6 @@ export default function PoiContentOverlay({
                   <PortableTextRenderer value={poi.body!} variant="sheet" />
                 ) : (
                   <p className="text-muted-foreground">No content available</p>
-                )}
-                {hasLinks && (
-                  <div className="mt-8 flex flex-col gap-3">
-                    {poi.links!.map(link => (
-                      <LinkButton
-                        key={link._key}
-                        link={link}
-                        icon={ArrowRight}
-                        iconPosition="right"
-                        className="w-full"
-                      />
-                    ))}
-                  </div>
                 )}
               </div>
             </ScrollArea>
@@ -628,18 +615,6 @@ export default function PoiContentOverlay({
                     </div>
                   ) : (
                     <p className="text-muted-foreground">No content available</p>
-                  )}
-                  {hasLinks && (
-                    <div className="mt-4 flex flex-col gap-3">
-                      {poi.links!.map(link => (
-                        <LinkButton
-                          key={link._key}
-                          link={link}
-                          icon={ArrowRight}
-                          iconPosition="right"
-                        />
-                      ))}
-                    </div>
                   )}
                 </div>
               </div>

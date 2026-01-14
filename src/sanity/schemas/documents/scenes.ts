@@ -135,9 +135,11 @@ export default defineType({
               ],
             },
             {
-              name: 'links',
-              type: link.name,
-              validation: (rule: any) => rule.max(2),
+              name: 'customizeActionButton',
+              title: 'Customize Action Button',
+              description: 'Enable to override the default action button settings',
+              type: 'boolean',
+              initialValue: false,
             },
             {
               name: 'actionButton',
@@ -145,6 +147,7 @@ export default defineType({
               description:
                 'Optional: Customize the action button. If not set, defaults to "Request Free Quote" with ShieldPlus icon.',
               type: 'object',
+              hidden: ({ parent }) => !parent?.customizeActionButton,
               fields: [
                 {
                   name: 'label',
