@@ -1,4 +1,5 @@
 import { groq } from 'next-sanity';
+import { gridRowQuery } from './grid/grid-row';
 import { splitRowQuery } from './split/split-row';
 
 export const SCENE_QUERY = groq`
@@ -403,6 +404,7 @@ export const SCENE_QUERY = groq`
             }
           },
           ${splitRowQuery}
+          ${gridRowQuery}
         },
         links[] {
           ...,

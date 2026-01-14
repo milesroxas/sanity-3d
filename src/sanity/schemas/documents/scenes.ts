@@ -126,6 +126,7 @@ export default defineType({
                 { type: 'experience-carousel' },
                 { type: 'media' },
                 { type: 'split-row' },
+                { type: 'grid-row' },
               ],
             },
             {
