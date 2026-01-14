@@ -1,5 +1,6 @@
+import { CheckListItem } from '@/sanity/schemas/previews/check-list-item';
 import { YouTubePreview } from '@/sanity/schemas/previews/youtube-preview';
-import { VideoIcon } from '@radix-ui/react-icons';
+import { CheckCircledIcon, VideoIcon } from '@radix-ui/react-icons';
 import { defineArrayMember, defineType } from 'sanity';
 import { BUTTON_VARIANTS } from './button-variant';
 
@@ -25,6 +26,7 @@ export default defineType({
       lists: [
         { title: 'Bullet', value: 'bullet' },
         { title: 'Number', value: 'number' },
+        { title: 'Check', value: 'check', icon: CheckCircledIcon, component: CheckListItem },
       ],
       marks: {
         decorators: [

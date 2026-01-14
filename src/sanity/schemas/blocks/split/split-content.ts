@@ -33,6 +33,20 @@ export default defineType({
       type: 'string',
     }),
     defineField({
+      name: 'titleVariant',
+      type: 'string',
+      title: 'Title Variant',
+      description: 'Select a title size variant',
+      options: {
+        list: [
+          { title: 'Default', value: 'default' },
+          { title: 'Small', value: 'small' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'default',
+    }),
+    defineField({
       name: 'body',
       type: 'block-content',
     }),

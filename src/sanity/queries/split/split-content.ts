@@ -8,6 +8,7 @@ export const splitContentQuery = groq`
     themeVariant,
     tagLine,
     title,
+    titleVariant,
     body[]{
       ...,
       _type == "image" => {

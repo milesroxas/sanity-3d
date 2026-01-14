@@ -1,5 +1,6 @@
 import { groq } from 'next-sanity';
 import { gridRowQuery } from './grid/grid-row';
+import { largeCalloutQuery } from './large-callout/large-callout';
 import { splitRowQuery } from './split/split-row';
 
 export const SCENE_QUERY = groq`
@@ -405,6 +406,7 @@ export const SCENE_QUERY = groq`
           },
           ${splitRowQuery}
           ${gridRowQuery}
+          ${largeCalloutQuery}
         },
         customizeActionButton,
         actionButton {

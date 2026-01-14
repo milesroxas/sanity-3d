@@ -17,6 +17,7 @@ export interface SplitContentProps {
   noGap: boolean;
   tagLine: string;
   title: string;
+  titleVariant: 'default' | 'small';
   body: PortableTextBlock[];
   links: Sanity.Link[];
 }
@@ -27,6 +28,7 @@ export default function SplitContent({
   noGap,
   tagLine,
   title,
+  titleVariant,
   body,
   links,
   styleVariant,
@@ -35,8 +37,10 @@ export default function SplitContent({
 }: Partial<SplitContentProps>) {
   const style = stegaClean(styleVariant);
   const theme = stegaClean(themeVariant);
+  const titleSize = stegaClean(titleVariant);
   const isOffset = style === 'offset';
   const isDark = theme === 'dark';
+  const isSmallTitle = titleSize === 'small';
 
   return (
     <div className={cn('w-full', !isOffset && 'lg:flex lg:h-full lg:items-center')}>
@@ -56,7 +60,8 @@ export default function SplitContent({
             tagLine ? 'h3' : 'h2',
             {
               className: cn(
-                'my-4 font-bold leading-[1.2] text-4xl',
+                'my-4 font-bold leading-[1.2]',
+                isSmallTitle ? 'text-2xl' : 'text-4xl',
                 isDark ? 'text-primary-foreground' : 'text-card-foreground'
               ),
             },

@@ -4,6 +4,7 @@ export const largeCalloutQuery = groq`
   _type == "large-callout" => {
     _type,
     _key,
+    textAlign,
     body[]{
       ...,
       _type == "image" => {
