@@ -97,7 +97,7 @@ export default function GridCard({
           className: 'object-contain',
         },
       },
-      title: cn('text-base font-bold', isDark ? 'text-primary-foreground' : 'text-card-foreground'),
+      title: cn('text-sm font-bold', isDark ? 'text-primary-foreground' : 'text-card-foreground'),
       excerpt: cn('text-sm', isDark ? 'text-primary-foreground/70' : 'text-muted-foreground'),
       button: 'mt-2',
       buttonSize: 'sm',
