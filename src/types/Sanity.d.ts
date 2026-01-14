@@ -99,7 +99,7 @@ declare global {
       title: string;
       body?: any[];
       blocks?: Block[];
-      links?: Link[];
+      customizeActionButton?: boolean;
       actionButton?: {
         label: string;
         formType: string;
