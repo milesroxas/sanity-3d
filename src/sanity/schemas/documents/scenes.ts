@@ -48,18 +48,21 @@ export default defineType({
       title: 'Body',
       type: 'block-content',
       group: 'content',
+      hidden: ({ document }) => document?.poiDisplayMode === 'interactive',
     }),
     defineField({
       name: 'blocks',
       type: 'array',
       group: 'content',
       of: [{ type: 'section-content' }, { type: 'experience-carousel' }],
+      hidden: ({ document }) => document?.poiDisplayMode === 'interactive',
     }),
     defineField({
       name: 'links',
       type: link.name,
       validation: (rule: any) => rule.max(2),
       group: 'content',
+      hidden: ({ document }) => document?.poiDisplayMode === 'interactive',
     }),
 
     defineField({
@@ -84,6 +87,7 @@ export default defineType({
       description: 'Optional: Content to open in an overlay from the main logo marker button',
       type: 'expanded-body',
       group: 'content',
+      hidden: ({ document }) => document?.poiDisplayMode === 'interactive',
     }),
     defineField({
       name: 'replaceMainLinkWithExpanded',
@@ -93,6 +97,7 @@ export default defineType({
       type: 'boolean',
       initialValue: false,
       group: 'content',
+      hidden: ({ document }) => document?.poiDisplayMode === 'interactive',
     }),
 
     // Points of Interest allow the main scene to reference other scenes and inline POIs
