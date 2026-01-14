@@ -7,6 +7,7 @@ import { createBlurUp } from '@mux/blurup';
 import { YouTubeEmbed } from '@next/third-parties/google';
 import { PortableText, PortableTextBlockComponent, PortableTextProps } from '@portabletext/react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { ShieldCheck } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -366,10 +367,21 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
             {children}
           </ol>
         ),
+        check: ({ children }) => (
+          <ul className="mb-4 space-y-3" role="list">
+            {children}
+          </ul>
+        ),
       },
       listItem: {
         bullet: ({ children }) => <li className="mb-2">{children}</li>,
         number: ({ children }) => <li className="mb-2">{children}</li>,
+        check: ({ children }) => (
+          <li className="flex items-start gap-3">
+            <ShieldCheck className="mt-0.5 h-5 w-5 flex-shrink-0 text-muted-foreground" />
+            <span>{children}</span>
+          </li>
+        ),
       },
     };
 
@@ -435,10 +447,21 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
             {children}
           </ol>
         ),
+        check: ({ children }) => (
+          <ul className="mb-3 space-y-2 text-sm md:text-base" role="list">
+            {children}
+          </ul>
+        ),
       },
       listItem: {
         bullet: ({ children }) => <li className="mb-1.5">{children}</li>,
         number: ({ children }) => <li className="mb-1.5">{children}</li>,
+        check: ({ children }) => (
+          <li className="flex items-start gap-2">
+            <ShieldCheck className="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground md:h-[1.125rem] md:w-[1.125rem]" />
+            <span>{children}</span>
+          </li>
+        ),
       },
     };
 
@@ -500,10 +523,21 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
             {children}
           </ol>
         ),
+        check: ({ children }) => (
+          <ul className="mb-2 space-y-1.5 text-sm" role="list">
+            {children}
+          </ul>
+        ),
       },
       listItem: {
         bullet: ({ children }) => <li className="mb-1">{children}</li>,
         number: ({ children }) => <li className="mb-1">{children}</li>,
+        check: ({ children }) => (
+          <li className="flex items-start gap-2">
+            <ShieldCheck className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+            <span>{children}</span>
+          </li>
+        ),
       },
     };
 
@@ -577,10 +611,21 @@ const PortableTextRenderer = ({ value, variant, className }: PortableTextRendere
             {children}
           </ol>
         ),
+        check: ({ children }) => (
+          <ul className="mb-6 space-y-4 text-lg last:mb-0" role="list">
+            {children}
+          </ul>
+        ),
       },
       listItem: {
         bullet: ({ children }) => <li className="mb-2 leading-relaxed">{children}</li>,
         number: ({ children }) => <li className="mb-2 leading-relaxed">{children}</li>,
+        check: ({ children }) => (
+          <li className="flex items-start gap-3">
+            <ShieldCheck className="mt-1 h-5 w-5 flex-shrink-0 text-muted-foreground" />
+            <span className="leading-relaxed">{children}</span>
+          </li>
+        ),
       },
     };
 

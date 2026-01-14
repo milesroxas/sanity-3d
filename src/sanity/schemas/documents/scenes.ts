@@ -132,6 +132,7 @@ export default defineType({
                 { type: 'media' },
                 { type: 'split-row' },
                 { type: 'grid-row' },
+                { type: 'large-callout' },
               ],
             },
             {
