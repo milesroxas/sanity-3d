@@ -146,6 +146,7 @@ export default function Media({
         >
           <MuxPlayer
             ref={playerRef}
+            className="absolute inset-0 h-full w-full"
             playbackId={video.asset.playbackId}
             streamType="on-demand"
             accentColor="#16A34A"
@@ -157,21 +158,14 @@ export default function Media({
             onTimeUpdate={handleTimeUpdate}
             onLoadedData={handleLoadedData}
             playerInitTime={0}
-            style={(() => {
-              const muxVars: Record<string, string> = {
-                '--media-object-fit': renderContext === 'overlay' ? 'contain' : 'cover',
-                '--media-object-position': 'center',
-              };
-              if (playbackMode === 'preview') {
-                muxVars['--controls'] = 'none';
-                muxVars['--media-control-bar'] = 'none';
-              }
-              return {
-                width: '100%',
-                height: '100%',
-                ...muxVars,
-              } as React.CSSProperties & Record<`--${string}`, string>;
-            })()}
+            style={{
+              '--media-object-fit': renderContext === 'overlay' ? 'contain' : 'cover',
+              '--media-object-position': 'center',
+              ...(playbackMode === 'preview' && {
+                '--controls': 'none',
+                '--media-control-bar': 'none',
+              }),
+            } as React.CSSProperties & Record<`--${string}`, string>}
             nohotkeys={playbackMode === 'preview'}
           />
 

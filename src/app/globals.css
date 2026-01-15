@@ -113,28 +113,6 @@
 }
 
 @layer components {
-  /* Ensure videos scale down nicely inside marker content on mobile */
-  @media (max-width: 767px) {
-    /* Scope to logo marker drawer and overlay */
-    .marker-content .block-wrapper[data-block-type='media'] > div,
-    .marker-overlay .block-wrapper[data-block-type='media'] > div {
-      max-width: 480px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    /* Common embeds inside overlays/drawers */
-    .marker-content mux-player,
-    .marker-overlay mux-player,
-    .marker-content video,
-    .marker-overlay video,
-    .marker-content iframe,
-    .marker-overlay iframe {
-      max-width: 100%;
-      height: auto;
-    }
-  }
-
   /* Ensure backdrop blur works properly - desktop only */
   @media (min-width: 768px) {
     .backdrop-blur-fix {
