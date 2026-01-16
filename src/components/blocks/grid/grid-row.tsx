@@ -24,6 +24,7 @@ interface Grid1Props {
   gridColumns?: 'grid-cols-2' | 'grid-cols-3' | 'grid-cols-4';
   columns?: Sanity.Block[];
   _key?: string;
+  renderContext?: string;
 }
 
 // map all components you need
@@ -41,6 +42,7 @@ export default function GridRow({
   gridColumns = 'grid-cols-3',
   columns,
   _key,
+  renderContext,
 }: Grid1Props) {
   const color = stegaClean(colorVariant);
   const theme = stegaClean(themeVariant);
@@ -55,9 +57,9 @@ export default function GridRow({
       : undefined;
 
   return (
-    <SectionContainer color={color} theme={theme} padding={sectionPadding} key={_key}>
+    <SectionContainer color={color} theme={theme} padding={sectionPadding} key={_key} noContainer={renderContext === 'overlay'}>
       {columns && columns?.length > 0 && (
-        <div className={cn(`grid grid-cols-1 gap-6`, `lg:${stegaClean(gridColumns)}`)}>
+        <div className={cn(`grid grid-cols-1 items-start gap-6`, `lg:${stegaClean(gridColumns)}`)}>
           {columns.map((block: Sanity.Block, index: number) => {
             const Component = componentMap[block._type];
             // Ensure block._key exists, fallback to index if it doesn't
