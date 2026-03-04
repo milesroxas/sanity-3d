@@ -133,6 +133,7 @@ export default defineType({
                 { type: 'split-row' },
                 { type: 'grid-row' },
                 { type: 'large-callout' },
+                { type: 'timeline-row' },
               ],
             },
             {

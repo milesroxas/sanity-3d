@@ -2,6 +2,7 @@
 'use client';
 
 import gsap from 'gsap';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useCursorStore } from './cursorStore';
@@ -9,6 +10,9 @@ import { useCursorStore } from './cursorStore';
 type CursorMode = 'default' | 'scroll';
 
 export const CustomCursor = () => {
+  const pathname = usePathname();
+  const isStudio = pathname.startsWith('/studio');
+
   const cursorDotRef = useRef<HTMLDivElement>(null);
   const cursorOuterRef = useRef<HTMLDivElement>(null);
   const scrollSvgRef = useRef<SVGSVGElement>(null);
@@ -266,7 +270,7 @@ export const CustomCursor = () => {
     }
   }, [mode, enabled]);
 
-  if (!enabled) return null;
+  if (!enabled || isStudio) return null;
 
   const content = (
     <>
