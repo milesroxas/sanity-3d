@@ -124,7 +124,7 @@ export default function Timeline1({ color, title, tagLine, body }: Partial<Timel
                   )?.trim()
                 }
               >
-                <PortableTextRenderer value={body} />
+                <PortableTextRenderer value={body} variant="compact" />
               </ExpandableText>
             </motion.div>
           )}
