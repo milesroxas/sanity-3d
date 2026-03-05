@@ -13,6 +13,7 @@ import { ArrowRight, ArrowUpFromLine, PanelLeftOpen, ShieldPlus, X } from 'lucid
 import { useEffect, useMemo, useRef, useState } from 'react';
 import MarkerContentOverlay from './MarkerContentOverlay';
 import PoiContentOverlay from './PoiContentOverlay';
+import { PoiMobileButtons } from './PoiMobileButtons';
 
 export default function LogoMarkerContent({
   defaultActionButton,
@@ -368,6 +369,7 @@ export default function LogoMarkerContent({
           blocks={blocks || []}
         />
       )}
+      <PoiMobileButtons />
       {selectedPoi && (
         <PoiContentOverlay
           poi={selectedPoi}

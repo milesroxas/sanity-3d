@@ -5,6 +5,18 @@ import { usePoiStore } from '@/experience/scenes/store/poiStore';
 import { useEffect, useMemo, useState } from 'react';
 import { PoiButton } from './PoiButton';
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  );
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler, { passive: true });
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  return isMobile;
+}
+
 interface PoiManagerProps {
   scene: Sanity.Scene;
 }
@@ -26,6 +38,7 @@ interface PoiManagerProps {
 export function PoiManager({ scene }: PoiManagerProps) {
   const isAnimating = useCameraStore(s => s.isAnimating);
   const selectedScene = useLogoMarkerStore(s => s.selectedScene);
+  const isMobile = useIsMobile();
 
   const poisVisible = usePoiStore(s => s.poisVisible);
   const selectedPoi = usePoiStore(s => s.selectedPoi);
@@ -71,8 +84,8 @@ export function PoiManager({ scene }: PoiManagerProps) {
     setSelectedPoi(poi);
   };
 
-  // Don't render if no POIs or wrong mode
-  if (inlinePois.length === 0) return null;
+  // Don't render if no POIs, wrong mode, or on mobile (mobile uses DOM overlay instead)
+  if (inlinePois.length === 0 || isMobile) return null;
 
   return (
     <group>
