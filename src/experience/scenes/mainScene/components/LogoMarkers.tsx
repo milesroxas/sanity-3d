@@ -10,6 +10,7 @@ import {
 import { useLogoMarkerStore } from '@/experience/scenes/store/logoMarkerStore';
 import { animateCameraMovement } from '@/experience/utils/animationUtils';
 import { Float, Html, useCursor } from '@react-three/drei';
+import { stegaClean } from 'next-sanity';
 import { useThree } from '@react-three/fiber';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
@@ -202,7 +203,7 @@ export default function LogoMarkers({ scene }: { scene: Sanity.Scene }) {
   const activeScene = selectedScene || scene;
 
   // Determine display mode: legacy (show all markers) or interactive (show POI buttons)
-  const poiDisplayMode = activeScene.poiDisplayMode || 'legacy';
+  const poiDisplayMode = stegaClean(activeScene.poiDisplayMode) || 'legacy';
   const isInteractiveMode = poiDisplayMode === 'interactive';
 
   // Filter scene references (logo markers) from POIs
