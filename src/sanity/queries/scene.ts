@@ -2,6 +2,7 @@ import { groq } from 'next-sanity';
 import { gridRowQuery } from './grid/grid-row';
 import { largeCalloutQuery } from './large-callout/large-callout';
 import { splitRowQuery } from './split/split-row';
+import { timelineQuery } from './timeline';
 
 export const SCENE_QUERY = groq`
   *[_type == "scenes" && slug.current == $slug][0]{
@@ -407,6 +408,7 @@ export const SCENE_QUERY = groq`
           ${splitRowQuery}
           ${gridRowQuery}
           ${largeCalloutQuery}
+          ${timelineQuery}
         },
         customizeActionButton,
         actionButton {
