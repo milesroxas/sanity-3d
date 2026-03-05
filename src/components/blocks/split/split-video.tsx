@@ -38,7 +38,6 @@ export interface SplitVideoProps {
 
 type PlaybackMode = 'preview' | 'full';
 
-const HOVER_DELAY = 200;
 const DEFAULT_PREVIEW_DURATION = 4;
 
 export default function SplitVideo({
@@ -82,7 +81,7 @@ export default function SplitVideo({
 
   const handleMouseEnter = useCallback(() => {
     if (playbackMode === 'preview' && !videoOptions?.hideControls) {
-      hoverTimeoutRef.current = setTimeout(() => setShowPlayButton(true), HOVER_DELAY);
+      hoverTimeoutRef.current = setTimeout(() => setShowPlayButton(true), 200);
     }
   }, [playbackMode, videoOptions?.hideControls]);
 
@@ -173,6 +172,8 @@ export default function SplitVideo({
         ref={playerRef}
         playbackId={video.asset.playbackId}
         streamType="on-demand"
+        playsInline
+        preload="metadata"
         accentColor="#16A34A"
         muted={playbackMode === 'preview'}
         loop={playbackMode === 'preview'}

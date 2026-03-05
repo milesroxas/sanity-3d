@@ -4,7 +4,7 @@ import { urlFor } from '@/sanity/lib/image';
 import { createBlurUp } from '@mux/blurup';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const MuxPlayer = dynamic(() => import('@mux/mux-player-react'), {
   ssr: false,
@@ -18,7 +18,6 @@ const MuxPlayer = dynamic(() => import('@mux/mux-player-react'), {
 type MuxPlayerElement = any;
 type PlaybackMode = 'preview' | 'full';
 
-const HOVER_DELAY = 200;
 const DEFAULT_PREVIEW_DURATION = 4;
 
 interface MediaProps {
@@ -47,14 +46,14 @@ export default function Media({
   image,
   video,
   videoOptions,
-  _key,
   renderContext,
 }: MediaProps) {
-  // Video-specific state
   const [blurDataURL, setBlurDataURL] = useState<string | null>(null);
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode>('preview');
   const [showPlayButton, setShowPlayButton] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [autoplayFailed, setAutoplayFailed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const playerRef = useRef<MuxPlayerElement>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -62,9 +61,10 @@ export default function Media({
 
   useEffect(() => {
     setIsClient(true);
+    // Detect touch device for play button visibility
+    const mobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    setIsMobile(mobile);
   }, []);
-
-  // No viewport observers; sizing is driven by renderContext and container classes
 
   // Generate video blur placeholder
   useEffect(() => {
@@ -89,23 +89,34 @@ export default function Media({
     if (
       mediaType === 'video' &&
       playbackMode === 'preview' &&
-      videoOptions?.showControls !== false
+      videoOptions?.showControls !== false &&
+      !isMobile
     ) {
-      hoverTimeoutRef.current = setTimeout(() => setShowPlayButton(true), HOVER_DELAY);
+      hoverTimeoutRef.current = setTimeout(() => setShowPlayButton(true), 200);
     }
-  }, [mediaType, playbackMode, videoOptions?.showControls]);
+  }, [mediaType, playbackMode, videoOptions?.showControls, isMobile]);
 
   const handleMouseLeave = useCallback(() => {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
     }
-    setShowPlayButton(false);
-  }, []);
+    if (!isMobile) {
+      setShowPlayButton(false);
+    }
+  }, [isMobile]);
+
+  const handleTap = useCallback(() => {
+    if (isMobile && playbackMode === 'preview' && videoOptions?.showControls !== false) {
+      // Toggle play button visibility on tap
+      setShowPlayButton(prev => !prev);
+    }
+  }, [isMobile, playbackMode, videoOptions?.showControls]);
 
   const handlePlayClick = useCallback(() => {
     if (playerRef.current) {
       setPlaybackMode('full');
       setShowPlayButton(false);
+      setAutoplayFailed(false);
       playerRef.current.currentTime = 0;
       playerRef.current.play();
     }
@@ -114,6 +125,14 @@ export default function Media({
   const handleLoadedData = useCallback(() => {
     if (playbackMode === 'preview' && playerRef.current) {
       playerRef.current.currentTime = 0;
+    }
+  }, [playbackMode]);
+
+  // Handle autoplay failure — show play button as fallback
+  const handleAutoplayError = useCallback(() => {
+    if (playbackMode === 'preview') {
+      setAutoplayFailed(true);
+      setShowPlayButton(true);
     }
   }, [playbackMode]);
 
@@ -136,19 +155,27 @@ export default function Media({
         );
       }
 
-      const shouldShowOverlay = showPlayButton && playbackMode === 'preview';
+      const shouldShowOverlay =
+        (showPlayButton || autoplayFailed) && playbackMode === 'preview';
 
       return (
         <div
           className="relative h-full w-full"
           onMouseEnter={videoOptions?.showControls === false ? undefined : handleMouseEnter}
           onMouseLeave={videoOptions?.showControls === false ? undefined : handleMouseLeave}
+          onClick={videoOptions?.showControls === false ? undefined : handleTap}
         >
           <MuxPlayer
             ref={playerRef}
-            className="absolute inset-0 h-full w-full"
+            className={
+              renderContext === 'overlay'
+                ? 'h-auto w-full'
+                : 'absolute inset-0 h-full w-full'
+            }
             playbackId={video.asset.playbackId}
             streamType="on-demand"
+            playsInline
+            preload="metadata"
             accentColor="#16A34A"
             muted={playbackMode === 'preview'}
             loop={playbackMode === 'preview'}
@@ -157,6 +184,7 @@ export default function Media({
             placeholder={blurDataURL || undefined}
             onTimeUpdate={handleTimeUpdate}
             onLoadedData={handleLoadedData}
+            onError={handleAutoplayError}
             playerInitTime={0}
             style={{
               '--media-object-fit': renderContext === 'overlay' ? 'contain' : 'cover',
@@ -237,8 +265,17 @@ export default function Media({
     return null;
   };
 
+  const isOverlay = renderContext === 'overlay';
+
   return (
-    <div ref={containerRef} className="relative aspect-video w-full overflow-hidden rounded-md">
+    <div
+      ref={containerRef}
+      className={
+        isOverlay
+          ? 'relative w-full overflow-hidden rounded-md'
+          : 'relative aspect-video w-full overflow-hidden rounded-md'
+      }
+    >
       {renderMedia()}
     </div>
   );
