@@ -102,6 +102,7 @@ const config = {
       },
       transitionTimingFunction: {
         custom: 'cubic-bezier(0.2,0.8,0.2,1)',
+        'smooth-out': 'cubic-bezier(0.33, 1, 0.68, 1)',
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
