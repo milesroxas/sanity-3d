@@ -1,6 +1,7 @@
 import { defineType } from 'sanity';
 
 export const COLOR_VARIANTS = [
+  { title: 'Transparent', value: 'transparent' },
   { title: 'Background', value: 'background' },
   { title: 'Primary', value: 'primary' },
   { title: 'Secondary', value: 'secondary' },

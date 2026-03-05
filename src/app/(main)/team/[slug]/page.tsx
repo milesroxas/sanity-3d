@@ -28,7 +28,7 @@ export default async function TeamMemberPage(props: { params: Promise<{ slug: st
   return (
     <>
       <TeamMemberPageClient />
-      <section>
+      <section className="bg-zinc-900 text-white" data-theme="dark">
         <div className="container">
           <article>
             <div className="grid min-h-screen grid-cols-1 gap-4 md:grid-cols-12">

@@ -114,6 +114,9 @@ export function useEscapeKey({
       // Ignore auto-repeated Escape events from a single key press
       if (event.repeat) return;
 
+      // If a Radix Dialog is present (open or animating closed), let Radix handle Escape
+      if (document.querySelector('[data-radix-dialog-overlay]')) return;
+
       // Find the highest priority active handler
       let highestPriority = -1;
       let activeHandler: (() => void) | null = null;

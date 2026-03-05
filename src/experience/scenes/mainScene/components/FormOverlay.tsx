@@ -71,7 +71,11 @@ export default function FormOverlay({
   useEffect(() => {
     if (!isVisible || isAnimating) return;
 
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: PointerEvent) => {
+      // If any Radix dialog is open, let it handle its own dismissal
+      if (document.querySelector('[data-radix-dialog-overlay]')) {
+        return;
+      }
       if (
         contentContainerRef.current &&
         !contentContainerRef.current.contains(event.target as Node)
@@ -82,12 +86,12 @@ export default function FormOverlay({
 
     // Add slight delay to prevent immediate closing on open
     const timeoutId = setTimeout(() => {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('pointerdown', handleClickOutside);
     }, 100);
 
     return () => {
       clearTimeout(timeoutId);
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('pointerdown', handleClickOutside);
     };
   }, [isVisible, isAnimating]);
 

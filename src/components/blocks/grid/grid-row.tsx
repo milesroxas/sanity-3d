@@ -7,6 +7,7 @@ import { stegaClean } from 'next-sanity';
 // import only the components you need
 import GridCard from './grid-card';
 import GridPost from './grid-post';
+import GridTeam from './grid-team';
 import PricingCard from './pricing-card';
 
 interface Grid1Props {
@@ -32,12 +33,13 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   'grid-card': GridCard,
   'pricing-card': PricingCard,
   'grid-post': GridPost,
+  'grid-team': GridTeam,
 };
 
 export default function GridRow({
   padding,
   direction,
-  colorVariant = 'background',
+  colorVariant,
   themeVariant,
   gridColumns = 'grid-cols-3',
   columns,
@@ -57,7 +59,13 @@ export default function GridRow({
       : undefined;
 
   return (
-    <SectionContainer color={color} theme={theme} padding={sectionPadding} key={_key} noContainer={renderContext === 'overlay'}>
+    <SectionContainer
+      color={color}
+      theme={theme}
+      padding={sectionPadding}
+      key={_key}
+      noContainer={renderContext === 'overlay'}
+    >
       {columns && columns?.length > 0 && (
         <div className={cn(`grid grid-cols-1 items-start gap-6`, `lg:${stegaClean(gridColumns)}`)}>
           {columns.map((block: Sanity.Block, index: number) => {
@@ -65,7 +73,15 @@ export default function GridRow({
             // Ensure block._key exists, fallback to index if it doesn't
             const blockKey = block._key || `grid-item-${index}`;
 
-            return <Component {...block} color={color} themeVariant={theme} key={blockKey} />;
+            return (
+              <Component
+                {...block}
+                color={color}
+                themeVariant={theme}
+                renderContext={renderContext}
+                key={blockKey}
+              />
+            );
           })}
         </div>
       )}

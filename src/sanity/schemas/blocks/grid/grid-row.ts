@@ -27,6 +27,7 @@ export default defineType({
       type: 'color-variant',
       title: 'Color Variant',
       description: 'Select a background color variant',
+      initialValue: 'transparent',
     }),
     defineField({
       name: 'themeVariant',
@@ -49,7 +50,7 @@ export default defineType({
     defineField({
       name: 'columns',
       type: 'array',
-      of: [{ type: 'grid-card' }, { type: 'grid-post' }],
+      of: [{ type: 'grid-card' }, { type: 'grid-post' }, { type: 'grid-team' }],
     }),
   ],
   preview: {

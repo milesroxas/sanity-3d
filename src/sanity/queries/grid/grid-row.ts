@@ -1,5 +1,6 @@
 import { gridCardQuery } from '@/sanity/queries/grid/grid-card';
 import { gridPostQuery } from '@/sanity/queries/grid/grid-post';
+import { gridTeamQuery } from '@/sanity/queries/grid/grid-team';
 import { pricingCardQuery } from '@/sanity/queries/grid/pricing-card';
 import { groq } from 'next-sanity';
 
@@ -16,6 +17,7 @@ export const gridRowQuery = groq`
       ${gridCardQuery}
       ${pricingCardQuery}
       ${gridPostQuery}
+      ${gridTeamQuery}
     },
   },
 `;

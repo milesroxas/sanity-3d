@@ -50,13 +50,21 @@ const SectionContainer = React.forwardRef<HTMLDivElement, ISectionContainerProps
     // Generate class names in a stable way
     const colorClass = color !== 'transparent' ? `bg-${color}` : '';
     const themeClass =
-      theme === 'light'
-        ? 'bg-background text-foreground'
-        : theme === 'dark'
-          ? 'bg-zinc-900 text-white'
-          : theme === 'accent'
-            ? 'bg-primary text-primary-foreground'
-            : '';
+      color === 'transparent'
+        ? theme === 'light'
+          ? 'text-foreground'
+          : theme === 'dark'
+            ? 'text-white'
+            : theme === 'accent'
+              ? 'text-primary-foreground'
+              : ''
+        : theme === 'light'
+          ? 'bg-background text-foreground'
+          : theme === 'dark'
+            ? 'bg-zinc-900 text-white'
+            : theme === 'accent'
+              ? 'bg-primary text-primary-foreground'
+              : '';
 
     // Helper function to get padding classes based on size
     const getPaddingClasses = (size: ISectionPadding['padding']) => {

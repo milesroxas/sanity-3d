@@ -30,6 +30,7 @@ import securityRequest from './schemas/blocks/forms/security-request';
 import gridCard from './schemas/blocks/grid/grid-card';
 import gridPost from './schemas/blocks/grid/grid-post';
 import gridRow from './schemas/blocks/grid/grid-row';
+import gridTeam from './schemas/blocks/grid/grid-team';
 
 // Experience blocks
 
@@ -107,6 +108,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     gridCard,
     gridPost,
     gridRow,
+    gridTeam,
     carousel1,
     carousel2,
     timelineRow,
