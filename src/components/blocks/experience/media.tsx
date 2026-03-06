@@ -266,12 +266,13 @@ export default function Media({
   };
 
   const isOverlay = renderContext === 'overlay';
+  const isVideo = mediaType === 'video';
 
   return (
     <div
       ref={containerRef}
       className={
-        isOverlay
+        isOverlay && isVideo
           ? 'relative w-full overflow-hidden rounded-md'
           : 'relative aspect-video w-full overflow-hidden rounded-md'
       }
