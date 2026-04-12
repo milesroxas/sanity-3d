@@ -127,7 +127,7 @@ export function Environment() {
     '💡 Ambient Light',
     () => ({
       ambientIntensity: { value: 1.8, min: 0, max: 2, step: 0.05, label: 'Intensity' },
-      ambientColor: { value: '#fff6e6', label: 'Color' },
+      ambientColor: { value: '#FDF2DE', label: 'Color' },
     }),
     { collapsed: true }
   );

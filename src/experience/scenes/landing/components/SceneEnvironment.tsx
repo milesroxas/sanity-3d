@@ -58,12 +58,6 @@ export function SceneEnvironment() {
     { collapsed: true }
   );
 
-  const grassPosition = useControls('Intro Grass', {
-    x: { value: 0, min: -500, max: 500, step: 0.1 },
-    y: { value: 0, min: -10, max: 10, step: 0.01 },
-    z: { value: 0, min: -500, max: 500, step: 0.1 },
-  });
-
   return (
     <>
       <DreiEnvironment
