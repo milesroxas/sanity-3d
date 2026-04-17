@@ -273,18 +273,6 @@ interface ModelInstanceData {
    - Share materials across single-material instances
    - Process large datasets in batches (all instancing components support a `batchSize` prop)
 
-## Examples
-
-See the `/examples` directory for complete implementation examples:
-
-- `BuildingBlenderExportExample.tsx` - Using Blender export data
-- `AnimatedPathExample.tsx` - Creating animated instances
-
-## Sample Implementation
-
-A full sample implementation can be found at:
-`/models/SampleInstances.tsx`
-
 ## Related Documentation
 
 - [Scene Composition](./SCENE_COMPOSITION.md)

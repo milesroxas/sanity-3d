@@ -8,7 +8,11 @@ The `materialUtils.ts` file provides utilities for working with materials and te
 
 ### Shared Texture Atlas System
 
-Our project uses a shared texture atlas approach for efficient rendering. The main color atlas is `color-atlas-new2.png`, with additional maps for specular highlights (`color-atlas-specular.png`) and emission effects (`color-atlas-emission-night.png`).
+The project uses a shared texture atlas for efficient rendering. **All public-folder atlas URLs live in one place:** export `SHARED_ATLAS_TEXTURES` from `materialUtils.ts` (`colorMap`, `specularMap`, `emissionMap`). The color atlas file is `color-atlas-muted-1.jpg`; specular and emission maps are `color-atlas-specular.png` and `color-atlas-emission-night.png`.
+
+GLTF materials that already embed the atlas are keyed by **`SHARED_TEXTURE_KEY`** (`LOWPOLY-COLORS`); use `createMaterialWithTextureMap` when reading the map from a loaded material.
+
+To load all three maps in a hook, use **`useSharedTextures`** (`@/experience/models/hooks/useSharedTextures`), which wraps `useTexture` with `SHARED_ATLAS_TEXTURES`.
 
 #### Basic Usage
 
@@ -28,7 +32,10 @@ export function MyComponent() {
 For components that need specular and emission effects, load the additional texture maps with drei's `useTexture`:
 
 ```tsx
-import { createSharedAtlasMaterial } from '@/experience/utils/materialUtils';
+import {
+  SHARED_ATLAS_TEXTURES,
+  createSharedAtlasMaterial,
+} from '@/experience/utils/materialUtils';
 import { useGLTF, useTexture } from '@react-three/drei';
 import { useEffect, useMemo } from 'react';
 import * as THREE from 'three';
@@ -39,10 +46,10 @@ export function MyComponent() {
   // Create base material
   const LowpolyMaterial = useMemo(() => createSharedAtlasMaterial(materials), [materials]);
 
-  // Load additional texture maps
+  // Load additional texture maps (paths from SHARED_ATLAS_TEXTURES — do not hardcode URLs)
   const { specularMap, emissionMap } = useTexture({
-    specularMap: '/textures/color-atlas-specular.png',
-    emissionMap: '/textures/color-atlas-emission-night.png',
+    specularMap: SHARED_ATLAS_TEXTURES.specularMap,
+    emissionMap: SHARED_ATLAS_TEXTURES.emissionMap,
   });
 
   // Apply textures in an effect
@@ -72,21 +79,33 @@ export function MyComponent() {
 }
 ```
 
+### Configuration exports
+
+- **`SHARED_ATLAS_TEXTURES`**: `{ colorMap, specularMap, emissionMap }` — use everywhere you need atlas file paths.
+- **`SHARED_TEXTURE_KEY`**: Material name used in GLTF for embedded atlas materials.
+- **`MATERIAL_MODE`**: `'textured'` | `'basic'` — in `basic` mode, shared helpers use untextured materials (`CATEGORY_COLORS` when a category is passed).
+- **`CATEGORY_COLORS`**: Optional tint keys (`ground`, `buildings`, `vehicles`, `nature`, `props`, `default`) for basic mode.
+
 ### Available Functions
+
+#### `createBasicMaterial(color?, options)`
+
+Creates a simple `MeshStandardMaterial` without the atlas (used when `MATERIAL_MODE === 'basic'` or as a building block).
 
 #### `createMaterialWithTextureMap(sourceMaterial, options)`
 
-Creates a material that uses a texture map from a source material.
+Creates a material that uses the `map` from a source material (respects `MATERIAL_MODE`).
 
 - `sourceMaterial`: The material containing the texture map
 - `options`: Additional material options (optional)
 
-#### `createSharedAtlasMaterial(materials, options)`
+#### `createSharedAtlasMaterial(materials?, options, category?)`
 
-Creates a material using the project-wide shared texture atlas (LOWPOLY-COLORS).
+Creates a material using the shared color atlas from `SHARED_ATLAS_TEXTURES.colorMap` (or a basic material when `MATERIAL_MODE === 'basic'`).
 
-- `materials`: Materials from GLTF model
+- `materials`: Materials from GLTF model (optional)
 - `options`: Additional material options (optional)
+- `category`: Optional key into `CATEGORY_COLORS` for basic mode
 
 #### `configureMaterialForInstancing(material, options)`
 
@@ -97,10 +116,11 @@ Configures a material for instancing with proper normal handling.
 
 ### Best Practices
 
-1. **Preload Textures**: Use `useTexture.preload()` to preload textures for better performance.
-2. **Apply Textures in Effects**: Always apply textures to materials in useEffect hooks to avoid React render-time state updates.
-3. **Memoize Materials**: Use useMemo for material creation to prevent unnecessary recreations.
-4. **Consistent UV Settings**: Use the same gridSize, repeat, and offset settings for all texture maps.
+1. **Single source of truth**: Import `SHARED_ATLAS_TEXTURES` (or `useSharedTextures`) instead of duplicating `/textures/...` strings.
+2. **Preload**: `materialUtils` preloads the color atlas via `useTexture.preload(SHARED_ATLAS_TEXTURES.colorMap)`; add similar preloads for other assets only where needed.
+3. **Apply textures in effects**: Apply maps to materials in `useEffect` when wiring extra maps after load, to avoid render-time churn.
+4. **Memoize materials**: Use `useMemo` for material creation to avoid unnecessary recreations.
+5. **Consistent UV settings**: Keep grid size, repeat, and offset aligned across maps on the same mesh.
 
 ## Shadow Utilities
 

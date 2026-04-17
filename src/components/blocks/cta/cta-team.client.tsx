@@ -292,7 +292,6 @@ export default function CtaTeamList({
       setMode('default');
       releaseScrollLock();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handlers with delay for both cursor and scroll lock

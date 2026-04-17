@@ -452,4 +452,3 @@ const handleMarkerClick = (poi: any) => {
 
 - [ ] Complete blocks reskin
 - [ ] Add pages
-- [ ] Refine landing page

@@ -20,7 +20,6 @@ const MainScene = forwardRef<any, MainSceneProps>(({ scene }, ref) => {
   return (
     <>
       <MainSceneCameraSystem />
-      {/* <TempFloor position={[0, -0.05, 0]} /> */}
       <Effects />
       {profile.includeEnvironment && <Environment />}
       <Ground />

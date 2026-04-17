@@ -12,10 +12,9 @@ src/experience
   data/                 # JSON placements and paths (Blender export + custom)
   docs/                 # Detailed subsystem docs (instancing, scene composition)
   effects/              # Fog, clouds, post-processing
-  examples/             # Demonstrations (reference only)
   models/               # Typed instancing wrappers for GLBs (Houses, Vehicles, etc.)
   providers/            # R3F context provider and Canvas composition
-  scenes/               # Scene implementations (main scene, landing)
+  scenes/               # Main 3D scene (composition, camera, markers)
   types/                # Shared TypeScript types for models and R3F
   utils/                # Material, animation, shadow, and model helpers
 ```
@@ -48,7 +47,7 @@ export default function ExperienceLayout({ children }: { children: React.ReactNo
 }
 ```
 
-- **Scene composition**: Scenes are organized using the composition pattern (see `docs/core/SCENE_COMPOSITION.md`). Each scene is built from cohesive composition units: `Environment`, `Buildings`, `Props`, `Vehicles`, `Effects`, and feature components (e.g., `LogoMarkers`).
+- **Scene composition**: Scenes are organized using the composition pattern (see `docs/core/SCENE_COMPOSITION.md`). Each scene is built from cohesive composition units: `Ground`, `Environment`, `Buildings`, `Props`, `Vehicles`, `Effects`, and feature components (e.g., `LogoMarkers`).
 
   Example (from `src/experience/scenes/mainScene/MainScene.tsx`):
 
@@ -58,9 +57,9 @@ const MainScene = forwardRef<any, MainSceneProps>(({ scene }, ref) => {
   return (
     <>
       <MainSceneCameraSystem />
-      <TempFloor position={[0, -0.05, 0]} />
       <Effects />
       {profile.includeEnvironment && <Environment />}
+      <Ground />
       <Buildings />
       {profile.includeProps && <Props />}
       {profile.includeAnimatedVehicles && <Vehicles />}
@@ -131,7 +130,7 @@ useLayoutEffect(() => {
 }, [setR3FContent, setSelectedScene, resetToInitial, isLoading, memoizedScene]);
 ```
 
-- `MainScene.tsx`: Uses device-specific render profiles to conditionally mount components. Adds `MainSceneCameraSystem`, `TempFloor`, `Effects`, then conditionally mounts `Environment`, `Buildings`, `Props`, `Vehicles`, and `LogoMarkers` based on device capabilities.
+- `MainScene.tsx`: Uses device-specific render profiles to conditionally mount components. Adds `MainSceneCameraSystem`, `Effects`, `Ground`, then conditionally mounts `Environment`, `Buildings`, `Props`, `Vehicles`, and `LogoMarkers` based on device capabilities.
 - `MainSceneCameraSystem.tsx`: Owns the default `PerspectiveCamera` and Drei `MapControls` when interactive. Synchronizes position/target with `scenes/store/cameraStore.ts`, applies movement boundaries and angle constraints, and exposes development-only Leva debug controls.
 - Compositions:
   - `compositions/Environment.tsx`: Drei `Environment` (HDR/preset via Leva) plus `MountainInstances` and `NatureInstances` using Blender-export JSON from `data/`.
@@ -153,17 +152,17 @@ useLayoutEffect(() => {
 export function Vehicles() {
   const { includeAnimatedVehicles } = useRenderProfile();
   return (
-    <VehiclesInstances useSharedMaterial={false}>
-      {/* Static vehicles from JSON data */}
-      <VehiclesInstances_Blender instancesData={parkedCarsData as BlenderExportData[]} />
-      {/* Animated vehicles */}
+    <>
+      <VehiclesInstances useSharedMaterial={true} category="vehicles">
+        <VehiclesInstances_Blender instancesData={parkedCarsData as BlenderExportData[]} />
+      </VehiclesInstances>
       {includeAnimatedVehicles && (
-        <>
+        <VehiclesInstances useSharedMaterial={true} category="vehicles">
           <vehicles.AnimatedCar pathOffset={0} />
           <vehicles.AnimatedPlane pathOffset={0.3} scale={0.8} />
-        </>
+        </VehiclesInstances>
       )}
-    </VehiclesInstances>
+    </>
   );
 }
 ```
@@ -192,16 +191,6 @@ animationFrameRef.current = animateCameraMovement(
   }
 );
 ```
-
-- **Landing Scene** (`scenes/landing/`)
-  - Sophisticated introductory 3D composition with advanced camera system, responsive configuration, and interactive elements. Features include:
-    - `LandingScene.tsx`: Main scene component with mouse-following camera, entrance/exit animations, and responsive text positioning
-    - `LandingPage.tsx`: Wrapper component that provides R3F context and custom cursor
-    - `LandingWrapper.tsx`: Handles video modal integration and portal management
-    - Responsive configuration system (`hooks/useResponsiveConfig.ts`) with device-specific positioning
-    - Advanced camera controls with mouse tracking, UI damping, and video-aware behavior
-    - Leva-configurable controls under `config/` for development and debugging
-    - Video modal system with fullscreen playback capabilities
 
 ### Stores (Zustand)
 
@@ -257,12 +246,6 @@ const declined = usePerfStore(state => state.declined);
   - Marker hover state and visibility controls
   - Camera state restoration for smooth transitions
   - Sanity scene fetching with error handling
-
-- `scenes/store/landingCameraStore.ts`: Dedicated store for landing scene camera state and animations. Manages:
-  - Animation state and completion tracking
-  - Mouse tracking enable/disable functionality
-  - Video playback state coordination
-  - Entrance/exit animation control
 
 - `scenes/store/expandedContentStore.ts`: Manages expanded content state for detailed views and overlays.
 
@@ -322,7 +305,7 @@ return (
 
 - Shadows: `utils/shadows.ts`, `utils/instancedShadows.ts`, `utils/withShadows.tsx`
 
-- Model helpers: `utils/modelUtils.ts` (e.g., Blender name normalization), `utils/modelPreloader.ts`, `utils/modelCache.ts`.
+- Model helpers: `utils/modelUtils.ts` (e.g., Blender name normalization).
 
 ### Effects
 
@@ -344,7 +327,7 @@ The experience includes a robust performance monitoring system designed to maint
 
 The `R3FProvider` implements a sophisticated DPR calculation that:
 
-1. **Animation Freeze**: During camera animations (`isAnimating` or `isLandingAnimating`) or when page is not visible, DPR is frozen to a stable value based on device capabilities
+1. **Animation Freeze**: During camera animations (`isAnimating`) or when page is not visible, DPR is frozen to a stable value based on device capabilities
 2. **Hysteresis**: After animations end, a 3-second cooldown period prevents immediate DPR changes
 3. **Threshold Gating**: Only updates when changes are significant (>0.2) to prevent micro-adjustments
 4. **Constrained Ranges**: Performance multiplier (0.85-1.0) and factor range (0.75-1.1) prevent extreme values
@@ -357,7 +340,7 @@ const dynamicDpr = useMemo(() => {
   const now = Date.now();
 
   // While any camera is animating or page is not visible, use a completely stable DPR
-  if (isAnimating || isLandingAnimating || !isPageVisible) {
+  if (isAnimating || !isPageVisible) {
     // Use a cached stable value based on device capabilities
     const frozen = Math.max(1, Math.min(2, base));
     const stabilized = Math.round(frozen * 2) / 2; // half-step granularity
@@ -388,7 +371,7 @@ const dynamicDpr = useMemo(() => {
   }
 
   return stableDprRef.current;
-}, [dprFactor, declined, isAnimating, isLandingAnimating, isPageVisible]);
+}, [dprFactor, declined, isAnimating, isPageVisible]);
 ```
 
 #### Performance Store Implementation
@@ -467,15 +450,6 @@ const RENDER_PROFILES: Record<DeviceType, RenderProfile> = {
 };
 ```
 
-#### Landing Scene Responsive Configuration
-
-The landing scene includes advanced responsive configuration with device-specific positioning and scaling:
-
-- **Responsive Text**: Dynamic text sizing and positioning based on screen size
-- **Camera Positioning**: Device-specific camera positions and targets
-- **Mouse Influence**: Adjusted mouse tracking sensitivity per device
-- **Content Scaling**: Responsive scaling for 3D elements and UI components
-
 ### Loading and performance
 
 - `components/Loading.tsx` listens to Drei `useProgress` and coordinates:
@@ -528,24 +502,25 @@ Example usage in `Vehicles` composition:
 export function Vehicles() {
   const { includeAnimatedVehicles } = useRenderProfile();
   return (
-    <VehiclesInstances useSharedMaterial={false}>
-      <VehiclesInstances_Blender instancesData={parkedCarsData as BlenderExportData[]} />
+    <>
+      <VehiclesInstances useSharedMaterial={true} category="vehicles">
+        <VehiclesInstances_Blender instancesData={parkedCarsData as BlenderExportData[]} />
+      </VehiclesInstances>
       {includeAnimatedVehicles && (
-        <>
+        <VehiclesInstances useSharedMaterial={true} category="vehicles">
           <vehicles.AnimatedCar pathOffset={0} />
           <vehicles.AnimatedPlane pathOffset={0.3} scale={0.8} />
-        </>
+        </VehiclesInstances>
       )}
-    </VehiclesInstances>
+    </>
   );
 }
 ```
 
 ### Integration points
 
-- Wrap pages with `R3FProvider` (see `app/(main)/experience/layout.tsx` and `scenes/landing/LandingPage.tsx`). Inject scenes using `useR3F().setR3FContent(<MainScene ... />)`.
+- Wrap the experience with `R3FProvider` (see `app/(components)/wrapper/ExperienceWrapper.tsx`). Inject scenes using `useR3F().setR3FContent(<MainScene ... />)`.
 - Sanity integration: `LogoMarkers` fetches per-POI scene content via `logoMarkerStore.fetchAndSetScene` and renders in `LogoMarkerContent`/`MarkerContentOverlay`.
-- Landing page integration: `LandingPage` provides R3F context and custom cursor, with `LandingWrapper` handling video modal integration.
 - Public assets: GLBs under `public/models/`, HDRs under `public/textures/`, and atlases under `public/textures/`.
 - Responsive design: Device-specific rendering profiles automatically adjust content based on screen size and device capabilities.
 
@@ -565,10 +540,10 @@ export function Vehicles() {
 - Keep large placements in JSON and render via `InstancesFrom*` with batching (`batchSize`) for memory and render stability.
 - Avoid toggling store flags during camera animations; use the camera store actions which handle debouncing and control-mode transitions.
 - **Performance Monitoring**: The system automatically handles DPR stability during animations. Avoid manual DPR adjustments or frequent performance state changes.
-- **Animation-Aware Components**: Check animation states (`isAnimating`, `isLandingAnimating`) before triggering performance-sensitive operations.
+- **Animation-Aware Components**: Check `isAnimating` on the camera store before triggering performance-sensitive operations.
 - **Cleanup**: Always use the `reset()` method from `perfStore` when unmounting components to prevent memory leaks from debounce timeouts.
 - **Device-Aware Rendering**: Use `useRenderProfile()` to conditionally render components based on device capabilities for optimal performance.
-- **Responsive Design**: Implement responsive configurations for landing scene components using `useResponsiveConfig()`.
+- **Responsive Design**: Use `useDeviceProfile` / `useRenderProfile` for device-specific 3D feature flags.
 - **Page Visibility**: Handle page visibility changes to prevent camera glitches during focus changes.
 - Development-only controls (Leva) are hidden in production via `NEXT_PUBLIC_SITE_ENV`.
 

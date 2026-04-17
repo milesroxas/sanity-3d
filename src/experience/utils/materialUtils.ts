@@ -5,6 +5,13 @@ import * as THREE from 'three';
 // The key for the shared texture atlas used across the entire project
 export const SHARED_TEXTURE_KEY = 'LOWPOLY-COLORS';
 
+/** Single source of truth for public-folder atlas URLs */
+export const SHARED_ATLAS_TEXTURES = {
+  colorMap: '/textures/color-atlas-mono.jpg',
+  specularMap: '/textures/color-atlas-specular.png',
+  emissionMap: '/textures/color-atlas-emission-night.png',
+} as const;
+
 /**
  * Material mode configuration
  * Set to 'textured' to use custom texture atlas
@@ -32,8 +39,8 @@ export const CATEGORY_COLORS = {
   default: 0xfbf9f6, // Near-white neutral warm
 };
 
-// Preload the textures to avoid loading during render
-useTexture.preload('/textures/color-atlas-muted-1.jpg');
+// Preload the color atlas to avoid loading during render
+useTexture.preload(SHARED_ATLAS_TEXTURES.colorMap);
 
 /**
  * Creates a basic untextured material that responds to lighting
@@ -108,8 +115,7 @@ export function createSharedAtlasMaterial(
     return createBasicMaterial(color, options);
   }
 
-  // Load the external texture directly from the public folder
-  const colorTexture = useTexture('/textures/color-atlas-muted-1.jpg');
+  const colorTexture = useTexture(SHARED_ATLAS_TEXTURES.colorMap);
 
   // Configure texture settings
   colorTexture.flipY = false;

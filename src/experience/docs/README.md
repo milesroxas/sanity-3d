@@ -20,8 +20,6 @@
 
 ## Quick Links
 
-- [Sample Instance Implementation](../models/SampleInstances.tsx)
-- [Instancing Examples](../examples)
 - [Scene Compositions](../scenes/mainScene/compositions)
 - [Animation System](../animations)
 

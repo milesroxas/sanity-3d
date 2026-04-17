@@ -38,7 +38,6 @@ export default function Header({ nav, settings, mediaExperienceVideo }: HeaderPr
   const { setHeaderVisible, setNavVisible, setExperiencePage, closeMenu } = useNavigationStore();
 
   const isExperiencePage = pathname === '/';
-  const isLandingPage = false;
 
   // Update experience page state when pathname changes
   useEffect(() => {
@@ -79,8 +78,8 @@ export default function Header({ nav, settings, mediaExperienceVideo }: HeaderPr
       }
     });
 
-    // Fade out the logo as you scroll down - only on non-landing and non-experience pages
-    if (logoRef.current && headerRef.current && !isLandingPage && !isExperiencePage) {
+    // Fade out the logo as you scroll down - only on non-experience pages
+    if (logoRef.current && headerRef.current && !isExperiencePage) {
       // Add a small delay to ensure Lenis is initialized
       gsap.delayedCall(0.1, () => {
         if (logoRef.current && headerRef.current) {
@@ -97,7 +96,7 @@ export default function Header({ nav, settings, mediaExperienceVideo }: HeaderPr
         }
       });
     }
-  }, [isExperiencePage, isLandingPage, setHeaderVisible, setNavVisible, pathname]);
+  }, [isExperiencePage, setHeaderVisible, setNavVisible, pathname]);
 
   const showHeader = contextSafe(
     useCallback(() => {
@@ -183,7 +182,7 @@ export default function Header({ nav, settings, mediaExperienceVideo }: HeaderPr
   return (
     <header ref={headerRef} className="fixed top-0 z-50 w-full border-border/40 py-2">
       <div className="container relative flex h-14 items-center">
-        {!isLandingPage && !isExperiencePage && (
+        {!isExperiencePage && (
           <Link
             href="/"
             aria-label="Home page"

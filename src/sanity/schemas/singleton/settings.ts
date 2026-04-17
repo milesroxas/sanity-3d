@@ -51,7 +51,7 @@ export default defineType({
       title: 'Large Logo',
       type: 'image',
       group: 'logo',
-      description: 'Displayed on the site landing page.',
+      description: 'Large logo asset for layouts that need an oversized mark.',
       fields: [
         defineField({
           name: 'alt',

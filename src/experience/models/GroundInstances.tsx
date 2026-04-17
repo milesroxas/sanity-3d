@@ -1,9 +1,3 @@
-/**
- * SampleInstances.tsx
- * This is a comprehensive example of how to create model instances
- * in our performance-optimized 3D system.
- */
-
 import { createModelInstancing } from '@/experience/baseModels/shared/createModelInstances';
 import { ModelInstanceComponent, ModelInstances } from '@/experience/baseModels/shared/types';
 import { normalizeBlenderName } from '@/experience/utils/modelUtils';
@@ -113,49 +107,3 @@ export const {
   InstancesFromBlenderExport: GroundInstances_Blender,
   InstancesFromJSON: GroundInstancesFromJSON,
 } = GroundInstancing;
-
-/**
- * USAGE EXAMPLES:
- *
- * 1. Basic usage with shared material (most efficient):
- * ```tsx
- * <SampleInstances>
- *   <SampleInstances_Blender instancesData={blenderData} />
- * </SampleInstances>
- * ```
- *
- * 2. Models with custom materials:
- * ```tsx
- * <SampleInstances useSharedMaterial={false}>
- *   <SampleInstances_Blender instancesData={specialModelsData} />
- * </SampleInstances>
- * ```
- *
- * 3. Programmatic instances with the hook:
- * ```tsx
- * function MyComponent() {
- *   const { BasicCube, TexturedSphere } = useSampleInstances();
- *
- *   return (
- *     <>
- *       <BasicCube position={[0, 0, 0]} />
- *       <TexturedSphere>
- *         <Instance position={[10, 0, 0]} />
- *         <Instance position={[-10, 0, 0]} />
- *       </TexturedSphere>
- *     </>
- *   );
- * }
- * ```
- *
- * 4. Animated instances:
- * ```tsx
- * <BasicCube
- *   animation={{
- *     path: [[0,0,0], [10,0,10], [20,0,0], [10,0,-10]],
- *     speed: 2,
- *     loop: true
- *   }}
- * />
- * ```
- */

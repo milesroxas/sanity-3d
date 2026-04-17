@@ -16,7 +16,6 @@ import {
 } from 'react';
 import * as THREE from 'three';
 import { Loading } from '../components/Loading';
-import { useLandingCameraStore } from '../scenes/landing/store/landingCameraStore';
 import { usePerfStore } from '../scenes/store/perfStore';
 
 type R3FContextType = {
@@ -31,7 +30,6 @@ export function R3FProvider({ children }: { children: ReactNode }) {
   const [r3fContent, setR3FContent] = useState<ReactNode>(null);
   const { dprFactor, declined, reset } = usePerfStore();
   const isAnimating = useCameraStore(state => state.isAnimating);
-  const isLandingAnimating = useLandingCameraStore(state => state.isAnimating);
   const sceneContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Track page visibility to prevent performance monitoring during focus changes
@@ -71,7 +69,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
     const now = Date.now();
 
     // While any camera is animating or page is not visible, use a completely stable DPR
-    if (isAnimating || isLandingAnimating || !isPageVisible) {
+    if (isAnimating || !isPageVisible) {
       // Use a cached stable value based on device capabilities
       const frozen = Math.max(1, Math.min(2, base));
       const stabilized = Math.round(frozen * 2) / 2; // half-step granularity
@@ -102,7 +100,7 @@ export function R3FProvider({ children }: { children: ReactNode }) {
     }
 
     return stableDprRef.current;
-  }, [dprFactor, declined, isAnimating, isLandingAnimating, isPageVisible]);
+  }, [dprFactor, declined, isAnimating, isPageVisible]);
 
   return (
     <R3FContext.Provider

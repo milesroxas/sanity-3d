@@ -43,7 +43,7 @@ Notes:
 - Tablet: 768 ≤ width < 1024
 - Desktop: width ≥ 1024
 
-These match existing patterns in `landing/hooks/useResponsiveConfig.ts`.
+These align with `useDeviceProfile` / `useRenderProfile` in the main scene.
 
 ## Testing
 
