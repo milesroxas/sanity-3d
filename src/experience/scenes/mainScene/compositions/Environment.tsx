@@ -127,7 +127,7 @@ export function Environment() {
     '💡 Ambient Light',
     () => ({
       ambientIntensity: { value: 1.8, min: 0, max: 2, step: 0.05, label: 'Intensity' },
-      ambientColor: { value: '#FDF2DE', label: 'Color' },
+      ambientColor: { value: '#cebe9d', label: 'Color' },
     }),
     { collapsed: true }
   );
@@ -138,7 +138,7 @@ export function Environment() {
       '☀️ Desert Sun',
       () => ({
         sunEnabled: { value: true, label: 'Enabled' },
-        sunIntensity: { value: 2.2, min: 0, max: 5, step: 0.1, label: 'Intensity' },
+        sunIntensity: { value: 2.8, min: 0, max: 5, step: 0.1, label: 'Intensity' },
         sunColor: { value: '#ffffff', label: 'Color' },
         sunPosition: {
           value: { x: -20, y: 50, z: 15 },
@@ -158,8 +158,8 @@ export function Environment() {
     {
       fogEnabled: { value: true, label: 'Enabled' },
       fogColor: { value: '#f8f5f0', label: 'Haze Color' },
-      fogNear: { value: 200, min: 0, max: 500, step: 10, label: 'Near Distance' },
-      fogFar: { value: 600, min: 100, max: 1000, step: 20, label: 'Far Distance' },
+      fogNear: { value: 150, min: 0, max: 500, step: 10, label: 'Near Distance' },
+      fogFar: { value: 900, min: 100, max: 1000, step: 20, label: 'Far Distance' },
     },
     { collapsed: true }
   );

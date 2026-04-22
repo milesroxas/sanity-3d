@@ -6,7 +6,7 @@ export default function Fog() {
     {
       enabled: { value: false },
       color: { value: '#ffe9d7' },
-      near: { value: 80, min: -100, max: 100, step: 1 },
+      near: { value: 50, min: -100, max: 100, step: 1 },
       far: { value: 1330, min: 0, max: 2000, step: 10 },
     },
     { collapsed: true }
