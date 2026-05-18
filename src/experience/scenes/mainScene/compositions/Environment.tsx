@@ -126,8 +126,8 @@ export function Environment() {
   const [{ ambientIntensity, ambientColor }, setAmbientControls] = useControls(
     '💡 Ambient Light',
     () => ({
-      ambientIntensity: { value: 1.8, min: 0, max: 2, step: 0.05, label: 'Intensity' },
-      ambientColor: { value: '#cebe9d', label: 'Color' },
+      ambientIntensity: { value: 2, min: 0, max: 2, step: 0.05, label: 'Intensity' },
+      ambientColor: { value: '#a3906d', label: 'Color' },
     }),
     { collapsed: true }
   );
@@ -158,7 +158,7 @@ export function Environment() {
     {
       fogEnabled: { value: true, label: 'Enabled' },
       fogColor: { value: '#f8f5f0', label: 'Haze Color' },
-      fogNear: { value: 150, min: 0, max: 500, step: 10, label: 'Near Distance' },
+      fogNear: { value: 230, min: 0, max: 500, step: 10, label: 'Near Distance' },
       fogFar: { value: 900, min: 100, max: 1000, step: 20, label: 'Far Distance' },
     },
     { collapsed: true }

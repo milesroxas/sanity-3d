@@ -7,7 +7,7 @@ export const SHARED_TEXTURE_KEY = 'LOWPOLY-COLORS';
 
 /** Single source of truth for public-folder atlas URLs */
 export const SHARED_ATLAS_TEXTURES = {
-  colorMap: '/textures/color-atlast-texture-1.jpg',
+  colorMap: '/textures/color-atlas-v6.jpg',
   specularMap: '/textures/color-atlas-specular.png',
   emissionMap: '/textures/color-atlas-emission-night.png',
 } as const;

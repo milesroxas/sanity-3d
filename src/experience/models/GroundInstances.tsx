@@ -30,7 +30,7 @@ type GroundInstances = ModelInstances & {
 };
 
 // Path to the GLB file containing all models
-const MODEL_PATH = '/models/ground-2.glb';
+const MODEL_PATH = '/models/ground.glb';
 
 /**
  * The mapNodes function maps THREE.Object3D objects from the GLB file
